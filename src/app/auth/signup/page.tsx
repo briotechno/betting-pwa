@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, Gift } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
@@ -195,10 +196,10 @@ export default function SignupPage() {
                 <div className="flex-1 h-px bg-[#1a1a1a]" />
              </div>
              
-             <button className="w-full bg-[#111] border border-[#1a1a1a] hover:bg-[#1a1a1a] py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group">
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 grayscale group-hover:grayscale-0 transition-all" />
+              <button className="w-full bg-[#111] border border-[#1a1a1a] hover:bg-[#1a1a1a] py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group">
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} className="grayscale group-hover:grayscale-0 transition-all" />
                 <span className="text-[10px] font-black text-[#888] group-hover:text-white uppercase tracking-widest">Sign up with Google</span>
-             </button>
+              </button>
           </div>
 
           <p className="mt-8 text-center text-xs text-[#555] font-bold">
