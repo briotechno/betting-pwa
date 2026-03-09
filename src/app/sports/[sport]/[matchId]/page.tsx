@@ -68,7 +68,7 @@ export default function MatchDetailPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <Badge variant="live" size="xs">LIVE</Badge>
-                <span className="text-xs text-textMuted truncate">ICC Men's T20 World Cup</span>
+                <span className="text-xs text-textMuted truncate">ICC Men&apos;s T20 World Cup</span>
               </div>
               <h2 className="text-sm font-bold text-textPrimary">India vs Australia</h2>
             </div>

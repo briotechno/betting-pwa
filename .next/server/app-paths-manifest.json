@@ -1,6 +1,6 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/sports/page": "app/sports/page.js",
-  "/auth/login/page": "app/auth/login/page.js"
+  "/casino/page": "app/casino/page.js"
 }

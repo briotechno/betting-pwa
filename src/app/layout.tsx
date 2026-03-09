@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import React, { Suspense } from 'react'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
@@ -42,22 +43,23 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`}>
         <Providers>
+          <div className="flex min-h-screen">
+            {/* Sidebar - desktop only, fixed to left */}
+            <Suspense fallback={null}>
+              <Sidebar />
+            </Suspense>
 
-          {/* Sidebar - desktop only, fixed to left */}
-          <Sidebar />
+            {/* Main content area - client component to handle dynamic padding */}
+            <MainLayout>
+              {children}
+            </MainLayout>
 
-          {/* Main content area - client component to handle dynamic padding */}
-          <MainLayout>
-            {children}
-          </MainLayout>
+            {/* Bottom Navigation - mobile only */}
+            <BottomNav />
 
-          {/* Bottom Navigation - mobile only */}
-          <BottomNav />
-
-          {/* Bet Slip - desktop right / mobile bottom sheet */}
-          <BetSlip />
-
-
+            {/* Bet Slip - desktop right / mobile bottom sheet */}
+            <BetSlip />
+          </div>
         </Providers>
       </body>
     </html>

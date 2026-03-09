@@ -160,7 +160,7 @@ export default function WalletPage() {
               </div>
               <div className="h-px bg-cardBorder" />
               <div className="flex justify-between text-sm font-bold">
-                <span className="text-textPrimary">You'll Receive</span>
+                <span className="text-textPrimary">You&apos;ll Receive</span>
                 <span className="text-primary">₹{Number(depositAmount).toLocaleString()}</span>
               </div>
             </div>
