@@ -8,11 +8,7 @@
 
 # Next.js
 /.next/
-
 /out/
-
-# Production
-/.next
 /build
 
 # Misc
