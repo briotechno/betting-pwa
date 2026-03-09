@@ -184,7 +184,7 @@ function UpiPanel({ amount }: { amount: string }) {
           )}
 
           <p className="text-[10px]" style={{ color: '#555' }}>
-            After payment, click "I Have Paid" below
+            After payment, click &quot;I Have Paid&quot; below
           </p>
         </div>
       )}
@@ -375,7 +375,7 @@ function NetBankingPanel() {
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 border border-success/30">
           <CheckCircle size={13} className="text-success" />
           <p className="text-[11px] font-medium text-success">
-            {BANKS.find(b => b.id === selectedBank)?.name} selected. You'll be redirected to your bank portal.
+            {BANKS.find(b => b.id === selectedBank)?.name} selected. You&apos;ll be redirected to your bank portal.
           </p>
         </div>
       )}
@@ -579,7 +579,7 @@ export default function DepositPage() {
             ))}
             <div className="h-px" style={{ background: '#1f1f1f' }} />
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-textPrimary">You'll Receive</span>
+              <span className="text-sm font-bold text-textPrimary">You&apos;ll Receive</span>
               <span className="text-lg font-black text-primary">₹{numAmount.toLocaleString()}</span>
             </div>
           </div>

@@ -29,7 +29,7 @@ export default function MyBetsPage() {
           <Trophy size={32} className="text-textMuted" />
         </div>
         <h3 className="text-lg font-semibold text-textPrimary mb-2">No Open Bets</h3>
-        <p className="text-sm text-textMuted mb-6">You haven't placed any bets yet.</p>
+        <p className="text-sm text-textMuted mb-6">You haven&apos;t placed any bets yet.</p>
         <Link href="/sports" className="bg-primary hover:bg-primaryHover text-white font-semibold px-6 py-3 rounded-xl transition-colors">
           Start Betting
         </Link>

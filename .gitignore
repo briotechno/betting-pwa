@@ -12,6 +12,7 @@
 /out/
 
 # Production
+/.next
 /build
 
 # Misc

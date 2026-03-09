@@ -1,6 +1,13 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
+  "/auth/signup/page": "app/auth/signup/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/casino/page": "app/casino/page.js",
+  "/my-bets/page": "app/my-bets/page.js",
   "/page": "app/page.js",
+  "/sports/[sport]/[matchId]/page": "app/sports/[sport]/[matchId]/page.js",
+  "/wallet/deposit/page": "app/wallet/deposit/page.js",
   "/sports/page": "app/sports/page.js",
-  "/auth/login/page": "app/auth/login/page.js"
+  "/wallet/page": "app/wallet/page.js"
 }

@@ -6,6 +6,7 @@ import BottomNav from '@/components/layout/BottomNav'
 import BetSlip from '@/components/sportsbook/BetSlip'
 import MainLayout from '@/components/layout/MainLayout'
 import Providers from './providers'
+import { Suspense } from 'react'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -44,7 +45,9 @@ export default function RootLayout({
         <Providers>
 
           {/* Sidebar - desktop only, fixed to left */}
-          <Sidebar />
+          <Suspense fallback={null}>
+            <Sidebar />
+          </Suspense>
 
           {/* Main content area - client component to handle dynamic padding */}
           <MainLayout>
@@ -52,11 +55,14 @@ export default function RootLayout({
           </MainLayout>
 
           {/* Bottom Navigation - mobile only */}
-          <BottomNav />
+          <Suspense fallback={null}>
+            <BottomNav />
+          </Suspense>
 
           {/* Bet Slip - desktop right / mobile bottom sheet */}
-          <BetSlip />
-
+          <Suspense fallback={null}>
+            <BetSlip />
+          </Suspense>
 
         </Providers>
       </body>

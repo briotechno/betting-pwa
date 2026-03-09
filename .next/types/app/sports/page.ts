@@ -1,4 +1,4 @@
-// File: C:\Users\ASUS\Documents\GitHub\New folder\betting-pwa\src\app\sports\page.tsx
+// File: C:\Users\ASUS\Documents\GitHub\betting-pwa\src\app\sports\page.tsx
 import * as entry from '../../../../src/app/sports/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
