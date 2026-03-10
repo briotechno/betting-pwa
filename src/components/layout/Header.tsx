@@ -172,13 +172,26 @@ export default function Header() {
                         className="flex-1 py-2 text-[10px] font-black text-white text-center rounded-lg border border-[#333] hover:bg-[#1a1a1a] transition-all">WITHDRAW</Link>
                     </div>
                     <div className="max-h-[300px] overflow-y-auto no-scrollbar py-2">
-                      {['Betting P&L', 'My Transactions', 'Profile', 'My Wallet', 'Reset Password', 'Open Bets', 'Favourites', 'Notification', 'Rules & Regulations', 'Stake Settings', 'Feedback'].map((item) => (
-                        <Link key={item} href="#" onClick={() => setShowUserMenu(false)}
+                      {[
+                        { label: 'Betting P&L', href: '/betting-pl' },
+                        { label: 'My Transactions', href: '/my-transactions' },
+                        { label: 'Profile', href: '/profile' },
+                        { label: 'My Wallet', href: '/wallet' },
+                        { label: 'Reset Password', href: '/reset-password' },
+                        { label: 'Open Bets', href: '/my-bets' },
+                        { label: 'Favourites', href: '/favourites' },
+                        { label: 'Notification', href: '/notifications' },
+                        { label: 'Rules & Regulations', href: '/rules' },
+                        { label: 'Stake Settings', href: '/stake-settings' },
+                        { label: 'Feedback', href: '/feedback' }
+                      ].map((item) => (
+                        <Link key={item.label} href={item.href} onClick={() => setShowUserMenu(false)}
                           className="flex items-center px-5 py-2.5 text-[11px] font-bold text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-all uppercase tracking-tight">
-                          {item}
+                          {item.label}
                         </Link>
                       ))}
                     </div>
+
                     <div className="p-3 bg-[#050505] border-t border-[#1a1a1a]">
                       <button onClick={logout} className="w-full py-2.5 rounded-xl text-[11px] font-black text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2">
                         <LogOut size={13} /> LOGOUT
