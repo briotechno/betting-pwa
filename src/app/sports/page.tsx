@@ -5,8 +5,126 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Home, Info } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import OddsTable from '@/components/sportsbook/OddsTable'
+import SportsMarketTable from '@/components/sportsbook/SportsMarketTable'
 import BetSlip from '@/components/sportsbook/BetSlip'
 import { useBetSlipStore } from '@/store/betSlipStore'
+
+const sportsMatches = {
+  cricket: [
+    {
+      id: 'cricket-1',
+      title: 'Warriors V North West Dragons',
+      startTime: 'LIVE',
+      status: 'LIVE' as const,
+      teams: [
+        {
+          teamName: 'Warriors',
+          back: [{ price: 1.42, size: '518' }, { price: 1.43, size: '1,472' }, { price: 1.44, size: '678' }],
+          lay: [{ price: 1.45, size: '23' }, { price: 1.46, size: '268' }, { price: 1.47, size: '96' }]
+        },
+        {
+          teamName: 'North West Dragons',
+          back: [{ price: 3.10, size: '46' }, { price: 3.15, size: '124' }, { price: 3.20, size: '10' }],
+          lay: [{ price: 3.30, size: '297' }, { price: 3.35, size: '627' }, { price: 3.40, size: '216' }]
+        }
+      ]
+    },
+    {
+      id: 'cricket-2',
+      title: 'Abbottabad Region V Karachi Region Blues',
+      startTime: 'LIVE',
+      status: 'LIVE' as const,
+      teams: [
+        {
+          teamName: 'Abbottabad Region',
+          back: [{ price: 1.85, size: '973' }, { price: 1.86, size: '30' }, { price: 1.87, size: '1,166' }],
+          lay: [{ price: 1.88, size: '727' }, { price: 1.91, size: '12' }, { price: 1.92, size: '53' }]
+        },
+        {
+          teamName: 'Karachi Region Blues',
+          back: [{ price: 2.06, size: '67' }, { price: 2.08, size: '76' }, { price: 2.12, size: '645' }],
+          lay: [{ price: 2.16, size: '1,890' }, { price: 2.18, size: '853' }, { price: 2.20, size: '39' }]
+        }
+      ]
+    },
+    {
+      id: 'cricket-3',
+      title: 'Multan Region V Lahore Region Blues',
+      startTime: 'Today At 9:45 PM',
+      status: 'UPCOMING' as const,
+      teams: [
+        {
+          teamName: 'Multan Region',
+          back: [{ price: 1.76, size: '40' }, { price: 1.80, size: '4' }, { price: 1.82, size: '1' }],
+          lay: [{ price: 1.89, size: '1' }, { price: 1.90, size: '43' }, { price: 1.92, size: '13' }]
+        },
+        {
+          teamName: 'Lahore Region Blues',
+          back: [{ price: 2.06, size: '8' }, { price: 2.08, size: '15' }, { price: 2.10, size: '39' }],
+          lay: [{ price: 2.22, size: '1' }, { price: 2.26, size: '3' }, { price: 2.32, size: '30' }]
+        }
+      ]
+    },
+    {
+      id: 'cricket-4',
+      title: 'New Zealand W V Zimbabwe W',
+      startTime: 'Tomorrow At 3:30 AM',
+      status: 'UPCOMING' as const,
+      teams: [
+        {
+          teamName: 'New Zealand W',
+          back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }],
+          lay: [{ price: 1.01, size: '3,405' }, { price: 1.02, size: '13,099' }, { price: 1.03, size: '115' }]
+        },
+        {
+          teamName: 'Zimbabwe W',
+          back: [{ price: 85, size: '2' }, { price: 90, size: '1' }, { price: 100, size: '34' }],
+          lay: [{ price: 140, size: '2' }, { price: 790, size: '1' }, { price: 880, size: '1' }]
+        }
+      ]
+    }
+  ],
+  soccer: [
+    {
+      id: 'soccer-1',
+      title: 'Arsenal V Manchester City',
+      startTime: 'LIVE',
+      status: 'LIVE' as const,
+      teams: [
+        {
+          teamName: 'Arsenal',
+          back: [{ price: 2.10, size: '12k' }, { price: 2.12, size: '5k' }, { price: 2.14, size: '1k' }],
+          lay: [{ price: 2.18, size: '3k' }, { price: 2.20, size: '8k' }, { price: 2.24, size: '2k' }]
+        },
+        {
+          teamName: 'Manchester City',
+          back: [{ price: 3.40, size: '1k' }, { price: 3.45, size: '4k' }, { price: 3.50, size: '9k' }],
+          lay: [{ price: 3.60, size: '5k' }, { price: 3.70, size: '2k' }, { price: 3.80, size: '1k' }]
+        }
+      ]
+    }
+  ],
+  tennis: [
+    {
+      id: 'tennis-1',
+      title: 'Djokovic V Alcaraz',
+      startTime: 'LIVE',
+      status: 'LIVE' as const,
+      teams: [
+        {
+          teamName: 'Djokovic',
+          back: [{ price: 1.90, size: '5k' }, { price: 1.91, size: '2k' }, { price: 1.92, size: '1k' }],
+          lay: [{ price: 1.95, size: '3k' }, { price: 1.96, size: '4k' }, { price: 1.98, size: '2k' }]
+        },
+        {
+          teamName: 'Alcaraz',
+          back: [{ price: 2.02, size: '1k' }, { price: 2.04, size: '3k' }, { price: 2.06, size: '5k' }],
+          lay: [{ price: 2.10, size: '2k' }, { price: 2.12, size: '4k' }, { price: 2.14, size: '1k' }]
+        }
+      ]
+    }
+  ]
+}
 
 const sports = [
   { id: 'cricket', label: 'Cricket', emoji: '🏏', count: 15 },
@@ -111,6 +229,8 @@ function SportsPageContent() {
   const showBetSlipMargin = betSlipOpen && selections.length > 0
 
   const sportCompetitions = competitions[sportId as keyof typeof competitions] || competitions.cricket
+  
+  const currentSportMatches = (sportsMatches as any)[sportId] || sportsMatches.cricket
 
   return (
     <div className="flex h-full">
@@ -187,15 +307,8 @@ function SportsPageContent() {
             </div>
 
             {/* Odds table */}
-            <div className="overflow-x-auto pr-4">
-              <OddsTable
-                matchId="icc-t20-wc"
-                matchName={activeCompetition}
-                competition={activeCompetition}
-                marketName="Winner - ICC T20 World Cup"
-                columns={['1', '2', '3', '4', '5', '6']}
-                rows={iccT20Teams}
-              />
+            <div className="pr-4">
+              <SportsMarketTable matches={currentSportMatches} />
             </div>
           </div>
           </div>

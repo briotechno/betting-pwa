@@ -11,27 +11,18 @@ import { useI18nStore } from '@/store/i18nStore'
 const banners = [
   {
     id: 1,
-    title: 'Your Game, Your Rules',
-    subtitle: 'Bet live with FairBet!',
-    bonus: 'GET 10% JOINING BONUS',
-    gradient: 'from-[#1a0a00] via-[#3d1500] to-[#0a0520]',
-    accent: 'var(--primary)',
+    image: '/banner1.png',
+    link: '/promotions',
   },
   {
     id: 2,
-    title: '30+ Sports Available',
-    subtitle: 'Biggest market coverage',
-    bonus: 'BET ON YOUR FAVORITE SPORT',
-    gradient: 'from-[#0a1a00] via-[#152d00] to-[#081500]',
-    accent: '#22c55e',
+    image: '/banner2.png',
+    link: '/profile/refer',
   },
   {
     id: 3,
-    title: 'Premium Sportsbook',
-    subtitle: 'Best odds guaranteed',
-    bonus: 'UP TO ₹25,000 WELCOME BONUS',
-    gradient: 'from-[#00051a] via-[#001a3d] to-[#00051a]',
-    accent: '#3b82f6',
+    image: '/banner3.png',
+    link: '/sports/cricket',
   },
 ]
 
@@ -128,6 +119,48 @@ const featuredMatches = {
   ]
 }
 
+const upcomingMatches = {
+  cricket: [
+    {
+      teamName: 'IPL: Mumbai Indians vs CSK',
+      odds: [
+        { back: 1.85, backSize: '500K', lay: 1.88, laySize: '200K' },
+        { back: 0, lay: 0 },
+        { back: 2.10, backSize: '300K', lay: 2.15, laySize: '150K' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 }
+      ]
+    }
+  ],
+  soccer: [
+    {
+      teamName: 'Champions League: PSG vs Bayern',
+      odds: [
+        { back: 2.60, backSize: '1M', lay: 2.66, laySize: '500K' },
+        { back: 3.40, backSize: '200K', lay: 3.50, laySize: '100K' },
+        { back: 2.80, backSize: '400K', lay: 2.86, laySize: '200K' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 }
+      ]
+    }
+  ],
+  tennis: [
+    {
+      teamName: 'Wimbledon: Nadal vs Medvedev',
+      odds: [
+        { back: 1.90, backSize: '2M', lay: 1.94, laySize: '1M' },
+        { back: 0, lay: 0 },
+        { back: 2.05, backSize: '800K', lay: 2.10, laySize: '400K' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 }
+      ]
+    }
+  ]
+}
+
 export default function HomePage() {
   const [currentBanner, setCurrentBanner] = useState(0)
   const [activeHomeSport, setActiveHomeSport] = useState<'cricket' | 'soccer' | 'tennis'>('cricket')
@@ -143,241 +176,211 @@ export default function HomePage() {
 
   return (
     <div className="max-w-full">
-      {/* Hero Banner Carousel */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-[#0a0a0a]">
         <div
           className="flex transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
         >
           {banners.map((banner) => (
-            <div
-              key={banner.id}
-              className={`min-w-full relative bg-gradient-to-r ${banner.gradient} overflow-hidden`}
-              style={{ minHeight: '220px' }}
-            >
-              {/* Background decorative elements */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute right-0 top-0 w-64 h-64 opacity-30"
-                  style={{
-                    background: `radial-gradient(circle, ${banner.accent}40 0%, transparent 70%)`,
-                  }}
-                />
-                <div className="absolute left-1/4 top-1/2 w-32 h-32 rounded-full opacity-10"
-                  style={{ background: banner.accent }}
-                />
-              </div>
-
-              <div className="relative z-10 flex flex-col justify-center h-full px-6 py-8 md:px-12 md:py-12 lg:py-16" style={{ minHeight: '220px' }}>
-                <div className="max-w-lg">
-                  <p className="text-textSecondary text-sm md:text-base mb-1">{banner.title}</p>
-                  <h1 className="text-3xl md:text-5xl font-black mb-3 leading-tight"
-                    style={{
-                      fontStyle: 'italic',
-                      background: `linear-gradient(135deg, #fff 0%, ${banner.accent} 100%)`,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
-                  >
-                    {banner.subtitle}
-                  </h1>
-                  <div
-                    className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold"
-                    style={{
-                      border: `2px solid ${banner.accent}`,
-                      background: `${banner.accent}20`,
-                      color: banner.accent,
-                    }}
-                  >
-                    <span style={{ color: '#22c55e' }}>●</span>
-                    {banner.bonus}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Prev/Next */}
-        <button
-          onClick={() => setCurrentBanner((p) => (p - 1 + banners.length) % banners.length)}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <button
-          onClick={() => setCurrentBanner((p) => (p + 1) % banners.length)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-        >
-          <ChevronRight size={16} />
-        </button>
-
-        {/* Dots */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-          {banners.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentBanner(idx)}
-              className={`banner-dot ${idx === currentBanner ? 'active' : 'inactive'}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Sport Navigation */}
-      <div className="px-3 md:px-4 py-3 border-b border-cardBorder bg-headerBg">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {quickSports.map((sport) => (
             <Link
-              key={sport.id}
-              href={`/sports?sport=${sport.id}`}
-              className="px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0 bg-surface border border-cardBorder text-textSecondary hover:border-primary hover:text-textPrimary"
+              key={banner.id}
+              href={banner.link}
+              className="min-w-full relative block aspect-[2/1] md:aspect-[3/1] lg:aspect-[3.5/1] overflow-hidden"
             >
-              <span>{sport.emoji}</span>
-              <span className="uppercase tracking-wider">{sport.label}</span>
-              {sport.count && (
-                <span className="text-textPrimary text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold bg-primary">
-                  {sport.count > 99 ? '99+' : sport.count}
-                </span>
-              )}
+              <img
+                src={banner.image}
+                alt="Promotion"
+                className="w-full h-full object-cover object-center"
+              />
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="p-3 md:p-4 space-y-5">
-        {/* Live Games Grid */}
+
+      <div className="p-3 md:p-4 space-y-6">
+        {/* LIVE SPORTS SECTIONS */}
+        {(['cricket', 'soccer', 'tennis'] as const).map((sportId) => {
+          const sportData = quickSports.find(s => s.id === sportId)
+          const matches = featuredMatches[sportId]
+          if (!matches || matches.length === 0) return null
+
+          return (
+            <div key={sportId} className="space-y-0 rounded-xl overflow-hidden shadow-xl border border-white/5 bg-white">
+              {/* Header Block - Fairplay Style */}
+              <div className="bg-[#1a1a1a] flex items-center h-10 lg:h-12">
+                {/* Sport Label Block with Diagonal cut */}
+                <div className="bg-[#e8612c] h-full flex items-center px-4 gap-2 pr-8 relative"
+                  style={{ clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)' }}
+                >
+                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                    <span className="text-xs">{sportData?.emoji}</span>
+                  </div>
+                  <span className="text-[12px] font-black text-white uppercase tracking-wider">{sportId}</span>
+                </div>
+
+                {/* Gray Spacer / Stats area */}
+                <div className="flex-1 h-full flex items-center bg-[#222]" />
+
+                {/* Labels 1 X 2 */}
+                <div className="bg-[#111] h-full flex items-center pr-1 gap-0">
+                  <div className="flex w-[122px] justify-center">
+                    <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">1</span>
+                  </div>
+                  <div className="flex w-[122px] justify-center border-l border-white/5">
+                    <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">X</span>
+                  </div>
+                  <div className="flex w-[122px] justify-center border-l border-white/5">
+                    <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">2</span>
+                  </div>
+                </div>
+              </div>
+
+              <OddsTable
+                matchId={`featured-${sportId}`}
+                matchName={`${sportId.toUpperCase()} FEATURED`}
+                competition="Featured Matches"
+                marketName="Match Odds"
+                columns={['1', 'X', '2', '4', '5', '6']}
+                rows={matches}
+              />
+            </div>
+          )
+        })}
+
+        {/* Live Games Grid - Refined */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Live Cards */}
-          <div className="rounded-xl overflow-hidden bg-surface border border-cardBorder">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-cardBorder bg-background/40">
-              <div className="flex items-center gap-2.5">
+          <div className="rounded-xl overflow-hidden bg-[#111] border border-white/5">
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#0d0d0d] border-b border-white/5">
+              <div className="flex items-center gap-2">
                 <span className="text-lg">🃏</span>
-                <span className="text-xs font-black uppercase tracking-widest text-textPrimary">Live Cards</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white">Live Cards</span>
               </div>
-              <Link href="/casino?tab=live-cards" className="text-[10px] font-bold px-2 py-0.5 rounded border border-cardBorder hover:border-primary transition-colors text-textSecondary">MORE</Link>
+              <Link href="/casino?tab=live-cards" className="text-[9px] font-black px-2 py-0.5 rounded border border-white/10 hover:border-[#e8612c] transition-colors text-[#666] uppercase">MORE</Link>
             </div>
-            <div className="p-3 grid grid-cols-3 gap-2">
+            <div className="p-2.5 grid grid-cols-3 gap-2">
               {liveCardGames.map((game) => (
                 <Link
                   key={game.id}
                   href={`/casino/live-cards/${game.id}`}
-                  className="flex items-center justify-between px-2.5 py-2 rounded-lg transition-all bg-background border border-cardBorder"
+                  className="flex items-center justify-between px-2.5 py-2.5 rounded-lg transition-all bg-[#0a0a0a] border border-white/5 hover:border-[#e8612c30] group"
                 >
-                  <span className="text-[10px] font-bold text-textPrimary truncate flex-1 uppercase tracking-tighter">{game.name}</span>
-                  <span className="text-lg flex-shrink-0 ml-1 opacity-80">{game.emoji}</span>
+                  <span className="text-[9px] font-black text-[#888] group-hover:text-white truncate flex-1 uppercase tracking-tighter">{game.name}</span>
+                  <span className="text-lg flex-shrink-0 ml-1 opacity-60 group-hover:opacity-100 transition-opacity">{game.emoji}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Live Casino */}
-          <div className="rounded-xl overflow-hidden bg-surface border border-cardBorder">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-cardBorder bg-background/40">
-              <div className="flex items-center gap-2.5">
+          <div className="rounded-xl overflow-hidden bg-[#111] border border-white/5">
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#0d0d0d] border-b border-white/5">
+              <div className="flex items-center gap-2">
                 <span className="text-lg">🎰</span>
-                <span className="text-xs font-black uppercase tracking-widest text-textPrimary">Live Casino</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white">Live Casino</span>
               </div>
-              <Link href="/casino?tab=live" className="text-[10px] font-bold px-2 py-0.5 rounded border border-cardBorder hover:border-primary transition-colors text-textSecondary">MORE</Link>
+              <Link href="/casino?tab=live" className="text-[9px] font-black px-2 py-0.5 rounded border border-white/10 hover:border-[#e8612c] transition-colors text-[#666] uppercase">MORE</Link>
             </div>
-            <div className="p-3 grid grid-cols-3 gap-2">
+            <div className="p-2.5 grid grid-cols-3 gap-2">
               {liveCasinoGames.map((game) => (
                 <Link
                   key={game.id}
                   href={`/casino/${game.id}`}
-                  className="flex items-center justify-between px-2.5 py-2 rounded-lg transition-all"
-                  style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}
+                  className="flex items-center justify-between px-2.5 py-2.5 rounded-lg transition-all bg-[#0a0a0a] border border-white/5 hover:border-[#e8612c30] group"
                 >
-                  <span className="text-[10px] font-bold text-white truncate flex-1 uppercase tracking-tighter">{game.name}</span>
-                  <span className="text-lg flex-shrink-0 ml-1 opacity-80">{game.emoji}</span>
+                  <span className="text-[9px] font-black text-[#888] group-hover:text-white truncate flex-1 uppercase tracking-tighter">{game.name}</span>
+                  <span className="text-lg flex-shrink-0 ml-1 opacity-60 group-hover:opacity-100 transition-opacity">{game.emoji}</span>
                 </Link>
               ))}
             </div>
           </div>
         </div>
 
-        {/* IN PLAY Matches */}
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-                <h2 className="text-sm font-black text-textPrimary uppercase tracking-widest">{t('nav.featured_matches') || 'Featured Matches'}</h2>
-            
-            
-            {/* Quick Sport Selector - Convenient Icons + Layout */}
-            <div className="flex items-center gap-1.5 bg-background p-1.5 rounded-2xl border border-cardBorder shadow-inner">
-              {[
-                { id: 'cricket', emoji: '🏏', count: 15 },
-                { id: 'soccer', emoji: '⚽', count: 109 },
-                { id: 'tennis', emoji: '🎾', count: 34 },
-              ].map((sport) => (
-                <button
-                  key={sport.id}
-                  onClick={() => setActiveHomeSport(sport.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all relative ${
-                    activeHomeSport === sport.id 
-                      ? 'bg-primary text-textPrimary shadow-[0_4px_12px_rgba(var(--primary-rgb),0.3)] scale-105 z-10' 
-                      : 'text-textMuted hover:text-textSecondary hover:bg-surface'
-                  }`}
-                >
-                  <span className="text-sm leading-none">{sport.emoji}</span>
-                  <span className="hidden sm:inline">{t(`nav.${sport.id}`)}</span>
-                  {activeHomeSport === sport.id && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white animate-ping" />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <Link href="/sports" className="hidden lg:flex items-center gap-1.5 text-xs font-bold transition-all hover:text-textPrimary text-primary">
-              <span>View All</span>
-              <ChevronRight size={14} />
-            </Link>
-          </div>
-
-          <div className="bg-background rounded-2xl border border-cardBorder overflow-hidden shadow-2xl relative">
-            <div className="px-4 py-2 border-b border-cardBorder bg-surface/40 flex items-center justify-between">
-              <span className="text-[10px] font-black text-textMuted uppercase tracking-[0.2em]">Match Odds (Winner)</span>
-              <div className="flex gap-4">
-                <span className="text-[9px] font-black text-backBet uppercase">Back</span>
-                <span className="text-[9px] font-black text-layBet uppercase">Lay</span>
-              </div>
-            </div>
-            <OddsTable
-              matchId={`featured-${activeHomeSport}`}
-              matchName={`${activeHomeSport.toUpperCase()} FEATURED`}
-              competition="Featured Matches"
-              marketName="Match Odds"
-              columns={['1', 'X', '2', '4', '5', '6']}
-              rows={featuredMatches[activeHomeSport]}
+        {/* Premium GIF Banner */}
+        <div className="w-full rounded-xl overflow-hidden shadow-lg border border-white/5 bg-[#111]">
+          <Link href="/sports?sport=premium" className="block relative aspect-[21/9] md:aspect-[5/1]">
+            <img
+              src="/premium.9849a83.gif"
+              alt="Premium Sport"
+              className="w-full h-full object-cover object-center"
             />
+          </Link>
+        </div>
+
+        {/* UPCOMING EVENTS SECTIONS */}
+        <div className="mt-8 mb-4">
+          <div className="flex items-center gap-2 mb-4 px-1">
+            <div className="h-6 w-1 bg-[#e8612c] rounded-full shadow-[0_0_8px_#e8612c]" />
+            <h2 className="text-lg font-black text-white uppercase tracking-widest italic">Upcoming Events</h2>
+          </div>
+          
+          <div className="space-y-6">
+            {(['cricket', 'soccer', 'tennis'] as const).map((sportId) => {
+              const sportData = quickSports.find(s => s.id === sportId)
+              const matches = upcomingMatches[sportId as keyof typeof upcomingMatches]
+              if (!matches || matches.length === 0) return null
+
+              return (
+                <div key={`upcoming-${sportId}`} className="space-y-0 rounded-xl overflow-hidden shadow-2xl border border-white/5 bg-white transition-all hover:border-[#e8612c30]">
+                  {/* Header Block - Fairplay Style (Modified for Upcoming) */}
+                  <div className="bg-[#1a1a1a] flex items-center h-10 lg:h-12 border-b border-gray-100">
+                    <div className="bg-[#444] h-full flex items-center px-4 gap-2 pr-8 relative" 
+                      style={{ clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)' }}
+                    >
+                      <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center">
+                        <span className="text-xs">{sportData?.emoji}</span>
+                      </div>
+                      <span className="text-[12px] font-black text-white uppercase tracking-wider">{sportId}</span>
+                    </div>
+
+                    <div className="flex-1 h-full flex items-center bg-[#222] px-4">
+                      <span className="text-[10px] font-black text-[#666] uppercase tracking-[0.2em]">Next Matches</span>
+                    </div>
+
+                    <div className="bg-[#111] h-full flex items-center pr-1 gap-0">
+                      <div className="flex w-[122px] justify-center">
+                        <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">1</span>
+                      </div>
+                      <div className="flex w-[122px] justify-center border-l border-white/5">
+                        <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">X</span>
+                      </div>
+                      <div className="flex w-[122px] justify-center border-l border-white/5">
+                        <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">2</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <OddsTable
+                    matchId={`upcoming-${sportId}`}
+                    matchName={`${sportId.toUpperCase()} UPCOMING`}
+                    competition="Upcoming Matches"
+                    marketName="Match Odds"
+                    columns={['1', 'X', '2', '4', '5', '6']}
+                    rows={matches}
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        {/* Promotions Banner */}
+        {/* Live Games Promo Banners */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/promotions" className="block relative rounded-xl overflow-hidden group"
-            style={{ minHeight: '100px', background: 'linear-gradient(135deg, #7c3aed, #4f46e5, #2563eb)' }}
-          >
-            <div className="absolute inset-0 flex items-center px-6 py-4">
-              <div>
-                <p className="text-xs text-purple-200 uppercase tracking-wider font-semibold mb-1">Premium</p>
-                <h3 className="text-2xl font-black text-white">Sportsbook</h3>
-                <p className="text-xs text-purple-200 mt-1">Best odds in market</p>
-              </div>
-            </div>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-6xl opacity-30 group-hover:opacity-50 transition-opacity">🏆</div>
+          <Link href="/casino?tab=live-cards" className="block relative rounded-xl overflow-hidden shadow-lg border border-white/5">
+            <img 
+              src="/live-cards-banner2.dc9c351.gif" 
+              alt="Live Cards" 
+              className="w-full h-full object-cover"
+            />
           </Link>
 
-          <Link href="/sports" className="block relative rounded-xl overflow-hidden group"
-            style={{ minHeight: '100px', background: 'linear-gradient(135deg, #f97316, #dc2626, #991b1b)' }}
-          >
-            <div className="absolute inset-0 flex items-center px-6 py-4">
-              <div>
-                <p className="text-xs text-orange-200 uppercase tracking-wider font-semibold mb-1">Live Betting</p>
-                <h3 className="text-2xl font-black text-white">30+ Sports</h3>
-                <p className="text-xs text-orange-200 mt-1">Cricket • Football • Tennis</p>
-              </div>
-            </div>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-6xl opacity-30 group-hover:opacity-50 transition-opacity">⚡</div>
+          <Link href="/casino?tab=live" className="block relative rounded-xl overflow-hidden shadow-lg border border-white/5">
+            <img 
+              src="/live-casino-banner2.2033ef6.gif" 
+              alt="Live Casino" 
+              className="w-full h-full object-cover"
+            />
           </Link>
         </div>
       </div>

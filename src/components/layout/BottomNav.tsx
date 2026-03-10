@@ -25,10 +25,8 @@ export default function BottomNav() {
   if (!mounted || pathname?.startsWith('/auth')) return null
 
   return (
-    <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 safe-bottom bg-navBg border-t border-cardBorder"
-    >
-      <div className="flex items-center justify-around h-14">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[70] safe-bottom bg-[#000] border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.8)]">
+      <div className="flex items-center justify-around h-16">
         {navItems.map((item) => {
           const isActive = item.href === '/'
             ? pathname === '/'
@@ -38,19 +36,19 @@ export default function BottomNav() {
             <Link
               key={item.id}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 flex-1 py-1.5 transition-colors ${isActive ? 'text-primary' : 'text-textMuted'}`}
+              className={`flex flex-col items-center gap-1 flex-1 py-1 transition-all ${isActive ? 'text-[#e8612c]' : 'text-[#555]'}`}
             >
               <div className="relative">
-                <span className="text-xl">{item.icon}</span>
+                <span className={`text-2xl transition-transform ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(232,97,44,0.4)]' : ''}`}>{item.icon}</span>
                 {item.id === 'home' && selections.length > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 text-textPrimary text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center bg-primary"
+                    className="absolute -top-1 -right-1 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center bg-[#e8612c] ring-2 ring-black"
                   >
                     {selections.length}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className={`text-[9px] font-black uppercase tracking-tight ${isActive ? 'opacity-100' : 'opacity-60'}`}>{item.label}</span>
             </Link>
           )
         })}

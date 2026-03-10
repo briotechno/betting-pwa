@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, Gift } from 'lucide-react'
+import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, Gift, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 export default function SignupPage() {
@@ -17,7 +17,9 @@ export default function SignupPage() {
     username: '',
     phone: '',
     password: '',
-    referralCode: ''
+    referralCode: '',
+    promotionalEmails: true,
+    legalAgeAccepted: true
   })
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -40,172 +42,175 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000] flex items-center justify-center p-4 lg:p-8 font-sans">
-      {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-[#16a34a] opacity-[0.03] blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#e8612c] opacity-[0.03] blur-[120px]" />
+    <div className="min-h-screen relative flex items-center justify-center p-4 font-sans overflow-hidden">
+      {/* Dynamic Stadium Background */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"
+        style={{ 
+          backgroundImage: 'url("/signup-bg.png")',
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
 
-      <div className="w-full max-w-[1100px] grid lg:grid-cols-2 bg-[#0a0a0a] border border-[#1a1a1a] rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative z-10">
-        
-        {/* Left Side: Branding & Promo */}
-        <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#0d0d0d] to-[#000] border-r border-[#1a1a1a]">
-          <div>
-            <Link href="/" className="inline-flex items-center gap-1.5 mb-12 group">
-              <span className="text-4xl font-black italic tracking-tighter text-[#e8612c] group-hover:scale-105 transition-transform">fair</span>
-              <span className="text-4xl font-black italic tracking-tighter text-white">play</span>
-            </Link>
-            
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#e8612c10] border border-[#e8612c20] mb-8">
-              <Gift size={16} className="text-[#e8612c]" />
-              <span className="text-[10px] font-black text-[#e8612c] uppercase tracking-widest">Joining Bonus Active</span>
+      <div className="w-full max-w-[480px] relative z-10 flex flex-col items-center">
+        {/* Top Logo */}
+        <div className="mb-8 scale-125">
+          <Link href="/" className="flex items-center gap-1 group">
+            <span className="text-4xl font-black italic tracking-tighter text-[#e8612c]">fair</span>
+            <span className="text-4xl font-black italic text-white tracking-tighter">play</span>
+            <div className="ml-1.5 px-2 py-1 rounded bg-[#e8612c] text-white text-[10px] font-black uppercase tracking-widest leading-none">
+              VIP
             </div>
-
-            <h2 className="text-4xl font-black text-white leading-tight mb-6">
-              Join the <br />
-              <span className="text-[#16a34a]">Winning</span> Circle <br />
-              Today.
-            </h2>
-            
-            <div className="space-y-6 mt-12">
-               {[
-                 { title: '100% Secure', desc: 'Your data is encrypted and safe', icon: <ShieldCheck className="text-[#16a34a]" size={20}/> },
-                 { title: '24/7 Support', desc: 'Real-time assistance whenever you need', icon: <CheckCircle2 className="text-[#16a34a]" size={20}/> },
-               ].map((item, i) => (
-                 <div key={i} className="flex gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-[#ffffff05] flex items-center justify-center shrink-0 border border-[#1a1a1a]">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-white uppercase tracking-widest">{item.title}</h4>
-                      <p className="text-xs text-[#555] mt-0.5 font-bold">{item.desc}</p>
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-[#1a1a1a]">
-             <p className="text-[10px] font-black text-[#333] tracking-[0.4em] uppercase">The ultimate gaming destination</p>
-          </div>
+          </Link>
+          <p className="text-[10px] text-center text-white/40 font-black uppercase tracking-[0.3em] mt-1 pl-1">Greater Luck Greater Wins</p>
         </div>
 
-        {/* Right Side: Signup Form */}
-        <div className="p-8 lg:p-16 flex flex-col justify-center">
-          <div className="mb-10 text-center lg:text-left">
-             <h1 className="text-3xl font-black text-white mb-2">Create Account</h1>
-             <p className="text-xs text-[#555] font-bold">Fill in your details to get started instantly.</p>
-          </div>
-
-          <form onSubmit={handleSignup} className="space-y-5">
-            {/* Username Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Username (Optional)</label>
-              <div className="relative group">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-[#e8612c] transition-colors" />
-                <input 
-                  type="text"
-                  placeholder="Choose a screen name"
-                  className="w-full bg-[#111] border border-[#1a1a1a] focus:border-[#e8612c] rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder-[#2a2a2a] outline-none transition-all"
-                  value={formData.username}
-                  onChange={(e) => setFormData({...formData, username: e.target.value})}
-                />
-              </div>
-            </div>
-
-            {/* Phone Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Mobile Number *</label>
-              <div className="relative group">
-                <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-[#e8612c] transition-colors" />
-                <span className="absolute left-12 top-1/2 -translate-y-1/2 text-sm font-black text-[#555] border-r border-[#1a1a1a] pr-3">+91</span>
-                <input 
+        {/* Signup Container */}
+        <div className="w-full bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg p-8 shadow-2xl overflow-hidden relative group">
+          {/* Subtle border glow */}
+          <div className="absolute inset-0 border border-[#e8612c20] rounded-lg pointer-events-none group-focus-within:border-[#e8612c40] transition-colors" />
+          
+          <form onSubmit={handleSignup} className="space-y-6 relative z-10 pt-4">
+            {/* Phone Input with Country Select */}
+            <div className="relative border-b border-white/20 pb-1 group/input focus-within:border-white transition-colors">
+              <div className="flex items-center gap-3">
+                 <select className="bg-transparent text-sm font-black text-white outline-none appearance-none cursor-pointer">
+                   <option value="IN">IN</option>
+                 </select>
+                 <ChevronRight size={14} className="text-white/40 rotate-90 -ml-2" />
+                 <input 
                   type="tel"
                   required
-                  placeholder="70000 00000"
-                  className="w-full bg-[#111] border border-[#1a1a1a] focus:border-[#e8612c] rounded-2xl py-4 pl-24 pr-4 text-sm text-white placeholder-[#2a2a2a] outline-none transition-all"
+                  placeholder="Mobile*"
+                  className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/40 outline-none"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 />
               </div>
+              <span className="absolute right-0 bottom-1 text-[10px] text-white/20 font-bold">0/10</span>
             </div>
 
             {/* Password Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Password *</label>
-              <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-[#e8612c] transition-colors" />
+            <div className="relative border-b border-white/20 pb-1 focus-within:border-white transition-colors">
+              <div className="flex items-center gap-3">
+                <Lock size={16} className="text-white" />
                 <input 
                   type={showPassword ? "text" : "password"} 
                   required
-                  placeholder="Create a strong password"
-                  className="w-full bg-[#111] border border-[#1a1a1a] focus:border-[#e8612c] rounded-2xl py-4 pl-12 pr-12 text-sm text-white placeholder-[#2a2a2a] outline-none transition-all"
+                  placeholder="Password*"
+                  className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/40 outline-none"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#444] hover:text-white transition-colors"
+                  className="text-white/60 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Referral Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#444] uppercase tracking-widest ml-1">Referral Code (Optional)</label>
-              <input 
-                type="text"
-                placeholder="PROMO100"
-                className="w-full bg-[#111] border border-[#1a1a1a] focus:border-[#e8612c] rounded-2xl py-4 px-6 text-sm text-white placeholder-[#2a2a2a] outline-none transition-all"
-                value={formData.referralCode}
-                onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
-              />
+            {/* Confirm Password Input */}
+            <div className="relative border-b border-white/20 pb-1 focus-within:border-white transition-colors">
+              <div className="flex items-center gap-3">
+                <Lock size={16} className="text-white" />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  required
+                  placeholder="Confirm Password*"
+                  className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/40 outline-none"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
-            {/* Terms */}
-            <p className="text-[10px] text-[#555] font-bold px-1 leading-relaxed">
-               By clicking register, you agree to our <Link href="#" className="text-[#e8612c] hover:underline">Terms of Service</Link> and verify you are over 18.
-            </p>
+             {/* Checkboxes */}
+            <div className="space-y-4 pt-2">
+              <label className="flex items-start gap-3 cursor-pointer group/check">
+                <input 
+                  type="checkbox"
+                  className="hidden"
+                  checked={formData.promotionalEmails}
+                  onChange={(e) => setFormData({...formData, promotionalEmails: e.target.checked})}
+                />
+                <div className={`mt-0.5 w-4 h-4 rounded border transition-colors flex items-center justify-center shrink-0 ${
+                  formData.promotionalEmails ? 'bg-[#e8612c] border-[#e8612c]' : 'bg-transparent border-white/20 group-hover/check:border-[#e8612c40]'
+                }`}>
+                   {formData.promotionalEmails && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+                <span className="text-[11px] text-white/80 font-medium leading-tight select-none">I'd like to receive promotional emails and newsletter</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer group/check">
+                <input 
+                  type="checkbox"
+                  className="hidden"
+                  checked={formData.legalAgeAccepted}
+                  onChange={(e) => setFormData({...formData, legalAgeAccepted: e.target.checked})}
+                />
+                <div className={`mt-0.5 w-4 h-4 rounded border transition-colors flex items-center justify-center shrink-0 ${
+                  formData.legalAgeAccepted ? 'bg-[#e8612c] border-[#e8612c]' : 'bg-transparent border-white/20 group-hover/check:border-[#e8612c40]'
+                }`}>
+                   {formData.legalAgeAccepted && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                </div>
+                <span className="text-[11px] text-white/80 font-medium leading-tight select-none">
+                  I am of legal age 18+ to gamble and I accept the <span className="text-[#e8612c] underline">Terms And Conditions</span> & <span className="text-[#e8612c] underline">Privacy Policy</span>.
+                </span>
+              </label>
+            </div>
 
             {/* Submit Button */}
             <button 
               type="submit"
-              disabled={loading}
-              className="w-full h-14 bg-gradient-to-r from-[#e8612c] to-[#f97316] text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-950/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
+              disabled={loading || !formData.legalAgeAccepted}
+              className="w-full h-11 bg-[#5cb85c] text-white rounded-lg text-sm font-black uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-30 disabled:grayscale mt-4 shadow-lg shadow-green-900/20"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>
-                  Register Now
-                  <ChevronRight size={18} />
-                </>
+                "Register"
               )}
             </button>
-          </form>
 
-          {/* Social Logins */}
-          <div className="mt-8">
-             <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1 h-px bg-[#1a1a1a]" />
-                <span className="text-[10px] font-black text-[#333] uppercase tracking-widest">Social Gateway</span>
-                <div className="flex-1 h-px bg-[#1a1a1a]" />
-             </div>
-             
-              <button className="w-full bg-[#111] border border-[#1a1a1a] hover:bg-[#1a1a1a] py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group">
-                <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} className="grayscale group-hover:grayscale-0 transition-all" />
-                <span className="text-[10px] font-black text-[#888] group-hover:text-white uppercase tracking-widest">Sign up with Google</span>
+            {/* Social Divider */}
+            <div className="relative py-2 mt-2">
+               <div className="absolute inset-0 flex items-center">
+                 <div className="w-full border-t border-white/10" />
+               </div>
+               <div className="relative flex justify-center">
+                 <span className="bg-[#0e0e0e] px-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">or register with</span>
+               </div>
+            </div>
+
+            {/* Social Buttons */}
+            <div className="space-y-3">
+              <button type="button" className="w-full h-10 bg-white rounded-md flex items-center justify-center gap-3 transition-all hover:bg-gray-100 shadow-md">
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} />
+                <span className="text-[13px] font-bold text-gray-700">Google</span>
               </button>
-          </div>
+              
+              <button type="button" className="w-10 h-10 bg-[#4caf50] rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.539 2.01 2.057-.54c.953.52 1.908.814 3.232.815 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.772-5.769-5.772zm3.38 8.044c-.154.433-.746.793-1.044.814-.298.02-.589.117-1.921-.406-1.639-.645-2.741-2.316-2.822-2.425-.081-.109-.661-.88-.661-1.683 0-.803.414-1.198.562-1.353.148-.155.32-.193.427-.193h.305c.088 0 .141-.013.205.148l.433 1.054c.054.133.09.283.003.456-.087.173-.131.283-.26.433-.13.15-.272.336-.39.452-.132.13-.268.271-.116.533.152.262.676 1.111 1.45 1.802.997.89 1.838 1.164 2.1 1.294.262.13.415.109.57-.071.155-.181.661-.771.838-1.033.177-.262.355-.218.6-.128s1.543.727 1.808.859c.264.13.441.194.506.305.065.111.065.642-.09 1.075z" />
+                </svg>
+              </button>
+            </div>
 
-          <p className="mt-8 text-center text-xs text-[#555] font-bold">
-            Already have an account? {' '}
-            <Link href="/auth/login" className="text-[#e8612c] font-black uppercase hover:underline tracking-tight">Login Instead</Link>
-          </p>
+            {/* Login Link */}
+            <p className="text-center text-[12px] text-white/60 font-medium">
+              Already a member? <Link href="/auth/login" className="text-[#e8612c] font-black hover:underline uppercase tracking-tight">Login</Link>
+            </p>
+          </form>
         </div>
       </div>
     </div>

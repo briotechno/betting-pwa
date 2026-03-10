@@ -2,35 +2,49 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, ChevronDown, Globe, Wallet, User, X, LogOut } from 'lucide-react'
+import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useI18nStore } from '@/store/i18nStore'
 import { Language } from '@/i18n/translations'
-
-const getTabs = (t: (key: string) => string) => [
-  { id: 'inplay', label: t('nav.inplay'), emoji: null, icon: '▶', href: '/', color: '#e8612c' },
-  { id: 'premium', label: t('nav.premium'), emoji: '🏆', icon: null, href: '/sports?sport=premium' },
-  { id: 'crash', label: t('nav.crash'), emoji: '🎮', icon: null, href: '/casino?tab=crash' },
-  { id: 'livecasino', label: t('nav.live_casino'), emoji: '🎰', icon: null, href: '/casino' },
-  { id: 'slots', label: t('nav.slots'), emoji: '🎲', icon: null, href: '/casino?tab=slots' },
-]
+import { getTabs } from '@/constants/navigation'
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuthStore()
   const { selections } = useBetSlipStore()
-  const { sidebarCollapsed } = useLayoutStore()
+  const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen } = useLayoutStore()
   const { language, setLanguage, t } = useI18nStore()
   const pathname = usePathname()
 
   const [showSearch, setShowSearch] = useState(false)
-  const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [activeTab, setActiveTab] = useState('inplay')
   const [mounted, setMounted] = useState(false)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showErrors, setShowErrors] = useState(false)
 
+  const { login } = useAuthStore()
   const topTabs = getTabs(t)
+
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!username || !password) {
+      setShowErrors(true)
+      return
+    }
+
+    // Mock Login Success
+    login({
+      id: '1',
+      username: username,
+      email: `${username}@example.com`,
+      balance: 10000,
+      tier: 'Gold',
+      avatar: 'https://github.com/shadcn.png'
+    })
+  }
 
   // Prevent hydration mismatch for persisted store values
   useEffect(() => {
@@ -38,180 +52,201 @@ export default function Header() {
   }, [])
 
   return (
-    <header className={`fixed top-0 right-0 z-40 transition-all duration-300 ${sidebarCollapsed ? 'lg:left-[80px]' : 'lg:left-[220px]'} left-0`} style={{ background: '#000', borderBottom: '1px solid #1a1a1a' }}>
+    <header className="fixed top-0 left-0 right-0 z-[60] bg-black border-b border-white/5 backdrop-blur-md">
 
       {/* ── Top Row ── */}
-      <div className="flex items-center justify-between px-3 md:px-5 h-16 lg:h-18">
-        {/* Mobile Logo */}
-        <Link href="/" className="lg:hidden flex items-center gap-1 shrink-0 mr-2">
-          <span className="text-2xl font-black italic" style={{ color: '#e8612c' }}>f</span>
-          <span className="text-xl font-black italic text-white leading-none">P</span>
-        </Link>
+      <div className="flex items-center justify-between px-3 md:px-5 h-20 lg:h-[92px]">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setLeftDrawerOpen(true)}
+            className="p-2 -ml-2 text-white/70 hover:text-white transition-colors"
+          >
+            <Menu size={24} />
+          </button>
 
-        {/* Search Bar — Desktop */}
-        <div className="hidden md:flex items-center flex-1 max-w-xl mx-auto">
-          <div className="relative w-full shadow-2xl px-4">
-            <div className="relative">
-              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
-              <input
-                type="text"
-                placeholder={t('common.search')}
-                className="w-full rounded-xl py-2.5 pl-10 pr-10 text-sm text-white placeholder-gray-600 focus:outline-none transition-all"
-                style={{ background: '#111', border: '1px solid #2a2a2a' }}
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-bold text-[#444] border border-[#2a2a2a]">
-                ⌘K
-              </div>
+          {/* Desktop Logo */}
+          <Link href="/" className="hidden lg:flex items-center gap-1 group scale-110">
+            <span className="text-3xl font-black italic tracking-tighter text-[#e8612c]">fair</span>
+            <span className="text-3xl font-black italic text-white tracking-tighter">play</span>
+            <div className="ml-1.5 px-2 py-1 rounded bg-[#e8612c] text-white text-[10px] font-black uppercase tracking-widest leading-none">
+              VIP
             </div>
+          </Link>
+
+          {/* Mobile Logo */}
+          <Link href="/" className="lg:hidden flex items-center gap-0.5">
+            <span className="text-xl font-black italic tracking-tighter text-[#e8612c]">f</span>
+            <span className="text-xl font-black italic text-white tracking-tighter">p</span>
+          </Link>
+        </div>
+
+        {/* Search Bar - Repositioned */}
+        <div className="hidden lg:flex items-center flex-1 max-w-sm ml-12">
+          <div className="relative w-full">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#555]" />
+            <input
+              type="text"
+              placeholder={t('common.search')}
+              className="w-full rounded-xl py-3 pl-11 pr-4 text-xs text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c40] outline-none transition-all shadow-inner"
+            />
           </div>
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-1.5 ml-2">
-          {/* Mobile search toggle */}
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            className="md:hidden p-2 transition-colors text-[#888]"
-          >
-            <Search size={18} />
-          </button>
-
+        <div className="flex items-center gap-2 ml-auto">
           {/* Language Selector */}
           {mounted && (
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg transition-colors bg-[#111] border border-[#2a2a2a] text-[#888] hover:border-[#e8612c40]"
+                className="flex items-center gap-1.5 px-4 h-11 rounded-lg border border-[#2a2a2a] bg-[#111] text-[11px] font-black uppercase text-[#888] hover:text-white hover:border-[#e8612c40] transition-all shadow-inner"
               >
-                <Globe size={12} />
-                <span className="font-bold">{language === 'en' ? 'English' : 'हिंदी'}</span>
-                <ChevronDown size={10} className={`transition-transform ${showLangMenu ? 'rotate-180' : ''}`} />
+                <Globe size={13} className="text-[#e8612c]" />
+                <span className="min-w-[20px]">{language.toUpperCase()}</span>
+                <ChevronDown size={11} className={`transition-transform text-[#444] ${showLangMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showLangMenu && (
-                <div className="absolute top-full right-0 mt-2 w-32 rounded-xl bg-[#0d0d0d] border border-[#2a2a2a] shadow-2xl z-50 overflow-hidden py-1 animate-in fade-in zoom-in duration-200">
-                  <button
-                    onClick={() => { setLanguage('en'); setShowLangMenu(false); }}
-                    className={`w-full px-4 py-2 text-left text-xs font-bold transition-all ${language === 'en' ? 'bg-[#e8612c20] text-[#e8612c]' : 'text-[#888] hover:bg-[#1a1a1a] hover:text-white'}`}
-                  >
-                    English
-                  </button>
-                  <button
-                    onClick={() => { setLanguage('hi'); setShowLangMenu(false); }}
-                    className={`w-full px-4 py-2 text-left text-xs font-bold transition-all ${language === 'hi' ? 'bg-[#e8612c20] text-[#e8612c]' : 'text-[#888] hover:bg-[#1a1a1a] hover:text-white'}`}
-                  >
-                    हिंदी
-                  </button>
+                <div className="absolute top-full right-0 mt-2 w-40 rounded-xl bg-[#0d0d0d] border border-[#2a2a2a] shadow-2xl z-50 overflow-hidden py-1 animate-in fade-in zoom-in duration-200">
+                  <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+                    {[
+                      { id: 'en', label: 'English' },
+                      { id: 'bn', label: 'Bengali' },
+                      { id: 'gu', label: 'Gujarati' },
+                      { id: 'hi', label: 'Hindi' },
+                      { id: 'kn', label: 'Kannada' },
+                      { id: 'ml', label: 'Malayalam' },
+                      { id: 'mr', label: 'Marathi' },
+                      { id: 'ta', label: 'Tamil' },
+                      { id: 'te', label: 'Telugu' },
+                    ].map((lang) => (
+                      <button
+                        key={lang.id}
+                        onClick={() => { setLanguage(lang.id as Language); setShowLangMenu(false); }}
+                        className={`w-full px-4 py-2.5 text-left text-[11px] font-bold transition-all border-b border-white/[0.02] last:border-0 ${language === lang.id ? 'text-[#e8612c] bg-[#e8612c05]' : 'text-[#888] hover:bg-[#1a1a1a] hover:text-white'}`}
+                      >
+                        {lang.label.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* PROTECTED AUTH ZONE - HIDDEN UNTIL MOUNTED TO PREVENT HYDRATION MISMATCH */}
+          {/* AUTH SECTION */}
           {mounted && isAuthenticated && user ? (
-            <div className="flex items-center gap-2">
-              <button className="hidden md:flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg bg-[#111] border border-[#2a2a2a] text-[#aaa]">
-                {t('common.bets')}
-                {selections.length > 0 && (
-                  <span className="bg-[#e8612c] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-black">
-                    {selections.length}
-                  </span>
-                )}
+            <div className="flex items-center gap-2.5">
+              {/* Open Bets Button */}
+              <Link
+                href="/my-bets"
+                className="flex items-center h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+              >
+                {t('common.open_bets') || 'Open Bets'}
+              </Link>
+
+              {/* Deposit Now Button */}
+              <Link
+                href="/wallet/deposit"
+                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#28a745] bg-black text-[13px] font-black text-white hover:bg-[#28a74510] transition-all uppercase tracking-widest whitespace-nowrap"
+              >
+                <Wallet size={16} className="text-white" />
+                {t('common.deposit_now') || 'Deposit Now'}
+              </Link>
+
+              {/* Balance Button */}
+              <Link
+                href="/wallet"
+                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+              >
+                <Wallet size={16} className="text-white" />
+                ₹{user.balance.toLocaleString()}
+              </Link>
+
+              {/* Profile Button */}
+              <button
+                onClick={() => setProfileSidebarOpen(true)}
+                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+              >
+                <User size={16} className="text-white" />
+                {t('common.profile') || 'Profile'}
               </button>
-
-              <Link href="/wallet" className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-[#111] border border-[#2a2a2a]">
-                <Wallet size={13} className="text-[#e8612c]" />
-                <span className="font-bold text-white tracking-tight">₹{user.balance.toLocaleString()}</span>
-              </Link>
-
-              <Link href="/wallet/deposit"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-black rounded-lg text-white bg-gradient-to-r from-[#e8612c] to-[#f97316] shadow-lg shadow-orange-900/20 active:scale-95 transition-all">
-                {t('common.deposit')}
-              </Link>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 p-1.5 rounded-lg bg-[#111] border border-[#2a2a2a] hover:border-[#e8612c] transition-all">
-                  <div className="w-7 h-7 rounded-md bg-[#e8612c20] flex items-center justify-center text-[#e8612c]">
-                    <User size={16} />
-                  </div>
-                  <ChevronDown size={12} className={`text-[#444] transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showUserMenu && (
-                  <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl shadow-2xl z-50 overflow-hidden bg-[#0d0d0d] border border-[#2a2a2a] animate-in fade-in zoom-in duration-200">
-                    <div className="px-5 py-4 border-b border-[#1a1a1a]" style={{ background: '#e8612c15' }}>
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#e8612c] flex items-center justify-center text-white font-black text-xs">
-                          {user.username.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-[11px] font-black text-white uppercase tracking-wider">Hi {user.username}...</p>
-                          <p className="text-[10px] text-[#e8612c] font-black uppercase tracking-widest mt-0.5">You are in {user.tier} tier</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="py-2.5 bg-[#0a0a0a]">
-                      {[
-                        { label: 'Wallet Amount', value: `₹${user.balance.toLocaleString()}` },
-                        { label: 'Main Wallet Exposure', value: '0' },
-                        { label: 'Main Wallet Balance', value: `₹${user.balance.toLocaleString()}` },
-                        { label: 'Free Cash', value: '0' },
-                      ].map((stat, i) => (
-                        <div key={i} className="flex justify-between px-5 py-2 text-[10px] font-bold border-b border-[#1a1a1a]/40 last:border-none">
-                          <span className="text-[#666] uppercase tracking-tighter">{stat.label}</span>
-                          <span className="text-white">{stat.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 p-3 bg-[#0d0d0d] border-y border-[#1a1a1a]">
-                      <Link href="/wallet/deposit" onClick={() => setShowUserMenu(false)}
-                        className="flex-1 py-2 text-[10px] font-black text-white text-center rounded-lg bg-[#e8612c] hover:bg-[#f97316] transition-colors">DEPOSIT</Link>
-                      <Link href="/wallet" onClick={() => setShowUserMenu(false)}
-                        className="flex-1 py-2 text-[10px] font-black text-white text-center rounded-lg border border-[#333] hover:bg-[#1a1a1a] transition-all">WITHDRAW</Link>
-                    </div>
-                    <div className="max-h-[300px] overflow-y-auto no-scrollbar py-2">
-                      {[
-                        { label: 'Betting P&L', href: '/betting-pl' },
-                        { label: 'My Transactions', href: '/my-transactions' },
-                        { label: 'Profile', href: '/profile' },
-                        { label: 'My Wallet', href: '/wallet' },
-                        { label: 'Reset Password', href: '/reset-password' },
-                        { label: 'Open Bets', href: '/my-bets' },
-                        { label: 'Favourites', href: '/favourites' },
-                        { label: 'Notification', href: '/notifications' },
-                        { label: 'Rules & Regulations', href: '/rules' },
-                        { label: 'Stake Settings', href: '/stake-settings' },
-                        { label: 'Feedback', href: '/feedback' }
-                      ].map((item) => (
-                        <Link key={item.label} href={item.href} onClick={() => setShowUserMenu(false)}
-                          className="flex items-center px-5 py-2.5 text-[11px] font-bold text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-all uppercase tracking-tight">
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-
-                    <div className="p-3 bg-[#050505] border-t border-[#1a1a1a]">
-                      <button onClick={logout} className="w-full py-2.5 rounded-xl text-[11px] font-black text-red-500 hover:bg-red-500/10 transition-all flex items-center justify-center gap-2">
-                        <LogOut size={13} /> LOGOUT
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           ) : (
             mounted && (
-              <div className="flex items-center gap-2">
-                <Link href="/auth/login" className="px-4 py-2 text-xs font-bold text-[#aaa] hover:text-white transition-colors">
-                  {t('common.login')}
-                </Link>
-                <Link href="/auth/signup" className="px-5 py-2 text-xs font-black rounded-lg text-white bg-[#e8612c] hover:bg-[#f97316] shadow-lg shadow-orange-900/20 active:scale-95 transition-all">
-                  {t('common.signup')}
-                </Link>
+              <div className="hidden lg:flex items-center gap-4 ml-6" onKeyDown={(e) => e.key === 'Enter' && handleLogin()}>
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-4">
+                    {/* Username */}
+                    <div className="flex flex-col w-36">
+                      <div className={`border-b ${showErrors && !username ? 'border-[#ff5c5c]' : 'border-white/20'} pb-0.5 transition-colors`}>
+                        <input 
+                          type="text" 
+                          placeholder="Username" 
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="w-full bg-transparent text-[13px] font-medium text-white outline-none placeholder-[#888]"
+                        />
+                      </div>
+                      {showErrors && !username && (
+                        <span className="text-[10px] text-[#ff5c5c] mt-0.5 font-bold uppercase tracking-tighter">Username is required</span>
+                      )}
+                    </div>
+
+                    {/* Password */}
+                    <div className="flex flex-col w-36">
+                      <div className={`border-b ${showErrors && !password ? 'border-[#ff5c5c]' : 'border-white/20'} pb-0.5 flex items-center transition-colors`}>
+                        <input 
+                          type="password" 
+                          placeholder="Password" 
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full bg-transparent text-[13px] font-medium text-white outline-none placeholder-[#888]"
+                        />
+                        <button className="text-[#ff5c5c] ml-1 hover:opacity-80">
+                          <Eye size={16} />
+                        </button>
+                      </div>
+                      {showErrors && !password && (
+                        <span className="text-[10px] text-[#ff5c5c] mt-0.5 font-bold uppercase tracking-tighter">Password is required</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Links Row */}
+                  <div className="flex items-center justify-between mt-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                      <div className="w-3.5 h-3.5 rounded-full border border-[#e8612c] bg-white flex items-center justify-center shrink-0" />
+                      <span className="text-[10px] font-black text-[#e8612c] uppercase tracking-tighter">Remember Me</span>
+                    </label>
+                    <Link href="/auth/forgot" className="text-[10px] font-black text-[#e8612c] uppercase tracking-tighter hover:underline">Forgot Password?</Link>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 self-start pb-4">
+                  <button 
+                    onClick={() => handleLogin()}
+                    className="px-5 py-2.5 text-[11px] font-black rounded-lg text-white bg-[#e8612c] hover:bg-[#f97316] transition-all uppercase"
+                  >
+                    Login
+                  </button>
+                  <Link href="/auth/signup" className="px-5 py-2.5 text-[11px] font-black rounded-lg text-white bg-[#28a745] hover:bg-[#218838] transition-all uppercase shadow-lg shadow-green-900/10">
+                    Join Now
+                  </Link>
+                </div>
               </div>
             )
+          )}
+          {/* Mobile Auth Buttons */}
+          {mounted && !isAuthenticated && (
+            <div className="lg:hidden flex items-center gap-1.5">
+              <Link href="/auth/signup" className="px-3 py-1.5 text-[9px] font-black rounded-[4px] text-white bg-[#5cb85c] uppercase tracking-tighter shadow-lg shadow-green-900/20">
+                Join Now
+              </Link>
+              <Link href="/auth/login" className="px-3 py-1.5 text-[9px] font-black rounded-[4px] text-white bg-[#e8612c] uppercase tracking-tighter">
+                Login
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -232,32 +267,63 @@ export default function Header() {
         </div>
       )}
 
-      {/* ── Tabs Row ── */}
-      <div className="flex items-center h-12 overflow-x-auto no-scrollbar border-t border-[#1a1a1a] bg-[#0a0a0a] px-2">
-        {topTabs.map((tab) => {
+      {/* ── Sub Header / Category Nav ── */}
+      <div className="flex items-center justify-center lg:h-12 h-11 overflow-x-auto no-scrollbar border-t border-white/5 bg-[#000] px-4 gap-4">
+        {topTabs.map((tab, idx) => {
           const isActive = activeTab === tab.id
+          
+          // On mobile, only show first 3 + More button
+          const isMobileVisible = idx < 3
+          
+          if (!isMobileVisible) return null
+
           return (
             <Link
               key={tab.id}
               href={tab.href}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 h-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all shrink-0 border-b-2 ${isActive ? 'text-[#e8612c] border-[#e8612c] bg-[#e8612c08]' : 'text-[#555] border-transparent hover:text-[#888]'
-                }`}
+              className={`flex items-center gap-2 px-1 h-full text-[10px] lg:text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all shrink-0 group ${isActive ? 'text-white' : 'text-[#a5caf6]'}`}
             >
-              {tab.id === 'inplay' && (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.8)]" />
-                </div>
-              )}
-              {tab.emoji && <span className="text-sm">{tab.emoji}</span>}
-              <span>{tab.label}</span>
+              <div className="flex items-center gap-[1px]">
+                <span className="text-sm scale-110 drop-shadow-md">{tab.emoji || (tab.id === 'inplay' ? '▶' : '')}</span>
+              </div>
+              <span className={`${isActive ? 'text-[#e8612c]' : 'group-hover:text-white'} transition-colors underline-offset-[12px] decoration-2 ${isActive ? 'underline' : ''}`}>
+                {tab.label}
+              </span>
+            </Link>
+          )
+        })}
+
+        {/* More Button (Mobile Only) */}
+        <button 
+          onClick={() => setMoreMenuOpen(true)}
+          className="lg:hidden flex items-center gap-2 px-1 h-full text-[10px] font-black uppercase tracking-widest text-[#a5caf6] shrink-0"
+        >
+          <span>More</span>
+          <ChevronDown size={12} />
+        </button>
+
+        {/* Desktop Remaining Tabs */}
+        {topTabs.map((tab, idx) => {
+          const isActive = activeTab === tab.id
+          if (idx < 3) return null
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              onClick={() => setActiveTab(tab.id)}
+              className={`hidden lg:flex items-center gap-2.5 px-1 h-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all shrink-0 group ${isActive ? 'text-white' : 'text-[#a5caf6]'}`}
+            >
+              <div className="flex items-center gap-[1px]">
+                <span className="text-base scale-110 drop-shadow-md">{tab.emoji}</span>
+              </div>
+              <span className={`${isActive ? 'text-[#e8612c]' : 'group-hover:text-white'} transition-colors`}>{tab.label}</span>
             </Link>
           )
         })}
       </div>
 
-      {/* User menu backdrop */}
-      {showUserMenu && <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />}
+      {/* Profile Sidebar overlay will be handled by the ProfileSidebar component */}
     </header>
   )
 }

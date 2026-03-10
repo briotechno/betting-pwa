@@ -42,41 +42,27 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col shrink-0 transition-all duration-300 overflow-hidden fixed top-0 left-0 bottom-0 z-50 shadow-2xl bg-sidebarBg border-r border-cardBorder"
+      className="hidden lg:flex flex-col shrink-0 transition-all duration-300 overflow-hidden fixed top-[140px] left-0 bottom-0 z-50 shadow-2xl bg-[#0a0a0a] border-r border-white/5"
       style={{
-        width: collapsed ? '80px' : '220px',
+        width: collapsed ? '65px' : '200px',
       }}
     >
-      {/* ── Logo & Brand ── */}
-      <div className="flex items-center px-5 h-16 lg:h-18 border-b border-cardBorder bg-background">
-        <Link href="/" className="flex items-center gap-1 overflow-hidden group">
-          <span className="text-2xl font-black italic tracking-tighter shrink-0 transition-transform group-hover:scale-110 text-primary">fair</span>
-          {!collapsed && (
-            <div className="flex items-center animate-in slide-in-from-left duration-500">
-              <span className="text-2xl font-black italic text-textPrimary tracking-tighter">play</span>
-              <div className="ml-2 px-1.5 py-0.5 rounded bg-primary text-textPrimary text-[8px] font-black uppercase tracking-widest leading-none shadow-lg shadow-primary/30">
-                VIP
-              </div>
-            </div>
-          )}
-        </Link>
-      </div>
 
 
 
       {/* Sports Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
         {!collapsed && (
-          <p className="px-3 mb-2 text-[10px] font-black text-textMuted uppercase tracking-widest">{t('common.main_menu')}</p>
+          <p className="px-3 mb-2 text-[9px] font-black text-textMuted uppercase tracking-widest opacity-60">Main Menu</p>
         )}
         <Link
           href="/"
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
-            pathname === '/' ? 'bg-primary text-textPrimary' : 'text-textSecondary hover:bg-surface hover:text-textPrimary'
+          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all ${
+            pathname === '/' ? 'bg-[#e8612c] text-white' : 'text-[#888] hover:bg-white/5 hover:text-white'
           }`}
         >
-          <Home size={18} className={pathname === '/' ? 'text-textPrimary' : 'text-primary'} />
-          {!collapsed && <span className="text-xs font-bold uppercase tracking-wider">{t('sidebar.home')}</span>}
+          <Home size={18} className={pathname === '/' ? 'text-white' : 'text-[#e8612c]'} />
+          {!collapsed && <span className="text-[11px] font-black uppercase tracking-tight">{t('sidebar.home')}</span>}
         </Link>
 
         {visibleSports.map((sport) => {
@@ -97,18 +83,18 @@ export default function Sidebar() {
             <Link
               key={sport.id}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all relative group ${
-                isActive ? 'bg-primary text-textPrimary shadow-lg' : 'text-textSecondary hover:bg-surface hover:text-textPrimary'
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all relative group ${
+                isActive ? 'bg-[#e8612c] text-white' : 'text-[#888] hover:bg-white/5 hover:text-white'
               }`}
             >
-              <span className="text-lg shrink-0">{sport.emoji}</span>
+              <span className="text-lg shrink-0 grayscale-[20%] group-hover:grayscale-0 transition-all">{sport.emoji}</span>
               {!collapsed && (
                 <>
-                  <span className="flex-1 text-xs font-bold uppercase tracking-wide truncate">{t(`nav.${sport.id.replace('-', '_')}`)}</span>
+                  <span className="flex-1 text-[11px] font-black uppercase tracking-tight truncate">{t(`nav.${sport.id.replace('-', '_')}`)}</span>
                   {sport.count && (
                     <span
-                      className={`text-[10px] font-black rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shrink-0 ${
-                        isActive ? 'bg-textPrimary text-primary' : 'bg-surface text-textSecondary border border-cardBorder'
+                      className={`text-[9px] font-black rounded-full min-w-[22px] h-[22px] flex items-center justify-center px-1 shrink-0 ${
+                        isActive ? 'bg-white text-[#e8612c]' : 'bg-[#e8612c] text-white shadow-lg shadow-orange-900/20'
                       }`}
                     >
                       {sport.count}

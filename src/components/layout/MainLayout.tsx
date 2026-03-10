@@ -3,6 +3,7 @@ import React from 'react'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
 import Header from './Header'
+import ProfileSidebar from './ProfileSidebar'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useLayoutStore()
@@ -20,12 +21,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[80px]' : 'lg:pl-[220px]'}`}>
-      {/* Header - fixed to top, offset by sidebar */}
+    <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[65px]' : 'lg:pl-[200px]'}`}>
+      {/* Header - fixed to top, full width */}
       <Header />
+      
+      {/* Profile Sidebar - slide from right when active */}
+      <ProfileSidebar />
 
-      {/* Main page content - pt accounts for header height */}
-      <main className="min-h-screen pb-16 lg:pb-0 pt-[112px] lg:pt-[122px]" style={{ background: '#000' }}>
+      {/* Main page content - pt accounts for 2-row header height (92px top + 48px sub = 140px) */}
+      <main className="min-h-screen pb-16 lg:pb-0 pt-[128px] lg:pt-[140px]" style={{ background: '#000' }}>
         {children}
       </main>
     </div>
