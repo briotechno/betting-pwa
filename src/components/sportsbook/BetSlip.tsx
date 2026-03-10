@@ -8,39 +8,37 @@ import Button from '@/components/ui/Button'
 const QUICK_STAKES = [100, 500, 1000, 5000, 10000, 25000]
 
 export default function BetSlip() {
-  const { isOpen, selections, stakes, removeSelection, setStake, closeSlip, clearAll } = useBetSlipStore()
+  const {
+    isOpen,
+    selections,
+    stakes,
+    removeSelection,
+    setStake,
+    updateStake,
+    updateOdds,
+    confirmBeforePlace,
+    toggleConfirmBeforePlace,
+    closeSlip,
+    clearAll
+  } = useBetSlipStore()
   const pathname = usePathname()
-  const [confirmBets, setConfirmBets] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'betslip' | 'openbets'>('betslip')
 
   useEffect(() => {
     setMounted(true)
   }, [])
-  
-  // Guard returns must come AFTER all hooks
+
   if (!mounted || pathname?.startsWith('/auth')) return null
   if (!isOpen && selections.length === 0) return null
 
-  const selection = selections[0] // Single bet mode for now
-  const currentStake = selection ? (stakes[selection.id] || 0) : 0
-  const profit = selection ? (currentStake * (selection.odds - 1)).toFixed(2) : '0.00'
-
-  const handleStakeInput = (val: string) => {
-    if (!selection) return
+  const handleStakeInput = (id: string, val: string) => {
     const num = parseFloat(val) || 0
-    setStake(selection.id, num)
-  }
-
-  const handleAdjustStake = (delta: number) => {
-    if (!selection) return
-    const newStake = Math.max(0, currentStake + delta)
-    setStake(selection.id, newStake)
+    setStake(id, num)
   }
 
   return (
     <>
-      {/* Bet slip panel - shows on right side desktop, bottom sheet mobile */}
       <div className={`
         fixed z-50 bg-surface border border-cardBorder shadow-2xl
         transition-all duration-300
@@ -50,13 +48,11 @@ export default function BetSlip() {
         }
         ${isOpen ? 'animate-slide-up lg:animate-none' : ''}
       `}>
-        {/* Tabs */}
         <div className="flex border-b border-cardBorder">
           <button
             onClick={() => setActiveTab('betslip')}
-            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-              activeTab === 'betslip' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-textSecondary'
-            }`}
+            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${activeTab === 'betslip' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-textSecondary'
+              }`}
           >
             BETSLIP
             {selections.length > 0 && (
@@ -67,9 +63,8 @@ export default function BetSlip() {
           </button>
           <button
             onClick={() => setActiveTab('openbets')}
-            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-              activeTab === 'openbets' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-textSecondary'
-            }`}
+            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${activeTab === 'openbets' ? 'text-primary border-b-2 border-primary bg-primary/10' : 'text-textSecondary'
+              }`}
           >
             OPEN BETS
           </button>
@@ -97,12 +92,10 @@ export default function BetSlip() {
 
                   return (
                     <div key={sel.id} className="bg-card rounded-xl border border-cardBorder overflow-hidden">
-                      {/* Header */}
-                      <div className={`px-3 py-2 flex items-center justify-between ${
-                        sel.betType === 'back' ? 'bg-backBet/20' : 'bg-layBet/20'
-                      }`}>
+                      <div className={`px-3 py-2 flex items-center justify-between ${sel.betType === 'back' ? 'bg-backBet/20' : 'bg-layBet/20'
+                        }`}>
                         <div>
-                          <p className="text-xs font-semibold text-textPrimary">{sel.matchName}</p>
+                          <p className="text-xs font-semibold text-textPrimary uppercase tracking-tight">{sel.matchName}</p>
                           <p className="text-[10px] text-textSecondary">{sel.marketName}</p>
                         </div>
                         <button
@@ -113,18 +106,17 @@ export default function BetSlip() {
                         </button>
                       </div>
 
-                      {/* Selection Name + Odds */}
                       <div className="px-3 py-3">
-                        <p className="text-sm font-black text-textPrimary mb-3 uppercase tracking-tight">{sel.selectionName}</p>
+                        <p className="text-sm font-black text-white mb-3 uppercase tracking-tight">{sel.selectionName}</p>
 
-                        <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-2 gap-3 mb-4">
                           {/* Odds */}
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-textMuted uppercase tracking-[0.1em]">Odds</label>
-                            <div className="flex items-center bg-headerBg border border-cardBorder rounded-xl overflow-hidden shadow-inner">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-textMuted uppercase tracking-widest pl-1">Odds</label>
+                            <div className="flex items-center h-[42px] bg-[#0d0d0d] border border-cardBorder rounded-xl overflow-hidden shadow-inner">
                               <button
-                                onClick={() => {}} // In a real app, this would nudge the odds
-                                className="px-3 py-2 text-textSecondary hover:text-textPrimary bg-surfaceLight/50 hover:bg-surfaceLight transition-colors"
+                                onClick={() => updateOdds(sel.id, -0.01)}
+                                className="h-full px-3 text-textSecondary hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
                               >
                                 <Minus size={14} />
                               </button>
@@ -132,11 +124,11 @@ export default function BetSlip() {
                                 type="number"
                                 value={sel.odds}
                                 readOnly
-                                className="w-full text-center text-sm font-black text-textPrimary bg-transparent py-2 outline-none"
+                                className="w-full h-full text-center text-sm font-black text-white bg-transparent outline-none"
                               />
                               <button
-                                onClick={() => {}} // In a real app, this would nudge the odds
-                                className="px-3 py-2 text-textSecondary hover:text-textPrimary bg-surfaceLight/50 hover:bg-surfaceLight transition-colors"
+                                onClick={() => updateOdds(sel.id, 0.01)}
+                                className="h-full px-3 text-textSecondary hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
                               >
                                 <Plus size={14} />
                               </button>
@@ -144,32 +136,43 @@ export default function BetSlip() {
                           </div>
 
                           {/* Stake */}
-                          <div className="space-y-1.5 text-right">
-                            <label className="text-[10px] font-black text-textMuted uppercase tracking-[0.1em] text-right block">Stake (₹)</label>
-                            <div className="relative group">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-textMuted uppercase tracking-widest pl-1">Stake (₹)</label>
+                            <div className="flex items-center h-[42px] bg-[#0d0d0d] border border-cardBorder rounded-xl overflow-hidden shadow-inner transition-all hover:border-primary/50 focus-within:border-primary">
+                              <button
+                                onClick={() => updateStake(sel.id, -100)}
+                                className="h-full px-3 text-textSecondary hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                              >
+                                <Minus size={14} />
+                              </button>
                               <input
                                 type="number"
                                 value={stake || ''}
-                                onChange={(e) => handleStakeInput(e.target.value)}
+                                onChange={(e) => handleStakeInput(sel.id, e.target.value)}
                                 placeholder="0"
-                                className="w-full bg-headerBg border border-primary/40 focus:border-primary rounded-xl px-4 py-2 text-sm font-black text-textPrimary focus:outline-none focus:ring-1 focus:ring-primary text-right transition-all"
+                                className="w-full h-full text-center text-sm font-black text-white bg-transparent outline-none"
                               />
+                              <button
+                                onClick={() => updateStake(sel.id, 100)}
+                                className="h-full px-3 text-textSecondary hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                              >
+                                <Plus size={14} />
+                              </button>
                             </div>
                           </div>
                         </div>
 
-                        {/* Quick stakes */}
-                        <div className="mb-2">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <p className="text-[10px] text-textMuted">or Choose Your Stake Size</p>
-                            <button className="text-[10px] text-primary hover:underline">EDIT STAKES</button>
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2 px-1">
+                            <p className="text-[10px] text-textMuted font-bold uppercase tracking-tighter">or Choose Your Stake Size</p>
+                            <button className="text-[10px] text-primary font-black uppercase tracking-widest hover:underline">EDIT STAKES</button>
                           </div>
                           <div className="grid grid-cols-3 gap-1.5">
                             {QUICK_STAKES.map((qs) => (
                               <button
                                 key={qs}
-                                onClick={() => setStake(sel.id, qs)}
-                                className="py-1.5 bg-primary/20 hover:bg-primary text-textPrimary text-xs font-semibold rounded-lg border border-primary/30 hover:border-primary transition-all active:scale-95"
+                                onClick={() => updateStake(sel.id, qs)}
+                                className="py-2 bg-white/5 hover:bg-primary text-white text-[11px] font-black uppercase tracking-tight rounded-lg border border-white/5 hover:border-primary transition-all active:scale-95"
                               >
                                 +{qs >= 1000 ? `${qs / 1000}K` : qs}
                               </button>
@@ -177,64 +180,58 @@ export default function BetSlip() {
                           </div>
                         </div>
 
-                        {/* Profit preview */}
                         {stake > 0 && (
-                          <div className="bg-success/10 border border-success/30 rounded-lg px-3 py-2 mb-2">
-                            <div className="flex justify-between text-xs">
-                              <span className="text-textMuted">Potential Profit:</span>
-                              <span className="text-success font-bold">₹{selProfit}</span>
+                          <div className="bg-success/5 border border-success/20 rounded-xl px-4 py-2.5 mb-4">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-textMuted font-medium">Potential Profit:</span>
+                              <span className="text-success font-black text-sm">₹{selProfit}</span>
                             </div>
-                            <div className="flex justify-between text-xs mt-0.5">
-                              <span className="text-textMuted">Total Return:</span>
-                              <span className="text-textPrimary font-semibold">₹{(stake + parseFloat(selProfit)).toFixed(2)}</span>
+                            <div className="flex justify-between items-center text-xs mt-1">
+                              <span className="text-textMuted font-medium">Total Return:</span>
+                              <span className="text-white font-black">₹{(stake + parseFloat(selProfit)).toFixed(2)}</span>
                             </div>
                           </div>
                         )}
 
-                        {/* Info */}
-                        <div className="flex items-start gap-1.5 mb-3">
+                        <div className="flex items-start gap-1.5 mb-5 px-1">
                           <Info size={12} className="text-warn mt-0.5 flex-shrink-0" />
-                          <p className="text-[10px] text-textMuted">Min Bet: 100 Max Bet: 200000 Max Winning: 5000000</p>
+                          <p className="text-[10px] text-textMuted font-medium leading-tight">Min Bet: 100 Max Bet: 200000 Max Winning: 5000000</p>
                         </div>
 
-                        {/* Action buttons */}
-                        <div className="flex gap-3 mt-4">
+                        <div className="flex gap-2">
                           <button
                             onClick={() => removeSelection(sel.id)}
-                            className="flex-1 py-3.5 rounded-xl text-xs font-black text-textPrimary bg-surface border border-cardBorder hover:bg-surfaceLight transition-all uppercase tracking-widest active:scale-95"
+                            className="flex-1 py-3.5 rounded-xl text-[11px] font-black text-white bg-surface border border-cardBorder hover:bg-white/5 transition-all uppercase tracking-widest active:scale-95"
                           >
                             CANCEL
                           </button>
                           <button
                             disabled={stake === 0}
-                            className={`flex-1 py-3.5 rounded-xl text-xs font-black text-textPrimary transition-all uppercase tracking-widest active:scale-95 shadow-lg ${
-                                stake > 0 
-                                ? 'bg-gradient-orange shadow-primary/20' 
-                                : 'bg-surfaceLight opacity-50 cursor-not-allowed'
-                            }`}
+                            className={`flex-1 py-3.5 rounded-xl text-[11px] font-black text-white transition-all uppercase tracking-widest active:scale-95 shadow-lg ${stake > 0
+                              ? 'bg-gradient-to-r from-[#e8612c] to-[#f97316] shadow-orange-900/20'
+                              : 'bg-[#222] opacity-50 cursor-not-allowed'
+                              }`}
                           >
                             PLACE BET
-                          </button>
-                        </div>
-
-                        {/* Confirm toggle */}
-                        <div className="flex items-center justify-between mt-4">
-                          <span className="text-[10px] font-bold text-textSecondary uppercase tracking-wider">Confirm bets before placing</span>
-                          <button
-                            onClick={() => setConfirmBets(!confirmBets)}
-                            className={`w-10 h-5 rounded-full transition-all relative ${
-                              confirmBets ? 'bg-primary' : 'bg-surface'
-                            } border border-cardBorder`}
-                          >
-                            <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
-                              confirmBets ? 'translate-x-5.5' : 'translate-x-1'
-                            }`} />
                           </button>
                         </div>
                       </div>
                     </div>
                   )
                 })}
+
+                {/* Confirm Toggle - Outside selections for better usability */}
+                <div className="mt-2 flex items-center justify-between px-3 py-4 bg-white/5 rounded-2xl border border-white/5">
+                  <span className="text-[10px] font-black text-textSecondary uppercase tracking-widest px-1">Confirm bets before placing</span>
+                  <button
+                    onClick={toggleConfirmBeforePlace}
+                    className={`w-11 h-6 rounded-full transition-all relative ${confirmBeforePlace ? 'bg-[#e8612c]' : 'bg-[#333]'
+                      } border border-white/10`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out ${confirmBeforePlace ? 'translate-x-[1.375rem]' : 'translate-x-0'
+                      }`} />
+                  </button>
+                </div>
               </div>
             )}
           </div>

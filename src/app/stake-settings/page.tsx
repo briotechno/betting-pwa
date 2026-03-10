@@ -1,10 +1,18 @@
 'use client'
 import React, { useState } from 'react'
-import { Settings, Save, RotateCcw, Target, ShieldCheck, ChevronRight } from 'lucide-react'
+import { Settings, Save, RotateCcw, Target, ShieldCheck } from 'lucide-react'
 import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { useBetSlipStore } from '@/store/betSlipStore'
+
 
 export default function StakeSettingsPage() {
+  const { 
+    confirmBeforePlace, 
+    toggleConfirmBeforePlace, 
+    autoAcceptOdds, 
+    toggleAutoAcceptOdds 
+  } = useBetSlipStore()
+  
   const [stakes, setStakes] = useState(['100', '500', '1000', '2000', '5000', '10000', '25000', '50000', '100000', '250000'])
 
   const handleStakeChange = (index: number, value: string) => {
@@ -53,22 +61,42 @@ export default function StakeSettingsPage() {
         </div>
       </div>
 
-      <div className="bg-card border border-cardBorder rounded-2xl p-6">
-            <div className="flex items-center justify-between group cursor-pointer">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
-                        <ShieldCheck size={20} />
-                    </div>
-                    <div>
-                        <p className="text-sm font-bold text-white uppercase tracking-tight">Auto Accept Odds Change</p>
-                        <p className="text-[10px] text-textMuted uppercase tracking-widest font-black mt-0.5">Speed up your betting</p>
-                    </div>
-                </div>
-                <div className="w-12 h-6 rounded-full bg-primary/20 border border-primary/30 relative flex items-center px-1">
-                    <div className="w-4 h-4 rounded-full bg-primary shadow-lg shadow-primary/20 translate-x-6 transition-transform" />
-                </div>
-            </div>
+      <div className="space-y-3">
+        <div className="bg-card border border-cardBorder rounded-2xl p-6">
+              <div className="flex items-center justify-between group cursor-pointer" onClick={toggleAutoAcceptOdds}>
+                  <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+                          <ShieldCheck size={20} />
+                      </div>
+                      <div>
+                          <p className="text-sm font-bold text-white uppercase tracking-tight">Auto Accept Odds Change</p>
+                          <p className="text-[10px] text-textMuted uppercase tracking-widest font-black mt-0.5">Speed up your betting</p>
+                      </div>
+                  </div>
+                  <div className={`w-12 h-6 rounded-full border relative flex items-center px-1 transition-colors ${autoAcceptOdds ? 'bg-primary/20 border-primary/30' : 'bg-surface border-cardBorder'}`}>
+                      <div className={`w-4 h-4 rounded-full shadow-lg transition-transform ${autoAcceptOdds ? 'bg-primary translate-x-6' : 'bg-textMuted translate-x-0'}`} />
+                  </div>
+              </div>
+        </div>
+
+        <div className="bg-card border border-cardBorder rounded-2xl p-6">
+              <div className="flex items-center justify-between group cursor-pointer" onClick={toggleConfirmBeforePlace}>
+                  <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          <ShieldCheck size={20} />
+                      </div>
+                      <div>
+                          <p className="text-sm font-bold text-white uppercase tracking-tight">Confirm bets before placing</p>
+                          <p className="text-[10px] text-textMuted uppercase tracking-widest font-black mt-0.5">Safeguard your bets</p>
+                      </div>
+                  </div>
+                  <div className={`w-12 h-6 rounded-full border relative flex items-center px-1 transition-colors ${confirmBeforePlace ? 'bg-primary/20 border-primary/30' : 'bg-surface border-cardBorder'}`}>
+                      <div className={`w-4 h-4 rounded-full shadow-lg transition-transform ${confirmBeforePlace ? 'bg-primary translate-x-6' : 'bg-textMuted translate-x-0'}`} />
+                  </div>
+              </div>
+        </div>
       </div>
+
 
     </div>
   )
