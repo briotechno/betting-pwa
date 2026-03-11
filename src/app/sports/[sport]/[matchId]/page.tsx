@@ -5,6 +5,7 @@ import { ArrowLeft, Star, Share2, Clock } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import OddsTable from '@/components/sportsbook/OddsTable'
 import { useBetSlipStore } from '@/store/betSlipStore'
+import { useAuthStore } from '@/store/authStore'
 import { Info } from 'lucide-react'
 
 const marketTabs = ['Match Odds', 'Bookmaker', 'Fancy', 'Line Market']
@@ -44,9 +45,18 @@ const fancyMarkets = [
 export default function MatchDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { isAuthenticated } = useAuthStore()
   const [activeMarket, setActiveMarket] = useState('Match Odds')
   const { selections, stakes, setStake, removeSelection } = useBetSlipStore()
   const [confirmBets, setConfirmBets] = useState(false)
+
+  const handleAuthAction = (callback: () => void) => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+      return
+    }
+    callback()
+  }
 
   const QUICK_STAKES = [100, 300, 1000, 5000, 10000, 25000]
 
@@ -163,12 +173,18 @@ export default function MatchDetailPage() {
                       <tr key={fm.runner} className="border-t border-cardBorder/50 hover:bg-surface/30">
                         <td className="py-2 px-3 text-textSecondary">{fm.runner}</td>
                         <td className="py-1 px-1.5">
-                          <button className="w-full py-1.5 bg-layBet hover:bg-layBetDark text-gray-900 font-bold rounded text-xs transition-all active:scale-95">
+                          <button 
+                            onClick={() => handleAuthAction(() => {})} 
+                            className="w-full py-1.5 bg-layBet hover:bg-layBetDark text-gray-900 font-bold rounded text-xs transition-all active:scale-95"
+                          >
                             {fm.lay}
                           </button>
                         </td>
                         <td className="py-1 px-1.5">
-                          <button className="w-full py-1.5 bg-backBet hover:bg-backBetDark text-gray-900 font-bold rounded text-xs transition-all active:scale-95">
+                          <button 
+                            onClick={() => handleAuthAction(() => {})} 
+                            className="w-full py-1.5 bg-backBet hover:bg-backBetDark text-gray-900 font-bold rounded text-xs transition-all active:scale-95"
+                          >
                             {fm.back}
                           </button>
                         </td>

@@ -2,8 +2,10 @@
 import React from 'react'
 import Link from 'next/link'
 import { Clock, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import Badge from '@/components/ui/Badge'
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
+import { useAuthStore } from '@/store/authStore'
 
 interface OddsButton {
   back: number
@@ -30,6 +32,8 @@ interface MatchCardProps {
 
 export default function MatchCard({ id, teamA, teamB, competition, sport, startTime, isLive, odds }: MatchCardProps) {
   const { addSelection, selections } = useBetSlipStore()
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
 
   const handleOddsClick = (
     selectionName: string,
@@ -37,6 +41,10 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
     betType: 'back' | 'lay',
     marketName: string
   ) => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+      return
+    }
     const betId = `${id}-${selectionName}-${betType}`
     addSelection({
       id: betId,

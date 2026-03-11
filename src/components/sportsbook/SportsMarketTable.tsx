@@ -1,7 +1,9 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { MoreHorizontal, Star, Info, Play, Signal } from 'lucide-react'
 import { useBetSlipStore } from '@/store/betSlipStore'
+import { useAuthStore } from '@/store/authStore'
 
 interface OddValue {
   price: number | '-'
@@ -28,6 +30,8 @@ interface SportsMarketTableProps {
 
 export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
   const { addSelection, selections } = useBetSlipStore()
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const [expanded, setExpanded] = useState<Record<string, boolean>>(
     matches.reduce((acc, match) => ({ ...acc, [match.id]: true }), {})
   )
@@ -42,6 +46,11 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
 
   const handleOddsClick = (match: Match, team: TeamRow, odd: OddValue, type: 'back' | 'lay') => {
     if (odd.price === '-') return
+    
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+      return
+    }
     
     addSelection({
       id: `${match.id}-${team.teamName}-${odd.price}-${type}`,
@@ -114,56 +123,55 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 <tbody>
                   {match.teams.map((team, tIdx) => (
                     <tr key={team.teamName} className="bg-white">
-                      <td className="p-3 py-4 min-w-[200px]">
-                        <span className="text-[11px] font-black text-gray-800 uppercase tracking-tight">{team.teamName}</span>
+                      <td className="p-3 py-3 w-[25%] lg:w-[30%] min-w-[140px] border-r border-gray-100">
+                        <span className="text-[11px] font-black text-[#333] uppercase tracking-tight leading-normal">{team.teamName}</span>
                       </td>
                       
                       <td className="p-0 text-right">
                         <div className="flex items-center justify-end">
-                          {/* Back Odds */}
-                          {team.back.map((odd, oIdx) => (
-                            <button
-                              key={`back-${oIdx}`}
-                              onClick={() => handleOddsClick(match, team, odd, 'back')}
-                              disabled={odd.price === '-'}
-                              className={`w-[68px] h-[52px] flex flex-col items-center justify-center border-l border-gray-100/50 transition-all ${
-                                odd.price === '-' 
-                                  ? 'bg-[#f4f4f4] cursor-not-allowed opacity-40' 
-                                  : isSelected(match.id, team.teamName, odd.price as number, 'back')
-                                  ? 'bg-[#008de1] text-white shadow-inner'
-                                  : oIdx === 2 
-                                    ? 'bg-[#a5d5ff] hover:bg-[#8ec7f5] text-black' 
-                                    : 'bg-[#d2eaff] hover:bg-[#c0e0ff] text-black/60'
-                              }`}
-                            >
-                              <span className="text-[11px] font-black leading-none">{odd.price}</span>
-                              <span className={`text-[9px] font-bold mt-1 ${odd.price === '-' ? 'text-transparent' : isSelected(match.id, team.teamName, odd.price as number, 'back') ? 'text-white/70' : 'text-gray-500'}`}>
-                                {odd.size}
-                              </span>
-                            </button>
-                          ))}
+                          {/* We only show 3 market columns: 1, X, 2 */}
+                          {[0, 1, 2].map((idx) => (
+                            <div key={idx} className="flex items-center justify-center gap-[1px] md:gap-[2px] w-[92px] md:w-[122px] border-r last:border-r-0 border-gray-100">
+                              {/* Back Odds - using first back value for simplicity/alignment if data exists */}
+                              <button
+                                onClick={() => handleOddsClick(match, team, team.back[idx] || { price: '-', size: '-' }, 'back')}
+                                disabled={!team.back[idx] || team.back[idx].price === '-'}
+                                className={`w-[45px] md:w-[60px] h-[44px] md:h-[48px] flex flex-col items-center justify-center transition-all ${
+                                  !team.back[idx] || team.back[idx].price === '-' 
+                                    ? 'bg-[#f8f8f8] text-transparent' 
+                                    : isSelected(match.id, team.teamName, team.back[idx].price as number, 'back')
+                                    ? 'bg-[#1a91eb] text-white'
+                                    : 'bg-[#a5d5ff] hover:bg-[#8ec7f5] text-black'
+                                }`}
+                              >
+                                <span className="text-[10px] md:text-[11px] font-black">{team.back[idx]?.price || '-'}</span>
+                                {team.back[idx]?.size && team.back[idx].size !== '-' && (
+                                  <span className={`text-[7px] md:text-[8px] font-bold ${isSelected(match.id, team.teamName, team.back[idx].price as number, 'back') ? 'text-white/70' : 'text-black/40'}`}>
+                                    {team.back[idx].size}
+                                  </span>
+                                )}
+                              </button>
 
-                          {/* Lay Odds */}
-                          {team.lay.map((odd, oIdx) => (
-                            <button
-                              key={`lay-${oIdx}`}
-                              onClick={() => handleOddsClick(match, team, odd, 'lay')}
-                              disabled={odd.price === '-'}
-                              className={`w-[68px] h-[52px] flex flex-col items-center justify-center border-l border-gray-100/50 transition-all ${
-                                odd.price === '-' 
-                                  ? 'bg-[#f4f4f4] cursor-not-allowed opacity-40' 
-                                  : isSelected(match.id, team.teamName, odd.price as number, 'lay')
-                                  ? 'bg-[#f2708b] text-white shadow-inner'
-                                  : oIdx === 0 
-                                    ? 'bg-[#faa9ba] hover:bg-[#f5c2cd] text-black' 
-                                    : 'bg-[#f9d4db] hover:bg-[#f2b9c5] text-black/60'
-                              }`}
-                            >
-                              <span className="text-[11px] font-black leading-none">{odd.price}</span>
-                              <span className={`text-[9px] font-bold mt-1 ${odd.price === '-' ? 'text-transparent' : isSelected(match.id, team.teamName, odd.price as number, 'lay') ? 'text-white/70' : 'text-gray-500'}`}>
-                                {odd.size}
-                              </span>
-                            </button>
+                              {/* Lay Odds - using first lay value */}
+                              <button
+                                onClick={() => handleOddsClick(match, team, team.lay[idx] || { price: '-', size: '-' }, 'lay')}
+                                disabled={!team.lay[idx] || team.lay[idx].price === '-'}
+                                className={`w-[45px] md:w-[60px] h-[44px] md:h-[48px] flex flex-col items-center justify-center transition-all ${
+                                  !team.lay[idx] || team.lay[idx].price === '-' 
+                                    ? 'bg-[#f8f8f8] text-transparent' 
+                                    : isSelected(match.id, team.teamName, team.lay[idx].price as number, 'lay')
+                                    ? 'bg-[#f2708b] text-white'
+                                    : 'bg-[#faa9ba] hover:bg-[#f5c2cd] text-black'
+                                }`}
+                              >
+                                <span className="text-[10px] md:text-[11px] font-black">{team.lay[idx]?.price || '-'}</span>
+                                {team.lay[idx]?.size && team.lay[idx].size !== '-' && (
+                                  <span className={`text-[7px] md:text-[8px] font-bold ${isSelected(match.id, team.teamName, team.lay[idx].price as number, 'lay') ? 'text-white/70' : 'text-black/40'}`}>
+                                    {team.lay[idx].size}
+                                  </span>
+                                )}
+                              </button>
+                            </div>
                           ))}
                         </div>
                       </td>

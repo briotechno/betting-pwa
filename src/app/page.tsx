@@ -223,14 +223,14 @@ export default function HomePage() {
                 <div className="flex-1 h-full flex items-center bg-[#222]" />
 
                 {/* Labels 1 X 2 */}
-                <div className="bg-[#111] h-full flex items-center pr-1 gap-0">
-                  <div className="flex w-[122px] justify-center">
+                <div className="bg-[#111] h-full flex items-center pr-0 gap-0">
+                  <div className="flex w-[92px] md:w-[122px] justify-center">
                     <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">1</span>
                   </div>
-                  <div className="flex w-[122px] justify-center border-l border-white/5">
+                  <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
                     <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">X</span>
                   </div>
-                  <div className="flex w-[122px] justify-center border-l border-white/5">
+                  <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
                     <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">2</span>
                   </div>
                 </div>
@@ -338,14 +338,14 @@ export default function HomePage() {
                       <span className="text-[10px] font-black text-[#666] uppercase tracking-[0.2em]">Next Matches</span>
                     </div>
 
-                    <div className="bg-[#111] h-full flex items-center pr-1 gap-0">
-                      <div className="flex w-[122px] justify-center">
+                    <div className="bg-[#111] h-full flex items-center pr-0 gap-0">
+                      <div className="flex w-[92px] md:w-[122px] justify-center">
                         <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">1</span>
                       </div>
-                      <div className="flex w-[122px] justify-center border-l border-white/5">
+                      <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
                         <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">X</span>
                       </div>
-                      <div className="flex w-[122px] justify-center border-l border-white/5">
+                      <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
                         <span className="text-[10px] font-black text-[#555] uppercase tracking-widest">2</span>
                       </div>
                     </div>

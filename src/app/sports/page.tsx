@@ -300,14 +300,33 @@ function SportsPageContent() {
           {/* Main odds content */}
           <div className="flex-1 min-w-0">
             {/* Competition header */}
-            <div className="flex items-center gap-2 px-3 pr-5 py-2" style={{ background: '#111', borderBottom: '1px solid #1a1a1a' }}>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ background: '#e8612c', color: '#fff' }}>UPCOMING</span>
-              <span className="text-xs text-white font-medium">← {activeCompetition}</span>
-              <span className="ml-auto text-yellow-400 text-xs">★</span>
+            <div className="flex items-center gap-2 px-3 pr-0 py-0 h-10 lg:h-12 bg-[#1a1a1a] border-b border-white/5">
+              <div className="bg-[#e8612c] h-full flex items-center px-4 gap-2 pr-8 relative"
+                  style={{ clipPath: 'polygon(0 0, 90% 0, 100% 100%, 0% 100%)' }}
+              >
+                <span className="text-[10px] font-black text-white uppercase tracking-wider">Upcoming</span>
+              </div>
+              
+              <div className="flex-1 flex items-center px-4 overflow-hidden">
+                <span className="text-xs text-white/70 font-black uppercase truncate tracking-tight">{activeCompetition}</span>
+              </div>
+
+              {/* Labels 1 X 2 */}
+              <div className="bg-[#111] h-full flex items-center pr-0 gap-0">
+                <div className="flex w-[92px] md:w-[122px] justify-center">
+                  <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">1</span>
+                </div>
+                <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
+                  <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">X</span>
+                </div>
+                <div className="flex w-[92px] md:w-[122px] justify-center border-l border-white/5">
+                  <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">2</span>
+                </div>
+              </div>
             </div>
 
             {/* Odds table */}
-            <div className="pr-4">
+            <div className="bg-white">
               <SportsMarketTable matches={currentSportMatches} />
             </div>
           </div>
