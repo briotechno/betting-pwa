@@ -52,15 +52,15 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
       return
     }
     
-    addSelection({
-      id: `${match.id}-${team.teamName}-${odd.price}-${type}`,
-      matchId: match.id,
-      matchName: match.title,
-      marketName: 'Match Odds',
-      selectionName: team.teamName,
-      odds: odd.price as number,
-      betType: type
-    })
+    // Redirect to detail page with selection info
+    const selectionParams = new URLSearchParams({
+      selection: team.teamName,
+      odds: odd.price.toString(),
+      type: type,
+      market: 'Match Odds'
+    }).toString()
+
+    router.push(`/sports/cricket/${match.id}?${selectionParams}`)
   }
 
   return (

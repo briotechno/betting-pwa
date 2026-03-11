@@ -45,16 +45,15 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
       router.push('/auth/login')
       return
     }
-    const betId = `${id}-${selectionName}-${betType}`
-    addSelection({
-      id: betId,
-      matchId: id,
-      matchName: `${teamA} vs ${teamB}`,
-      marketName,
-      selectionName,
-      odds: oddsValue,
-      betType,
-    })
+
+    const selectionParams = new URLSearchParams({
+      selection: selectionName,
+      odds: oddsValue.toString(),
+      type: betType,
+      market: marketName
+    }).toString()
+
+    router.push(`/sports/${sport}/${id}?${selectionParams}`)
   }
 
   const isSelected = (selectionName: string, betType: 'back' | 'lay') => {

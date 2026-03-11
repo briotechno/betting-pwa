@@ -43,16 +43,15 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
       return
     }
 
-    const id = `${matchId}-${teamName}-${oddsValue}-${betType}`
-    addSelection({
-      id,
-      matchId,
-      matchName,
-      marketName,
-      selectionName: teamName,
-      odds: oddsValue,
-      betType,
-    })
+    // Redirect to detail page with selection info
+    const selectionParams = new URLSearchParams({
+      selection: teamName,
+      odds: oddsValue.toString(),
+      type: betType,
+      market: marketName
+    }).toString()
+
+    router.push(`/sports/cricket/${matchId}?${selectionParams}`)
   }
 
   return (
