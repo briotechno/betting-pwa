@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu } from 'lucide-react'
+import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
@@ -55,8 +55,8 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-[60] bg-black border-b border-white/5 backdrop-blur-md">
 
       {/* ── Top Row ── */}
-      <div className="flex items-center justify-between px-3 md:px-5 h-20 lg:h-[92px]">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-2 md:px-5 h-20 lg:h-[92px]">
+        <div className="flex items-center gap-2 md:gap-4">
           <button 
             onClick={() => setLeftDrawerOpen(true)}
             className="p-2 -ml-2 text-white/70 hover:text-white transition-colors"
@@ -93,15 +93,15 @@ export default function Header() {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Language Selector */}
+        <div className="flex items-center gap-1 md:gap-2 ml-auto">
+          {/* Language Selector (Desktop) */}
           {mounted && (
-            <div className="relative">
+            <div className="relative hidden md:block">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1.5 px-4 h-11 rounded-lg border border-[#2a2a2a] bg-[#111] text-[11px] font-black uppercase text-[#888] hover:text-white hover:border-[#e8612c40] transition-all shadow-inner"
+                className="flex items-center gap-1 md:gap-1.5 px-2 md:px-4 h-8 md:h-11 rounded-lg border border-[#2a2a2a] bg-[#111] text-[9px] md:text-[11px] font-black uppercase text-[#888] hover:text-white hover:border-[#e8612c40] transition-all shadow-inner"
               >
-                <Globe size={13} className="text-[#e8612c]" />
+                <Globe size={11} className="text-[#e8612c] md:w-3.5 md:h-3.5" />
                 <span className="min-w-[20px]">{language.toUpperCase()}</span>
                 <ChevronDown size={11} className={`transition-transform text-[#444] ${showLangMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -134,42 +134,53 @@ export default function Header() {
             </div>
           )}
 
+          {/* Mobile Search Toggle */}
+          {mounted && (
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-[#2a2a2a] bg-[#111] text-[#888] hover:text-white transition-all shadow-inner"
+            >
+              {showSearch ? <X size={16} /> : <Search size={16} className="text-[#e8612c]" />}
+            </button>
+          )}
+
           {/* AUTH SECTION */}
           {mounted && isAuthenticated && user ? (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1 md:gap-2.5">
               {/* Open Bets Button */}
               <Link
                 href="/my-bets"
-                className="flex items-center h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+                className="flex items-center gap-1.5 md:gap-2 h-8 md:h-10 px-2 md:px-6 rounded-lg border border-[#e8612c] bg-black text-[10px] md:text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
               >
-                {t('common.open_bets') || 'Open Bets'}
+                <FileText size={14} className="text-white md:w-4 md:h-4" />
+                <span className="hidden md:inline">{t('common.open_bets') || 'Open Bets'}</span>
               </Link>
 
               {/* Deposit Now Button */}
               <Link
                 href="/wallet/deposit"
-                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#28a745] bg-black text-[13px] font-black text-white hover:bg-[#28a74510] transition-all uppercase tracking-widest whitespace-nowrap"
+                className="flex items-center gap-1.5 md:gap-2 h-8 md:h-10 px-2 md:px-6 rounded-lg border border-[#28a745] bg-black text-[10px] md:text-[13px] font-black text-white hover:bg-[#28a74510] transition-all uppercase tracking-widest whitespace-nowrap"
               >
-                <Wallet size={16} className="text-white" />
-                {t('common.deposit_now') || 'Deposit Now'}
+                <Wallet size={14} className="text-white md:w-4 md:h-4" />
+                <span className="hidden md:inline">{t('common.deposit_now') || 'Deposit Now'}</span>
               </Link>
 
               {/* Balance Button */}
               <Link
                 href="/wallet"
-                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+                className="flex items-center gap-1.5 md:gap-2 h-8 md:h-10 px-2 md:px-6 rounded-lg border border-[#e8612c] bg-black text-[10px] md:text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
               >
-                <Wallet size={16} className="text-white" />
+                <Wallet size={14} className="text-white md:w-4 md:h-4" />
                 ₹{user.balance.toLocaleString()}
               </Link>
 
               {/* Profile Button */}
               <button
                 onClick={() => setProfileSidebarOpen(true)}
-                className="flex items-center gap-2 h-10 px-6 rounded-lg border border-[#e8612c] bg-black text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
+                className="flex items-center gap-1.5 md:gap-2 h-8 md:h-10 px-2 md:px-6 rounded-lg border border-[#e8612c] bg-black text-[10px] md:text-[13px] font-black text-white hover:bg-white/5 transition-all uppercase tracking-widest whitespace-nowrap"
               >
-                <User size={16} className="text-white" />
-                {t('common.profile') || 'Profile'}
+                <User size={14} className="text-white md:w-4 md:h-4" />
+                <span className="hidden md:inline">{t('common.profile') || 'Profile'}</span>
               </button>
             </div>
           ) : (
@@ -254,14 +265,16 @@ export default function Header() {
       {/* Language backdrop */}
       {showLangMenu && <div className="fixed inset-0 z-40" onClick={() => setShowLangMenu(false)} />}
 
-      {/* Mobile search bar (expandable) */}
+      {/* Mobile search popup */}
       {showSearch && (
-        <div className="lg:hidden px-4 pb-3 border-t border-[#1a1a1a] pt-3 animate-in slide-in-from-top duration-300">
+        <div className="md:hidden absolute top-20 left-4 right-4 bg-[#0d0d0d] border border-[#2a2a2a] rounded-xl p-3 shadow-2xl z-[70] animate-in fade-in zoom-in-95 duration-200">
           <div className="relative">
             <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#555]" />
             <input
-              type="text" placeholder="Search Markets..." autoFocus
-              className="w-full rounded-xl py-3 pl-11 pr-4 text-sm text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c] focus:outline-none transition-all"
+              type="text" 
+              placeholder="Search Markets..." 
+              autoFocus
+              className="w-full rounded-lg py-2.5 pl-11 pr-4 text-xs text-white bg-black border border-white/10 focus:border-[#e8612c40] focus:outline-none transition-all"
             />
           </div>
         </div>

@@ -13,10 +13,14 @@ import {
   Share2, 
   FileText, 
   ChevronRight,
-  Menu
+  Menu,
+  Globe,
+  ChevronDown
 } from 'lucide-react'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useAuthStore } from '@/store/authStore'
+import { useI18nStore } from '@/store/i18nStore'
+import { Language } from '@/i18n/translations'
 
 const menuItems = [
   { id: 'market', label: 'Market', icon: Store, href: '/sports' },
@@ -33,7 +37,9 @@ const menuItems = [
 export default function LeftDrawer() {
   const { leftDrawerOpen, setLeftDrawerOpen } = useLayoutStore()
   const { user, isAuthenticated } = useAuthStore()
+  const { language, setLanguage } = useI18nStore()
   const [mounted, setMounted] = useState(false)
+  const [showLangMenu, setShowLangMenu] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -96,6 +102,51 @@ export default function LeftDrawer() {
               <ChevronRight size={14} className="text-white/20 group-hover:text-white/40 transition-colors" />
             </Link>
           ))}
+
+          {/* Language Selector (Mobile) */}
+          <div className="mt-2 border-t border-white/5">
+            <button
+              onClick={() => setShowLangMenu(!showLangMenu)}
+              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-white/5 transition-all group"
+            >
+              <Globe size={20} className="text-[#e8612c]" />
+              <span className="flex-1 text-[13px] font-black text-white uppercase tracking-tight text-left">Language</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black text-[#e8612c] uppercase">{language}</span>
+                <ChevronDown size={14} className={`text-white/20 transition-transform ${showLangMenu ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+            
+            {showLangMenu && (
+              <div className="bg-[#0a0a0a] border-y border-white/5 py-1 animate-in slide-in-from-top-2 duration-200">
+                {[
+                  { id: 'en', label: 'English' },
+                  { id: 'bn', label: 'Bengali' },
+                  { id: 'gu', label: 'Gujarati' },
+                  { id: 'hi', label: 'Hindi' },
+                  { id: 'kn', label: 'Kannada' },
+                  { id: 'ml', label: 'Malayalam' },
+                  { id: 'mr', label: 'Marathi' },
+                  { id: 'ta', label: 'Tamil' },
+                  { id: 'te', label: 'Telugu' },
+                ].map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => { 
+                      setLanguage(lang.id as Language); 
+                      setShowLangMenu(false);
+                      // Optionally close drawer: setLeftDrawerOpen(false);
+                    }}
+                    className={`w-full px-12 py-3 text-left text-[11px] font-bold transition-all ${
+                      language === lang.id ? 'text-[#e8612c] bg-[#e8612c05]' : 'text-[#888] hover:text-white'
+                    }`}
+                  >
+                    {lang.label.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer / Download Button */}
