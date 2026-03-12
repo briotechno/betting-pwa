@@ -5,12 +5,12 @@ import Sidebar from '@/components/layout/Sidebar'
 import LeftDrawer from '@/components/layout/LeftDrawer'
 import ProfileSidebar from '@/components/layout/ProfileSidebar'
 import CategoryMoreDrawer from '@/components/layout/CategoryMoreDrawer'
+import SearchModal from '@/components/layout/SearchModal'
 import BottomNav from '@/components/layout/BottomNav'
 import BetSlip from '@/components/sportsbook/BetSlip'
 import MainLayout from '@/components/layout/MainLayout'
 import Providers from './providers'
 import { Suspense } from 'react'
-
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -77,6 +77,10 @@ export default function RootLayout({
 
           <Suspense fallback={null}>
             <CategoryMoreDrawer />
+          </Suspense>
+
+          <Suspense fallback={null}>
+            <SearchModal />
           </Suspense>
 
         </Providers>

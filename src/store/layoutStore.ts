@@ -9,6 +9,8 @@ interface LayoutState {
   setLeftDrawerOpen: (open: boolean) => void
   moreMenuOpen: boolean
   setMoreMenuOpen: (open: boolean) => void
+  searchModalOpen: boolean
+  setSearchModalOpen: (open: boolean) => void
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
@@ -20,4 +22,6 @@ export const useLayoutStore = create<LayoutState>((set) => ({
   setLeftDrawerOpen: (open) => set({ leftDrawerOpen: open }),
   moreMenuOpen: false,
   setMoreMenuOpen: (open) => set({ moreMenuOpen: open }),
+  searchModalOpen: false,
+  setSearchModalOpen: (open) => set({ searchModalOpen: open }),
 }))
