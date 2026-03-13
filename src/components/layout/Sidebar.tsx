@@ -66,18 +66,15 @@ export default function Sidebar() {
         </Link>
 
         {visibleSports.map((sport) => {
-          let href = `/sports?sport=${sport.id}`
-          if (sport.id === 'casino') href = '/casino'
-          if (sport.id === 'live-card') href = '/casino?tab=live'
-          if (sport.id === 'slot-games') href = '/casino?tab=slots'
+          let href = `/sportsbook?sport=${sport.id}`
+          if (sport.id === 'casino') href = '/markets/live-casino'
+          if (sport.id === 'live-card') href = '/markets/live-casino'
+          if (sport.id === 'slot-games') href = '/casino-slots'
 
           const isActive =
-            (pathname === '/sports' && (currentSport === sport.id || (!currentSport && sport.id === 'cricket'))) ||
-            (pathname === '/casino' && (
-              (sport.id === 'casino' && !currentTab) ||
-              (sport.id === 'live-card' && currentTab === 'live') ||
-              (sport.id === 'slot-games' && currentTab === 'slots')
-            ))
+            (pathname === '/sportsbook' && (currentSport === sport.id || (!currentSport && sport.id === 'cricket'))) ||
+            (pathname === '/markets/live-casino' && (sport.id === 'casino' || sport.id === 'live-card')) ||
+            (pathname === '/casino-slots' && sport.id === 'slot-games')
 
           return (
             <Link
