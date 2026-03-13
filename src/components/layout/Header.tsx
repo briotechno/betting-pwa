@@ -148,8 +148,8 @@ export default function Header() {
       <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-20 relative z-[50]">
         <div className="flex w-[95%] h-[60px] p-2 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
           <Link 
-            href="/in-play" 
-            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/in-play' ? 'opacity-100 scale-105' : 'opacity-60'}`}
+            href="/" 
+            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/' ? 'opacity-100 scale-105' : 'opacity-60'}`}
           >
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
