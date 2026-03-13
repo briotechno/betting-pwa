@@ -118,8 +118,8 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                               w-[70px] md:w-[92px] lg:w-[100px] h-[38px] md:h-[42px] rounded-md flex flex-col items-center justify-center transition-all
                               ${!isMobileCell ? 'hidden lg:flex' : 'flex'}
                               ${isLay 
-                                ? (!odd.lay ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.lay, 'lay') ? 'bg-[#f8d7da] text-[#721c24]' : 'bg-[#f8d7da] hover:bg-[#f5c6cb] text-[#333]') 
-                                : (!odd.back ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.back, 'back') ? 'bg-[#b6daff] text-[#004085]' : 'bg-[#b6daff] hover:bg-[#a5d1ff] text-[#333]')
+                                ? (!odd.lay ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.lay, 'lay') ? 'bg-[#f2708b] text-white' : 'bg-[#f8d0ce] hover:bg-[#f5c6cb] text-[#333]') 
+                                : (!odd.back ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.back, 'back') ? 'bg-[#1a91eb] text-white' : 'bg-[#a5d9fe] hover:bg-[#a5d1ff] text-[#333]')
                               }
                             `}
                           >

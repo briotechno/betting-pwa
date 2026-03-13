@@ -135,7 +135,7 @@ export default function BetSlip({ inline = false }: BetSlipProps) {
                       return (
                         <div key={sel.id} className="bg-card rounded-xl border border-cardBorder overflow-hidden shadow-lg hover:border-white/10 transition-colors">
                           {/* Selection Header */}
-                          <div className={`px-3 py-2 flex items-center justify-between ${sel.betType === 'back' ? 'bg-[#1a91eb]/15' : 'bg-[#f2708b]/15'
+                          <div className={`px-3 py-2 flex items-center justify-between ${sel.betType === 'back' ? 'bg-[#a5d9fe]/20' : 'bg-[#f8d0ce]/20'
                             }`}>
                             <div className="flex-1 min-w-0">
                               <p className="text-[9px] font-black text-white/40 uppercase tracking-tighter truncate">{sel.matchName}</p>
@@ -152,7 +152,7 @@ export default function BetSlip({ inline = false }: BetSlipProps) {
                           <div className="p-3">
                             <div className="flex items-center justify-between mb-3">
                                 <p className="text-xs font-black text-white uppercase tracking-tight">{sel.selectionName}</p>
-                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${sel.betType === 'back' ? 'bg-[#1a91eb] text-white' : 'bg-[#f2708b] text-white'}`}>
+                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${sel.betType === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>
                                     {sel.betType}
                                 </span>
                             </div>

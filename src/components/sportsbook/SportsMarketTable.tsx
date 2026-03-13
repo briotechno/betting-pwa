@@ -141,7 +141,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                                     ? 'bg-[#f8f8f8] text-transparent' 
                                     : isSelected(match.id, team.teamName, team.back[idx].price as number, 'back')
                                     ? 'bg-[#1a91eb] text-white'
-                                    : 'bg-[#a5d5ff] hover:bg-[#8ec7f5] text-black'
+                                    : 'bg-[#a5d9fe] hover:bg-[#8ec7f5] text-black'
                                 }`}
                               >
                                 <span className="text-[10px] md:text-[11px] font-black">{team.back[idx]?.price || '-'}</span>
@@ -161,7 +161,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                                     ? 'bg-[#f8f8f8] text-transparent' 
                                     : isSelected(match.id, team.teamName, team.lay[idx].price as number, 'lay')
                                     ? 'bg-[#f2708b] text-white'
-                                    : 'bg-[#faa9ba] hover:bg-[#f5c2cd] text-black'
+                                    : 'bg-[#f8d0ce] hover:bg-[#f5c2cd] text-black'
                                 }`}
                               >
                                 <span className="text-[10px] md:text-[11px] font-black">{team.lay[idx]?.price || '-'}</span>

@@ -34,7 +34,7 @@ export default function InlineBetContainer({
     }
 
     return (
-        <div className="bg-white p-3 border-x-[1.5px] border-b-[1.5px] border-[#a5d9fe] space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className={`bg-white p-3 border-x-[1.5px] border-b-[1.5px] ${type === 'back' ? 'border-[#a5d9fe]' : 'border-[#f8d0ce]'} space-y-4 animate-in fade-in slide-in-from-top-1 duration-200`}>
             {/* Header / Context */}
             <div className="space-y-0.5">
                 <p className="text-[12px] font-bold text-[#333] leading-tight">{matchName}</p>

@@ -150,12 +150,12 @@ export default function SportsbookPage() {
                 </div>
                 <div className="flex h-full">
                   {/* Back Box */}
-                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#b1c8d8] border-l border-white/30">
+                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#a5d9fe] border-l border-white/30">
                     <span className="text-[14px] font-black text-[#2e2e2e] leading-none mb-0.5">{match.odds[0].back}</span>
                     <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{match.odds[0].backVol}</span>
                   </div>
                   {/* Lay Box */}
-                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#faa9ba] border-l border-white/30">
+                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#f8d0ce] border-l border-white/30">
                     <span className="text-[14px] font-black text-[#2e2e2e] leading-none mb-0.5">{match.odds[0].lay}</span>
                     <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{match.odds[0].layVol}</span>
                   </div>
@@ -168,11 +168,11 @@ export default function SportsbookPage() {
                   <span className="text-[14px] font-bold text-gray-800 tracking-tight">{match.teamB}</span>
                 </div>
                 <div className="flex h-full">
-                   <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#b1c8d8] border-l border-white/30">
+                   <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#a5d9fe] border-l border-white/30">
                     <span className="text-[14px] font-black text-[#2e2e2e] leading-none mb-0.5">{match.odds[1].back}</span>
                     <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{match.odds[1].backVol}</span>
                   </div>
-                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#faa9ba] border-l border-white/30">
+                  <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#f8d0ce] border-l border-white/30">
                     <span className="text-[14px] font-black text-[#2e2e2e] leading-none mb-0.5">{match.odds[1].lay}</span>
                     <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{match.odds[1].layVol}</span>
                   </div>
