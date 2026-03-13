@@ -6,7 +6,7 @@ import { Home, Trophy, Gamepad2, ClipboardList, Wallet } from 'lucide-react'
 import { useBetSlipStore } from '@/store/betSlipStore'
 
 const navItems = [
-  { id: 'sports', label: 'Sportsbook', icon: '/nav/sportsbook_new.png', href: '/' },
+  { id: 'sports', label: 'Sportsbook', icon: '/nav/sportsbook_new.png', href: '/sportsbook' },
   { id: 'casino', label: 'Live Casino', icon: '/nav/live-casino.png', href: '/markets/live-casino' },
   { id: 'slots',  label: 'Slot Games',  icon: '/nav/slots.png', href: '/casino-slots' },
   { id: 'crash',  label: 'Crash Games', icon: '/nav/crash.png', href: '/crash-games' },

@@ -147,22 +147,31 @@ export default function Header() {
       {/* ── Mobile Inplay Header (NOT STICKY) ── */}
       <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-20 relative z-[50]">
         <div className="flex w-[95%] h-[60px] p-2 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
-          <Link href="/in-play" className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group">
+          <Link 
+            href="/in-play" 
+            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/in-play' ? 'opacity-100 scale-105' : 'opacity-60'}`}
+          >
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
           </Link>
           <button 
             onClick={() => setAuraCasinoOpen(true)}
-            className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group"
+            className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
           >
             <img src="/nav/aura-casino.png" alt="Aura Casino" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Aura Casino</span>
           </button>
-          <Link href="/sportsbook" className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group">
+          <Link 
+            href="/sportsbook" 
+            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/sportsbook' ? 'opacity-100 scale-105' : 'opacity-60'}`}
+          >
             <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">SportsBook</span>
           </Link>
-          <button onClick={() => setMoreMenuOpen(true)} className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group">
+          <button 
+            onClick={() => setMoreMenuOpen(true)} 
+            className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
+          >
             <img src="/nav/more.png" alt="More" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">More</span>
           </button>
