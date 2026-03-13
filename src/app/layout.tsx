@@ -6,6 +6,7 @@ import LeftDrawer from '@/components/layout/LeftDrawer'
 import ProfileSidebar from '@/components/layout/ProfileSidebar'
 import CategoryMoreDrawer from '@/components/layout/CategoryMoreDrawer'
 import SearchModal from '@/components/layout/SearchModal'
+import FeedbackModal from '@/components/layout/FeedbackModal'
 import BottomNav from '@/components/layout/BottomNav'
 import BetSlip from '@/components/sportsbook/BetSlip'
 import MainLayout from '@/components/layout/MainLayout'
@@ -82,6 +83,10 @@ export default function RootLayout({
 
           <Suspense fallback={null}>
             <SearchModal />
+          </Suspense>
+          
+          <Suspense fallback={null}>
+            <FeedbackModal />
           </Suspense>
           
           <Suspense fallback={null}>

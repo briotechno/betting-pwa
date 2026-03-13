@@ -13,6 +13,8 @@ interface LayoutState {
   setSearchModalOpen: (open: boolean) => void
   auraCasinoOpen: boolean
   setAuraCasinoOpen: (open: boolean) => void
+  feedbackModalOpen: boolean
+  setFeedbackModalOpen: (open: boolean) => void
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
@@ -28,4 +30,6 @@ export const useLayoutStore = create<LayoutState>((set) => ({
   setSearchModalOpen: (open) => set({ searchModalOpen: open }),
   auraCasinoOpen: false,
   setAuraCasinoOpen: (open) => set({ auraCasinoOpen: open }),
+  feedbackModalOpen: false,
+  setFeedbackModalOpen: (open) => set({ feedbackModalOpen: open }),
 }))

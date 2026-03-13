@@ -21,7 +21,7 @@ const menuItems = [
 
 export default function ProfileSidebar() {
   const { user, logout } = useAuthStore()
-  const { profileSidebarOpen, setProfileSidebarOpen } = useLayoutStore()
+  const { profileSidebarOpen, setProfileSidebarOpen, setFeedbackModalOpen } = useLayoutStore()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -112,34 +112,63 @@ export default function ProfileSidebar() {
 
           {/* Navigation Items */}
           <div className="space-y-0 text-white">
-            {menuItems.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={() => setProfileSidebarOpen(false)}
-                className="flex items-center py-2 transition-all border-b border-gray-600 hover:bg-white/[0.03]"
-              >
-                <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
-                  <div className="flex items-center justify-start w-full">
-                    <img
-                      src={item.icon}
-                      alt={item.label}
-                      className="w-6 h-6 object-contain"
-                    />
-                    <div className="flex flex-1 justify-between items-center ml-4 pr-3">
-                      <span className="text-[16px] font-bold text-white tracking-tight">
-                        {item.label}
-                      </span>
-                      {item.count !== undefined && (
-                        <span className="bg-[#e15b24] text-white text-[10px] min-w-[20px] h-5 rounded-full flex items-center justify-center font-black px-1.5 ml-auto">
-                          {item.count}
+            {menuItems.map((item) => {
+              if (item.id === 'feedback') {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setProfileSidebarOpen(false)
+                      setFeedbackModalOpen(true)
+                    }}
+                    className="flex items-center py-2 transition-all border-b border-gray-600 hover:bg-white/[0.03] w-full text-left"
+                  >
+                    <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
+                      <div className="flex items-center justify-start w-full">
+                        <img
+                          src={item.icon}
+                          alt={item.label}
+                          className="w-6 h-6 object-contain"
+                        />
+                        <div className="flex flex-1 justify-between items-center ml-4 pr-3">
+                          <span className="text-[16px] font-bold text-white tracking-tight">
+                            {item.label}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                )
+              }
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setProfileSidebarOpen(false)}
+                  className="flex items-center py-2 transition-all border-b border-gray-600 hover:bg-white/[0.03]"
+                >
+                  <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
+                    <div className="flex items-center justify-start w-full">
+                      <img
+                        src={item.icon}
+                        alt={item.label}
+                        className="w-6 h-6 object-contain"
+                      />
+                      <div className="flex flex-1 justify-between items-center ml-4 pr-3">
+                        <span className="text-[16px] font-bold text-white tracking-tight">
+                          {item.label}
                         </span>
-                      )}
+                        {item.count !== undefined && (
+                          <span className="bg-[#e15b24] text-white text-[10px] min-w-[20px] h-5 rounded-full flex items-center justify-center font-black px-1.5 ml-auto">
+                            {item.count}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
 
           {/* Social / Connect */}
