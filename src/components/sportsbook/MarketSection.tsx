@@ -1,6 +1,7 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { Info, Lock } from 'lucide-react'
+import InlineBetContainer from './InlineBetContainer'
 
 export interface OddValue {
   price: number | '-'
@@ -14,109 +15,139 @@ export interface Runner {
   suspended?: boolean
 }
 
+interface MarketSelection {
+  runner: string
+  price: number
+  type: 'back' | 'lay'
+  market?: string
+}
+
 interface MarketSectionProps {
   title: string
   runners: Runner[]
-  onOddsClick: (runner: string, price: number, type: 'back' | 'lay') => void
-  isSelected: (runner: string, price: number, type: 'back' | 'lay') => boolean
+  matchName?: string
+  activeSelection: MarketSelection | null
+  setActiveSelection: (selection: MarketSelection | null) => void
 }
 
-export default function MarketSection({ title, runners, onOddsClick, isSelected }: MarketSectionProps) {
-  return (
-    <div className="bg-card rounded-lg overflow-hidden shadow-xl mb-4 border border-cardBorder">
-      {/* Market Header */}
-      <div className="bg-gradient-to-r from-[#e8612c] to-[#f97316] px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-white font-black text-[11px] uppercase tracking-widest">{title}</span>
-          <Info size={12} className="text-white/70 cursor-help" />
-        </div>
-        <div className="flex items-center gap-6">
-           <div className="flex items-center gap-1">
-             <div className="w-4 h-4 rounded-full border border-white/30 flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_white]" />
-             </div>
-             <span className="text-white font-black text-[10px]">6</span>
-           </div>
-        </div>
-      </div>
+export default function MarketSection({ 
+    title, 
+    runners, 
+    matchName = 'Event', 
+    activeSelection, 
+    setActiveSelection 
+}: MarketSectionProps) {
 
-      {/* Column Headers */}
-      <div className="flex items-center justify-end h-8 bg-[#0d0d0d] px-0 border-b border-cardBorder">
-         <div className="w-[184px] flex justify-center border-l border-cardBorder">
-            <span className="text-white/40 font-black text-[9px] uppercase tracking-[0.2em]">Back</span>
-         </div>
-         <div className="w-[184px] flex justify-center border-l border-cardBorder">
-            <span className="text-white/40 font-black text-[9px] uppercase tracking-[0.2em]">Lay</span>
-         </div>
+  const handleOddsClick = (runner: string, price: number, type: 'back' | 'lay') => {
+    if (activeSelection?.runner === runner && activeSelection?.type === type && activeSelection.price === price && activeSelection.market === title) {
+        setActiveSelection(null)
+    } else {
+        setActiveSelection({ runner, price, type, market: title })
+    }
+  }
+
+  return (
+    <div className="bg-white overflow-hidden mb-1 rounded-[16px]">
+      {/* Market Header - Precise Match to Image 1 */}
+      <div className="flex h-10 lg:h-11 rounded-t-[16px] overflow-hidden">
+        {/* Left Side: Orange block with title */}
+        <div className="bg-[#e15b24] flex items-center px-3 flex-1">
+          <span className="text-white font-black text-[10px] lg:text-[12px] uppercase leading-tight">
+            {title}
+          </span>
+        </div>
+
+        {/* Right Side: Dark background for labels */}
+        <div className="bg-[#333] flex items-center w-[160px] lg:w-[180px]">
+          {/* Stopwatch Icon */}
+          <div className="flex items-center justify-center w-10 border-r border-white/10 h-full">
+             <div className="relative w-4 h-4 rounded-full border border-white/40">
+                <div className="absolute top-[3px] right-[2px] w-[5px] h-[1px] bg-white rotate-[-45deg] origin-right" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t border-r border-white/80 rotate-45 mt-[1px] ml-[-1px]" />
+             </div>
+          </div>
+          {/* Column Titles */}
+          <div className="flex-1 flex items-center justify-around h-full">
+            <span className="text-white font-bold text-[11px] uppercase">Back</span>
+            <span className="text-white font-bold text-[11px] uppercase">Lay</span>
+          </div>
+        </div>
       </div>
 
       {/* Runners Grid */}
-      <div className="divide-y divide-cardBorder">
+      <div className="">
         {runners.map((runner) => (
-          <div key={runner.name} className="flex items-center hover:bg-white/5 transition-all duration-200">
-            <div className="flex-1 px-4 py-0 h-[56px] flex items-center">
-              <span className="text-white font-black text-[11px] uppercase tracking-tight">{runner.name}</span>
-            </div>
+          <React.Fragment key={runner.name}>
+            <div className={`flex items-center h-12 bg-white ${activeSelection?.runner === runner.name && activeSelection?.market === title ? 'bg-gray-50' : ''}`}>
+                <div className="flex-1 px-3 flex items-center h-full">
+                  <span className="text-[#333] font-bold text-[13px] tracking-tight truncate leading-tight">{runner.name}</span>
+                </div>
 
-            <div className="flex items-center py-0 px-0 relative">
-              {runner.suspended && (
-                 <div className="absolute inset-x-0 inset-y-0 z-10 bg-black/60 backdrop-blur-[2px] flex items-center justify-end pr-[140px]">
-                    <div className="flex items-center gap-1.5 px-6 py-2 bg-[#f44336] rounded-md shadow-lg border border-white/10">
-                       <Lock size={14} className="text-white" />
-                       <span className="text-white font-black text-[11px] uppercase italic tracking-tighter">Suspended</span>
+                <div className="flex items-center h-full w-[160px] lg:w-[180px] bg-white">
+                    {runner.suspended && (
+                        <div className="absolute inset-x-0 inset-y-0 z-10 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+                            <Lock size={14} className="text-gray-400" />
+                        </div>
+                    )}
+
+                    {/* Odds Cells Row */}
+                    <div className="flex items-center justify-around w-full px-1">
+                        {/* Back Cell */}
+                        <button
+                            onClick={() => typeof runner.back[2].price === 'number' && handleOddsClick(runner.name, runner.back[2].price, 'back')}
+                            className={`w-[68px] h-[38px] rounded-[4px] flex flex-col items-center justify-center transition-all ${
+                                runner.back[2].price === '-' 
+                                ? 'bg-[#f2f2f2] text-[#ccc]' 
+                                : activeSelection?.runner === runner.name && activeSelection?.type === 'back' && activeSelection?.market === title
+                                ? 'bg-[#1a91eb] text-white'
+                                : 'bg-[#a5d9fe] text-black font-black'
+                            }`}
+                        >
+                            <span className="text-[12px] font-black">{runner.back[2].price}</span>
+                            {runner.back[2].size !== '-' && <span className="text-[8px] opacity-60 font-bold">{runner.back[2].size}</span>}
+                        </button>
+
+                        {/* Lay Cell */}
+                        <button
+                            onClick={() => typeof runner.lay[0].price === 'number' && handleOddsClick(runner.name, runner.lay[0].price, 'lay')}
+                            className={`w-[68px] h-[38px] rounded-[4px] flex flex-col items-center justify-center transition-all ${
+                                typeof runner.lay[0].price === 'number'
+                                ? activeSelection?.runner === runner.name && activeSelection?.type === 'lay' && activeSelection?.market === title
+                                    ? 'bg-[#f2708b] text-white shadow-inner'
+                                    : 'bg-[#f8d0ce] text-black font-black'
+                                : 'bg-[#e2e2e2] text-[#999]'
+                            }`}
+                        >
+                            <span className="text-[12px] font-black">{runner.lay[0].price || '-'}</span>
+                            {runner.lay[0].size !== '-' && runner.lay[0].size && (
+                                <span className="text-[8px] opacity-60 font-bold">{runner.lay[0].size}</span>
+                            )}
+                        </button>
                     </div>
-                 </div>
-              )}
-
-              {/* Back Columns (3 cells) */}
-              <div className="flex items-center justify-end gap-[1px] w-[184px] border-l border-cardBorder bg-black/5">
-                {runner.back.map((odd, idx) => (
-                  <button
-                    key={`back-${idx}`}
-                    onClick={() => odd.price !== '-' && onOddsClick(runner.name, odd.price as number, 'back')}
-                    disabled={odd.price === '-' || runner.suspended}
-                    className={`w-[60px] h-[52px] flex flex-col items-center justify-center transition-all duration-150 ${
-                        odd.price === '-' 
-                        ? 'bg-transparent text-transparent' 
-                        : isSelected(runner.name, odd.price as number, 'back')
-                        ? 'bg-[#1a91eb] text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] scale-[1] ring-1 ring-inset ring-white/30'
-                        : idx === 2 // Back1 (Middle) is more prominent
-                        ? 'bg-[#a5d5ff] hover:bg-[#a5d5ff] hover:scale-[1.02] text-black shadow-sm'
-                        : 'bg-[#a5d5ff]/60 hover:bg-[#a5d5ff]/80 text-black/70'
-                    }`}
-                  >
-                    <span className="text-[11px] font-black leading-none">{odd.price}</span>
-                    {odd.size && <span className="text-[8px] font-bold mt-0.5 opacity-40">{odd.size}</span>}
-                  </button>
-                ))}
-              </div>
-
-              {/* Lay Columns (3 cells) */}
-              <div className="flex items-center justify-start gap-[1px] w-[184px] border-l border-cardBorder bg-black/5">
-                {runner.lay.map((odd, idx) => (
-                  <button
-                    key={`lay-${idx}`}
-                    onClick={() => odd.price !== '-' && onOddsClick(runner.name, odd.price as number, 'lay')}
-                    disabled={odd.price === '-' || runner.suspended}
-                    className={`w-[60px] h-[52px] flex flex-col items-center justify-center transition-all duration-150 ${
-                        odd.price === '-' 
-                        ? 'bg-transparent text-transparent' 
-                        : isSelected(runner.name, odd.price as number, 'lay')
-                        ? 'bg-[#f2708b] text-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)] scale-[1] ring-1 ring-inset ring-white/30'
-                        : idx === 0 // Lay1 (Middle) is more prominent
-                        ? 'bg-[#faa9ba] hover:bg-[#faa9ba] hover:scale-[1.02] text-black shadow-sm'
-                        : 'bg-[#faa9ba]/60 hover:bg-[#faa9ba]/80 text-black/70'
-                    }`}
-                  >
-                    <span className="text-[11px] font-black leading-none">{odd.price}</span>
-                    {odd.size && <span className="text-[8px] font-bold mt-0.5 opacity-40">{odd.size}</span>}
-                  </button>
-                ))}
-              </div>
+                </div>
             </div>
-          </div>
+
+            {/* Inline Bet Box */}
+            {activeSelection?.runner === runner.name && activeSelection?.market === title && (
+                <div className="animate-in slide-in-from-top-2 duration-200">
+                    <InlineBetContainer 
+                        selection={runner.name}
+                        matchName={matchName}
+                        odds={activeSelection.price}
+                        type={activeSelection.type}
+                        onCancel={() => setActiveSelection(null)}
+                        onPlaceBet={(stake) => {
+                            console.log('Place bet:', { runner: runner.name, stake, odds: activeSelection.price })
+                            // Handle placing bet logic
+                            setActiveSelection(null)
+                        }}
+                    />
+                </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>
   )
 }
+

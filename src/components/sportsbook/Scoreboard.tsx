@@ -50,8 +50,8 @@ export default function Scoreboard() {
         </div>
       </div>
 
-      {/* Stats Tabs */}
-      <div className="flex border-t border-white/5 bg-black/60">
+      {/* Stats Tabs - Hidden on Mobile */}
+      <div className="hidden md:flex border-t border-white/5 bg-black/60">
         <button className="flex-1 py-3 flex items-center justify-center gap-2 border-b-2 border-[#e8612c] bg-white/5 transition-all">
           <BarChart2 size={14} className="text-[#e8612c]" />
           <span className="text-[11px] font-black uppercase tracking-widest text-white">Scorecard</span>
@@ -66,8 +66,8 @@ export default function Scoreboard() {
         </button>
       </div>
 
-      {/* Scorecard Detailed View (Mockup of the bottom part of image 1) */}
-      <div className="p-4 bg-[#0d0d0d] flex gap-4 border-t border-white/5">
+      {/* Scorecard Detailed View - Hidden on Mobile */}
+      <div className="hidden md:flex p-4 bg-[#0d0d0d] gap-4 border-t border-white/5">
          <div className="w-1/2 space-y-3">
             <div className="grid grid-cols-4 text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1 border-b border-white/5 pb-1">
                <div className="col-span-2">Batter</div>

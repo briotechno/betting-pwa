@@ -1,11 +1,9 @@
 'use client'
 import React, { useState, useEffect, Suspense } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Star, Share2, Info, Clock, BarChart2 } from 'lucide-react'
-import Badge from '@/components/ui/Badge'
+import { ArrowLeft, Star, BarChart2 } from 'lucide-react'
 import MarketSection from '@/components/sportsbook/MarketSection'
 import Scoreboard from '@/components/sportsbook/Scoreboard'
-import BetSlip from '@/components/sportsbook/BetSlip'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 
@@ -13,211 +11,266 @@ function MatchDetailContent() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isAuthenticated } = useAuthStore()
-  const { addSelection, selections, openSlip } = useBetSlipStore()
-  
+  const { selections } = useBetSlipStore()
+
+  const [activeTab, setActiveTab] = useState<'MARKETS' | 'OPEN BETS'>('MARKETS')
+  const [unmatchedExpanded, setUnmatchedExpanded] = useState(true)
+  const [matchedExpanded, setMatchedExpanded] = useState(true)
+  const [activeSelection, setActiveSelection] = useState<{
+    runner: string,
+    price: number,
+    type: 'back' | 'lay',
+    market?: string
+  } | null>(null)
+
   const sport = params?.sport as string || 'cricket'
   const matchId = params?.matchId as string || 'match1'
+  const matchName = 'Mumbai Indians vs Rajasthan Royals'
 
-  // Mock runners data
-  const matchOddsRunners = [
-    { 
-      name: 'Silvertoan Panthers', 
-      back: [
-        { price: 1.35, size: '2k' }, { price: 1.36, size: '4k' }, { price: 1.37, size: '5,948' }
-      ], 
-      lay: [
-        { price: 1.38, size: '5,948' }, { price: 1.39, size: '1k' }, { price: 1.40, size: '3k' }
-      ] 
-    },
-    { 
-      name: 'Bhawani Lions', 
-      back: [
-        { price: 3.00, size: '500' }, { price: 3.02, size: '800' }, { price: 3.05, size: '5,948' }
-      ], 
-      lay: [
-        { price: 3.70, size: '5,948' }, { price: 3.75, size: '200' }, { price: 3.80, size: '1k' }
-      ] 
-    },
-  ] as any[]
-
-  const tieRunners = [
-    { 
-      name: 'Yes', 
-      back: [
-        { price: 11, size: '100' }, { price: 12, size: '200' }, { price: 13, size: '5,948' }
-      ], 
-      lay: [
-        { price: 14, size: '5,948' }, { price: 15, size: '100' }, { price: 16, size: '50' }
-      ] 
-    },
-    { 
-      name: 'No', 
-      back: [
-        { price: 1.05, size: '10k' }, { price: 1.06, size: '5k' }, { price: 1.08, size: '5,948' }
-      ], 
-      lay: [
-        { price: 1.10, size: '5,948' }, { price: 1.12, size: '1k' }, { price: 1.15, size: '2k' }
-      ] 
-    },
-  ] as any[]
-
-  const fancyMarkets = [
-    { 
-      title: '1st Innings Over 5 - Bhawani Lions Total',
-      runners: [
-        { 
-          name: 'Over 10.5', 
-          back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          suspended: true 
-        },
-        { 
-          name: 'Under 10.5', 
-          back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          suspended: true 
-        },
-      ] as any[]
-    },
-    { 
-      title: '1st Innings Over 5 - Bhawani Lions Total',
-      runners: [
-        { 
-          name: 'Over 7.5', 
-          back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          suspended: true 
-        },
-        { 
-          name: 'Under 7.5', 
-          back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }], 
-          suspended: true 
-        },
-      ] as any[]
-    }
-  ]
-
-  // Auto-open betslip if params present
+  // Handle initial selection from URL
   useEffect(() => {
     const selection = searchParams.get('selection')
     const odds = searchParams.get('odds')
     const type = searchParams.get('type') as 'back' | 'lay'
-    const market = searchParams.get('market') || 'Match Odds'
+    const market = searchParams.get('market')
 
     if (selection && odds && type) {
-      addSelection({
-        id: `${matchId}-${selection}-${odds}-${type}`,
-        matchId,
-        matchName: 'Silvertoan Panthers vs Bhawani Lions',
-        marketName: market,
-        selectionName: selection,
-        odds: parseFloat(odds),
-        betType: type
+      setActiveSelection({
+        runner: selection,
+        price: parseFloat(odds),
+        type: type,
+        market: market || undefined
       })
-      openSlip()
-      
-      // Clear params to avoid double adding on refresh
+
+      // Clear params to avoid re-opening on manual refresh if user dismissed it
       const newUrl = window.location.pathname
       window.history.replaceState({ ...window.history.state, path: newUrl }, '', newUrl)
     }
-  }, [searchParams, matchId, addSelection, openSlip])
+  }, [searchParams])
 
-  const handleOddsClick = (runner: string, price: number, type: 'back' | 'lay', market: string = 'Match Odds') => {
-    if (!isAuthenticated) {
-      router.push('/auth/login')
-      return
-    }
+  // Mock runners data
+  const bookmakerRunners = [
+    {
+      name: 'Mumbai Indians',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 350, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Rajasthan Royals',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Chennai Super Kings',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 750, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Sunrisers Hyderabad',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 830, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Royal Challengers Begaluru',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 600, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Kolkata Knight Riders',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Delhi Capitals',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Lucknow Super Giants',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Gujarat Titans',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Punjab Kings',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 1000, size: '-' }],
+      lay: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+  ] as any[]
 
-    addSelection({
-      id: `${matchId}-${runner}-${price}-${type}`,
-      matchId,
-      matchName: 'Silvertoan Panthers vs Bhawani Lions',
-      marketName: market,
-      selectionName: runner,
-      odds: price,
-      betType: type
-    })
-    openSlip()
-  }
-
-  const isSelected = (runner: string, price: number, type: 'back' | 'lay') => {
-    return selections.some(s => s.id === `${matchId}-${runner}-${price}-${type}`)
-  }
+  const winnerRunners = [
+    {
+      name: 'Mumbai Indians',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 4.90, size: '41,514' }],
+      lay: [{ price: 5, size: '77,326' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Royal Challengers Bengaluru',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 7.20, size: '256' }],
+      lay: [{ price: 7.60, size: '5,948' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Sunrisers Hyderabad',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 9.80, size: '425' }],
+      lay: [{ price: 10.50, size: '7,137' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Chennai Super Kings',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 8.20, size: '8,962' }],
+      lay: [{ price: 8.40, size: '45,346' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Delhi Capitals',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 10.50, size: '344' }],
+      lay: [{ price: 11.50, size: '802' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Gujarat Titans',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 12, size: '652' }],
+      lay: [{ price: 13.50, size: '12,641' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Punjab Kings',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 11.50, size: '434' }],
+      lay: [{ price: 12.50, size: '34,121' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Kolkata Knight Riders',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 14.50, size: '4,501' }],
+      lay: [{ price: 15, size: '180' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Rajasthan Royals',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 15.50, size: '3,463' }],
+      lay: [{ price: 17, size: '417' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+    {
+      name: 'Lucknow Super Giants',
+      back: [{ price: '-', size: '-' }, { price: '-', size: '-' }, { price: 14, size: '1,097' }],
+      lay: [{ price: 17.50, size: '334' }, { price: '-', size: '-' }, { price: '-', size: '-' }]
+    },
+  ] as any[]
 
   return (
-    <div className="flex h-full min-h-screen bg-background">
-      {/* Main Content Area */}
-      <div className="flex-1 min-w-0 transition-all">
-         {/* Top Bar Navigation (Responsive) */}
-         <div className="sticky top-[120px] lg:top-[120px] z-[15] bg-surface/80 backdrop-blur-md border-b border-cardBorder">
-            <div className="flex items-center gap-3 px-4 py-3">
-               <button onClick={() => router.back()} className="text-[#e8612c] hover:bg-[#e8612c]/5 p-2 rounded-full transition-colors">
-                  <ArrowLeft size={18} />
-               </button>
-               <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-black bg-[#e8612c] text-white px-1.5 py-0.5 rounded-sm uppercase italic">LIVE</span>
-                     <span className="text-[10px] text-textSecondary font-bold uppercase tracking-widest truncate">Cricket / Major League Cricket / Silvertoan vs Bhawani</span>
-                  </div>
-                  <h1 className="text-sm font-black text-white uppercase tracking-tight truncate">Silvertoan Panthers vs Bhawani Lions</h1>
-               </div>
-               <div className="flex items-center gap-1">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-textSecondary hover:text-[#e8612c] text-[10px] font-black uppercase transition-all">
-                     <Share2 size={14} />
-                     <span className="hidden sm:inline">Share</span>
-                  </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-textSecondary hover:text-yellow-500 text-[10px] font-black uppercase transition-all">
-                     <Star size={14} />
-                     <span className="hidden sm:inline">Watchlist</span>
-                  </button>
-               </div>
-            </div>
-         </div>
+    <div className="flex flex-col min-h-screen bg-[#121212] font-sans">
+      {/* Header - Matching Image 1 */}
+      <div className="sticky top-0 z-[20] bg-[#1a1a1a] shadow-lg">
+        <div className="flex items-center h-[56px] px-4">
+          <button onClick={() => router.back()} className="mr-4">
+            <ArrowLeft size={22} color="#e15b24" />
+          </button>
+          <h1 className="flex-1 text-[17px] font-bold text-white truncate">{matchName}</h1>
+          <button className="p-1">
+            <Star size={24} className="text-[#ffb400]" />
+          </button>
+        </div>
 
-         {/* Content Scroll Area */}
-         <div className="p-1 lg:p-4 space-y-4 pb-24 lg:pb-8">
-            {/* Scoreboard block - matching image 1 */}
+        {/* Tabs */}
+        <div className="flex border-t border-white/5 h-12">
+          <button
+            onClick={() => setActiveTab('MARKETS')}
+            className={`flex-1 flex flex-col items-center justify-center text-[13px] font-bold transition-all relative ${activeTab === 'MARKETS' ? 'text-[#e15b24]' : 'text-gray-400'}`}
+          >
+            MARKETS
+            {activeTab === 'MARKETS' && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#e15b24]" />}
+          </button>
+          <button
+            onClick={() => setActiveTab('OPEN BETS')}
+            className={`flex-1 flex flex-col items-center justify-center text-[13px] font-bold transition-all relative ${activeTab === 'OPEN BETS' ? 'text-[#e15b24]' : 'text-gray-400'}`}
+          >
+            OPEN BETS
+            {activeTab === 'OPEN BETS' && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#e15b24]" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      {activeTab === 'MARKETS' ? (
+        <div className="p-1.5 space-y-3">
+          {/* Scoreboard block - Hidden on Mobile */}
+          <div className="hidden md:block">
             <Scoreboard />
+          </div>
 
-            {/* Betting Markets - matching image 2 styling */}
-            <div className="space-y-4">
-               <MarketSection 
-                 title="Winner (Incl. Super Over)" 
-                 runners={matchOddsRunners} 
-                 onOddsClick={(r, p, t) => handleOddsClick(r, p, t, 'Winner')}
-                 isSelected={isSelected}
-               />
-
-               <MarketSection 
-                 title="Will there be a tie" 
-                 runners={tieRunners} 
-                 onOddsClick={(r, p, t) => handleOddsClick(r, p, t, 'Tie Market')}
-                 isSelected={isSelected}
-               />
-
-               {fancyMarkets.map((market, idx) => (
-                 <MarketSection 
-                   key={idx}
-                   title={market.title} 
-                   runners={market.runners} 
-                   onOddsClick={(r, p, t) => handleOddsClick(r, p, t, market.title)}
-                   isSelected={isSelected}
-                 />
-               ))}
+          {/* First Table Container - White background wrapper */}
+          <div className="bg-white rounded-b-[16px] overflow-hidden shadow-sm mb-4">
+            <div className="bg-[#e2e2e2] px-3 py-2.5 text-[12px] font-bold text-[#333]">
+              Bookmaker (0% Commission & Instant Bet)
             </div>
-         </div>
-      </div>
+            <div className="p-0">
+              <MarketSection
+                title="MATCH WINNER (BOOKMAKER)"
+                runners={bookmakerRunners}
+                matchName={matchName}
+                activeSelection={activeSelection}
+                setActiveSelection={setActiveSelection}
+              />
+            </div>
+          </div>
 
-      {/* Right column - Integrated BetSlip */}
-      <div className="hidden lg:block w-[380px] shrink-0 border-l border-cardBorder bg-surface/30">
-         <div className="sticky top-[120px] h-[calc(100vh-120px)] overflow-hidden">
-            <BetSlip inline={true} />
-         </div>
-      </div>
+          <MarketSection
+            title="WINNER"
+            runners={winnerRunners}
+            matchName={matchName}
+            activeSelection={activeSelection}
+            setActiveSelection={setActiveSelection}
+          />
+        </div>
+      ) : (
+        <div className="p-3 space-y-4 pt-4">
+          {/* Unmatched Bets Container */}
+          <div className="bg-[#121212] border border-[#e15b24]/60 rounded-[12px] relative overflow-hidden transition-all duration-300">
+            <button 
+              onClick={() => setUnmatchedExpanded(!unmatchedExpanded)}
+              className="w-full flex items-center justify-between p-4 cursor-pointer"
+            >
+              <span className="text-white text-[13px] font-bold">Unmatched Bets</span>
+              <div className="bg-[#e15b24] rounded-full p-0.5 transition-transform duration-300" style={{ transform: unmatchedExpanded ? 'rotate(0deg)' : 'rotate(180deg)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m18 15-6-6-6 6"/>
+                </svg>
+              </div>
+            </button>
+            
+            <div className={`flex flex-col items-center justify-center transition-all duration-300 ${unmatchedExpanded ? 'pb-8 opacity-100 h-auto' : 'h-0 opacity-0 overflow-hidden'}`}>
+              <div className="mb-3">
+                <svg width="48" height="42" viewBox="0 0 24 24" fill="#e15b24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4m0 4h.01" stroke="#e15b24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="text-[#e15b24] text-[15px] font-bold">No Unmatched Bets!</p>
+            </div>
+          </div>
 
-      {/* Mobile BetSlip is handled globally in layout by the BetSlip component's fixed/absolute positioning */}
+          {/* Matched Bets Container */}
+          <div className="bg-[#121212] border border-[#e15b24]/60 rounded-[12px] relative overflow-hidden transition-all duration-300">
+            <button 
+              onClick={() => setMatchedExpanded(!matchedExpanded)}
+              className="w-full flex items-center justify-between p-4 cursor-pointer"
+            >
+              <span className="text-white text-[13px] font-bold">Matched Bets</span>
+              <div className="bg-[#e15b24] rounded-full p-0.5 transition-transform duration-300" style={{ transform: matchedExpanded ? 'rotate(0deg)' : 'rotate(180deg)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m18 15-6-6-6 6"/>
+                </svg>
+              </div>
+            </button>
+
+            <div className={`flex flex-col items-center justify-center transition-all duration-300 ${matchedExpanded ? 'pb-8 opacity-100 h-auto' : 'h-0 opacity-0 overflow-hidden'}`}>
+              <div className="mb-3">
+                <svg width="48" height="42" viewBox="0 0 24 24" fill="#e15b24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4m0 4h.01" stroke="#e15b24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="text-[#e15b24] text-[15px] font-bold">No Matched Bets!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -225,7 +278,7 @@ function MatchDetailContent() {
 export default function MatchDetailPage() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center h-screen text-gray-400 font-black uppercase text-xs tracking-widest">Loading Match Data...</div>}>
-       <MatchDetailContent />
+      <MatchDetailContent />
     </Suspense>
   )
 }
