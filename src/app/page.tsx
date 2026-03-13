@@ -211,7 +211,7 @@ export default function HomePage() {
           if (!matches || matches.length === 0) return null
 
           return (
-            <div key={sportId} className="space-y-0 overflow-hidden shadow-2xl bg-white rounded-b-[16px] border border-white/5">
+            <div key={sportId} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-white lg:bg-transparent rounded-b-[16px] border border-white/5 lg:border-none">
               {/* Header Block - Orange/Black Split Style */}
               <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
                 <div className="bg-[#e8612c] flex items-center px-4 gap-2 flex-1 h-full">
@@ -227,11 +227,8 @@ export default function HomePage() {
                     {/* Desktop 6 columns labels */}
                     <div className="hidden lg:flex">
                       <div className="w-[100px] flex justify-center"><span className="text-[10px] font-black text-white">1</span></div>
-                      <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                      <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
-                      <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                      <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">2</span></div>
-                      <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
+                      <div className="w-[100px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
+                      <div className="w-[100px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
                     </div>
                     {/* Mobile 3 columns labels */}
                     <div className="flex lg:hidden">
@@ -362,7 +359,7 @@ export default function HomePage() {
               if (!matches || matches.length === 0) return null
 
               return (
-                <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl bg-white rounded-b-[16px] border border-white/5">
+                <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-white lg:bg-transparent rounded-b-[16px] border border-white/5 lg:border-none">
                   {/* Header Block - Orange/Black Split Style */}
                   <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
                     <div className="bg-[#e8612c] flex items-center px-4 gap-2 flex-1 h-full">
@@ -378,11 +375,8 @@ export default function HomePage() {
                         {/* Desktop 6 columns labels */}
                         <div className="hidden lg:flex">
                           <div className="w-[100px] flex justify-center"><span className="text-[10px] font-black text-white">1</span></div>
-                          <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                          <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
-                          <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                          <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">2</span></div>
-                          <div className="w-[100px] flex justify-center border-l border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
+                          <div className="w-[100px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
+                          <div className="w-[100px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
                         </div>
                         {/* Mobile 3 columns labels */}
                         <div className="flex lg:hidden">

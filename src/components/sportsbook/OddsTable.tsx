@@ -116,7 +116,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                             disabled={isLay ? !odd.lay : !odd.back}
                             className={`
                               w-[70px] md:w-[92px] lg:w-[100px] h-[38px] md:h-[42px] rounded-md flex flex-col items-center justify-center transition-all
-                              ${!isMobileCell ? 'hidden lg:flex' : 'flex'}
+                              ${idx === 4 ? 'flex lg:hidden' : (idx > 2 ? 'hidden' : (!isMobileCell ? 'hidden lg:flex' : 'flex'))}
                               ${isLay 
                                 ? (!odd.lay ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.lay, 'lay') ? 'bg-[#f2708b] text-white' : 'bg-[#f8d0ce] hover:bg-[#f5c6cb] text-[#333]') 
                                 : (!odd.back ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.back, 'back') ? 'bg-[#1a91eb] text-white' : 'bg-[#a5d9fe] hover:bg-[#a5d1ff] text-[#333]')
