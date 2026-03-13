@@ -1,88 +1,83 @@
 'use client'
 import React, { useState } from 'react'
-import { KeyRound, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
+import { useRouter } from 'next/navigation'
+import { ChevronLeft, Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function ResetPasswordPage() {
-  const [showCurrent, setShowCurrent] = useState(false)
+  const router = useRouter()
+  const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
   return (
-    <div className="max-w-md mx-auto p-4 pb-20">
-      <div className="flex items-center gap-3 mb-6">
-        <KeyRound size={24} className="text-primary" />
-        <h1 className="text-xl font-bold text-white uppercase tracking-tight">Security Center</h1>
+    <div className="bg-[#121212] min-h-screen text-white pb-20">
+      {/* Sub Header */}
+      <div className="flex items-center px-4 py-3 bg-[#1a1a1a] shadow-md">
+        <button onClick={() => router.back()} className="text-white/80 pr-3">
+          <ChevronLeft size={24} color="#e15b24" />
+        </button>
+        <h1 className="text-[17px] font-bold">Reset Password</h1>
       </div>
 
-      <div className="bg-card border border-cardBorder rounded-2xl p-6 mb-6">
-        <div className="flex items-center gap-3 mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
-          <ShieldCheck size={24} className="text-primary" />
-          <div>
-            <p className="text-sm font-bold text-white uppercase tracking-tight">Change Password</p>
-            <p className="text-[10px] text-textMuted uppercase tracking-widest font-black">Keep your account secure</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="relative">
-            <Input 
-              label="Old Password" 
-              type={showCurrent ? 'text' : 'password'}
-              placeholder="Enter your current password" 
+      <div className="p-4 pt-10">
+        <div className="bg-[#1a1a1a] rounded-xl p-8 border border-white/5 shadow-2xl space-y-8">
+          
+          {/* Old Password */}
+          <div className="relative group">
+            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+            <input 
+              type={showOld ? 'text' : 'password'} 
+              placeholder="Old Password*" 
+              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
             />
             <button 
-              onClick={() => setShowCurrent(!showCurrent)}
-              className="absolute right-3 top-10 text-textMuted hover:text-white"
+              type="button"
+              onClick={() => setShowOld(!showOld)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
             >
-              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showOld ? <EyeOff size={22} /> : <Eye size={22} />}
             </button>
           </div>
 
-          <div className="relative">
-            <Input 
-              label="New Password" 
-              type={showNew ? 'text' : 'password'}
-              placeholder="Min. 8 characters" 
+          {/* New Password */}
+          <div className="relative group">
+            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+            <input 
+              type={showNew ? 'text' : 'password'} 
+              placeholder="New Password*" 
+              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
             />
             <button 
+              type="button"
               onClick={() => setShowNew(!showNew)}
-              className="absolute right-3 top-10 text-textMuted hover:text-white"
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
             >
-              {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showNew ? <EyeOff size={22} /> : <Eye size={22} />}
             </button>
           </div>
 
-          <div className="relative">
-            <Input 
-              label="Confirm New Password" 
-              type={showConfirm ? 'text' : 'password'}
-              placeholder="Repeat your new password" 
+          {/* Confirm Password */}
+          <div className="relative group">
+            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+            <input 
+              type={showConfirm ? 'text' : 'password'} 
+              placeholder="Confirm New Password*" 
+              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
             />
-             <button 
+            <button 
+              type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-10 text-textMuted hover:text-white"
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
             >
-              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showConfirm ? <EyeOff size={22} /> : <Eye size={22} />}
             </button>
           </div>
-        </div>
 
-        <div className="mt-8 space-y-3">
-          <Button fullWidth size="lg">UPDATE PASSWORD</Button>
-          <div className="p-3 rounded-lg border border-red-500/10 bg-red-500/5 text-center">
-            <button className="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-500 transition-colors">
-              Request OTP Reset
-            </button>
-          </div>
+          {/* Action Button */}
+          <button className="w-full h-12 bg-[#e15b24] text-white rounded-xl text-[14px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all mt-6">
+            RESET PASSWORD
+          </button>
         </div>
-      </div>
-
-      <div className="bg-orange-500/5 border border-orange-500/10 rounded-xl p-4">
-        <p className="text-[10px] text-orange-400 font-black uppercase tracking-widest mb-2 leading-relaxed">
-          🚨 Security Tip: Use a strong password with letters, numbers, and symbols. Never share your password with anyone.
-        </p>
       </div>
     </div>
   )
