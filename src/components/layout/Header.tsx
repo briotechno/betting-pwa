@@ -82,12 +82,12 @@ export default function Header() {
             </button>
 
             {/* Desktop Logo */}
-            <Link href="/" className="hidden lg:flex items-center gap-1 group scale-110">
-              <span className="text-3xl font-black italic tracking-tighter text-[#e8612c]">fair</span>
-              <span className="text-3xl font-black italic text-white tracking-tighter">play</span>
-              <div className="ml-1.5 px-2 py-1 rounded bg-[#e8612c] text-white text-[10px] font-black uppercase tracking-widest leading-none">
-                VIP
-              </div>
+            <Link href="/" className="hidden lg:flex items-center h-14">
+              <img 
+                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png" 
+                alt="Fairplay Logo" 
+                className="h-full object-contain"
+              />
             </Link>
 
             {/* Mobile Logo */}
