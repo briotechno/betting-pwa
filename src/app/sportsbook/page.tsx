@@ -182,13 +182,6 @@ export default function SportsbookPage() {
           </div>
         ))}
       </div>
-
-       {/* Floating WhatsApp button */}
-       <div className="fixed left-4 bottom-22 z-[60]">
-          <button className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-all p-1">
-             <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" alt="WA" className="w-10 h-10 object-contain" />
-          </button>
-        </div>
     </div>
   )
 }
