@@ -33,7 +33,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         href="https://wa.me/1234567890" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="fixed bottom-24 left-4 z-[55] lg:hidden animate-bounce"
+        className="fixed bottom-24 left-4 z-[55] lg:hidden"
       >
         <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(37,211,102,0.4)] border-2 border-white/20">
           <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8">
