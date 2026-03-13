@@ -372,23 +372,49 @@ export default function Header() {
       </div>
 
       {/* ── Fixed Desktop Sub Header (Pins below Top Header) ── */}
-      <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-12 overflow-x-auto no-scrollbar border-t border-white/5 bg-[#000] px-4 gap-4">
-        {topTabs.map((tab) => {
-          const isActive = activeTab === tab.id
-          return (
-            <Link
-              key={tab.id}
-              href={tab.href}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2.5 px-1 h-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all shrink-0 group ${isActive ? 'text-white' : 'text-[#a5caf6]'}`}
-            >
-              <div className="flex items-center gap-[1px]">
-                <span className="text-base scale-110 drop-shadow-md">{tab.emoji}</span>
-              </div>
-              <span className={`${isActive ? 'text-[#e8612c]' : 'group-hover:text-white'} transition-colors`}>{tab.label}</span>
-            </Link>
-          )
-        })}
+      <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar border-t border-white/5 bg-[#000] px-4">
+        <div className="flex items-center gap-1">
+          {[
+            { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },
+            { id: 'cricket', label: 'Cricket', icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png', href: '/sportsbook/Cricket' },
+            { id: 'soccer', label: 'Soccer', icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png', href: '/sportsbook/Soccer' },
+            { id: 'tennis', label: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png', href: '/sportsbook/Tennis' },
+            { id: 'premium', label: 'Premium Sportbook', icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png', href: '/premium-sportsbook' },
+            { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },
+            { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino', onClick: () => setAuraCasinoOpen(true) },
+            { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' }
+          ].map((tab) => {
+            const isActive = pathname === tab.href || (tab.id === 'inplay' && pathname === '/')
+            
+            return (
+              <Link
+                key={tab.id}
+                href={tab.href}
+                onClick={(e) => {
+                  if (tab.onClick) {
+                    e.preventDefault()
+                    tab.onClick()
+                  }
+                  setActiveTab(tab.id)
+                }}
+                className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${
+                  isActive 
+                  ? 'border-[0.09rem] border-[#f36c21] rounded-[30px] !pr-3 font-black text-[#f36c21]' 
+                  : 'text-[#a5caf6] hover:text-white font-bold'
+                }`}
+              >
+                <div className="h-[20px] w-[49px] flex items-center justify-center overflow-hidden shrink-0">
+                  <img 
+                    src={tab.icon} 
+                    alt={tab.label} 
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] uppercase tracking-wide ml-1">{tab.label}</span>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

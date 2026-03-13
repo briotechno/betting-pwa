@@ -43,7 +43,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </a>
 
       {/* Main page content - pt accounts for fixed header parts */}
-      <main className="min-h-screen pb-24 lg:pb-20 pt-0 lg:pt-[140px]" style={{ background: '#121212' }}>
+      <main className="min-h-screen pb-24 lg:pb-20 pt-0 lg:pt-[148px]" style={{ background: '#121212' }}>
         {children}
       </main>
     </div>
