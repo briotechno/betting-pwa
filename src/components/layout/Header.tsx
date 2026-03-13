@@ -13,7 +13,7 @@ import { getTabs } from '@/constants/navigation'
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuthStore()
   const { selections } = useBetSlipStore()
-  const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen } = useLayoutStore()
+  const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen, setAuraCasinoOpen } = useLayoutStore()
   const { language, setLanguage, t } = useI18nStore()
   const pathname = usePathname()
 
@@ -151,10 +151,13 @@ export default function Header() {
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
           </Link>
-          <Link href="/aura-casino" className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group">
+          <button 
+            onClick={() => setAuraCasinoOpen(true)}
+            className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group"
+          >
             <img src="/nav/aura-casino.png" alt="Aura Casino" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Aura Casino</span>
-          </Link>
+          </button>
           <Link href="/sportsbook" className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group">
             <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">SportsBook</span>

@@ -9,6 +9,7 @@ import SearchModal from '@/components/layout/SearchModal'
 import BottomNav from '@/components/layout/BottomNav'
 import BetSlip from '@/components/sportsbook/BetSlip'
 import MainLayout from '@/components/layout/MainLayout'
+import AuraCasinoOverlay from '@/components/casino/AuraCasinoOverlay'
 import Providers from './providers'
 import { Suspense } from 'react'
 
@@ -81,6 +82,10 @@ export default function RootLayout({
 
           <Suspense fallback={null}>
             <SearchModal />
+          </Suspense>
+          
+          <Suspense fallback={null}>
+            <AuraCasinoOverlay />
           </Suspense>
 
         </Providers>
