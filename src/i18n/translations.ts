@@ -24,6 +24,7 @@ const template = {
     tennis: 'Tennis',
     premium: 'Premium Sportbook',
     crash: 'Crash Games',
+    crash_games: 'Crash Games',
     live_casino: 'Live Casino',
     casino: 'Casino',
     slots: 'Slot Games',

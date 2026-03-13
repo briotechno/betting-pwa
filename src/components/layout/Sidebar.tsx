@@ -11,6 +11,7 @@ const sports = [
   { id: 'live-card', label: 'Live Card', emoji: '🃏' },
   { id: 'casino', label: 'Casino', emoji: '🎰' },
   { id: 'slot-games', label: 'Slot Games', emoji: '🎲' },
+  { id: 'crash-games', label: 'Crash Games', emoji: '🚀' },
   { id: 'kabaddi', label: 'Kabaddi', emoji: '🤼' },
   { id: 'badminton', label: 'Badminton', emoji: '🏸' },
   { id: 'golf', label: 'Golf', emoji: '⛳' },
@@ -70,11 +71,13 @@ export default function Sidebar() {
           if (sport.id === 'casino') href = '/markets/live-casino'
           if (sport.id === 'live-card') href = '/markets/live-casino'
           if (sport.id === 'slot-games') href = '/casino-slots'
+          if (sport.id === 'crash-games') href = '/crash-games'
 
           const isActive =
             (pathname === '/sportsbook' && (currentSport === sport.id || (!currentSport && sport.id === 'cricket'))) ||
             (pathname === '/markets/live-casino' && (sport.id === 'casino' || sport.id === 'live-card')) ||
-            (pathname === '/casino-slots' && sport.id === 'slot-games')
+            (pathname === '/casino-slots' && sport.id === 'slot-games') ||
+            (pathname === '/crash-games' && sport.id === 'crash-games')
 
           return (
             <Link
