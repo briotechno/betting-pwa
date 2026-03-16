@@ -74,7 +74,7 @@ export default function Header() {
       <div className="fixed top-0 left-0 right-0 z-[60] bg-black border-b border-white/5 backdrop-blur-md h-20 lg:h-[92px]">
         <div className="flex items-center justify-between px-2 md:px-5 h-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
-            <button 
+            <button
               onClick={() => setLeftDrawerOpen(true)}
               className="p-2 -ml-2 text-white/70 hover:text-white transition-colors"
             >
@@ -83,18 +83,18 @@ export default function Header() {
 
             {/* Desktop Logo */}
             <Link href="/" className="hidden lg:flex items-center h-14">
-              <img 
-                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png" 
-                alt="Fairplay Logo" 
+              <img
+                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
+                alt="Fairplay Logo"
                 className="h-full object-contain"
               />
             </Link>
 
             {/* Mobile Logo */}
             <Link href="/" className="lg:hidden flex items-center h-8">
-              <img 
-                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png" 
-                alt="Fairplay Logo" 
+              <img
+                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
+                alt="Fairplay Logo"
                 className="h-full object-contain"
               />
             </Link>
@@ -129,7 +129,7 @@ export default function Header() {
               <>
                 {/* Mobile Authenticated */}
                 <div className="lg:hidden flex items-center gap-1.5">
-                  <button 
+                  <button
                     className="w-8 h-8 rounded-full bg-[#f26522] flex items-center justify-center shadow-md active:scale-95 transition-all"
                     onClick={() => setSearchModalOpen(!searchModalOpen)}
                   >
@@ -149,23 +149,23 @@ export default function Header() {
 
                   <button onClick={() => setProfileSidebarOpen(true)} className="h-8 px-4 rounded-full border border-[#f26522] flex items-center justify-center active:scale-95 transition-all">
                     <svg width="10" height="12" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3.5 4.05263C3.5 6.01132 5.07033 7.60526 7 7.60526C8.92967 7.60526 10.5 6.01132 10.5 4.05263C10.5 2.09395 8.92967 0.5 7 0.5C5.07033 0.5 3.5 2.09395 3.5 4.05263ZM13.2222 15.5H14V14.7105C14 11.6639 11.557 9.18421 8.55556 9.18421H5.44444C2.44222 9.18421 0 11.6639 0 14.7105V15.5H13.2222Z" fill="white"/>
+                      <path d="M3.5 4.05263C3.5 6.01132 5.07033 7.60526 7 7.60526C8.92967 7.60526 10.5 6.01132 10.5 4.05263C10.5 2.09395 8.92967 0.5 7 0.5C5.07033 0.5 3.5 2.09395 3.5 4.05263ZM13.2222 15.5H14V14.7105C14 11.6639 11.557 9.18421 8.55556 9.18421H5.44444C2.44222 9.18421 0 11.6639 0 14.7105V15.5H13.2222Z" fill="white" />
                     </svg>
                   </button>
                 </div>
 
                 {/* Desktop Authenticated - PRECISE MATCH TO IMAGE 4 */}
                 <div className="hidden lg:flex items-center gap-4">
-                   {/* Language Selector */}
-                   <div className="relative">
-                    <button 
+                  {/* Language Selector */}
+                  <div className="relative">
+                    <button
                       onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                       className="flex items-center gap-2 px-3 py-1.5 rounded-[4px] border border-white/30 bg-black min-w-[120px] transition-colors hover:border-white/60"
                     >
                       <span className="text-white text-[14px] font-bold">{currentLang.name}</span>
                       <ChevronDown size={14} className={`text-white ml-auto transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} />
                     </button>
-                    
+
                     {showLanguageMenu && (
                       <div className="absolute top-full left-0 mt-1 w-full bg-[#111] border border-white/10 rounded-md shadow-2xl py-1 z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
                         {languages.map((lang) => (
@@ -175,9 +175,8 @@ export default function Header() {
                               setLanguage(lang.code)
                               setShowLanguageMenu(false)
                             }}
-                            className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${
-                              language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
-                            }`}
+                            className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
+                              }`}
                           >
                             {lang.name}
                           </button>
@@ -187,7 +186,7 @@ export default function Header() {
                   </div>
 
                   {/* Open Bets */}
-                  <button 
+                  <button
                     onClick={openSlip}
                     className="h-10 px-5 rounded-full border border-[#f26522] text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
@@ -195,8 +194,8 @@ export default function Header() {
                   </button>
 
                   {/* Deposit Now */}
-                  <Link 
-                    href="/wallet/deposit" 
+                  <Link
+                    href="/wallet/deposit"
                     className="h-10 px-5 rounded-full border border-[#58a049] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#58a049]/10 transition-all active:scale-95"
                   >
                     <Wallet size={16} className="text-white" />
@@ -204,8 +203,8 @@ export default function Header() {
                   </Link>
 
                   {/* Wallet Balance */}
-                  <Link 
-                    href="/wallet" 
+                  <Link
+                    href="/wallet"
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
                     <Wallet size={16} className="text-white" />
@@ -213,7 +212,7 @@ export default function Header() {
                   </Link>
 
                   {/* Profile */}
-                  <button 
+                  <button
                     onClick={() => setProfileSidebarOpen(true)}
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
@@ -225,11 +224,11 @@ export default function Header() {
             ) : (
               mounted && (
                 <div className="hidden lg:flex items-center gap-4 mt-2" onKeyDown={(e) => e.key === 'Enter' && handleLogin()}>
-                   <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-4">
                       {/* Language Select */}
                       <div className="relative">
-                        <div 
+                        <div
                           onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-white/30 bg-black min-w-[110px] cursor-pointer hover:border-white/60 transition-colors"
                         >
@@ -246,9 +245,8 @@ export default function Header() {
                                   setLanguage(lang.code)
                                   setShowLanguageMenu(false)
                                 }}
-                                className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${
-                                  language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
-                                }`}
+                                className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
+                                  }`}
                               >
                                 {lang.name}
                               </button>
@@ -259,7 +257,7 @@ export default function Header() {
 
                       {/* Region Select */}
                       <div className="relative">
-                        <div 
+                        <div
                           onClick={() => setShowRegionMenu(!showRegionMenu)}
                           className="flex items-center gap-1.5 px-2 py-1.5 rounded-[4px] border border-white/30 bg-black min-w-[65px] cursor-pointer hover:border-white/60 transition-colors"
                         >
@@ -268,7 +266,7 @@ export default function Header() {
                         </div>
                         {showRegionMenu && (
                           <div className="absolute top-full left-0 mt-1 w-full bg-[#111] border border-white/10 rounded-md shadow-2xl py-1 z-[70]">
-                             <button className="w-full text-left px-4 py-2 text-[13px] text-[#e8612c] font-bold bg-white/5">IN</button>
+                            <button className="w-full text-left px-4 py-2 text-[13px] text-[#e8612c] font-bold bg-white/5">IN</button>
                           </div>
                         )}
                       </div>
@@ -317,17 +315,17 @@ export default function Header() {
 
                     {/* Bottom Links */}
                     <div className="flex items-center gap-10 pl-48">
-                        <label className="flex items-center gap-2 cursor-pointer pt-1" onClick={() => setRememberMe(!rememberMe)}>
-                           <div 
-                             className={`w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center transition-all ${rememberMe ? 'bg-[#f26522] border-[#f26522]' : 'bg-white'}`}
-                           >
-                             {rememberMe && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                           </div>
-                           <span className="text-orange-500 text-[10px] font-bold">Remember Me</span>
-                        </label>
-                        <Link href="/auth/forgot-password" text-color="orange" className="text-orange-500 text-[10px] font-bold hover:underline pt-1">
-                          Forgot Password?
-                        </Link>
+                      <label className="flex items-center gap-2 cursor-pointer pt-1" onClick={() => setRememberMe(!rememberMe)}>
+                        <div
+                          className={`w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center transition-all ${rememberMe ? 'bg-[#f26522] border-[#f26522]' : 'bg-white'}`}
+                        >
+                          {rememberMe && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                        </div>
+                        <span className="text-orange-500 text-[10px] font-bold">Remember Me</span>
+                      </label>
+                      <Link href="/auth/forgot-password" text-color="orange" className="text-orange-500 text-[10px] font-bold hover:underline pt-1">
+                        Forgot Password?
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -339,30 +337,30 @@ export default function Header() {
 
       {/* ── Mobile Inplay Header (NOT STICKY) ── */}
       <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-20 relative z-[50]">
-        <div className="flex w-[95%] h-[60px] p-2 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
-          <Link 
-            href="/" 
+        <div className="flex w-[98%] h-[60px] p-1 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
+          <Link
+            href="/"
             className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/' ? 'opacity-100 scale-105' : 'opacity-60'}`}
           >
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
           </Link>
-          <button 
+          <button
             onClick={() => setAuraCasinoOpen(true)}
             className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
           >
             <img src="/nav/aura-casino.png" alt="Aura Casino" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Aura Casino</span>
           </button>
-          <Link 
-            href="/sportsbook" 
+          <Link
+            href="/sportsbook"
             className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/sportsbook' ? 'opacity-100 scale-105' : 'opacity-60'}`}
           >
             <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">SportsBook</span>
           </Link>
-          <button 
-            onClick={() => setMoreMenuOpen(true)} 
+          <button
+            onClick={() => setMoreMenuOpen(true)}
             className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
           >
             <img src="/nav/more.png" alt="More" className="w-7 h-7 object-contain" />
@@ -385,7 +383,7 @@ export default function Header() {
             { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' }
           ].map((tab) => {
             const isActive = pathname === tab.href || (tab.id === 'inplay' && pathname === '/')
-            
+
             return (
               <Link
                 key={tab.id}
@@ -397,16 +395,15 @@ export default function Header() {
                   }
                   setActiveTab(tab.id)
                 }}
-                className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${
-                  isActive 
-                  ? 'border-[0.09rem] border-[#f36c21] rounded-[30px] !pr-3 font-black text-[#f36c21]' 
+                className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${isActive
+                  ? 'border-[0.09rem] border-[#f36c21] rounded-[30px] !pr-3 font-black text-[#f36c21]'
                   : 'text-[#a5caf6] hover:text-white font-bold'
-                }`}
+                  }`}
               >
                 <div className="h-[20px] w-[49px] flex items-center justify-center overflow-hidden shrink-0">
-                  <img 
-                    src={tab.icon} 
-                    alt={tab.label} 
+                  <img
+                    src={tab.icon}
+                    alt={tab.label}
                     className="h-full w-full object-contain"
                   />
                 </div>

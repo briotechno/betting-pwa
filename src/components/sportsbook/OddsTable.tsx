@@ -59,7 +59,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
   return (
     <div className="bg-[#eee]">
-      <div className="overflow-x-auto lg:overflow-visible">
+      <div className="overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <table className="w-full text-xs border-separate border-spacing-y-1">
           <tbody>
             {rows.map((row) => {
@@ -75,11 +75,16 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </td>
                   )}
 
-                  <td className="py-1.5 px-3 min-w-[140px]">
-                    <div className="flex flex-col justify-center min-w-0 w-full max-w-[120px] sm:max-w-[180px] lg:max-w-[250px]">
-                      <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.3] line-clamp-2 whitespace-pre-line break-words">
-                        {row.teamName.replace(' vs ', '\n')}
-                      </div>
+                  <td className="py-1.5 px-3 min-w-[140px] max-w-[140px] sm:max-w-[180px] lg:max-w-[250px]">
+                    <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+                      {row.teamName.includes(' vs ') ? (
+                        <>
+                          <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName.split(' vs ')[0]}</div>
+                          <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName.split(' vs ')[1]}</div>
+                        </>
+                      ) : (
+                        <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName}</div>
+                      )}
                     </div>
                   </td>
 

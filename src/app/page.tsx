@@ -40,24 +40,79 @@ const quickSports = [
 const featuredMatches = {
   cricket: [
     {
-      teamName: 'India vs Australia',
+      teamName: 'Indian Premier League',
       odds: [
-        { back: 1.42, backSize: '1M', lay: 1.43, laySize: '500K' },
+        { back: 5.10, backSize: '1,248', lay: 0, laySize: '' },
         { back: 0, lay: 0 },
-        { back: 3.10, backSize: '200K', lay: 3.15, laySize: '100K' },
+        { back: 7.00, backSize: '6,329', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 10.00, backSize: '2,392', lay: 0, laySize: '' },
+        { back: 0, lay: 0 }
+      ]
+    },
+    {
+      teamName: 'Malaysia vs Bahrain',
+      odds: [
+        { back: 1.10, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 6.75, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 }
+      ]
+    },
+    {
+      teamName: 'Multan Sultans SRL vs Quetta Gladiators SRL',
+      odds: [
+        { back: 5.10, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 1.16, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 }
+      ]
+    },
+    {
+      teamName: 'Yamuna Super Kings vs Chambal Chargers',
+      odds: [
+        { back: 15.00, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
         { back: 0, lay: 0 },
         { back: 0, lay: 0 },
         { back: 0, lay: 0 }
       ]
     },
     {
-      teamName: 'South Africa vs England',
+      teamName: 'Abbottabad Region vs Lahore Region Blues',
       odds: [
-        { back: 1.95, backSize: '500K', lay: 1.98, laySize: '250K' },
-        { back: 0, lay: 0 },
-        { back: 2.10, backSize: '400K', lay: 2.14, laySize: '200K' },
+        { back: 1.52, backSize: '15,642', lay: 0, laySize: '' },
         { back: 0, lay: 0 },
         { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 2.74, backSize: '852', lay: 0, laySize: '' },
+        { back: 0, lay: 0 }
+      ]
+    },
+    {
+      teamName: 'Sialkot Region vs Multan Region',
+      odds: [
+        { back: 1.61, backSize: '16,970', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 2.42, backSize: '721', lay: 0, laySize: '' },
+        { back: 0, lay: 0 }
+      ]
+    },
+    {
+      teamName: 'Northern Districts vs Auckland SRL',
+      odds: [
+        { back: 2.80, backSize: '', lay: 0, laySize: '' },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 0, lay: 0 },
+        { back: 1.42, backSize: '', lay: 0, laySize: '' },
         { back: 0, lay: 0 }
       ]
     }
@@ -222,7 +277,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Labels 1 X 2 with dark background - Responsive */}
-                <div className="flex items-center h-full bg-[#222]">
+                <div className="flex items-center h-full" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
                   <div className="flex items-center justify-end pr-2">
                     {/* Desktop 6 columns labels */}
                     <div className="hidden lg:flex gap-1">
@@ -370,7 +425,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Labels 1 X 2 with dark background - Responsive */}
-                    <div className="flex items-center h-full bg-[#222]">
+                    <div className="flex items-center h-full" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
                       <div className="flex items-center justify-end pr-2">
                         {/* Desktop 6 columns labels */}
                         <div className="hidden lg:flex gap-1">

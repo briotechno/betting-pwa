@@ -123,11 +123,16 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 <tbody>
                   {match.teams.map((team, tIdx) => (
                     <tr key={team.teamName} className="bg-white">
-                      <td className="p-3 py-3 w-[25%] lg:w-[30%] min-w-[140px] border-r border-gray-100">
-                        <div className="flex flex-col justify-center min-w-0 w-full max-w-[120px] sm:max-w-[180px] lg:max-w-[250px]">
-                          <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.3] line-clamp-2 whitespace-pre-line break-words">
-                            {team.teamName.replace(' vs ', '\n')}
-                          </div>
+                      <td className="p-3 py-3 w-[25%] lg:w-[30%] min-w-[140px] max-w-[140px] border-r border-gray-100">
+                        <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+                          {team.teamName.includes(' vs ') ? (
+                            <>
+                              <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName.split(' vs ')[0]}</div>
+                              <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName.split(' vs ')[1]}</div>
+                            </>
+                          ) : (
+                            <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName}</div>
+                          )}
                         </div>
                       </td>
 
