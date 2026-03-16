@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, Star, Info, Play, Signal } from 'lucide-react'
+import { MoreHorizontal, Star, Info, Play } from 'lucide-react'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 

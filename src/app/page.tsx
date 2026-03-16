@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ChevronRight, ChevronLeft, Signal, History } from 'lucide-react'
+import { ChevronRight, ChevronLeft, History } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import MatchCard from '@/components/sportsbook/MatchCard'
 import OddsTable from '@/components/sportsbook/OddsTable'
@@ -254,7 +254,7 @@ export default function HomePage() {
         {/* INPLAY Section Header */}
         <div className="flex items-center gap-2 px-1 mb-2">
           <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
-            <Signal size={12} className="text-white" />
+            <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[12px]"></i>
           </div>
           <h2 className="text-[15px] font-black text-white uppercase tracking-tight italic">INPLAY</h2>
         </div>

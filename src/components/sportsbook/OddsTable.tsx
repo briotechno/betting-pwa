@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { Signal, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
@@ -93,7 +93,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     <td className="py-1.5 px-0 w-[40px]">
                       <div className="flex items-center gap-1.5 text-[#28a745]">
                         <Play size={10} fill="currentColor" />
-                        <Signal size={12} className="opacity-80" />
+                        <i className="v-icon notranslate mdi mdi-access-point theme--light opacity-80" style={{ fontSize: '12px' }}></i>
                       </div>
                     </td>
                   )}
