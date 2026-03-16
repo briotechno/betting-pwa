@@ -76,9 +76,9 @@ export default function Header() {
           <div className="flex items-center gap-2 md:gap-4">
             <button
               onClick={() => setLeftDrawerOpen(true)}
-              className="p-2 -ml-2 text-white/70 hover:text-white transition-colors"
+              className="p-1 -ml-1 text-white/70 hover:text-white transition-colors flex items-center justify-center"
             >
-              <Menu size={24} />
+              <img src="/menuIcon.png" alt="Menu" className="w-[30px] h-[30px] object-contain" />
             </button>
 
             {/* Desktop Logo */}

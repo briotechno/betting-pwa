@@ -26,13 +26,13 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'FairBet | Premium Sports Betting & Casino',
+  title: 'fairplay',
   description: 'Experience the best live betting and casino games.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'FairBet',
+    title: 'fairplay',
   },
 }
 
@@ -44,8 +44,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" href="/Favicon.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/Favicon.png" />
       </head>
       <body className={`${inter.className} antialiased`}>
         <Providers>
