@@ -10,73 +10,75 @@ export default function ResetPasswordPage() {
   const [showConfirm, setShowConfirm] = useState(false)
 
   return (
-    <div className="bg-[#121212] min-h-screen text-white pb-20">
+    <div className="bg-[#181818] min-h-screen text-white pb-20 font-sans">
       {/* Sub Header */}
-      <div className="flex items-center px-4 py-3 bg-[#1a1a1a] shadow-md">
-        <button onClick={() => router.back()} className="text-white/80 pr-3">
-          <ChevronLeft size={24} color="#e15b24" />
+      <div className="flex items-center px-4 py-3 bg-[#222222]">
+        <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
+          <ChevronLeft size={22} className="stroke-[3]" />
         </button>
-        <h1 className="text-[17px] font-bold">Reset Password</h1>
+        <h1 className="text-[15px] font-bold text-white">Reset Password</h1>
       </div>
 
-      <div className="p-4 pt-10">
-        <div className="bg-[#1a1a1a] rounded-xl p-8 border border-white/5 shadow-2xl space-y-8">
+      <div className="p-4 pt-6">
+        <div className="bg-[#222222] rounded-[4px] p-5 shadow-lg space-y-8 border flex flex-col border-white/5">
           
           {/* Old Password */}
-          <div className="relative group">
-            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+          <div className="relative group flex items-center border-b border-gray-400 pb-1">
+            <Lock className="text-white mr-3 flex-shrink-0" size={18} fill="currentColor" strokeWidth={0} />
             <input 
               type={showOld ? 'text' : 'password'} 
               placeholder="Old Password*" 
-              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
+              className="w-full bg-transparent h-8 text-[13px] font-medium text-white outline-none placeholder-gray-300"
             />
             <button 
               type="button"
               onClick={() => setShowOld(!showOld)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
+              className="text-white ml-2 flex-shrink-0"
             >
-              {showOld ? <EyeOff size={22} /> : <Eye size={22} />}
+              {showOld ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 
           {/* New Password */}
-          <div className="relative group">
-            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+          <div className="relative group flex items-center border-b border-gray-400 pb-1">
+            <Lock className="text-white mr-3 flex-shrink-0" size={18} fill="currentColor" strokeWidth={0} />
             <input 
               type={showNew ? 'text' : 'password'} 
               placeholder="New Password*" 
-              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
+              className="w-full bg-transparent h-8 text-[13px] font-medium text-white outline-none placeholder-gray-300"
             />
             <button 
               type="button"
               onClick={() => setShowNew(!showNew)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
+              className="text-white ml-2 flex-shrink-0"
             >
-              {showNew ? <EyeOff size={22} /> : <Eye size={22} />}
+              {showNew ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 
           {/* Confirm Password */}
-          <div className="relative group">
-            <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-[#e15b24] transition-colors" size={24} />
+          <div className="relative group flex items-center border-b border-gray-400 pb-1">
+            <Lock className="text-white mr-3 flex-shrink-0" size={18} fill="currentColor" strokeWidth={0} />
             <input 
               type={showConfirm ? 'text' : 'password'} 
               placeholder="Confirm New Password*" 
-              className="w-full bg-transparent border-b border-white/20 h-12 pl-10 pr-10 text-[16px] outline-none focus:border-[#e15b24] transition-all"
+              className="w-full bg-transparent h-8 text-[13px] font-medium text-white outline-none placeholder-gray-300"
             />
             <button 
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-white/50"
+              className="text-white ml-2 flex-shrink-0"
             >
-              {showConfirm ? <EyeOff size={22} /> : <Eye size={22} />}
+              {showConfirm ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 
           {/* Action Button */}
-          <button className="w-full h-12 bg-[#e15b24] text-white rounded-xl text-[14px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all mt-6">
-            RESET PASSWORD
-          </button>
+          <div className="pt-2">
+            <button className="w-full h-10 bg-[#e8612c] text-white rounded-full text-[13px] font-bold tracking-wide active:scale-[0.98] transition-all">
+              RESET PASSWORD
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -43,9 +43,11 @@ export default function ProfitLossPage() {
         </div>
 
         {/* Search Button */}
-        <button className="w-full h-12 bg-[#e15b24] text-white rounded-xl text-[14px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all">
-          SEARCH
-        </button>
+        <div>
+          <button className="w-[170px] h-9 bg-[#e15b24] text-white rounded-full text-[12px] font-bold uppercase tracking-wider active:scale-[0.98] transition-all">
+            SEARCH
+          </button>
+        </div>
 
         {/* Results Badge */}
         <div className="inline-block px-5 py-2.5 rounded-full border border-[#e15b24] text-[15px] font-black tracking-tight">
