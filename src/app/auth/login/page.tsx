@@ -3,29 +3,30 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight } from 'lucide-react'
+import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuthStore()
-  
+
   const [loginMode, setLoginMode] = useState<'mobile' | 'userId'>('mobile')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  
+
   const [formData, setFormData] = useState({
     identifier: '', // Can be phone or userId
-    password: ''
+    password: '',
+    rememberMe: false
   })
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    
+
     // Simulate API call
     await new Promise(r => setTimeout(r, 1500))
-    
+
     login({
       id: '1',
       username: loginMode === 'mobile' ? `user_${formData.identifier.slice(-4)}` : formData.identifier,
@@ -33,7 +34,7 @@ export default function LoginPage() {
       balance: 10000,
       tier: 'Beginner'
     })
-    
+
     setLoading(false)
     router.push('/')
   }
@@ -41,9 +42,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 font-sans overflow-hidden">
       {/* Dynamic Stadium Background */}
-      <div 
+      <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
+        style={{
           backgroundImage: 'url("/signup-bg.png")',
         }}
       >
@@ -51,65 +52,45 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
       </div>
 
-      <div className="w-full max-w-[440px] relative z-10 flex flex-col items-center">
+      <div className="w-full max-w-[400px] relative z-10 flex flex-col items-center">
         {/* Top Logo */}
-        <div className="mb-8 scale-125">
-          <Link href="/" className="flex items-center gap-1 group">
-            <span className="text-4xl font-black tracking-tighter text-[#e8612c]">fair</span>
-            <span className="text-4xl font-black text-white tracking-tighter">play</span>
-            <div className="ml-1.5 px-2 py-1 rounded bg-[#e8612c] text-white text-[10px] font-black uppercase tracking-widest leading-none">
-              VIP
-            </div>
+        <div className="mb-4">
+          <Link href="/" className="flex flex-col items-center">
+            <img
+              src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
+              alt="Fairplay Logo"
+              className="h-[4.5rem] object-contain drop-shadow-lg"
+            />
           </Link>
-          <p className="text-[10px] text-center text-white/40 font-black uppercase tracking-[0.3em] mt-1 pl-1">Greater Luck Greater Wins</p>
+          <p className="text-[8px] sm:text-[9px] text-center text-white/70 font-black tracking-[0.15em] mt-1 uppercase block">GREATER ODDS. GREATER WINNINGS</p>
         </div>
 
         {/* Login Container */}
-        <div className="w-full bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg p-8 shadow-2xl relative group">
+        <div className="w-full bg-black/60 backdrop-blur-sm border-[1.5px] border-[#e8612c] rounded-md p-6 sm:p-8 shadow-2xl overflow-visible relative group">
+          {/* Subtle border glow */}
+          <div className="absolute inset-0 pointer-events-none rounded-md group-focus-within:bg-white/5 transition-colors" />
+
+          {/* Floating WhatsApp */}
+
           <form onSubmit={handleLogin} className="space-y-7 pt-4">
-            
-            {/* Mode Toggle */}
-            <div className="flex p-0.5 bg-white/5 border border-white/10 rounded-lg">
-              <button 
-                type="button"
-                onClick={() => setLoginMode('mobile')}
-                className={`flex-1 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
-                  loginMode === 'mobile' ? 'bg-[#e8612c] text-white shadow-lg shadow-orange-950/20' : 'text-white/40 hover:text-white/60'
-                }`}
-              >
-                Mobile
-              </button>
-              <button 
-                type="button"
-                onClick={() => setLoginMode('userId')}
-                className={`flex-1 py-2 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
-                  loginMode === 'userId' ? 'bg-[#e8612c] text-white shadow-lg shadow-orange-950/20' : 'text-white/40 hover:text-white/60'
-                }`}
-              >
-                User ID
-              </button>
-            </div>
 
             {/* Input Wrapper with Underline style */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               {/* Account Input */}
               <div className="relative border-b border-white/20 pb-1 focus-within:border-white transition-colors">
                 <div className="flex items-center gap-3">
-                  {loginMode === 'mobile' ? (
-                    <>
-                      <Phone size={16} className="text-white" />
-                      <span className="text-sm font-black text-white/60">+91</span>
-                    </>
-                  ) : (
-                    <User size={16} className="text-white" />
-                  )}
-                  <input 
-                    type={loginMode === 'mobile' ? 'tel' : 'text'}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="text-white"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+
+                  <ChevronDown size={14} className="text-white ml-2" />
+                  <div className="h-6 w-[1px] bg-white/20 mx-1"></div>
+
+                  <input
+                    type="tel"
                     required
-                    placeholder={loginMode === 'mobile' ? 'Mobile*' : 'User ID / Username*'}
-                    className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/40 outline-none py-1"
+                    placeholder="Mobile Number"
+                    className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/70 outline-none py-1"
                     value={formData.identifier}
-                    onChange={(e) => setFormData({...formData, identifier: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                   />
                 </div>
               </div>
@@ -118,15 +99,15 @@ export default function LoginPage() {
               <div className="relative border-b border-white/20 pb-1 focus-within:border-white transition-colors">
                 <div className="flex items-center gap-3">
                   <Lock size={16} className="text-white" />
-                  <input 
-                    type={showPassword ? "text" : "password"} 
+                  <input
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="Password*"
                     className="flex-1 bg-transparent text-sm font-medium text-white placeholder-white/40 outline-none py-1"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-white/40 hover:text-white transition-colors"
@@ -138,17 +119,37 @@ export default function LoginPage() {
             </div>
 
             <div className="flex justify-end">
-               <Link href="/auth/forgot-password" className="text-[11px] text-[#e8612c] font-black uppercase tracking-tight hover:underline">Forgot Password?</Link>
+              <Link href="/auth/forgot-password" className="text-[12px] text-white font-bold uppercase tracking-tight hover:underline">Forgot Password?</Link>
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center gap-2 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer group/check">
+                <input 
+                  type="checkbox" 
+                  className="hidden" 
+                  checked={formData.rememberMe}
+                  onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                />
+                <div className={`w-[20px] h-[20px] rounded-[4px] border-[1.5px] transition-colors flex items-center justify-center ${formData.rememberMe ? 'bg-black border-[#e8612c]' : 'bg-black border-[#e8612c] group-hover/check:border-[#ff7a45]'}`}>
+                  {formData.rememberMe && (
+                    <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[#e8612c]" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] text-white/90 font-medium select-none">Remember Me</span>
+              </label>
             </div>
 
             {/* Submit Button */}
-            <button 
+            <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-[#5cb85c] text-white rounded-lg text-sm font-black uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-50 shadow-lg shadow-green-900/20"
+              className="w-full h-[45px] bg-[#e8612c] text-white rounded-[4px] text-[15px] font-bold uppercase hover:bg-[#ff7a45] active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed mt-4 shadow-lg shadow-orange-900/20"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[#9e9589]/30 border-t-[#9e9589] rounded-full animate-spin" />
               ) : (
                 "Login"
               )}
@@ -156,31 +157,30 @@ export default function LoginPage() {
 
             {/* Social Divider */}
             <div className="relative py-2">
-               <div className="absolute inset-0 flex items-center">
-                 <div className="w-full border-t border-white/10" />
-               </div>
-               <div className="relative flex justify-center">
-                 <span className="bg-[#0e0e0e] px-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">or login with</span>
-               </div>
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="  px-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">or login with</span>
+              </div>
             </div>
 
             {/* Social Buttons */}
-            <div className="flex flex-col items-center gap-4">
-              <button type="button" className="w-full h-10 bg-white rounded-md flex items-center justify-center gap-3 transition-all hover:bg-gray-100 shadow-md">
-                <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} />
-                <span className="text-[13px] font-bold text-gray-700">Google</span>
-              </button>
-              
-              <button type="button" className="w-10 h-10 bg-[#4caf50] rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.539 2.01 2.057-.54c.953.52 1.908.814 3.232.815 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.772-5.769-5.772zm3.38 8.044c-.154.433-.746.793-1.044.814-.298.02-.589.117-1.921-.406-1.639-.645-2.741-2.316-2.822-2.425-.081-.109-.661-.88-.661-1.683 0-.803.414-1.198.562-1.353.148-.155.32-.193.427-.193h.305c.088 0 .141-.013.205.148l.433 1.054c.054.133.09.283.003.456-.087.173-.131.283-.26.433-.13.15-.272.336-.39.452-.132.13-.268.271-.116.533.152.262.676 1.111 1.45 1.802.997.89 1.838 1.164 2.1 1.294.262.13.415.109.57-.071.155-.181.661-.771.838-1.033.177-.262.355-.218.6-.128s1.543.727 1.808.859c.264.13.441.194.506.305.065.111.065.642-.09 1.075z" />
-                </svg>
+            <div className="relative">
+              <button type="button" className="w-full h-[40px] bg-white rounded-[4px] flex items-center justify-center gap-2 transition-all hover:bg-gray-100 shadow-md">
+                <Image src="https://www.google.com/favicon.ico" alt="Google" width={18} height={18} />
+                <span className="text-[14px] font-bold text-black">Google</span>
               </button>
             </div>
 
             {/* Signup Link */}
-            <p className="text-center text-[12px] text-white/60 font-medium">
-              Don't have an account? <Link href="/auth/signup" className="text-[#e8612c] font-black hover:underline uppercase tracking-tight">Register</Link>
+            <p className="text-center text-[13px] text-white/80 font-medium mt-6 pb-2">
+              Not a member? <Link href="/auth/signup" className="text-[#e8612c] font-black hover:underline tracking-tight ml-2 uppercase">Join Now</Link>
+            </p>
+
+            {/* Guest Link */}
+            <p className="text-center text-[13px] pb-4 -mt-2">
+              <Link href="/" className="text-[#e8612c] font-medium underline tracking-tight transition-all hover:text-[#ff7a45]">Continue as Guest</Link>
             </p>
           </form>
         </div>

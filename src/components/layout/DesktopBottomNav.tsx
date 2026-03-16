@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
@@ -7,6 +7,13 @@ import { useLayoutStore } from '@/store/layoutStore'
 export default function DesktopBottomNav() {
   const pathname = usePathname()
   const { setAuraCasinoOpen } = useLayoutStore()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || pathname?.startsWith('/auth')) return null
 
   const navItems = [
     {
