@@ -256,7 +256,7 @@ export default function HomePage() {
           <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
             <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[12px]"></i>
           </div>
-          <h2 className="text-[15px] font-black text-white uppercase tracking-tight italic">INPLAY</h2>
+          <h2 className="text-[15px] font-black text-white uppercase tracking-tight">INPLAY</h2>
         </div>
 
         {/* LIVE SPORTS SECTIONS */}
@@ -269,9 +269,15 @@ export default function HomePage() {
             <div key={sportId} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
               {/* Header Block - Orange/Black Split Style */}
               <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
-                <div className="bg-[#e8612c] flex items-center px-4 gap-2 flex-1 h-full">
-                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0">
-                    <span className="text-[14px]">{sportData?.emoji}</span>
+                <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
+                  <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                    {sportId === 'cricket' ? (
+                      <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
+                    ) : sportId === 'soccer' ? (
+                      <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
+                    ) : (
+                      <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
+                    )}
                   </div>
                   <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
                 </div>
@@ -318,11 +324,11 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Live Cards */}
           <div className="bg-[#111] p-3 rounded-[16px] border border-white/5 shadow-inner">
-            <div className="flex items-center justify-between lg:justify-center relative px-2 mb-4 lg:mb-6">
-              <h3 className="text-[17px] lg:text-[20px] font-black italic text-white leading-none">
+            <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
+              <h3 className="text-[1rem] font-normal text-white leading-none">
                 Live <span className="text-[#e8612c]">Cards</span>
               </h3>
-              <Link href="/live-cards" className="text-[10px] text-[#e8612c] font-black uppercase tracking-wider absolute right-2">More ...</Link>
+              <Link href="/live-cards" className="text-[10px] text-[#e8612c] font-normal font-black   tracking-wider absolute right-2">More ...</Link>
             </div>
             <div className="grid grid-cols-3 gap-3 px-1">
               {[
@@ -353,11 +359,11 @@ export default function HomePage() {
 
           {/* Live Casino */}
           <div className="bg-[#111] p-3 rounded-[16px] border border-white/5 shadow-inner">
-            <div className="flex items-center justify-between lg:justify-center relative px-2 mb-4 lg:mb-6">
-              <h3 className="text-[17px] lg:text-[20px] font-black italic text-white leading-none">
+            <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
+              <h3 className="text-[1rem] font-normal text-white leading-none">
                 Live <span className="text-[#e8612c]">Casino</span>
               </h3>
-              <Link href="/markets/live-casino" className="text-[10px] text-[#e8612c] font-black uppercase tracking-wider absolute right-2">More ...</Link>
+              <Link href="/markets/live-casino" className="text-[10px] text-[#e8612c] font-black  font-normal tracking-wider absolute right-2">More ...</Link>
             </div>
             <div className="grid grid-cols-3 gap-3 px-1">
               {[
@@ -401,10 +407,8 @@ export default function HomePage() {
         {/* UPCOMING EVENTS SECTIONS */}
         <div className="mt-8 mb-4">
           <div className="flex items-center gap-2 mb-4 px-1">
-            <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
-              <History size={12} className="text-white" strokeWidth={3} />
-            </div>
-            <h2 className="text-[15px] font-black text-white uppercase tracking-tight italic">UPCOMING</h2>
+            <img src="/upcoming-icon.png" alt="Upcoming" className="w-6 h-6 object-contain" />
+            <h2 className="text-[15px] font-black text-white uppercase tracking-tight">UPCOMING</h2>
           </div>
 
           <div className="space-y-6">
@@ -417,9 +421,15 @@ export default function HomePage() {
                 <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
                   {/* Header Block - Orange/Black Split Style */}
                   <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
-                    <div className="bg-[#e8612c] flex items-center px-4 gap-2 flex-1 h-full">
-                      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0">
-                        <span className="text-[14px]">{sportData?.emoji}</span>
+                    <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
+                      <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                        {sportId === 'cricket' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : sportId === 'soccer' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        )}
                       </div>
                       <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
                     </div>
@@ -485,15 +495,15 @@ export default function HomePage() {
         {/* DOWNLOAD THE APP SECTION */}
         <div className="mt-4 flex flex-col items-center text-center overflow-hidden relative">
           {/* Desktop/PC Banner */}
-          <img 
-            src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png" 
-            alt="Download App PC" 
+          <img
+            src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png"
+            alt="Download App PC"
             className="hidden lg:block w-full h-auto object-contain"
           />
           {/* Mobile Banner */}
-          <img 
-            src="./download-app-banner.png" 
-            alt="Download App Mobile" 
+          <img
+            src="./download-app-banner.png"
+            alt="Download App Mobile"
             className="lg:hidden w-full h-auto object-contain"
           />
         </div>

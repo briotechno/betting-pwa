@@ -85,7 +85,7 @@ export default function RulesRegulationsPage() {
           {/* Part B Section Peek */}
           <section className="space-y-4 pt-4 border-t border-white/5">
              <h2 className="text-[#e15b24] text-[18px] font-black uppercase tracking-tight">PART B - GENERAL RULES</h2>
-             <div className="text-[14px] text-white/80 leading-relaxed italic">
+             <div className="text-[14px] text-white/80 leading-relaxed">
                 (Information extracted from terms and conditions regarding malfunctions, in-play management, and settlement rules...)
              </div>
              {/* Note: In a real app we'd map all the text, but keeping it concise for the UI demo as requested */}

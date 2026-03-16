@@ -121,7 +121,7 @@ export default function SportsbookPage() {
                <div className="flex flex-col relative z-10 pl-3">
                   {match.isUpcoming && (
                     <div className="bg-[#00aef0] px-2 py-[2px] rounded-[2px] inline-block w-fit mb-1 shadow-sm">
-                       <span className="text-white text-[9px] font-black uppercase tracking-tight leading-none italic">UPCOMING</span>
+                       <span className="text-white text-[9px] font-black uppercase tracking-tight leading-none">UPCOMING</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1.5">

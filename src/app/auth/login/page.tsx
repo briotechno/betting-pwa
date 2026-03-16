@@ -55,8 +55,8 @@ export default function LoginPage() {
         {/* Top Logo */}
         <div className="mb-8 scale-125">
           <Link href="/" className="flex items-center gap-1 group">
-            <span className="text-4xl font-black italic tracking-tighter text-[#e8612c]">fair</span>
-            <span className="text-4xl font-black italic text-white tracking-tighter">play</span>
+            <span className="text-4xl font-black tracking-tighter text-[#e8612c]">fair</span>
+            <span className="text-4xl font-black text-white tracking-tighter">play</span>
             <div className="ml-1.5 px-2 py-1 rounded bg-[#e8612c] text-white text-[10px] font-black uppercase tracking-widest leading-none">
               VIP
             </div>

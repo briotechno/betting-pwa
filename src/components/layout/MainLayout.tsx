@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
 import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
+import Footer from './Footer'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useLayoutStore()
@@ -43,8 +44,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </a>
 
       {/* Main page content - pt accounts for fixed header parts */}
-      <main className="min-h-screen pb-24 lg:pb-20 pt-0 lg:pt-[148px]" style={{ background: '#121212' }}>
-        {children}
+      <main className="min-h-screen pt-0 lg:pt-[148px]" style={{ background: '#121212' }}>
+        <div className="pb-0 lg:pb-0">
+          {children}
+        </div>
+        <Footer />
       </main>
     </div>
 

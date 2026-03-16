@@ -15,7 +15,7 @@ export default function StakeSettingsPage() {
         <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
           <ChevronLeft size={22} className="stroke-[3]" />
         </button>
-        <h1 className="text-[15px] font-bold text-white uppercase tracking-tight italic">Settings</h1>
+        <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Settings</h1>
       </div>
 
       <div className="p-4 pt-4">

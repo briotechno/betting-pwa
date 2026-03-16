@@ -29,8 +29,8 @@ export default function AuraCasinoOverlay() {
           </button>
 
           <div className="flex items-center gap-1 group">
-            <span className="text-xl font-black italic tracking-tighter text-[#e8612c]">fair</span>
-            <span className="text-xl font-black italic text-white tracking-tighter">play</span>
+            <span className="text-xl font-black tracking-tighter text-[#e8612c]">fair</span>
+            <span className="text-xl font-black text-white tracking-tighter">play</span>
           </div>
         </div>
 

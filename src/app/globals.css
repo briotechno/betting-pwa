@@ -213,6 +213,33 @@ body {
 }
 
 /* ===== HIDE NUMBER SPIN BUTTONS ===== */
+@font-face {
+  font-family: 'Play-Exchange-Icons';
+  src: url('/Font/Play-Exchange-Icons.2a4283d.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.iconpe {
+  font-family: 'Play-Exchange-Icons' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.iconpe-cricket:before {
+  content: "\0048";
+}
+
+.iconpe-tennis:before {
+  content: "\004A";
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
