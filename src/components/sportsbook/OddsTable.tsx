@@ -40,7 +40,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
   const handleClick = (teamName: string, oddsValue: number, betType: 'back' | 'lay') => {
     if (!oddsValue) return
-    
+
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
@@ -63,7 +63,6 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
         <table className="w-full text-xs border-separate border-spacing-y-1">
           <tbody>
             {rows.map((row) => {
-              const teams = row.teamName.includes(' vs ') ? row.teamName.split(' vs ') : [row.teamName]
               return (
                 <tr key={row.teamName} className="bg-white hover:bg-gray-50/50 transition-colors">
                   {/* Optional Start Time Column */}
@@ -77,13 +76,13 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                   )}
 
                   <td className="py-1.5 px-3 min-w-[140px]">
-                    <div className="flex flex-col">
-                      {teams.map((team, tIdx) => (
-                        <span key={tIdx} className="text-[11px] font-bold text-[#333] uppercase leading-tight truncate max-w-[150px]">{team}</span>
-                      ))}
+                    <div className="flex flex-col justify-center min-w-0 w-full max-w-[120px] sm:max-w-[180px] lg:max-w-[250px]">
+                      <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.3] line-clamp-2 whitespace-pre-line break-words">
+                        {row.teamName.replace(' vs ', '\n')}
+                      </div>
                     </div>
                   </td>
-                  
+
                   {/* Status Icons - Hidden for upcoming */}
                   {!row.startTime && (
                     <td className="py-1.5 px-0 w-[40px]">
@@ -94,8 +93,8 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </td>
                   )}
 
-                  <td className="py-1 px-1">
-                    <div className="flex items-center justify-end gap-1 px-1">
+                  <td className="py-1 pr-2">
+                    <div className="flex items-center justify-end gap-1">
                       {row.odds.slice(0, 6).map((odd, idx) => {
                         const isLay = idx % 2 !== 0
                         // On mobile (hidden by lg:flex), we only show 3 cells. 
@@ -103,29 +102,29 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                         // Actually, the structure usually is: [1 Back, 1 Lay, X Back, X Lay, 2 Back, 2 Lay]
                         // On mobile we only want the Back cells (0, 2, 4) or just 0, 1, 2 depending on how data is structure.
                         // Based on the image, mobile shows 3 cells. Usually these are the Back odds.
-                        
+
                         // Let's assume on mobile we show index 0, 2, 4 (Backs)
                         // And on desktop we show all 6.
-                        
+
                         const isMobileCell = idx === 0 || idx === 2 || idx === 4
-                        
+
                         return (
                           <button
                             key={idx}
                             onClick={() => handleClick(row.teamName, isLay ? odd.lay : odd.back, isLay ? 'lay' : 'back')}
                             disabled={isLay ? !odd.lay : !odd.back}
                             className={`
-                              w-[70px] md:w-[92px] lg:w-[100px] h-[38px] md:h-[42px] rounded-md flex flex-col items-center justify-center transition-all
+                              w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all
                               ${idx === 4 ? 'flex lg:hidden' : (idx > 2 ? 'hidden' : (!isMobileCell ? 'hidden lg:flex' : 'flex'))}
-                              ${isLay 
-                                ? (!odd.lay ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.lay, 'lay') ? 'bg-[#f2708b] text-white' : 'bg-[#f8d0ce] hover:bg-[#f5c6cb] text-[#333]') 
-                                : (!odd.back ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.back, 'back') ? 'bg-[#1a91eb] text-white' : 'bg-[#a5d9fe] hover:bg-[#a5d1ff] text-[#333]')
+                              ${isLay
+                                ? (!odd.lay ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.lay, 'lay') ? 'bg-[#f2708b] text-white' : 'bg-[#f8d0ce] hover:bg-[#f5c6cb] text-black')
+                                : (!odd.back ? 'bg-[#f5f5f5] text-[#ccc]' : isSelected(row.teamName, odd.back, 'back') ? 'bg-[#1a91eb] text-white' : 'bg-[#a5d9fe] hover:bg-[#a5d1ff] text-black')
                               }
                             `}
                           >
                             <span className="text-[12px] font-bold leading-none">{(isLay ? odd.lay : odd.back) || '-'}</span>
                             {(isLay ? odd.laySize : odd.backSize) && (
-                              <span className="text-[8px] font-medium opacity-70 mt-0.5">
+                              <span className="text-[8px] font-bold mt-0.5">
                                 {isLay ? odd.laySize : odd.backSize}
                               </span>
                             )}

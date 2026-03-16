@@ -6,7 +6,9 @@
 
 
 /* ===== BASE RESETS ===== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -28,7 +30,8 @@
   --text-secondary: #aaaaaa;
 }
 
-html, body {
+html,
+body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--background);
   color: var(--text-primary);
@@ -39,14 +42,30 @@ html, body {
 }
 
 /* ===== SCROLLBAR ===== */
-::-webkit-scrollbar       { width: 3px; height: 3px; }
-::-webkit-scrollbar-track { background: var(--header-bg); }
-::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--header-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 2px;
+}
 
 /* ===== UTILITIES ===== */
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
   .text-gradient-orange {
     background: linear-gradient(135deg, var(--primary), #ffd700);
@@ -62,57 +81,82 @@ html, body {
     border: 1px solid var(--card-border);
   }
 
-  .odds-animate { transition: background-color 0.2s ease, transform 0.1s ease; }
-  .odds-animate:active { transform: scale(0.94); }
+  .odds-animate {
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
 
-  .live-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .odds-animate:active {
+    transform: scale(0.94);
+  }
+
+  .live-pulse {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }
 
 /* ===== COMPONENT STYLES ===== */
 @layer components {
+
   /* ── Odds buttons ── */
   .back-btn {
-    @apply bg-backBet text-gray-900 font-bold text-xs px-2 py-1.5 rounded
-           text-center cursor-pointer transition-all duration-150
-           hover:bg-backBetDark odds-animate;
+    @apply bg-backBet text-gray-900 font-bold text-xs px-2 py-1.5 rounded text-center cursor-pointer transition-all duration-150 hover:bg-backBetDark odds-animate;
   }
+
   .lay-btn {
-    @apply bg-layBet text-gray-900 font-bold text-xs px-2 py-1.5 rounded
-           text-center cursor-pointer transition-all duration-150
-           hover:bg-layBetDark odds-animate;
+    @apply bg-layBet text-gray-900 font-bold text-xs px-2 py-1.5 rounded text-center cursor-pointer transition-all duration-150 hover:bg-layBetDark odds-animate;
   }
-  .back-btn.selected { @apply bg-backBetDark ring-2 ring-primary; }
-  .lay-btn.selected  { @apply bg-layBetDark  ring-2 ring-danger; }
+
+  .back-btn.selected {
+    @apply bg-backBetDark ring-2 ring-primary;
+  }
+
+  .lay-btn.selected {
+    @apply bg-layBetDark ring-2 ring-danger;
+  }
 
   /* ── Sport pills (top scrollable nav) ── */
   .sport-pill {
-    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-full
-           text-xs font-medium whitespace-nowrap transition-all duration-200 cursor-pointer;
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 cursor-pointer;
   }
-  .sport-pill.active   { @apply bg-primary text-white; }
-  .sport-pill.inactive { @apply bg-surface text-textSecondary border border-cardBorder hover:bg-surfaceLight; }
+
+  .sport-pill.active {
+    @apply bg-primary text-white;
+  }
+
+  .sport-pill.inactive {
+    @apply bg-surface text-textSecondary border border-cardBorder hover:bg-surfaceLight;
+  }
 
   /* ── Mobile bottom nav tabs ── */
   .nav-tab {
-    @apply flex flex-col items-center gap-0.5 text-xs
-           text-textSecondary transition-colors duration-200 cursor-pointer;
+    @apply flex flex-col items-center gap-0.5 text-xs text-textSecondary transition-colors duration-200 cursor-pointer;
   }
-  .nav-tab.active { @apply text-primary; }
+
+  .nav-tab.active {
+    @apply text-primary;
+  }
 
   /* ── Sidebar items ── */
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 text-sm
-           text-textSecondary hover:bg-surfaceLight hover:text-textPrimary
-           cursor-pointer transition-all duration-200;
+    @apply flex items-center gap-3 px-4 py-2.5 text-sm text-textSecondary hover:bg-surfaceLight hover:text-textPrimary cursor-pointer transition-all duration-200;
   }
-  .sidebar-item.active { @apply bg-primary text-white; }
+
+  .sidebar-item.active {
+    @apply bg-primary text-white;
+  }
 }
 
 /* ===== SKELETON LOADER ===== */
 @keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px  0; }
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
 }
+
 .skeleton {
   background: linear-gradient(90deg, var(--surface) 25%, var(--surface-light) 50%, var(--surface) 75%);
   background-size: 400px 100%;
@@ -121,28 +165,45 @@ html, body {
 }
 
 /* ===== CASINO CARD HOVER ===== */
-.game-card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.game-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
 .game-card-hover:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 28px rgba(var(--primary-rgb), 0.25);
 }
 
 /* ===== ORANGE GLOW ===== */
-.glow-orange { box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.35); }
+.glow-orange {
+  box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.35);
+}
 
 /* ===== SAFE AREA (iOS) ===== */
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
 /* ===== BANNER DOTS ===== */
-.banner-dot { @apply w-2 h-2 rounded-full transition-all duration-300; }
-.banner-dot.active   { @apply bg-primary; width: 1rem; }
-.banner-dot.inactive { @apply bg-gray-600/30; }
+.banner-dot {
+  @apply w-2 h-2 rounded-full transition-all duration-300;
+}
+
+.banner-dot.active {
+  @apply bg-primary;
+  width: 1rem;
+}
+
+.banner-dot.inactive {
+  @apply bg-gray-600/30;
+}
 
 /* ===== HEADER NAV ACTIVE UNDERLINE ===== */
 .top-nav-active {
   border-bottom: 2px solid var(--primary);
   color: var(--primary);
-  background: var(--primary); /* Opacity usually handled by hex + alpha or rgba */
+  background: var(--primary);
+  /* Opacity usually handled by hex + alpha or rgba */
 }
 
 /* ===== CRICKET SECTION HEADER ===== */
