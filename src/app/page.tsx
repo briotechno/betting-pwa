@@ -283,14 +283,18 @@ export default function HomePage() {
                 </div>
 
                 {/* Labels 1 X 2 with dark background - Responsive */}
-                <div className="flex items-center h-full" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
-                  <div className="flex items-center justify-end pr-2">
+                <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
+                  <div className="flex items-center justify-end pr-2 w-full">
+
                     {/* Desktop 6 columns labels */}
                     <div className="hidden lg:flex gap-1">
-                      <div className="w-[60px] flex justify-center"><span className="text-[10px] font-black text-white">1</span></div>
-                      <div className="w-[60px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                      <div className="w-[60px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
+                      <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
+                      <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
+                      <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
                     </div>
+
+
+
                     {/* Mobile 3 columns labels */}
                     <div className="flex lg:hidden gap-1">
                       <div className="w-[60px] flex justify-center">
@@ -435,14 +439,18 @@ export default function HomePage() {
                     </div>
 
                     {/* Labels 1 X 2 with dark background - Responsive */}
-                    <div className="flex items-center h-full" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
-                      <div className="flex items-center justify-end pr-2">
+                    <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
+                      <div className="flex items-center justify-end pr-2 w-full">
+
                         {/* Desktop 6 columns labels */}
                         <div className="hidden lg:flex gap-1">
-                          <div className="w-[60px] flex justify-center"><span className="text-[10px] font-black text-white">1</span></div>
-                          <div className="w-[60px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">L</span></div>
-                          <div className="w-[60px] flex justify-center border-l lg:border-none border-white/10"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
                         </div>
+
+
+
                         {/* Mobile 3 columns labels */}
                         <div className="flex lg:hidden gap-1">
                           <div className="w-[60px] flex justify-center">
