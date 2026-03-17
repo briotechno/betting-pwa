@@ -5,24 +5,81 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import { useLayoutStore } from '@/store/layoutStore'
 
-const sports = [
-  { id: 'cricket', label: 'Cricket', icon: '/sports-icons/cricket.13c45ec.png', count: 15 },
-  { id: 'soccer', label: 'Soccer', icon: '/sports-icons/soccer.edef26e.png', count: 41 },
-  { id: 'tennis', label: 'Tennis', icon: '/sports-icons/tennis.61acaee.png', count: 69 },
-  { id: 'live-card', label: 'Live Card', icon: '/casino-icons/teenpatti.ec813d1.png' },
-  { id: 'casino', label: 'Casino', icon: '/casino-icons/roulette.d32562e.png' },
-  { id: 'slot-games', label: 'Slot Games', icon: '/casino-icons/money-wheel.6da4f96.png' },
-  { id: 'kabaddi', label: 'Kabaddi', icon: '/sports-icons/tabletennis.e584580.png' }, // Fallback to tabletennis or similar if kabaddi doesn't exist
-  { id: 'badminton', label: 'Badminton', icon: '/sports-icons/badminton.fdfeeb2.png' },
-  { id: 'golf', label: 'Golf', icon: '/sports-icons/golf.6f52b62.png' },
-  { id: 'baseball', label: 'Baseball', icon: '/sports-icons/baseball.5a270fc.png' },
-]
-
+const games = [
+  {
+    id: 4,
+    name: "Cricket",
+    image: "https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png",
+    count: 13,
+    link: "/sportsbook/Cricket"
+  },
+  {
+    id: 1,
+    name: "Soccer",
+    image: "https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png",
+    count: 53,
+    link: "/sportsbook/Soccer"
+  },
+  {
+    id: 2,
+    name: "Tennis",
+    image: "https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png",
+    count: 71,
+    link: "/sportsbook/Tennis"
+  },
+  {
+    id: 6,
+    name: "Live Card",
+    image: "https://www.fairplay247.vip/_nuxt/img/cardicon.7aecfb2.png",
+    count: null,
+    link: "/markets/live-cards"
+  },
+  {
+    id: 7,
+    name: "Casino",
+    image: "https://www.fairplay247.vip/_nuxt/img/casino.1716d18.png",
+    count: null,
+    link: "/markets/live-casino"
+  },
+  {
+    id: 8,
+    name: "Slot Games",
+    image: "https://www.fairplay247.vip/_nuxt/img/sloticon.b675c22.png",
+    count: null,
+    link: "/casino-slots"
+  },
+  {
+    id: 9,
+    name: "Kabaddi",
+    image: "https://www.fairplay247.vip/_nuxt/img/kabaddi.0f69472.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 10,
+    name: "Badminton",
+    image: "https://www.fairplay247.vip/_nuxt/img/badminton.fdfeeb2.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 11,
+    name: "Golf",
+    image: "https://www.fairplay247.vip/_nuxt/img/golf.79503ca.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 12,
+    name: "Baseball",
+    image: "https://www.fairplay247.vip/_nuxt/img/baseball.d156a0e.png",
+    count: null,
+    link: "/premium-sportsbook"
+  }
+];
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const currentSport = searchParams.get('sport')
   const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed } = useLayoutStore()
   const [mounted, setMounted] = useState(false)
 
@@ -48,49 +105,41 @@ export default function Sidebar() {
       }}
     >
       <nav className="flex-1 overflow-y-auto no-scrollbar">
-        {sports.map((sport) => {
-          let href = `/sportsbook?sport=${sport.id}`
-          if (sport.id === 'casino') href = '/markets/live-casino'
-          if (sport.id === 'live-card') href = '/markets/live-casino'
-          if (sport.id === 'slot-games') href = '/casino-slots'
-
-          const isActive =
-            (pathname === '/sportsbook' && (currentSport === sport.id || (!currentSport && sport.id === 'cricket'))) ||
-            (pathname === '/markets/live-casino' && (sport.id === 'casino' || sport.id === 'live-card')) ||
-            (pathname === '/casino-slots' && sport.id === 'slot-games')
+        {games.map((game) => {
+          const isActive = pathname === game.link
 
           return (
             <Link
-              key={sport.id}
-              href={href}
+              key={game.id}
+              href={game.link}
               className={`flex items-center gap-4 px-4 h-[52px] border-b border-[#333] transition-all relative group ${
                 isActive ? 'bg-[#2a2a2a] text-white' : 'text-[#efefef] hover:bg-[#252525]'
               }`}
             >
               <div className="w-7 h-7 flex items-center justify-center shrink-0">
                 <img 
-                  src={sport.icon} 
-                  alt={sport.id} 
+                  src={game.image} 
+                  alt={game.name} 
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${sport.label}&background=random`
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${game.name}&background=random`
                   }}
                 />
               </div>
               {!collapsed && (
                 <>
-                  <span className="flex-1 text-[13px] font-normal tracking-wide truncate">{sport.label}</span>
-                  {sport.count && (
+                  <span className="flex-1 text-[13px] font-normal tracking-wide truncate">{game.name}</span>
+                  {game.count && (
                     <span className="bg-[#e8612c] text-white text-[10px] font-bold rounded-full w-[22px] h-[22px] flex items-center justify-center shrink-0 shadow-sm">
-                      {sport.count}
+                      {game.count}
                     </span>
                   )}
                 </>
               )}
             </Link>
-
           )
         })}
+
 
 
 

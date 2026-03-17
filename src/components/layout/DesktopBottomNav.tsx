@@ -44,14 +44,20 @@ export default function DesktopBottomNav() {
 
   return (
     <div className="hidden lg:flex fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-b from-[#1a1a1a] to-[#000000] border-t border-white/5 h-16 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] px-2">
-      <div className="flex w-full h-full items-center justify-between">
+      <div className="flex w-full h-full items-center justify-between" style={{
+        flex: '1 0 auto',
+        position: 'relative',
+        background: 'linear-gradient(to top, rgba(10, 10, 10, 0.5) 50%, #323232 100%);',
+        borderBottom: '1px solid #333',
+        borderTop: '1px solid #4c4c4c'
+      }}>
         {navItems.map((item, index) => {
           const content = (
             <div className={`flex flex-col items-center justify-center gap-1 group transition-all h-full w-full ${pathname === item.href ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-              <img 
-                src={item.icon} 
-                alt={item.label} 
-                className="h-7 w-7 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(232,97,44,0.3)]" 
+              <img
+                src={item.icon}
+                alt={item.label}
+                className="h-7 w-7 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(232,97,44,0.3)]"
               />
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{item.label}</span>
             </div>
