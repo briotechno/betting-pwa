@@ -126,15 +126,15 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 <tbody>
                   {match.teams.map((team, tIdx) => (
                     <tr key={team.teamName} className="bg-white">
-                      <td className="p-3 py-3 w-[25%] lg:w-[30%] min-w-[140px] max-w-[140px] border-r border-gray-100">
+                      <td className="p-3 py-3 w-[15%] min-w-[100px] border-r border-gray-100">
                         <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                           {team.teamName.includes(' vs ') ? (
                             <>
-                              <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[0])}</div>
-                              <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[1])}</div>
+                              <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[0])}</div>
+                              <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[1])}</div>
                             </>
                           ) : (
-                            <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName)}</div>
+                            <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName)}</div>
                           )}
 
                         </div>
@@ -144,12 +144,12 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                         <div className="flex items-center justify-end">
                           {/* We only show 3 market columns: 1, X, 2 */}
                           {[0, 1, 2].map((idx) => (
-                            <div key={idx} className="flex items-center justify-center gap-[2px] w-[122px] border-r last:border-r-0 border-gray-100">
-                              {/* Back Odds - using first back value for simplicity/alignment if data exists */}
+                            <div key={idx} className="flex items-center justify-center gap-[2px] w-20 md:w-[122px] border-r last:border-r-0 border-gray-100">
+                              {/* Back Odds */}
                               <button
                                 onClick={() => handleOddsClick(match, team, team.back[idx] || { price: '-', size: '-' }, 'back')}
                                 disabled={!team.back[idx] || team.back[idx].price === '-'}
-                                className={`w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.back[idx] || team.back[idx].price === '-'
+                                className={`w-[38px] md:w-[60px] h-9 md:h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.back[idx] || team.back[idx].price === '-'
                                     ? 'bg-[#f8f8f8] text-transparent'
                                     : isSelected(match.id, team.teamName, team.back[idx].price as number, 'back')
                                       ? 'bg-[#1a91eb] text-white'
@@ -164,11 +164,11 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                                 )}
                               </button>
 
-                              {/* Lay Odds - using first lay value */}
+                              {/* Lay Odds */}
                               <button
                                 onClick={() => handleOddsClick(match, team, team.lay[idx] || { price: '-', size: '-' }, 'lay')}
                                 disabled={!team.lay[idx] || team.lay[idx].price === '-'}
-                                className={`w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.lay[idx] || team.lay[idx].price === '-'
+                                className={`w-[38px] md:w-[60px] h-9 md:h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.lay[idx] || team.lay[idx].price === '-'
                                     ? 'bg-[#f8f8f8] text-transparent'
                                     : isSelected(match.id, team.teamName, team.lay[idx].price as number, 'lay')
                                       ? 'bg-[#f2708b] text-white'

@@ -24,7 +24,7 @@ const LANGUAGES: { code: Language; label: string }[] = [
 ]
 
 const menuItems = [
-  { id: 'market', label: 'Market', icon: '/nav/market.png', href: '/sports' },
+  { id: 'market', label: 'Market', icon: '/nav/market.png', href: '/markets' },
   { id: 'news', label: 'News', icon: '/nav/news.png', href: '/news' },
   { id: 'about', label: 'About', icon: '/nav/about-us.png', href: '/about' },
   { id: 'privacy', label: 'Privacy Policy', icon: '/nav/privacy.png', href: '/rules?tab=privacy' },

@@ -312,14 +312,14 @@ function SportsPageContent() {
               </div>
 
               {/* Labels 1 X 2 */}
-              <div className="h-full flex items-center pr-0 gap-0" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
-                <div className="flex w-[122px] justify-center">
+              <div className="h-full flex items-center pr-0 gap-0 ml-auto" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
+                <div className="flex w-20 md:w-[122px] justify-center">
                   <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">1</span>
                 </div>
-                <div className="flex w-[122px] justify-center border-l border-white/5">
+                <div className="flex w-20 md:w-[122px] justify-center border-l border-white/5">
                   <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">X</span>
                 </div>
-                <div className="flex w-[122px] justify-center border-l border-white/5">
+                <div className="flex w-20 md:w-[122px] justify-center border-l border-white/5">
                   <span className="text-[10px] font-black text-[#888] uppercase tracking-widest">2</span>
                 </div>
               </div>
