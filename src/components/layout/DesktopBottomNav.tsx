@@ -53,11 +53,11 @@ export default function DesktopBottomNav() {
       }}>
         {navItems.map((item, index) => {
           const content = (
-            <div className={`flex flex-col items-center justify-center gap-1 group transition-all h-full w-full ${pathname === item.href ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
+            <div className={`flex flex-col items-center justify-center gap-1 group transition-all h-full w-full ${pathname === item.href ? 'opacity-100' : 'opacity-60'}`}>
               <img
                 src={item.icon}
                 alt={item.label}
-                className="h-7 w-7 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(232,97,44,0.3)]"
+                className="h-7 w-7 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] transition-all"
               />
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{item.label}</span>
             </div>
@@ -70,12 +70,12 @@ export default function DesktopBottomNav() {
               )}
               {item.href ? (
                 <Link href={item.href} className="flex-1 h-full flex items-center justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
+                  <div className="absolute inset-0 bg-white/5 transition-colors" />
                   {content}
                 </Link>
               ) : (
                 <button onClick={item.onClick} className="flex-1 h-full flex items-center justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
+                  <div className="absolute inset-0 bg-white/5 transition-colors" />
                   {content}
                 </button>
               )}
