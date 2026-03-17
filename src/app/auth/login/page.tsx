@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
 
   const [loginMode, setLoginMode] = useState<'mobile' | 'userId'>('mobile')
   const [showPassword, setShowPassword] = useState(false)
@@ -34,6 +36,8 @@ export default function LoginPage() {
       balance: 10000,
       tier: 'Beginner'
     })
+
+    showSnackbar('Logged in successfully.', 'success')
 
     setLoading(false)
     router.push('/')

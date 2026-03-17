@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
+import { useSnackbarStore } from '@/store/snackbarStore'
 
 const mainCategories = [
   { id: 'sportsbook', label: 'Sportsbook', iconClass: 'iconpe-sportsbook' },
@@ -19,6 +20,7 @@ const sportsSubCategories = [
 
 export default function MarketsPage() {
   const router = useRouter()
+  const { show: showSnackbar } = useSnackbarStore()
   const [activeMain, setActiveMain] = useState('sportsbook')
   const [activeSport, setActiveSport] = useState('horse-racing')
 
@@ -32,6 +34,12 @@ export default function MarketsPage() {
           </button>
           <h1 className="text-[14px] font-bold text-white pl-0 capitalize tracking-tight ml-2">Markets</h1>
           <div className="flex-1" />
+          <button 
+            onClick={() => showSnackbar('Snackbar Test Successful!', 'success')}
+            className="text-[10px] text-white/40 border border-white/10 px-2 py-1 rounded"
+          >
+            Test
+          </button>
         </div>
       </div>
 
@@ -44,8 +52,10 @@ export default function MarketsPage() {
             className="flex-1 flex flex-col items-center justify-center h-[55px] relative transition-all"
           >
             <div className="mb-0.5">
-              <i className={`iconpe ${cat.iconClass} iconpe-sportsbook text-[24px] transition-all ${activeMain === cat.id ? 'text-[#e8612c]' : 'text-[#888] opacity-60'}`} />
-
+              <i 
+                className={`v-icon notranslate icon-color v-icon--left iconpe ${cat.iconClass} theme--dark ${activeMain === cat.id ? 'primary--text' : 'text-white/60 opacity-60'}`} 
+                style={{ fontSize: '16px' }} 
+              />
             </div>
             <span className={`text-[11px] font-bold tracking-tight leading-none ${activeMain === cat.id ? 'text-[#e8612c]' : 'text-[#888]'}`}>
               {cat.label}

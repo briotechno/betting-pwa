@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useI18nStore } from '@/store/i18nStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 import { Language } from '@/i18n/translations'
 import { getTabs } from '@/constants/navigation'
 
@@ -16,6 +17,7 @@ export default function Header() {
   const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen, setAuraCasinoOpen } = useLayoutStore()
   const { openSlip } = useBetSlipStore()
   const { language, setLanguage, t } = useI18nStore()
+  const { show: showSnackbar } = useSnackbarStore()
   const pathname = usePathname()
 
   const [showLanguageMenu, setShowLanguageMenu] = useState(false)
@@ -61,6 +63,8 @@ export default function Header() {
       tier: 'Gold',
       avatar: 'https://github.com/shadcn.png'
     })
+
+    showSnackbar('Logged in successfully.', 'success')
   }
 
   // Prevent hydration mismatch for persisted store values

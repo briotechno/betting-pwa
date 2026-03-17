@@ -12,6 +12,7 @@ import BetSlip from '@/components/sportsbook/BetSlip'
 import MainLayout from '@/components/layout/MainLayout'
 import AuraCasinoOverlay from '@/components/casino/AuraCasinoOverlay'
 import DesktopBottomNav from '@/components/layout/DesktopBottomNav'
+import Snackbar from '@/components/ui/Snackbar'
 import Providers from './providers'
 import { Suspense } from 'react'
 
@@ -98,6 +99,7 @@ export default function RootLayout({
             <DesktopBottomNav />
           </Suspense>
 
+          <Snackbar />
         </Providers>
       </body>
     </html>
