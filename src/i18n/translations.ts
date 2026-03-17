@@ -3,7 +3,7 @@ export type Language = 'en' | 'hi' | 'bn' | 'gu' | 'kn' | 'ml' | 'mr' | 'ta' | '
 const template = {
   common: {
     login: 'Login',
-    signup: 'Sign Up',
+    signup: 'Join Now',
     logout: 'Logout',
     deposit: 'Deposit',
     withdraw: 'Withdraw',
