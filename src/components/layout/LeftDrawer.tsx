@@ -140,7 +140,8 @@ export default function LeftDrawer() {
         {/* Footer Actions */}
         <div className="p-6 flex flex-col gap-6">
           {/* Language Selector */}
-          <div className="relative">
+          <div className="relative lg:hidden">
+
             <div
               className="w-full h-11 bg-[#050505] border border-white/20 rounded-[4px] flex items-center px-4 justify-between transition-all hover:border-white/40 cursor-pointer shadow-inner"
               onClick={() => setIsLangExpanded(!isLangExpanded)}

@@ -71,7 +71,7 @@ export default function Header() {
   return (
     <div className="z-[60]">
       {/* ── Fixed Top Header (All Devices) ── */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-black border-b border-white/5 backdrop-blur-md h-20 lg:h-[92px]">
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-black  backdrop-blur-md h-20 lg:h-[92px]">
         <div className="flex items-center justify-between px-2 md:px-5 h-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <button
@@ -101,16 +101,19 @@ export default function Header() {
           </div>
 
           {/* Search Bar (Desktop Only) */}
-          <div className="hidden lg:flex items-center flex-1 max-w-md ml-8">
-            <div className="relative w-full">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#777]" />
-              <input
-                type="text"
-                placeholder={t('common.search')}
-                className="w-full rounded-[4px] py-1.5 pl-11 pr-4 text-[13px] text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c90] outline-none transition-all"
-              />
+          {mounted && isAuthenticated && (
+            <div className="hidden lg:flex items-center flex-1 max-w-md ml-8">
+              <div className="relative w-full">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#777]" />
+                <input
+                  type="text"
+                  placeholder={t('common.search')}
+                  className="w-full rounded-[4px] py-1.5 pl-11 pr-4 text-[13px] text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c90] outline-none transition-all"
+                />
+              </div>
             </div>
-          </div>
+          )}
+
 
           {/* User Actions / Auth Form */}
           <div className="flex items-center gap-2 ml-auto">
@@ -370,7 +373,8 @@ export default function Header() {
       </div>
 
       {/* ── Fixed Desktop Sub Header (Pins below Top Header) ── */}
-      <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar border-t border-white/5 bg-[#000] px-4">
+      <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar bg-[#000] px-4">
+
         <div className="flex items-center gap-1">
           {[
             { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },
