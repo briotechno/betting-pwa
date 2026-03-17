@@ -327,7 +327,8 @@ export default function HomePage() {
         {/* Live Games Section - Redesigned to Neon Style */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Live Cards */}
-          <div className="bg-[#111] p-3 rounded-[16px] border border-white/5 shadow-inner">
+          <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
+
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">
                 Live <span className="text-[#e8612c]">Cards</span>
@@ -335,6 +336,7 @@ export default function HomePage() {
               <Link href="/live-cards" className="text-[10px] text-[#e8612c] font-normal font-black   tracking-wider absolute right-2">More ...</Link>
             </div>
             <div className="grid grid-cols-3 gap-3 px-1">
+              {/* Live Cards Games */}
               {[
                 { name: 'Teenpatti', iconPath: 'teenpatti.ec813d1.png' },
                 { name: 'Hi Low', iconPath: 'hi-lo.3d33723.png' },
@@ -344,25 +346,43 @@ export default function HomePage() {
                 { name: '32 Card Casino', iconPath: '32-card-casino.1f23beb.png' },
               ].map((game, idx) => {
                 const isPurple = idx % 2 === 0
-                const glowClass = isPurple
-                  ? 'shadow-[0_0_12px_rgba(111,66,251,0.3)] border-[#6f42fb]'
-                  : 'shadow-[0_0_12px_rgba(232,97,44,0.3)] border-[#e8612c]'
+                const buttonStyle = isPurple
+                  ? {
+                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
+                      boxShadow: '#8154f1 0px -1px 5px 2px',
+                    }
+                  : {
+                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
+                      boxShadow: '#f37415 0px -1px 5px 2px',
+                    }
+
                 return (
                   <Link
                     key={game.name}
                     href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className={`flex items-center justify-between px-2 lg:px-4 py-1 rounded-[14px] lg:rounded-full bg-[#0d0d0d] border-[1.5px] ${glowClass} transition-transform active:scale-95 h-11 lg:h-12`}
+                    className="relative flex items-center justify-center rounded-full border-2 border-transparent transition-transform active:scale-95 h-[50px] min-w-[64px]"
+                    style={buttonStyle}
                   >
-                    <span className="text-[8px] md:text-[10px] lg:text-[12px] font-black text-white uppercase tracking-tighter truncate pr-1">{game.name}</span>
-                    <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8 object-contain shrink-0" />
+                    <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-tighter truncate px-8">
+                      {game.name}
+                    </span>
+                    <div className="absolute right-5 w-[18px] lg:w-[20px] shrink-0">
+                      <img
+                        src={`/casino-icons/${game.iconPath}`}
+                        alt={game.name}
+                        className="w-full h-auto object-contain brightness-110"
+                      />
+                    </div>
                   </Link>
                 )
               })}
+
             </div>
           </div>
 
           {/* Live Casino */}
-          <div className="bg-[#111] p-3 rounded-[16px] border border-white/5 shadow-inner">
+          <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
+
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">
                 Live <span className="text-[#e8612c]">Casino</span>
@@ -370,6 +390,7 @@ export default function HomePage() {
               <Link href="/markets/live-casino" className="text-[10px] text-[#e8612c] font-black  font-normal tracking-wider absolute right-2">More ...</Link>
             </div>
             <div className="grid grid-cols-3 gap-3 px-1">
+              {/* Live Casino Games */}
               {[
                 { name: 'Roulette', iconPath: 'roulette.d32562e.png' },
                 { name: 'Lightning Dice', iconPath: 'lightning-dice.d78d3a8.png' },
@@ -379,20 +400,37 @@ export default function HomePage() {
                 { name: 'Dragon Tiger', iconPath: 'dragon-tiger.23aaed5.png' },
               ].map((game, idx) => {
                 const isPurple = idx % 2 === 0
-                const glowClass = isPurple
-                  ? 'shadow-[0_0_12px_rgba(111,66,251,0.3)] border-[#6f42fb]'
-                  : 'shadow-[0_0_12px_rgba(232,97,44,0.3)] border-[#e8612c]'
+                const buttonStyle = isPurple
+                  ? {
+                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
+                      boxShadow: '#8154f1 0px -1px 5px 2px',
+                    }
+                  : {
+                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
+                      boxShadow: '#f37415 0px -1px 5px 2px',
+                    }
+
                 return (
                   <Link
                     key={game.name}
                     href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className={`flex items-center justify-between px-2 lg:px-4 py-1 rounded-[14px] lg:rounded-full bg-[#0d0d0d] border-[1.5px] ${glowClass} transition-transform active:scale-95 h-11 lg:h-12`}
+                    className="relative flex items-center justify-center rounded-full border-2 border-transparent transition-transform active:scale-95 h-[50px] min-w-[64px]"
+                    style={buttonStyle}
                   >
-                    <span className="text-[8px] md:text-[10px] lg:text-[12px] font-black text-white uppercase tracking-tighter truncate pr-1">{game.name}</span>
-                    <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8 object-contain shrink-0" />
+                    <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-tighter truncate px-8">
+                      {game.name}
+                    </span>
+                    <div className="absolute right-5 w-[18px] lg:w-[20px] shrink-0">
+                      <img
+                        src={`/casino-icons/${game.iconPath}`}
+                        alt={game.name}
+                        className="w-full h-auto object-contain brightness-110"
+                      />
+                    </div>
                   </Link>
                 )
               })}
+
             </div>
           </div>
         </div>
