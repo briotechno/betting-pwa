@@ -348,34 +348,38 @@ export default function HomePage() {
                 const isPurple = idx % 2 === 0
                 const buttonStyle = isPurple
                   ? {
-                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
-                      boxShadow: '#8154f1 0px -1px 5px 2px',
-                    }
+                    background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
+                    boxShadow: '#8154f1 0px -1px 5px 2px',
+                  }
                   : {
-                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
-                      boxShadow: '#f37415 0px -1px 5px 2px',
-                    }
+                    background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
+                    boxShadow: '#f37415 0px -1px 5px 2px',
+                  }
 
                 return (
                   <Link
                     key={game.name}
                     href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="relative flex items-center justify-center rounded-full border-2 border-transparent transition-transform active:scale-95 h-[50px] min-w-[64px]"
+                    className="relative flex items-center md:h-[50px] h-[35px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
                     style={buttonStyle}
                   >
-                    <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-tighter truncate px-8">
-                      {game.name}
-                    </span>
-                    <div className="absolute right-5 w-[18px] lg:w-[20px] shrink-0">
+                    <div className="absolute inset-0 flex items-center justify-center px-8 md:px-12">
+                      <span className="text-[8px] md:text-[11px] lg:text-[12px] font-bold text-white uppercase tracking-tighter truncate">
+                        {game.name}
+                      </span>
+                    </div>
+                    <div className="absolute right-2 md:right-4 w-[16px] md:w-[26px] h-full flex items-center justify-center shrink-0">
                       <img
                         src={`/casino-icons/${game.iconPath}`}
                         alt={game.name}
-                        className="w-full h-auto object-contain brightness-110"
+                        className="w-full h-auto object-contain brightness-110 group-hover:scale-110 transition-transform"
                       />
                     </div>
                   </Link>
                 )
               })}
+
+
 
             </div>
           </div>
@@ -402,34 +406,38 @@ export default function HomePage() {
                 const isPurple = idx % 2 === 0
                 const buttonStyle = isPurple
                   ? {
-                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
-                      boxShadow: '#8154f1 0px -1px 5px 2px',
-                    }
+                    background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box',
+                    boxShadow: '#8154f1 0px -1px 5px 2px',
+                  }
                   : {
-                      background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
-                      boxShadow: '#f37415 0px -1px 5px 2px',
-                    }
+                    background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box',
+                    boxShadow: '#f37415 0px -1px 5px 2px',
+                  }
 
                 return (
                   <Link
                     key={game.name}
                     href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="relative flex items-center justify-center rounded-full border-2 border-transparent transition-transform active:scale-95 h-[50px] min-w-[64px]"
+                    className="relative flex items-center md:h-[50px] h-[35px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
                     style={buttonStyle}
                   >
-                    <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-tighter truncate px-8">
-                      {game.name}
-                    </span>
-                    <div className="absolute right-5 w-[18px] lg:w-[20px] shrink-0">
+                    <div className="absolute inset-0 flex items-center justify-center px-8 md:px-12">
+                      <span className="text-[8px] md:text-[11px] lg:text-[12px] font-bold text-white uppercase tracking-tighter truncate">
+                        {game.name}
+                      </span>
+                    </div>
+                    <div className="absolute right-2 md:right-4 w-[16px] md:w-[26px] h-full flex items-center justify-center shrink-0">
                       <img
                         src={`/casino-icons/${game.iconPath}`}
                         alt={game.name}
-                        className="w-full h-auto object-contain brightness-110"
+                        className="w-full h-auto object-contain brightness-110 group-hover:scale-110 transition-transform"
                       />
                     </div>
                   </Link>
                 )
               })}
+
+
 
             </div>
           </div>
@@ -539,12 +547,12 @@ export default function HomePage() {
         </div>
 
         {/* DOWNLOAD THE APP SECTION */}
-        <div className="mt-4 flex flex-col items-center text-center overflow-hidden relative">
+        <div className=" flex flex-col items-center text-center overflow-hidden relative">
           {/* Desktop/PC Banner */}
           <img
             src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png"
             alt="Download App PC"
-            className="hidden lg:block w-full h-auto object-contain"
+            className="hidden lg:block w-full lg:h-[275px] object-cover"
           />
           {/* Mobile Banner */}
           <img
