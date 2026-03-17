@@ -552,7 +552,7 @@ export default function HomePage() {
           <img
             src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png"
             alt="Download App PC"
-            className="hidden lg:block w-full lg:h-[275px] object-cover"
+            className="hidden lg:block w-full h-auto object-contain"
           />
           {/* Mobile Banner */}
           <img
