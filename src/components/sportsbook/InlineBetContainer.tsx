@@ -1,6 +1,8 @@
 'use client'
 import React, { useState } from 'react'
 import { Info } from 'lucide-react'
+import { toTitleCase } from '@/utils/format'
+
 
 interface InlineBetContainerProps {
     selection: string
@@ -37,9 +39,10 @@ export default function InlineBetContainer({
         <div className={`bg-white p-3 border-x-[1.5px] border-b-[1.5px] ${type === 'back' ? 'border-[#a5d9fe]' : 'border-[#f8d0ce]'} space-y-4 animate-in fade-in slide-in-from-top-1 duration-200`}>
             {/* Header / Context */}
             <div className="space-y-0.5">
-                <p className="text-[12px] font-bold text-[#333] leading-tight">{matchName}</p>
-                <p className="text-[12px] font-bold text-[#333] leading-tight">{selection} {marketName}</p>
+                <p className="text-[12px] font-bold text-[#333] leading-tight">{toTitleCase(matchName)}</p>
+                <p className="text-[12px] font-bold text-[#333] leading-tight">{toTitleCase(selection)} {toTitleCase(marketName)}</p>
             </div>
+
 
             {/* Inputs Row */}
             <div className="grid grid-cols-2 gap-4">

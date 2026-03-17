@@ -4,6 +4,8 @@ import { Play } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
+import { toTitleCase } from '@/utils/format'
+
 
 interface OddsEntry {
   back: number
@@ -79,12 +81,13 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                       {row.teamName.includes(' vs ') ? (
                         <>
-                          <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName.split(' vs ')[0]}</div>
-                          <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName.split(' vs ')[1]}</div>
+                          <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(row.teamName.split(' vs ')[0])}</div>
+                          <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(row.teamName.split(' vs ')[1])}</div>
                         </>
                       ) : (
-                        <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{row.teamName}</div>
+                        <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(row.teamName)}</div>
                       )}
+
                     </div>
                   </td>
 

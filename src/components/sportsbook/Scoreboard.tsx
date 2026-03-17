@@ -1,6 +1,8 @@
 'use client'
 import React from 'react'
 import { Clock, Info, BarChart2, Users } from 'lucide-react'
+import { toTitleCase } from '@/utils/format'
+
 
 export default function Scoreboard() {
   return (
@@ -23,8 +25,9 @@ export default function Scoreboard() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl -ml-24 -mb-24" />
 
         <div className="flex-1">
-          <h2 className="text-xl font-black uppercase tracking-tight mb-1">Silvertoan Panthers</h2>
+          <h2 className="text-xl font-black leading-tight tracking-tight mb-1">{toTitleCase("Silvertoan Panthers")}</h2>
           <div className="flex items-center gap-3">
+
             <p className="text-sm text-white/50 font-bold uppercase tracking-widest">9.75 RR</p>
           </div>
         </div>
@@ -43,8 +46,9 @@ export default function Scoreboard() {
         </div>
 
         <div className="flex-1 text-right">
-          <h2 className="text-xl font-black uppercase tracking-tight mb-1">Bhawani Lions</h2>
+          <h2 className="text-xl font-black leading-tight tracking-tight mb-1">{toTitleCase("Bhawani Lions")}</h2>
           <p className="text-sm text-white/50 font-bold uppercase tracking-widest leading-none">
+
             11.83 CRR | 8.93 RRR
           </p>
         </div>

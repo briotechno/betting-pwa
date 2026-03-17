@@ -1,6 +1,8 @@
 'use client'
 import React, { useState } from 'react'
+import { toTitleCase } from '@/utils/format'
 import { Info, Lock } from 'lucide-react'
+
 import InlineBetContainer from './InlineBetContainer'
 
 export interface OddValue {
@@ -52,9 +54,10 @@ export default function MarketSection({
       <div className="flex h-10 lg:h-11 rounded-t-[16px] overflow-hidden">
         {/* Left Side: Orange block with title */}
         <div className="bg-[#e15b24] flex items-center px-3 flex-1">
-          <span className="text-white font-black text-[10px] lg:text-[12px] uppercase leading-tight">
-            {title}
+          <span className="text-white font-black text-[10px] lg:text-[12px] leading-tight">
+            {toTitleCase(title)}
           </span>
+
         </div>
 
         {/* Right Side: Dark background for labels */}

@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { MoreHorizontal, Star, Info, Play } from 'lucide-react'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
+import { toTitleCase } from '@/utils/format'
+
 
 interface OddValue {
   price: number | '-'
@@ -90,9 +92,10 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
               </button>
 
               <div className="flex flex-col justify-center">
-                <span className="text-[11px] font-black leading-tight uppercase tracking-tight">
-                  {match.title}
+                <span className="text-[11px] font-black leading-tight tracking-tight">
+                  {toTitleCase(match.title)}
                 </span>
+
                 {match.status === 'UPCOMING' && (
                   <span className="text-[9px] opacity-80 font-bold">
                     {match.startTime}
@@ -127,12 +130,13 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                         <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                           {team.teamName.includes(' vs ') ? (
                             <>
-                              <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName.split(' vs ')[0]}</div>
-                              <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName.split(' vs ')[1]}</div>
+                              <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[0])}</div>
+                              <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[1])}</div>
                             </>
                           ) : (
-                            <div className="text-[11px] font-bold text-[#333] uppercase leading-[1.4] truncate w-full">{team.teamName}</div>
+                            <div className="text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName)}</div>
                           )}
+
                         </div>
                       </td>
 

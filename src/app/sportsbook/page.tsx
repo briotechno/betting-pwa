@@ -2,6 +2,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Star } from 'lucide-react'
+import { toTitleCase } from '@/utils/format'
+
 
 const sportsList = [
   { id: 'cricket', name: 'Cricket', count: 22, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
@@ -126,9 +128,10 @@ export default function SportsbookPage() {
                   )}
                   <div className="flex items-center gap-1.5">
                      <div className="w-[8px] h-[2px] bg-white opacity-60 rounded-full" />
-                     <span className="text-white text-[14px] font-bold leading-none tracking-tight">
-                       {match.teamA} V {match.teamB}
-                     </span>
+                      <span className="text-white text-[14px] font-bold leading-none tracking-tight">
+                        {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
+                      </span>
+
                   </div>
                   <span className="text-white/90 text-[11px] font-medium leading-none mt-1 ml-[14px]">
                     {match.startTime}
@@ -146,8 +149,9 @@ export default function SportsbookPage() {
               {/* Row 1 */}
               <div className="flex items-center border-b border-gray-100 h-14">
                 <div className="flex-1 px-4">
-                  <span className="text-[14px] font-bold text-gray-800 tracking-tight">{match.teamA}</span>
+                  <span className="text-[14px] font-bold text-gray-800 tracking-tight">{toTitleCase(match.teamA)}</span>
                 </div>
+
                 <div className="flex h-full">
                   {/* Back Box */}
                   <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#a5d9fe] border-l border-white/30">
@@ -165,8 +169,9 @@ export default function SportsbookPage() {
               {/* Row 2 */}
               <div className="flex items-center h-14">
                 <div className="flex-1 px-4">
-                  <span className="text-[14px] font-bold text-gray-800 tracking-tight">{match.teamB}</span>
+                  <span className="text-[14px] font-bold text-gray-800 tracking-tight">{toTitleCase(match.teamB)}</span>
                 </div>
+
                 <div className="flex h-full">
                    <div className="w-[75px] h-full flex flex-col items-center justify-center bg-[#a5d9fe] border-l border-white/30">
                     <span className="text-[14px] font-black text-[#2e2e2e] leading-none mb-0.5">{match.odds[1].back}</span>

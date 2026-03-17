@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Clock, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Badge from '@/components/ui/Badge'
+import { toTitleCase } from '@/utils/format'
+
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 
@@ -74,7 +76,8 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
               <span className="text-[10px]">{startTime}</span>
             </div>
           )}
-          <span className="text-[10px] text-textMuted truncate max-w-[120px] md:max-w-none">{competition}</span>
+            <span className="text-[10px] text-textMuted truncate max-w-[120px] md:max-w-none">{toTitleCase(competition)}</span>
+
         </div>
         <Link href={`/sports/${sport}/${id}`} className="text-textMuted hover:text-primary">
           <ChevronRight size={14} />
@@ -104,7 +107,8 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
             return (
               <div key={row.name} className="flex items-center gap-2 mb-1.5">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-textPrimary font-bold truncate tracking-tight">{row.name}</p>
+                  <p className="text-[13px] text-textPrimary font-bold truncate tracking-tight">{toTitleCase(row.name)}</p>
+
                 </div>
                 <div className="flex gap-1 w-36 lg:w-48">
                   {/* Back */}
