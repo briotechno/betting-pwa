@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { X } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useLayoutStore } from '@/store/layoutStore'
+import { useI18nStore } from '@/store/i18nStore'
 
 const menuItems = [
   { id: 'pnl', label: 'Betting P&L', icon: '/nav/bet_pnl.png', href: '/profit-loss' },
@@ -22,6 +23,7 @@ const menuItems = [
 export default function ProfileSidebar() {
   const { user, logout } = useAuthStore()
   const { profileSidebarOpen, setProfileSidebarOpen, setFeedbackModalOpen } = useLayoutStore()
+  const { t } = useI18nStore()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -96,14 +98,14 @@ export default function ProfileSidebar() {
                 onClick={() => setProfileSidebarOpen(false)}
                 className="h-10 bg-[#e15b24] text-white rounded-full flex items-center justify-center text-[12px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-[#e15b24]/20"
               >
-                Deposit
+                {t('common.deposit')}
               </Link>
               <Link
                 href="/wallet/withdrawal"
                 onClick={() => setProfileSidebarOpen(false)}
                 className="h-10 bg-[#e15b24] text-white rounded-full flex items-center justify-center text-[12px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-[#e15b24]/20"
               >
-                Withdraw Now
+                {t('common.withdraw')}
               </Link>
             </div>
           </div>
@@ -127,12 +129,12 @@ export default function ProfileSidebar() {
                       <div className="flex items-center justify-start w-full">
                         <img
                           src={item.icon}
-                          alt={item.label}
+                          alt={item.id}
                           className="w-6 h-6 object-contain"
                         />
                         <div className="flex flex-1 justify-between items-center ml-4 pr-3">
                           <span className="text-[16px] font-bold text-white tracking-tight">
-                            {item.label}
+                            {t(`common.${item.id}`) || item.label}
                           </span>
                         </div>
                       </div>
@@ -151,12 +153,12 @@ export default function ProfileSidebar() {
                     <div className="flex items-center justify-start w-full">
                       <img
                         src={item.icon}
-                        alt={item.label}
+                        alt={item.id}
                         className="w-6 h-6 object-contain"
                       />
                       <div className="flex flex-1 justify-between items-center ml-4 pr-3">
                         <span className="text-[16px] font-bold text-white tracking-tight">
-                          {item.label}
+                           {t(`common.${item.id}`) || item.label}
                         </span>
                         {item.count !== undefined && (
                           <span className="bg-[#e15b24] text-white text-[10px] min-w-[20px] h-5 rounded-full flex items-center justify-center font-black px-1.5 ml-auto">
@@ -194,7 +196,7 @@ export default function ProfileSidebar() {
             }}
             className="w-full h-14 bg-[#4caf50] hover:bg-[#43a047] text-white text-[15px] font-black uppercase tracking-widest transition-all"
           >
-            Logout
+            {t('common.logout')}
           </button>
         </div>
       </aside>

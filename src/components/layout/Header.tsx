@@ -106,7 +106,7 @@ export default function Header() {
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#777]" />
               <input
                 type="text"
-                placeholder="Search for a Sports, Games, Markets..."
+                placeholder={t('common.search')}
                 className="w-full rounded-[4px] py-1.5 pl-11 pr-4 text-[13px] text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c90] outline-none transition-all"
               />
             </div>
@@ -117,10 +117,10 @@ export default function Header() {
             {mounted && !isAuthenticated && (
               <div className="lg:hidden flex items-center gap-2">
                 <Link href="/auth/login" className="px-5 py-1.5 text-[11px] font-black rounded-full text-white bg-[#e8612c] uppercase tracking-tighter whitespace-nowrap">
-                  Login
+                  {t('common.login')}
                 </Link>
                 <Link href="/auth/signup" className="px-4 py-1.5 text-[11px] font-black rounded-full text-white bg-[#28a745] uppercase tracking-tighter whitespace-nowrap">
-                  Join Now
+                  {t('common.signup')}
                 </Link>
               </div>
             )}
@@ -190,7 +190,7 @@ export default function Header() {
                     onClick={openSlip}
                     className="h-10 px-5 rounded-full border border-[#f26522] text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
-                    Open Bets
+                    {t('common.open_bets')}
                   </button>
 
                   {/* Deposit Now */}
@@ -199,7 +199,7 @@ export default function Header() {
                     className="h-10 px-5 rounded-full border border-[#58a049] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#58a049]/10 transition-all active:scale-95"
                   >
                     <Wallet size={16} className="text-white" />
-                    Deposit Now
+                    {t('common.deposit_now')}
                   </Link>
 
                   {/* Wallet Balance */}
@@ -217,7 +217,7 @@ export default function Header() {
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
                     <User size={16} className="text-white" />
-                    Profile
+                    {t('common.profile')}
                   </button>
                 </div>
               </>
@@ -277,7 +277,7 @@ export default function Header() {
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder="0 Username"
+                          placeholder={`0 ${t('common.login')}`}
                           className="bg-transparent outline-none text-white text-[13px] font-bold placeholder:text-white/70"
                         />
                       </div>
@@ -302,13 +302,13 @@ export default function Header() {
                           onClick={() => handleLogin()}
                           className="px-6 py-2 rounded-full bg-gradient-to-b from-[#f26522] to-[#e8612c] text-white text-[13px] font-black uppercase tracking-tight shadow-lg active:scale-95 transition-all"
                         >
-                          LOGIN
+                          {t('common.login')}
                         </button>
                         <Link
                           href="/auth/signup"
                           className="px-5 py-2 rounded-full bg-gradient-to-b from-[#58a049] to-[#28a745] text-white text-[13px] font-black uppercase tracking-tight shadow-lg active:scale-95 transition-all"
                         >
-                          JOIN NOW
+                          {t('common.signup')}
                         </Link>
                       </div>
                     </div>

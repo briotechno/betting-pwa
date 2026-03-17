@@ -39,7 +39,7 @@ export default function LeftDrawer() {
   const pathname = usePathname()
   const { user, isAuthenticated } = useAuthStore()
   const { leftDrawerOpen, setLeftDrawerOpen } = useLayoutStore()
-  const { language, setLanguage } = useI18nStore()
+  const { language, setLanguage, t } = useI18nStore()
   const [mounted, setMounted] = useState(false)
   const [isLangExpanded, setIsLangExpanded] = useState(false)
 
@@ -94,48 +94,48 @@ export default function LeftDrawer() {
               onClick={() => setLeftDrawerOpen(false)}
               className="w-auto p-2 h-10 bg-[#e15b24] text-normal text-white flex items-center justify-center rounded-[4px] text-[14px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md"
             >
-              Register
+              {t('common.signup')}
             </Link>
           </div>
         )}
-
-        {/* Menu Items */}
-        <div className="flex-1 overflow-y-auto no-scrollbar py-0 drawerLeft">
-          {menuItems.map((item) => {
-            const isActive = pathname.startsWith(item.href)
-
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={() => setLeftDrawerOpen(false)}
-                className={`flex items-center py-2.5 transition-all group border-b border-gray-600 ${isActive ? 'bg-[#e15b24]' : 'hover:bg-white/[0.03]'
-                  }`}
-              >
-                <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
-                  <div className="flex items-center justify-start w-full">
-                    <img
-                      src={item.icon}
-                      alt={item.label}
-                      className={`w-6 h-6 object-contain transition-transform duration-300 group-hover:scale-105 ${isActive ? 'brightness-[10]' : ''
-                        }`}
-                    />
-                    <div className="flex flex-1 justify-between items-center ml-4 pr-3">
-                      <span className={`text-[16px] font-bold text-white tracking-tight ${isActive ? 'font-black' : ''}`}>
-                        {item.label}
-                      </span>
-                      <ChevronRight
-                        size={18}
-                        className={`transition-colors ${isActive ? 'text-white' : 'text-white/30 group-hover:text-white'
+  
+          {/* Menu Items */}
+          <div className="flex-1 overflow-y-auto no-scrollbar py-0 drawerLeft">
+            {menuItems.map((item) => {
+              const isActive = pathname.startsWith(item.href)
+  
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setLeftDrawerOpen(false)}
+                  className={`flex items-center py-2.5 transition-all group border-b border-gray-600 ${isActive ? 'bg-[#e15b24]' : 'hover:bg-white/[0.03]'
+                    }`}
+                >
+                  <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
+                    <div className="flex items-center justify-start w-full">
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        className={`w-6 h-6 object-contain transition-transform duration-300 group-hover:scale-105 ${isActive ? 'brightness-[10]' : ''
                           }`}
                       />
+                      <div className="flex flex-1 justify-between items-center ml-4 pr-3">
+                        <span className={`text-[16px] font-bold text-white tracking-tight ${isActive ? 'font-black' : ''}`}>
+                          {item.id === 'tc' ? 'T&C' : t(`common.${item.id}`)}
+                        </span>
+                        <ChevronRight
+                          size={18}
+                          className={`transition-colors ${isActive ? 'text-white' : 'text-white/30 group-hover:text-white'
+                            }`}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
 
         {/* Footer Actions */}
         <div className="p-6 flex flex-col gap-6">
