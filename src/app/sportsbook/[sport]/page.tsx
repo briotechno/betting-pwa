@@ -1,9 +1,15 @@
 'use client'
 import React, { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Star } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
+
+const sportsList = [
+  { id: '1', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: '2', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: '3', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+]
 
 const matches = [
   {
@@ -48,7 +54,6 @@ const MatchTable = ({ match }: { match: any }) => {
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
       {/* Live Badge - Overlapping Corner */}
       <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
-
         LIVE
       </div>
 
@@ -59,7 +64,6 @@ const MatchTable = ({ match }: { match: any }) => {
       >
         {/* Left Side - Orange with slanted edge */}
         <div className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}>
-
           <div className="flex items-center gap-2 mt-2">
             <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
               {isCollapsed ? '+' : '−'}
@@ -78,6 +82,11 @@ const MatchTable = ({ match }: { match: any }) => {
             </svg>
           </div>
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+        </div>
+        
+        {/* Time - Desktop Only */}
+        <div className="hidden lg:flex mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
+           {match.startTime}
         </div>
       </div>
 
@@ -141,7 +150,8 @@ const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: str
 
 export default function SportDetailPage() {
   const params = useParams()
-  const sportName = params.sport as string
+  const router = useRouter()
+  const sportId = params.sport as string
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
 
   const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
@@ -150,6 +160,33 @@ export default function SportDetailPage() {
     <div className="flex min-h-screen bg-[#1a1a1a]">
       {/* Main Content Area */}
       <div className="flex-1 pb-20 overflow-hidden">
+        {/* Sports Navigation Bar - Mobile Only */}
+        <div className="md:hidden bg-[#1a1a1a] px-2 pt-2 pb-0">
+          <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
+            {sportsList.map((sport) => (
+              <button
+                key={sport.id}
+                onClick={() => router.push('/sportsbook/' + sport.id)}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
+                  sportId === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
+                }`}
+              >
+                <div className="relative mb-1">
+                  <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
+                  <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
+                    {sport.count}
+                  </div>
+                </div>
+                <span className={`text-[10px] font-black uppercase tracking-tight ${
+                  sportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
+                }`}>
+                  {sport.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Sub tabs nav */}
         <div className="flex bg-[#1a1a1a] border-b border-white/5 h-10">
           {subTabs.map((tab) => (
@@ -182,4 +219,3 @@ export default function SportDetailPage() {
     </div>
   )
 }
-

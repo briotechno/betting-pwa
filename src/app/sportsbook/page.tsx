@@ -1,13 +1,14 @@
 'use client'
 import React, { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Star } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
+import BetContainer from '@/components/sportsbook/BetContainer'
 
 const sportsList = [
-  { id: 'cricket', name: 'Cricket', count: 22, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'soccer', name: 'Soccer', count: 21, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'tennis', name: 'Tennis', count: 18, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: '1', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: '2', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: '3', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
 const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
@@ -15,46 +16,35 @@ const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
 const matches = [
   {
     id: 1,
-    teamA: 'Bangladesh',
-    teamB: 'Pakistan',
-    startTime: 'Today At 1:45 PM',
+    teamA: 'Border',
+    teamB: 'Mpumalanga Rhinos',
+    startTime: 'Today At 1:30 PM',
     isUpcoming: true,
     odds: [
-      { back: '2.14', backVol: '14,080', lay: '2.18', layVol: '3,15,195' },
-      { back: '1.86', backVol: '46,544', lay: '1.87', layVol: '3,859' },
+      { back: '1.59', backVol: '156', back2: '1.64', backVol2: '178', back3: '2.12', backVol3: '105', lay: '2.18', layVol: '22,690', lay2: '2.20', layVol2: '149', lay3: '2.28', layVol3: '110' },
+      { back: '1.79', backVol: '139', back2: '1.84', backVol2: '26,961', back3: '1.85', backVol3: '100', lay: '1.90', layVol: '118', lay2: '2.58', layVol2: '114', lay3: '2.70', layVol3: '93' },
     ]
   },
   {
     id: 2,
-    teamA: 'Faisalabad Region',
-    teamB: 'Peshawar Region',
-    startTime: 'Today At 4:45 PM',
+    teamA: 'Kwazulu Natal Inland',
+    teamB: 'Lions',
+    startTime: 'Today At 1:30 PM',
     isUpcoming: true,
     odds: [
-      { back: '2.16', backVol: '269', lay: '2.18', layVol: '90' },
-      { back: '1.86', backVol: '106', lay: '1.87', layVol: '2,158' },
+      { back: '3.05', backVol: '978', back2: '3.10', backVol2: '170', back3: '3.15', backVol3: '61', lay: '3.60', layVol: '147', lay2: '3.65', layVol2: '156', lay3: '3.95', layVol3: '121' },
+      { back: '1.34', backVol: '357', back2: '1.38', backVol2: '412', back3: '1.39', backVol3: '379', lay: '1.46', layVol: '130', lay2: '1.47', layVol2: '357', lay3: '1.48', layVol3: '614' },
     ]
   },
   {
     id: 3,
-    teamA: 'Bahawalpur Region',
-    teamB: 'Lahore Region Whites',
-    startTime: 'Today At 9:45 PM',
+    teamA: 'Warriors',
+    teamB: 'Titans',
+    startTime: 'Today At 4:30 PM',
     isUpcoming: true,
     odds: [
-      { back: '2.52', backVol: '194', lay: '2.90', layVol: '1,788' },
-      { back: '1.53', backVol: '3,390', lay: '1.65', layVol: '297' },
-    ]
-  },
-  {
-    id: 4,
-    teamA: 'Boland',
-    teamB: 'Warriors',
-    startTime: 'Tomorrow At 1:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '1.62', backVol: '205', lay: '2.62', layVol: '142' },
-      { back: '1.62', backVol: '205', lay: '2.62', layVol: '142' },
+      { back: '1.67', backVol: '1,003', back2: '1.68', backVol2: '340', back3: '1.69', backVol3: '74', lay: '1.72', layVol: '2,399', lay2: '1.73', layVol2: '353', lay3: '1.79', layVol3: '495' },
+      { back: '2.26', backVol: '2,055', back2: '2.28', backVol2: '388', back3: '2.38', backVol3: '1,990', lay: '2.48', layVol: '281', lay2: '2.50', layVol2: '902', lay3: '2.52', layVol3: '2,362' },
     ]
   }
 ]
@@ -78,7 +68,7 @@ const MatchTable = ({ match }: { match: any }) => {
   return (
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
       {/* Live Badge - Overlapping Corner */}
-      <div className="absolute -top-[10px] -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
+      <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
         LIVE
       </div>
 
@@ -161,59 +151,71 @@ const MatchTable = ({ match }: { match: any }) => {
 }
 
 export default function SportsbookPage() {
-  const [activeSport, setActiveSport] = useState('cricket')
+  const [activeSport, setActiveSport] = useState('1')
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
+  const router = useRouter()
 
   return (
-    <div className="bg-[#1a1a1a] min-h-screen pb-20">
-      {/* Sports Navigation Bar */}
-      <div className="bg-[#1a1a1a] px-2 pt-2 pb-0">
-        <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
-          {sportsList.map((sport) => (
-            <button
-              key={sport.id}
-              onClick={() => setActiveSport(sport.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
-                activeSport === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
-              }`}
-            >
-              <div className="relative mb-1">
-                <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
-                <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
-                  {sport.count}
+    <div className="flex min-h-screen bg-[#1a1a1a]">
+      {/* Main Content Area */}
+      <div className="flex-1 pb-20 overflow-hidden">
+        {/* Sports Navigation Bar - Mobile Only */}
+        <div className="md:hidden bg-[#1a1a1a] px-2 pt-2 pb-0">
+          <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
+            {sportsList.map((sport) => (
+              <button
+                key={sport.id}
+                onClick={() => {
+                   setActiveSport(sport.id)
+                   router.push('/sportsbook/' + sport.id)
+                }}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
+                  activeSport === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
+                }`}
+              >
+                <div className="relative mb-1">
+                  <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
+                  <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
+                    {sport.count}
+                  </div>
                 </div>
-              </div>
-              <span className={`text-[10px] font-black uppercase tracking-tight ${
-                activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
-              }`}>
-                {sport.name}
-              </span>
+                <span className={`text-[10px] font-black uppercase tracking-tight ${
+                  activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
+                }`}>
+                  {sport.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sub tabs nav */}
+        <div className="flex bg-[#1a1a1a] border-b border-white/5 h-10">
+          {subTabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveSubTab(tab)}
+              className={`flex-1 h-full text-[11px] font-black uppercase tracking-tight relative ${activeSubTab === tab ? 'text-[#e8612c]' : 'text-gray-400'}`}
+            >
+              {tab}
+              {activeSubTab === tab && (
+                <div className="absolute bottom-0 left-[15%] right-[15%] h-[2px] bg-[#e8612c]" />
+              )}
             </button>
+          ))}
+        </div>
+
+        {/* Match List */}
+        <div className="p-2 space-y-4">
+          {matches.map((match) => (
+            <MatchTable key={match.id} match={match} />
           ))}
         </div>
       </div>
 
-      {/* Sub tabs nav */}
-      <div className="flex bg-[#1a1a1a] border-b border-white/5 h-10">
-        {subTabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveSubTab(tab)}
-            className={`flex-1 h-full text-[11px] font-black uppercase tracking-tight relative ${activeSubTab === tab ? 'text-[#e8612c]' : 'text-gray-400'}`}
-          >
-            {tab}
-            {activeSubTab === tab && (
-              <div className="absolute bottom-0 left-[15%] right-[15%] h-[2px] bg-[#e8612c]" />
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Match List */}
-      <div className="p-2 space-y-4">
-        {matches.map((match) => (
-          <MatchTable key={match.id} match={match} />
-        ))}
+      {/* Bet Container - attached but separate column */}
+      <div className="hidden lg:block">
+        <BetContainer />
       </div>
     </div>
   )
