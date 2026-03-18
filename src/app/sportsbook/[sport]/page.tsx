@@ -18,15 +18,15 @@ const matches = [
     ]
   },
   {
-      id: 2,
-      teamA: 'Kwazulu Natal Inland',
-      teamB: 'Lions',
-      startTime: 'Today At 1:30 PM',
-      isUpcoming: true,
-      odds: [
-        { back: '3.05', backVol: '978', back2: '3.10', backVol2: '170', back3: '3.15', backVol3: '61', lay: '3.60', layVol: '147', lay2: '3.65', layVol2: '156', lay3: '3.95', layVol3: '121' },
-        { back: '1.34', backVol: '357', back2: '1.38', backVol2: '412', back3: '1.39', backVol3: '379', lay: '1.46', layVol: '130', lay2: '1.47', layVol2: '357', lay3: '1.48', layVol3: '614' },
-      ]
+    id: 2,
+    teamA: 'Kwazulu Natal Inland',
+    teamB: 'Lions',
+    startTime: 'Today At 1:30 PM',
+    isUpcoming: true,
+    odds: [
+      { back: '3.05', backVol: '978', back2: '3.10', backVol2: '170', back3: '3.15', backVol3: '61', lay: '3.60', layVol: '147', lay2: '3.65', layVol2: '156', lay3: '3.95', layVol3: '121' },
+      { back: '1.34', backVol: '357', back2: '1.38', backVol2: '412', back3: '1.39', backVol3: '379', lay: '1.46', layVol: '130', lay2: '1.47', layVol2: '357', lay3: '1.48', layVol3: '614' },
+    ]
   },
   {
     id: 3,
@@ -40,6 +40,104 @@ const matches = [
     ]
   }
 ]
+
+const MatchTable = ({ match }: { match: any }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  return (
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
+      {/* Live Badge - Overlapping Corner */}
+      <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
+
+        LIVE
+      </div>
+
+      {/* Header */}
+      <div
+        className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {/* Left Side - Orange with slanted edge */}
+        <div className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}>
+
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
+              {isCollapsed ? '+' : '−'}
+            </span>
+            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
+              {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
+            </span>
+          </div>
+        </div>
+
+        {/* Right Side - Gray with icons */}
+        <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
+          <div className="w-4 h-4 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+        </div>
+      </div>
+
+      {/* Table Body */}
+      {!isCollapsed && (
+        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
+          <table className="w-full border-collapse">
+            <tbody>
+              {/* Team Rows */}
+              {[match.teamA, match.teamB].map((team, tIdx) => (
+                <tr key={team} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
+                  <td className="py-3 px-3 lg:px-4 min-w-[140px]">
+                    <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight whitespace-nowrap">
+                      {toTitleCase(team)}
+                    </span>
+                  </td>
+                  <td className="p-1 px-2">
+                    <div className="flex justify-end gap-1">
+                      {/* Odds columns - Responsive */}
+                      <div className="flex gap-1 py-1">
+                        {/* Mobile: Only show 2 columns; Desktop: Show all 6 */}
+
+                        {/* Back Columns */}
+                        <div className="hidden lg:flex gap-1">
+                          <OddsBox val={match.odds[tIdx].back3} vol={match.odds[tIdx].backVol3} type="back" intensity="low" />
+                          <OddsBox val={match.odds[tIdx].back2} vol={match.odds[tIdx].backVol2} type="back" intensity="medium" />
+                        </div>
+                        <OddsBox val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" />
+
+                        {/* Lay Columns */}
+                        <OddsBox val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" />
+                        <div className="hidden lg:flex gap-1">
+                          <OddsBox val={match.odds[tIdx].lay2} vol={match.odds[tIdx].layVol2} type="lay" intensity="medium" />
+                          <OddsBox val={match.odds[tIdx].lay3} vol={match.odds[tIdx].layVol3} type="lay" intensity="low" />
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high' }) => {
+  const bgColor = type === 'back'
+    ? (intensity === 'high' ? 'bg-[#a5d9fe]' : intensity === 'medium' ? 'bg-[#bce4ff]' : 'bg-[#d1eeff]')
+    : (intensity === 'high' ? 'bg-[#f8d0ce]' : intensity === 'medium' ? 'bg-[#fbe3e2]' : 'bg-[#fff0f0]')
+
+  return (
+    <button className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-black/5 ${bgColor} hover:brightness-95 active:scale-95`}>
+      <span className="text-[12px] lg:text-[12px] font-black text-[#2e2e2e] leading-none mb-0.5">{val || '-'}</span>
+      <span className="text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>
+    </button>
+  )
+}
 
 export default function SportDetailPage() {
   const params = useParams()
@@ -58,9 +156,8 @@ export default function SportDetailPage() {
             <button
               key={tab}
               onClick={() => setActiveSubTab(tab)}
-              className={`flex-1 h-full text-[11px] font-black uppercase tracking-tight relative ${
-                activeSubTab === tab ? 'text-[#e8612c]' : 'text-gray-400'
-              }`}
+              className={`flex-1 h-full text-[11px] font-black uppercase tracking-tight relative ${activeSubTab === tab ? 'text-[#e8612c]' : 'text-gray-400'
+                }`}
             >
               {tab}
               {activeSubTab === tab && (
@@ -71,94 +168,18 @@ export default function SportDetailPage() {
         </div>
 
         {/* Match List */}
-        <div className="p-2 space-y-4">
+        <div className="p-2 space-y-3">
           {matches.map((match) => (
-            <div key={match.id} className="bg-white rounded-lg overflow-hidden shadow-md">
-              {/* Header */}
-              <div className="bg-[#e15b24] h-[65px] flex items-center justify-between relative overflow-hidden">
-                <div className="flex flex-col relative z-10 pl-3">
-                    {match.isUpcoming && (
-                      <div className="bg-[#00aef0] px-2 py-[2px] rounded-[2px] inline-block w-fit mb-1 shadow-sm">
-                          <span className="text-white text-[9px] font-black uppercase tracking-tight leading-none">UPCOMING</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-[8px] h-[2px] bg-white opacity-60 rounded-full" />
-                        <span className="text-white text-[14px] font-bold leading-none tracking-tight">
-                          {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
-                        </span>
-                    </div>
-                    <span className="text-white/90 text-[11px] font-medium leading-none mt-1 ml-[14px]">
-                      {match.startTime}
-                    </span>
-                </div>
-                <div className="flex items-center pr-3 relative z-10">
-                  <button className="text-white">
-                    <Star size={24} className="fill-[#ffd300] text-[#ffd300] drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Odds Table */}
-              <div className="bg-white overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <tbody>
-                    {/* Team A */}
-                    <tr className="border-b border-gray-100">
-                      <td className="px-4 py-3 min-w-[150px]">
-                        <span className="text-[14px] font-bold text-gray-800 tracking-tight">{toTitleCase(match.teamA)}</span>
-                      </td>
-                      <td className="p-0">
-                        <div className="flex justify-end h-14">
-                          {[
-                            { val: match.odds[0].back3, vol: match.odds[0].backVol3, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[0].back2, vol: match.odds[0].backVol2, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[0].back, vol: match.odds[0].backVol, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[0].lay, vol: match.odds[0].layVol, bg: 'bg-[#f8d0ce]' },
-                            { val: match.odds[0].lay2, vol: match.odds[0].layVol2, bg: 'bg-[#f8d0ce]' },
-                            { val: match.odds[0].lay3, vol: match.odds[0].layVol3, bg: 'bg-[#f8d0ce]' }
-                          ].map((cell, idx) => (
-                            <div key={idx} className={`w-[60px] lg:w-[70px] h-full flex flex-col items-center justify-center ${cell.bg} border-l border-white/40`}>
-                              <span className="text-[13px] font-black text-[#2e2e2e] leading-none mb-0.5">{cell.val}</span>
-                              <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{cell.vol}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                    {/* Team B */}
-                    <tr>
-                      <td className="px-4 py-3 min-w-[150px]">
-                        <span className="text-[14px] font-bold text-gray-800 tracking-tight">{toTitleCase(match.teamB)}</span>
-                      </td>
-                      <td className="p-0">
-                        <div className="flex justify-end h-14">
-                          {[
-                            { val: match.odds[1].back3, vol: match.odds[1].backVol3, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[1].back2, vol: match.odds[1].backVol2, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[1].back, vol: match.odds[1].backVol, bg: 'bg-[#a5d9fe]' },
-                            { val: match.odds[1].lay, vol: match.odds[1].layVol, bg: 'bg-[#f8d0ce]' },
-                            { val: match.odds[1].lay2, vol: match.odds[1].layVol2, bg: 'bg-[#f8d0ce]' },
-                            { val: match.odds[1].lay3, vol: match.odds[1].layVol3, bg: 'bg-[#f8d0ce]' }
-                          ].map((cell, idx) => (
-                            <div key={idx} className={`w-[60px] lg:w-[70px] h-full flex flex-col items-center justify-center ${cell.bg} border-l border-white/40`}>
-                              <span className="text-[13px] font-black text-[#2e2e2e] leading-none mb-0.5">{cell.val}</span>
-                              <span className="text-[9px] text-[#4a4a4a] font-bold leading-none">{cell.vol}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <MatchTable key={match.id} match={match} />
           ))}
         </div>
       </div>
 
       {/* Bet Container - attached but separate column */}
-      <BetContainer />
+      <div className="hidden lg:block">
+        <BetContainer />
+      </div>
     </div>
   )
 }
+
