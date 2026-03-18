@@ -1,14 +1,14 @@
 'use client'
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Star } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 
 const sportsList = [
-  { id: '1', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: '2', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: '3', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: 'Soccer', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
 const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
@@ -151,9 +151,14 @@ const MatchTable = ({ match }: { match: any }) => {
 }
 
 export default function SportsbookPage() {
-  const [activeSport, setActiveSport] = useState('1')
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Find active sport based on URL path or default to Cricket on /sportsbook
+  const activeSport = sportsList.find(s => 
+    pathname.includes(s.id)
+  )?.id || 'Cricket'
 
   return (
     <div className="flex min-h-screen bg-[#1a1a1a]">
@@ -166,8 +171,11 @@ export default function SportsbookPage() {
               <button
                 key={sport.id}
                 onClick={() => {
-                   setActiveSport(sport.id)
-                   router.push('/sportsbook/' + sport.id)
+                   if (sport.id === 'Cricket') {
+                     router.push('/sportsbook')
+                   } else {
+                     router.push('/sportsbook/' + sport.id)
+                   }
                 }}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
                   activeSport === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
@@ -214,7 +222,7 @@ export default function SportsbookPage() {
       </div>
 
       {/* Bet Container - attached but separate column */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block lg:w-[350px] shrink-0">
         <BetContainer />
       </div>
     </div>

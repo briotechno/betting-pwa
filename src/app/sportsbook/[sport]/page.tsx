@@ -1,14 +1,14 @@
 'use client'
 import React, { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, usePathname } from 'next/navigation'
 import { Star } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 
 const sportsList = [
-  { id: '1', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: '2', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: '3', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: 'Soccer', name: 'Soccer', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
 const matches = [
@@ -151,10 +151,15 @@ const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: str
 export default function SportDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const sportId = params.sport as string
+  const pathname = usePathname()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
 
   const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
+
+  // Find active sport based on URL path or default to Cricket on /sportsbook
+  const activeSportId = sportsList.find(s => 
+    pathname.toLowerCase().includes(s.id.toLowerCase())
+  )?.id || 'Cricket'
 
   return (
     <div className="flex min-h-screen bg-[#1a1a1a]">
@@ -166,9 +171,15 @@ export default function SportDetailPage() {
             {sportsList.map((sport) => (
               <button
                 key={sport.id}
-                onClick={() => router.push('/sportsbook/' + sport.id)}
+                onClick={() => {
+                   if (sport.id === 'Cricket') {
+                     router.push('/sportsbook')
+                   } else {
+                     router.push('/sportsbook/' + sport.id)
+                   }
+                }}
                 className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
-                  sportId === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
+                  activeSportId === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
                 }`}
               >
                 <div className="relative mb-1">
@@ -178,7 +189,7 @@ export default function SportDetailPage() {
                   </div>
                 </div>
                 <span className={`text-[10px] font-black uppercase tracking-tight ${
-                  sportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
+                  activeSportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
                 }`}>
                   {sport.name}
                 </span>
@@ -213,7 +224,7 @@ export default function SportDetailPage() {
       </div>
 
       {/* Bet Container - attached but separate column */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block lg:w-[350px] shrink-0">
         <BetContainer />
       </div>
     </div>

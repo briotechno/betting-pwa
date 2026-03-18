@@ -177,7 +177,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* Bet Container */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block lg:w-[350px] shrink-0">
         <BetContainer />
       </div>
     </div>
