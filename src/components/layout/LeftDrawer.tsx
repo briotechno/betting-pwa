@@ -27,12 +27,12 @@ const menuItems = [
   { id: 'market', label: 'Market', icon: '/nav/market.png', href: '/markets' },
   { id: 'news', label: 'News', icon: '/nav/news.png', href: '/news' },
   { id: 'about', label: 'About', icon: '/nav/about-us.png', href: '/about' },
-  { id: 'privacy', label: 'Privacy Policy', icon: '/nav/privacy.png', href: '/rules?tab=privacy' },
-  { id: 'faq', label: 'FAQ', icon: '/nav/faqs.png', href: '/rules?tab=faq' },
+  { id: 'privacy', label: 'Privacy Policy', icon: '/nav/privacy.png', href: '/privacy-policy' },
+  { id: 'faq', label: 'FAQ', icon: '/nav/faqs.png', href: '/faqs' },
   { id: 'promotions', label: 'Promotions', icon: '/nav/promotions.png', href: '/promotions' },
   { id: 'loyalty', label: 'Loyalty', icon: '/nav/loyalty.png', href: '/loyalty' },
-  { id: 'affiliate', label: 'Affiliate', icon: '/nav/affiliate.png', href: '/affiliate' },
-  { id: 'tc', label: 'T&C', icon: '/nav/terms-and-conditions.png', href: '/rules?tab=tc' },
+  { id: 'affiliate', label: 'Affiliate', icon: '/nav/affiliate.png', href: '/affiliate-partner' },
+  { id: 'tc', label: 'T&C', icon: '/nav/terms-and-conditions.png', href: '/termsandconditions' },
 ]
 
 export default function LeftDrawer() {

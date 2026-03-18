@@ -48,7 +48,7 @@ export default function DesktopBottomNav() {
       <div className="flex w-full h-full items-center justify-between" style={{
         flex: '1 0 auto',
         position: 'relative',
-        background: 'linear-gradient(to top, rgba(10, 10, 10, 0.5) 50%, #323232 100%);',
+        background: 'linear-gradient(to top, rgba(10, 10, 10, 0.5) 50%, #323232 100%)',
         borderBottom: '1px solid #333',
         borderTop: '1px solid #4c4c4c'
       }}>
