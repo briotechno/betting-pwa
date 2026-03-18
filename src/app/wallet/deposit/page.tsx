@@ -1,636 +1,507 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  ArrowLeft, ChevronRight, Shield, Zap, Clock, CheckCircle,
-  CreditCard, Building2, Smartphone, Copy, Info
-} from 'lucide-react'
+import { ChevronLeft, Copy, Check } from 'lucide-react'
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-const QUICK_AMOUNTS = [300, 500, 1000, 2000, 5000, 10000, 25000, 50000]
-
-type MethodId = 'upi' | 'card' | 'netbanking'
+type MethodId = 'whatsapp' | 'paytm' | 'gpay'
 
 interface PaymentMethod {
   id: MethodId
-  name: string
   label: string
   icon: React.ReactNode
-  badge?: string
-  desc: string
-  min: number
-  max: number
 }
+
+// ── Payment Methods ────────────────────────────────────────────────────────────
 
 const PAYMENT_METHODS: PaymentMethod[] = [
   {
-    id: 'upi',
-    name: 'UPI',
-    label: 'UPI / QR Code',
-    icon: <Smartphone size={20} />,
-    badge: 'INSTANT',
-    desc: 'Pay via any UPI app — GPay, PhonePe, Paytm, BHIM',
-    min: 100,
-    max: 100000,
+    id: 'whatsapp',
+    label: 'WHATSAPP DEPOSIT',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="#25d366" style={{ width: 34, height: 34 }}>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+      </svg>
+    ),
   },
   {
-    id: 'card',
-    name: 'Card',
-    label: 'Debit / Credit Card',
-    icon: <CreditCard size={20} />,
-    badge: 'INSTANT',
-    desc: 'All Visa, Mastercard & RuPay cards accepted',
-    min: 500,
-    max: 200000,
-  },
-  {
-    id: 'netbanking',
-    name: 'Net Banking',
-    label: 'Net Banking',
-    icon: <Building2 size={20} />,
-    badge: '5-10 mins',
-    desc: 'Direct bank transfer from 50+ supported banks',
-    min: 500,
-    max: 500000,
-  },
-]
-
-const UPI_APPS = [
-  { id: 'gpay',     name: 'Google Pay', color: '#4285F4', logo: '🔵' },
-  { id: 'phonepe',  name: 'PhonePe',    color: '#5f259f', logo: '💜' },
-  { id: 'paytm',    name: 'Paytm',      color: '#00BAF2', logo: '🔷' },
-  { id: 'bhim',     name: 'BHIM UPI',   color: '#1a237e', logo: '🇮🇳' },
-  { id: 'other',    name: 'Other UPI',  color: 'var(--primary)', logo: '📱' },
-]
-
-const BANKS = [
-  { id: 'sbi',        name: 'State Bank of India',  logo: '🏦' },
-  { id: 'hdfc',       name: 'HDFC Bank',             logo: '🏛️' },
-  { id: 'icici',      name: 'ICICI Bank',            logo: '🏢' },
-  { id: 'axis',       name: 'Axis Bank',             logo: '🏬' },
-  { id: 'kotak',      name: 'Kotak Mahindra',        logo: '🏦' },
-  { id: 'pnb',        name: 'Punjab National Bank',  logo: '🏛️' },
-  { id: 'bob',        name: 'Bank of Baroda',        logo: '🏢' },
-  { id: 'canara',     name: 'Canara Bank',           logo: '🏦' },
-  { id: 'union',      name: 'Union Bank',            logo: '🏬' },
-  { id: 'indusind',   name: 'IndusInd Bank',         logo: '🏦' },
-  { id: 'yes',        name: 'Yes Bank',              logo: '🏛️' },
-  { id: 'idfc',       name: 'IDFC First Bank',       logo: '🏦' },
-]
-
-// Shared input style helper
-const inputStyle = {
-  background: 'var(--header-bg)',
-  border: '1px solid var(--card-border)',
-  color: 'var(--text-primary)',
-}
-const focusHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-  e.target.style.borderColor = 'var(--primary)'
-}
-const blurHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-  e.target.style.borderColor = 'var(--card-border)'
-}
-
-// ─── Sub-panels ──────────────────────────────────────────────────────────────
-
-function UpiPanel({ amount }: { amount: string }) {
-  const [selectedApp, setSelectedApp] = useState('gpay')
-  const [upiId, setUpiId] = useState('')
-  const [step, setStep] = useState<'select' | 'qr' | 'id'>('select')
-  const upiAddress = 'fairbet@okaxis'
-
-  return (
-    <div className="space-y-4">
-      {/* App selector */}
-      <div>
-        <p className="text-xs font-semibold mb-2 text-textSecondary">Select UPI App</p>
-        <div className="grid grid-cols-5 gap-2">
-          {UPI_APPS.map((app) => (
-            <button
-              key={app.id}
-              onClick={() => setSelectedApp(app.id)}
-              className="flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-all"
-              style={{
-                background:   selectedApp === app.id ? 'rgba(232,97,44,0.15)' : '#111',
-                border:       selectedApp === app.id ? '1.5px solid #e8612c' : '1px solid #2a2a2a',
-              }}
-            >
-              <span className="text-xl">{app.logo}</span>
-                <span className={`text-[9px] font-medium text-center truncate w-full ${selectedApp === app.id ? 'text-primary' : 'text-textMuted'}`}>
-                  {app.name.split(' ')[0]}
-                </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Pay options */}
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          onClick={() => setStep('qr')}
-          className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all"
-          style={{
-            background: step === 'qr' ? 'rgba(var(--primary-rgb),0.1)' : 'var(--header-bg)',
-            border:     step === 'qr' ? '1.5px solid var(--primary)' : '1px solid var(--card-border)',
-          }}
-        >
-          <span className="text-2xl">📷</span>
-          <span className="text-xs font-medium" style={{ color: step === 'qr' ? 'var(--primary)' : 'var(--text-secondary)' }}>Scan QR Code</span>
-        </button>
-        <button
-          onClick={() => setStep('id')}
-          className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all"
-          style={{
-            background: step === 'id' ? 'rgba(var(--primary-rgb),0.1)' : 'var(--header-bg)',
-            border:     step === 'id' ? '1.5px solid var(--primary)' : '1px solid var(--card-border)',
-          }}
-        >
-          <span className="text-2xl">📝</span>
-          <span className="text-xs font-medium" style={{ color: step === 'id' ? 'var(--primary)' : 'var(--text-secondary)' }}>Enter UPI ID</span>
-        </button>
-      </div>
-
-      {/* QR Panel */}
-      {step === 'qr' && (
-        <div className="rounded-2xl p-4 text-center space-y-3 bg-headerBg border border-cardBorder">
-          {/* Mock QR */}
-          <div className="w-44 h-44 mx-auto rounded-xl flex items-center justify-center text-6xl"
-            style={{ background: '#fff', padding: '8px' }}>
-            <div className="grid grid-cols-3 gap-1 w-full h-full">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="rounded-sm"
-                  style={{ background: [0,1,3,5,7,8].includes(i) ? '#000' : '#fff' }} />
-              ))}
-            </div>
-          </div>
-          <p className="text-xs text-textSecondary">Scan with any UPI app</p>
-
-          {/* UPI address copyable */}
-          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-background border border-cardBorder">
-            <span className="text-xs font-mono font-semibold text-textPrimary">{upiAddress}</span>
-            <button
-              onClick={() => navigator.clipboard?.writeText(upiAddress)}
-              className="transition-colors text-primary"
-            >
-              <Copy size={13} />
-            </button>
-          </div>
-
-          {amount && (
-            <div className="flex items-center justify-center gap-1 text-xs text-textSecondary">
-              Amount: <span className="font-bold text-textPrimary ml-1">₹{Number(amount).toLocaleString()}</span>
-            </div>
-          )}
-
-          <p className="text-[10px]" style={{ color: '#555' }}>
-            After payment, click &quot;I Have Paid&quot; below
-          </p>
-        </div>
-      )}
-
-      {/* UPI ID Panel */}
-      {step === 'id' && (
-        <div className="space-y-3">
-          <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: '#aaa' }}>Your UPI ID</label>
-            <input
-              type="text"
-              placeholder="e.g. yourname@okaxis"
-              value={upiId}
-              onChange={(e) => setUpiId(e.target.value)}
-              className="w-full px-4 py-2.5 text-sm rounded-xl focus:outline-none transition-colors"
-              style={inputStyle}
-              onFocus={focusHandler}
-              onBlur={blurHandler}
-            />
-          </div>
-          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-background border border-cardBorder">
-            <Info size={12} className="mt-0.5 shrink-0 text-primary" />
-            <p className="text-[10px] text-textMuted">
-              Ensure the UPI ID is linked to your registered mobile/bank. Incorrect ID may result in payment failure.
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function CardPanel() {
-  const [cardNum, setCardNum] = useState('')
-  const [expiry, setExpiry] = useState('')
-  const [cvv, setCvv] = useState('')
-  const [name, setName] = useState('')
-  const [saveCard, setSaveCard] = useState(false)
-
-  const formatCard = (val: string) =>
-    val.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
-
-  const formatExpiry = (val: string) => {
-    const d = val.replace(/\D/g, '').slice(0, 4)
-    return d.length >= 3 ? `${d.slice(0, 2)}/${d.slice(2)}` : d
-  }
-
-  return (
-    <div className="space-y-3">
-      {/* Card preview */}
+    id: 'paytm',
+    label: 'PAYTM',
+    icon: (
       <div
-        className="relative rounded-2xl p-5 overflow-hidden bg-gradient-card border border-cardBorder"
-        style={{ minHeight: 160 }}
+        style={{
+          width: 40,
+          height: 40,
+          background: '#002970',
+          borderRadius: '6px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10"
-          style={{ background: 'radial-gradient(circle, #e8612c 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#555' }}>Card Number</p>
-            <p className="text-base font-mono font-bold tracking-widest text-white mt-0.5">
-              {cardNum || '•••• •••• •••• ••••'}
-            </p>
-          </div>
-          <div className="w-10 h-7 rounded-md flex items-center justify-center bg-primary">
-            <CreditCard size={16} className="text-white" />
-          </div>
-        </div>
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="text-[9px] uppercase tracking-widest" style={{ color: '#555' }}>Card Holder</p>
-            <p className="text-xs font-semibold text-white">{name || 'YOUR NAME'}</p>
-          </div>
-          <div>
-            <p className="text-[9px] uppercase tracking-widest" style={{ color: '#555' }}>Expires</p>
-            <p className="text-xs font-semibold text-white">{expiry || 'MM/YY'}</p>
-          </div>
-          <div className="flex gap-1">
-            <div className="w-6 h-6 rounded-full opacity-80" style={{ background: '#eb001b' }} />
-            <div className="w-6 h-6 rounded-full opacity-60 -ml-3" style={{ background: '#f79e1b' }} />
-          </div>
-        </div>
+        <span style={{ color: '#00baf2', fontWeight: 900, fontSize: '12px' }}>Pay</span>
+        <span style={{ color: '#fff', fontWeight: 900, fontSize: '10px' }}>tm</span>
       </div>
-
-      {/* Fields */}
-      <div>
-        <label className="block text-xs font-medium mb-1.5" style={{ color: '#aaa' }}>Card Number</label>
-        <input
-          type="text" inputMode="numeric" placeholder="1234  5678  9012  3456"
-          value={cardNum} onChange={(e) => setCardNum(formatCard(e.target.value))}
-          className="w-full px-4 py-2.5 text-sm rounded-xl font-mono focus:outline-none transition-colors"
-          style={inputStyle} onFocus={focusHandler} onBlur={blurHandler}
-        />
+    ),
+  },
+  {
+    id: 'gpay',
+    label: 'GPAY',
+    icon: (
+      <div
+        style={{
+          width: 40,
+          height: 40,
+          background: '#fff',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #e0e0e0',
+          fontSize: '22px',
+        }}
+      >
+        🔵
       </div>
+    ),
+  },
+]
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: '#aaa' }}>Expiry Date</label>
-          <input
-            type="text" inputMode="numeric" placeholder="MM/YY" maxLength={5}
-            value={expiry} onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-            className="w-full px-4 py-2.5 text-sm rounded-xl focus:outline-none transition-colors"
-            style={inputStyle} onFocus={focusHandler} onBlur={blurHandler}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: '#aaa' }}>CVV</label>
-          <input
-            type="password" inputMode="numeric" placeholder="•••" maxLength={4}
-            value={cvv} onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            className="w-full px-4 py-2.5 text-sm rounded-xl focus:outline-none transition-colors"
-            style={inputStyle} onFocus={focusHandler} onBlur={blurHandler}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-medium mb-1.5 text-textSecondary">Card Holder Name</label>
-        <input
-          type="text" placeholder="Name as on card"
-          value={name} onChange={(e) => setName(e.target.value.toUpperCase())}
-          className="w-full px-4 py-2.5 text-sm rounded-xl focus:outline-none transition-colors"
-          style={inputStyle} onFocus={focusHandler} onBlur={blurHandler}
-        />
-      </div>
-
-      <label className="flex items-center gap-2.5 cursor-pointer">
-        <div
-          onClick={() => setSaveCard(!saveCard)}
-          className={`w-8 h-4 rounded-full relative transition-colors cursor-pointer ${saveCard ? 'bg-primary' : 'bg-surfaceLight'}`}
-        >
-          <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-transform ${saveCard ? 'translate-x-[16px]' : 'translate-x-[2px]'}`} />
-        </div>
-        <span className="text-xs text-textMuted">Save card for future payments</span>
-      </label>
-
-      {/* Security note */}
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border border-cardBorder">
-        <Shield size={13} className="text-success" />
-        <p className="text-[10px] text-textMuted">
-          256-bit SSL encryption. Your card info is never stored on our servers.
-        </p>
-      </div>
-    </div>
-  )
+const PAYMENT_DETAILS: Record<MethodId, { name: string; number: string; min: number; max: number }> = {
+  whatsapp: { name: 'FairPlay WhatsApp', number: '+91 9000000000', min: 100, max: 100000000000 },
+  paytm:    { name: 'Pawan Sharma paytm', number: '00000000@pty',  min: 100, max: 100000000000 },
+  gpay:     { name: 'FairPlay GPay',      number: '00000000@gpay', min: 100, max: 100000000000 },
 }
 
-function NetBankingPanel() {
-  const [selectedBank, setSelectedBank] = useState('')
-  const [showAll, setShowAll] = useState(false)
-  const visibleBanks = showAll ? BANKS : BANKS.slice(0, 8)
+const QUICK_AMOUNTS = [500, 1000, 5000, 10000, 50000, 100000]
+
+// ── QR Code (Mock SVG) ────────────────────────────────────────────────────────
+
+function QRCode() {
+  const cells = [
+    1,1,1,1,1,1,1, 0, 1,0,1,0,1, 0, 1,1,1,1,1,1,1,
+    1,0,0,0,0,0,1, 0, 0,1,0,1,0, 0, 1,0,0,0,0,0,1,
+    1,0,1,1,1,0,1, 0, 1,1,0,0,1, 0, 1,0,1,1,1,0,1,
+    1,0,1,1,1,0,1, 0, 0,0,1,0,0, 0, 1,0,1,1,1,0,1,
+    1,0,1,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,1,1,1,0,1,
+    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 0, 1,0,0,0,0,0,1,
+    1,1,1,1,1,1,1, 0, 1,0,1,0,1, 0, 1,1,1,1,1,1,1,
+    0,0,0,0,0,0,0, 0, 0,1,0,1,0, 0, 0,0,0,0,0,0,0,
+    1,0,1,1,0,1,1, 0, 1,1,0,0,1, 1, 0,1,0,1,1,0,1,
+    0,1,0,0,1,0,0, 0, 0,0,1,0,0, 1, 0,0,1,0,0,1,0,
+    1,1,0,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,0,1,1,0,1,
+    0,0,1,0,0,1,0, 0, 0,1,0,0,1, 1, 0,1,0,0,0,1,0,
+    1,0,1,1,0,1,1, 0, 1,1,0,0,1, 0, 1,0,1,1,0,0,1,
+    0,0,0,0,0,0,0, 0, 0,0,1,0,0, 1, 0,0,1,0,1,0,0,
+    1,1,1,1,1,1,1, 0, 1,0,1,1,0, 0, 1,1,0,1,1,0,1,
+    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 1, 0,0,0,0,0,0,1,
+    1,0,1,1,1,0,1, 0, 1,1,0,0,1, 0, 1,0,1,1,0,0,1,
+    1,0,1,1,1,0,1, 0, 0,0,1,0,0, 1, 0,1,0,0,1,1,0,
+    1,0,1,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,0,1,0,0,1,
+    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 1, 0,0,1,0,0,1,0,
+    1,1,1,1,1,1,1, 0, 1,1,0,0,1, 0, 1,1,0,0,1,0,1,
+  ]
 
   return (
-    <div className="space-y-4">
-      <p className="text-xs font-semibold text-textSecondary">Select Your Bank</p>
-
-      <div className="grid grid-cols-2 gap-2">
-        {visibleBanks.map((bank) => (
-          <button
-            key={bank.id}
-            onClick={() => setSelectedBank(bank.id)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left"
-            style={{
-              background: selectedBank === bank.id ? 'rgba(var(--primary-rgb),0.12)' : 'var(--background)',
-              border:     selectedBank === bank.id ? '1.5px solid var(--primary)' : '1px solid var(--card-border)',
-            }}
-          >
-            <span className="text-xl shrink-0">{bank.logo}</span>
-            <span className="text-xs font-medium truncate" style={{ color: selectedBank === bank.id ? 'var(--primary)' : 'var(--text-secondary)' }}>
-              {bank.name}
-            </span>
-            {selectedBank === bank.id && (
-              <CheckCircle size={12} className="ml-auto shrink-0 text-primary" />
-            )}
-          </button>
+    <div
+      style={{
+        background: '#fff',
+        padding: '10px',
+        borderRadius: '4px',
+        display: 'inline-block',
+        lineHeight: 0,
+      }}
+    >
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(21, 7px)', gap: '1px' }}>
+        {cells.map((c, i) => (
+          <div
+            key={i}
+            style={{ width: '7px', height: '7px', background: c ? '#000' : '#fff' }}
+          />
         ))}
       </div>
-
-      {!showAll && (
-        <button
-          onClick={() => setShowAll(true)}
-          className="w-full py-2 text-xs rounded-xl transition-colors bg-surface border border-cardBorder text-textMuted"
-        >
-          View All Banks ({BANKS.length - 8} more)
-        </button>
-      )}
-
-      {selectedBank && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 border border-success/30">
-          <CheckCircle size={13} className="text-success" />
-          <p className="text-[11px] font-medium text-success">
-            {BANKS.find(b => b.id === selectedBank)?.name} selected. You&apos;ll be redirected to your bank portal.
-          </p>
-        </div>
-      )}
-
-      <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-background border border-cardBorder">
-        <Clock size={12} className="mt-0.5 shrink-0 text-warn" />
-        <p className="text-[10px] text-textMuted">
-          Net banking transfers may take 5–30 minutes to reflect in your wallet. Do not close the browser during payment.
-        </p>
-      </div>
     </div>
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ── CopyButton ────────────────────────────────────────────────────────────────
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <button
+      onClick={handleCopy}
+      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: copied ? '#e8612c' : '#aaa' }}
+    >
+      {copied ? <Check size={14} /> : <Copy size={14} />}
+    </button>
+  )
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function DepositPage() {
   const router = useRouter()
-  const [amount, setAmount]               = useState('')
-  const [activeMethod, setActiveMethod]   = useState<MethodId>('upi')
-  const [processing, setProcessing]       = useState(false)
-  const [success, setSuccess]             = useState(false)
+  const [activeMethod, setActiveMethod] = useState<MethodId>('paytm')
+  const [utr, setUtr]                   = useState('')
+  const [amount, setAmount]             = useState('200000')
+  const [fileName, setFileName]         = useState('')
+  const [agreed, setAgreed]            = useState(false)
+  const [submitted, setSubmitted]       = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
-  const method = PAYMENT_METHODS.find((m) => m.id === activeMethod)!
-  const numAmount = Number(amount) || 0
-  const isValid = numAmount >= method.min && numAmount <= method.max && amount !== ''
+  const details = PAYMENT_DETAILS[activeMethod]
 
-  const handlePay = async () => {
-    if (!isValid) return
-    setProcessing(true)
-    await new Promise((r) => setTimeout(r, 1800))
-    setProcessing(false)
-    setSuccess(true)
+  // Validation
+  const utrError  = submitted && !utr.trim()
+  const fileError = submitted && !fileName
+  const termError = submitted && !agreed
+
+  const handleSubmit = () => {
+    setSubmitted(true)
+    if (!utr.trim() || !fileName || !agreed) return
+    alert('Deposit submitted successfully!')
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#000' }}>
-        <div className="w-full max-w-sm text-center">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: 'rgba(76,175,80,0.15)', border: '2px solid #4caf50' }}>
-            <CheckCircle size={36} style={{ color: '#4caf50' }} />
-          </div>
-          <h2 className="text-2xl font-black text-textPrimary mb-2">Deposit Successful!</h2>
-          <p className="text-sm mb-1 text-textSecondary">₹{numAmount.toLocaleString()} added to your wallet</p>
-          <p className="text-xs mb-8 text-textMuted">Transaction ID: TXN{Date.now()}</p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => router.push('/wallet')}
-              className="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-surface border border-cardBorder text-textSecondary"
-            >
-              My Wallet
-            </button>
-            <button
-              onClick={() => router.push('/sports')}
-              className="flex-1 py-3 rounded-xl text-sm font-bold text-textPrimary transition-all bg-gradient-orange"
-            >
-              Bet Now 🏏
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    setFileName(file ? file.name : '')
   }
 
   return (
-    <div className="min-h-screen pb-20 bg-background">
-      {/* ── Header ── */}
-      <div className="flex items-center gap-3 px-4 py-3 sticky top-[88px] z-10 bg-background border-b border-cardBorder">
-        <button onClick={() => router.back()} className="transition-colors text-textMuted hover:text-textPrimary">
-          <ArrowLeft size={20} />
+    <div
+      className="min-h-screen pb-24"
+      style={{ background: '#181818', color: '#fff', fontFamily: 'Inter, sans-serif' }}
+    >
+      {/* ── Sub Header ── */}
+      <div
+        className="flex items-center px-3 py-3 sticky top-0 z-20"
+        style={{ background: '#222222' }}
+      >
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1"
+          style={{ color: '#e8612c', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <ChevronLeft size={22} strokeWidth={3} />
         </button>
-        <div>
-          <h1 className="text-base font-bold text-textPrimary">Deposit Funds</h1>
-          <p className="text-[10px] text-textMuted">Min ₹{method.min.toLocaleString()} · Max ₹{method.max.toLocaleString()}</p>
-        </div>
-        <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-          style={{ background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)' }}>
-          <Shield size={11} style={{ color: '#4caf50' }} />
-          <span className="text-[10px] font-semibold" style={{ color: '#4caf50' }}>SSL Secure</span>
-        </div>
+        <h1 className="text-[15px] font-bold text-white">Choose Deposit Method</h1>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
-        {/* ── Payment method tabs ── */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #1a1a1a' }}>
-          {/* Tab headers */}
-          <div className="flex" style={{ background: '#0d0d0d' }}>
-            {PAYMENT_METHODS.map((pm) => (
-              <button
-                key={pm.id}
-                onClick={() => setActiveMethod(pm.id)}
-                className="flex-1 flex flex-col items-center gap-1 py-3 px-1 transition-all relative"
-                style={{
-                  background:   activeMethod === pm.id ? 'var(--header-bg)' : 'transparent',
-                  borderBottom: activeMethod === pm.id ? '2px solid var(--primary)' : '2px solid transparent',
-                  color:        activeMethod === pm.id ? 'var(--primary)' : 'var(--text-secondary)',
-                }}
-              >
-                <span>{pm.icon}</span>
-                <span className="text-[10px] font-semibold">{pm.name}</span>
-                {pm.badge && (
-                  <span
-                    className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{
-                      background: pm.badge === 'INSTANT' ? 'rgba(76,175,80,0.2)' : 'rgba(255,152,0,0.2)',
-                      color:      pm.badge === 'INSTANT' ? '#4caf50' : '#ff9800',
-                    }}
-                  >
-                    {pm.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+      {/* ── Page Body ── */}
+      <div className="max-w-[900px] mx-auto px-4 py-5 space-y-5">
 
-          {/* Method description strip */}
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-headerBg border-b border-cardBorder">
-            <span className="text-primary">{method.icon}</span>
-            <span className="text-xs text-textSecondary">{method.desc}</span>
-          </div>
-        </div>
-
-        {/* ── Amount entry ── */}
-        <div className="rounded-2xl p-4 space-y-3" style={{ background: '#111', border: '1px solid #1a1a1a' }}>
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-textPrimary">Enter Amount</p>
-            <span className="text-[10px] text-textMuted">
-              Min ₹{method.min.toLocaleString()} · Max ₹{method.max.toLocaleString()}
-            </span>
-          </div>
-
-          {/* Amount input */}
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-primary">₹</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 text-xl font-black rounded-xl focus:outline-none transition-colors"
+        {/* ── Payment Method Tabs ── */}
+        <div className="flex justify-center gap-2 flex-wrap">
+          {PAYMENT_METHODS.map((pm) => (
+            <button
+              key={pm.id}
+              onClick={() => setActiveMethod(pm.id)}
+              className="flex flex-col items-center gap-1.5 px-4 py-3 transition-all"
               style={{
-                background:  'var(--background)',
-                border:      amount && !isValid ? '1.5px solid var(--danger)' : '1px solid var(--card-border)',
-                color:       'var(--text-primary)',
+                background:   activeMethod === pm.id ? '#111111' : '#1a1a1a',
+                border:       activeMethod === pm.id ? '2px solid #e8612c' : '2px solid #2e2e2e',
+                borderRadius: '4px',
+                minWidth:     '110px',
+                cursor:       'pointer',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--primary)')}
-              onBlur={(e) => (e.target.style.borderColor = amount && !isValid ? 'var(--danger)' : 'var(--card-border)')}
-            />
-          </div>
-
-          {/* Validation message */}
-          {amount && !isValid && (
-            <p className="text-[11px]" style={{ color: '#e53935' }}>
-              {numAmount < method.min
-                ? `Minimum deposit is ₹${method.min.toLocaleString()}`
-                : `Maximum deposit is ₹${method.max.toLocaleString()}`}
-            </p>
-          )}
-
-          {/* Quick amounts */}
-          <div className="flex flex-wrap gap-2">
-            {QUICK_AMOUNTS.map((amt) => (
-              <button
-                key={amt}
-                onClick={() => setAmount(String(amt))}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+            >
+              {pm.icon}
+              <span
                 style={{
-                  background: amount === String(amt) ? '#e8612c' : '#1a1a1a',
-                  border:     amount === String(amt) ? '1px solid #e8612c' : '1px solid #2a2a2a',
-                  color:      amount === String(amt) ? '#fff' : '#888',
+                  fontSize:   '10px',
+                  fontWeight: '700',
+                  color:      activeMethod === pm.id ? '#e8612c' : '#aaa',
+                  textAlign:  'center',
+                  letterSpacing: '0.5px',
                 }}
               >
-                ₹{amt >= 1000 ? `${amt / 1000}K` : amt}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Payment method-specific fields ── */}
-        <div className="rounded-2xl p-4" style={{ background: '#111', border: '1px solid #1a1a1a' }}>
-          {activeMethod === 'upi'        && <UpiPanel amount={amount} />}
-          {activeMethod === 'card'       && <CardPanel />}
-          {activeMethod === 'netbanking' && <NetBankingPanel />}
-        </div>
-
-        {/* ── Order summary ── */}
-        {isValid && (
-          <div className="rounded-2xl p-4 space-y-2.5" style={{ background: '#111', border: '1px solid #1a1a1a' }}>
-            <p className="text-xs font-semibold text-white mb-1">Order Summary</p>
-            {[
-              { label: 'Deposit Amount', value: `₹${numAmount.toLocaleString()}` },
-              { label: 'Processing Fee', value: 'FREE', green: true },
-              { label: 'Payment Method', value: method.label },
-            ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between text-xs">
-                <span style={{ color: '#666' }}>{row.label}</span>
-                <span className={`font-semibold`} style={{ color: row.green ? '#4caf50' : '#aaa' }}>{row.value}</span>
-              </div>
-            ))}
-            <div className="h-px" style={{ background: '#1f1f1f' }} />
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-textPrimary">You&apos;ll Receive</span>
-              <span className="text-lg font-black text-primary">₹{numAmount.toLocaleString()}</span>
-            </div>
-          </div>
-        )}
-
-        {/* ── Benefits strip ── */}
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { icon: <Zap size={14} />,    text: 'Instant Credit',   sub: 'UPI & Card' },
-            { icon: <Shield size={14} />, text: '100% Secure',      sub: 'SSL Encrypted' },
-            { icon: <Clock size={14} />,  text: '24×7 Support',     sub: 'Always Online' },
-          ].map((b) => (
-            <div key={b.text} className="flex flex-col items-center gap-1 p-3 rounded-xl text-center bg-headerBg border border-cardBorder">
-              <span className="text-primary">{b.icon}</span>
-              <span className="text-[10px] font-semibold text-textPrimary">{b.text}</span>
-              <span className="text-[9px] text-textMuted">{b.sub}</span>
-            </div>
+                {pm.label}
+              </span>
+            </button>
           ))}
         </div>
 
-        {/* ── Pay button ── */}
-        <button
-          onClick={handlePay}
-          disabled={!isValid || processing}
-          className={`w-full py-4 rounded-2xl text-base font-black text-textPrimary transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isValid ? 'bg-gradient-orange' : 'bg-surface'}`}
-        >
-          {processing ? (
-            <>
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
-                <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Processing Payment...
-            </>
-          ) : (
-            <>
-              <Shield size={18} />
-              {isValid
-                ? `PAY ₹${numAmount.toLocaleString()} SECURELY`
-                : 'ENTER AMOUNT TO CONTINUE'}
-              <ChevronRight size={18} />
-            </>
-          )}
-        </button>
+        {/* ── Two-Column Panel ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        <p className="text-center text-[10px]" style={{ color: '#444' }}>
-          By proceeding you agree to our{' '}
-          <span style={{ color: '#666', cursor: 'pointer' }}>Deposit Policy</span>
-          {' '}&{' '}
-          <span style={{ color: '#666', cursor: 'pointer' }}>Terms of Service</span>
-        </p>
+          {/* ── LEFT: Account Details + QR ── */}
+          <div
+            className="space-y-3 p-4"
+            style={{ background: '#111111', border: '1px solid #2e2e2e', borderRadius: '4px' }}
+          >
+            {/* Name */}
+            <div className="flex items-center justify-between">
+              <div>
+                <span style={{ color: '#aaa', fontSize: '12px' }}>Name : </span>
+                <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.name}</span>
+              </div>
+              <CopyButton text={details.name} />
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: '#2e2e2e' }} />
+
+            {/* Number */}
+            <div className="flex items-center justify-between">
+              <div>
+                <span style={{ color: '#aaa', fontSize: '12px' }}>Number : </span>
+                <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.number}</span>
+              </div>
+              <CopyButton text={details.number} />
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: '#2e2e2e' }} />
+
+            {/* Min */}
+            <div>
+              <span style={{ color: '#aaa', fontSize: '12px' }}>Min Amount : </span>
+              <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.min.toLocaleString()}</span>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: '#2e2e2e' }} />
+
+            {/* Max */}
+            <div>
+              <span style={{ color: '#aaa', fontSize: '12px' }}>Max Amount : </span>
+              <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.max.toLocaleString()}</span>
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: '1px', background: '#2e2e2e' }} />
+
+            {/* QR Code */}
+            <div className="flex justify-center pt-2 pb-1">
+              <QRCode />
+            </div>
+
+            {/* UPI to Bank link */}
+            <div className="text-center pt-1">
+              <p
+                style={{
+                  color:      '#e8612c',
+                  fontSize:   '12px',
+                  fontWeight: '800',
+                  textTransform: 'uppercase',
+                  lineHeight: '1.5',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                HOW TO TRANSFER UPI TO BANK<br />
+                <a
+                  href="https://www.upitobank.xyz"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: '#e8612c', textDecoration: 'underline' }}
+                >
+                  CLICK HERE WWW.UPITOBANK.XYZ
+                </a>
+              </p>
+            </div>
+
+            {/* WhatsApp support button */}
+            <a
+              href="https://wa.me/"
+              target="_blank"
+              rel="noreferrer"
+              className="flex flex-col items-center justify-center gap-1 py-3 w-full"
+              style={{
+                background:    '#e8612c',
+                border:        'none',
+                borderRadius:  '4px',
+                cursor:        'pointer',
+                textDecoration: 'none',
+              }}
+            >
+              <span style={{ color: '#fff', fontSize: '11px', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                FOR PAYMENT RELATED ISSUES CLICK HERE
+              </span>
+              <svg viewBox="0 0 24 24" fill="white" style={{ width: '22px', height: '22px' }}>
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+              </svg>
+            </a>
+          </div>
+
+          {/* ── RIGHT: Deposit Form ── */}
+          <div
+            className="space-y-4 p-4"
+            style={{ background: '#111111', border: '1px solid #2e2e2e', borderRadius: '4px' }}
+          >
+            {/* Method heading */}
+            <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {activeMethod.toUpperCase()}
+            </h2>
+
+            {/* UTR Field */}
+            <div className="space-y-1">
+              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
+                Unique Transaction Reference <span style={{ color: '#e8612c' }}>*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="6 to 12 Digit UTR Number"
+                value={utr}
+                onChange={(e) => setUtr(e.target.value)}
+                className="w-full focus:outline-none"
+                style={{
+                  background:   '#fff',
+                  border:       `1px solid ${utrError ? '#e53935' : '#cccccc'}`,
+                  borderRadius: '2px',
+                  padding:      '9px 12px',
+                  fontSize:     '13px',
+                  color:        '#333',
+                  display:      'block',
+                }}
+              />
+              {utrError && (
+                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
+                  Please enter your UTR ID
+                </p>
+              )}
+            </div>
+
+            {/* File Upload */}
+            <div className="space-y-1">
+              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
+                Upload Your Payment Proof{' '}
+                <span style={{ color: '#e8612c', fontSize: '11px', fontWeight: '700' }}>[Required]</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="font-bold text-white"
+                  style={{
+                    background:   '#333',
+                    border:       '1px solid #555',
+                    borderRadius: '2px',
+                    padding:      '7px 12px',
+                    fontSize:     '12px',
+                    cursor:       'pointer',
+                    whiteSpace:   'nowrap',
+                  }}
+                >
+                  Choose file
+                </button>
+                <span style={{ fontSize: '12px', color: '#aaa' }}>
+                  {fileName || 'No file chosen'}
+                </span>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </div>
+              {fileError && (
+                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
+                  Please Upload Payment Proof.
+                </p>
+              )}
+            </div>
+
+            {/* Amount Field */}
+            <div className="space-y-1">
+              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
+                Amount <span style={{ color: '#e8612c' }}>*</span>
+              </label>
+              <input
+                type="number"
+                placeholder="Enter Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full focus:outline-none"
+                style={{
+                  background:   '#f5f5f5',
+                  border:       '1px solid #cccccc',
+                  borderRadius: '2px',
+                  padding:      '9px 12px',
+                  fontSize:     '13px',
+                  color:        '#333',
+                  display:      'block',
+                }}
+              />
+            </div>
+
+            {/* Quick Amount Buttons */}
+            <div className="grid grid-cols-3 gap-2">
+              {QUICK_AMOUNTS.map((amt) => (
+                <button
+                  key={amt}
+                  onClick={() => setAmount((prev) => String((Number(prev) || 0) + amt))}
+                  className="font-bold text-white transition-all active:scale-95"
+                  style={{
+                    background:   '#000',
+                    border:       '1px solid #333',
+                    borderRadius: '2px',
+                    padding:      '8px 4px',
+                    fontSize:     '12px',
+                    cursor:       'pointer',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#e8612c')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#333')}
+                >
+                  +{amt >= 1000 ? `${(amt / 1000).toLocaleString()},000` : amt}
+                </button>
+              ))}
+            </div>
+
+            {/* Terms checkbox */}
+            <div className="space-y-1">
+              <label className="flex items-start gap-2 cursor-pointer" style={{ fontSize: '12px', color: '#ccc' }}>
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  style={{
+                    width:        '15px',
+                    height:       '15px',
+                    marginTop:    '2px',
+                    accentColor:  '#e8612c',
+                    flexShrink:   0,
+                    cursor:       'pointer',
+                  }}
+                />
+                <span>
+                  I have read and agree with the{' '}
+                  <strong style={{ color: '#fff' }}>terms of payment and withdrawal policy.</strong>
+                </span>
+              </label>
+              {termError && (
+                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
+                  Please check terms and condition
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              className="w-full font-bold text-white uppercase tracking-widest transition-all active:scale-95"
+              style={{
+                background:    '#e8612c',
+                border:        'none',
+                borderRadius:  '2px',
+                padding:       '13px',
+                fontSize:      '14px',
+                cursor:        'pointer',
+                letterSpacing: '1.5px',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#d4521f')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#e8612c')}
+            >
+              SUBMIT
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
