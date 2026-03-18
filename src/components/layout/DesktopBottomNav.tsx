@@ -8,12 +8,13 @@ export default function DesktopBottomNav() {
   const pathname = usePathname()
   const { setAuraCasinoOpen } = useLayoutStore()
   const [mounted, setMounted] = useState(false)
+  const isDeepSportsbook = pathname?.startsWith('/sportsbook/') && pathname !== '/sportsbook'
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted || pathname?.startsWith('/auth')) return null
+  if (!mounted || pathname?.startsWith('/auth') || isDeepSportsbook) return null
 
   const navItems = [
     {
