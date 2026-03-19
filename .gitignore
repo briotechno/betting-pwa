@@ -34,4 +34,8 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+# Next-env
 # next-env.d.ts # Usually included in the repo for Next.js 10+
+
+# Local Agent Configuration
+.agent/
