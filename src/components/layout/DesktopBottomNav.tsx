@@ -60,7 +60,7 @@ export default function DesktopBottomNav() {
                 alt={item.label}
                 className="h-7 w-7 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] transition-all"
               />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{item.label}</span>
+              <span className="text-[10px] font-black text-white text-normal uppercase tracking-widest">{item.label}</span>
             </div>
           )
 
