@@ -17,6 +17,7 @@ const menuItems = [
   { id: 'notif', label: 'Notification', icon: '/nav/notification.png', href: '/notifications' },
   { id: 'rules', label: 'Rules & Regulations', icon: '/nav/rules.png', href: '/rules-regulations' },
   { id: 'settings', label: 'Stake Settings', icon: '/nav/settings.png', href: '/settings' },
+  { id: 'offers', label: 'Offers', icon: '/nav/promotions.png', href: '/offers' },
   { id: 'feedback', label: 'Feedback', icon: '/nav/feedback.png', href: '/feedback' },
 ]
 

@@ -213,6 +213,8 @@ const upcomingMatches = {
   ]
 }
 
+import PopupModal from '@/components/common/PopupModal'
+
 export default function HomePage() {
   const [currentBanner, setCurrentBanner] = useState(0)
   const [activeHomeSport, setActiveHomeSport] = useState<'cricket' | 'soccer' | 'tennis'>('cricket')
@@ -228,6 +230,7 @@ export default function HomePage() {
 
   return (
     <div className="max-w-full">
+      <PopupModal />
       <div className="relative overflow-hidden bg-[#0a0a0a]">
         <div
           className="flex transition-transform duration-700 ease-in-out"
@@ -562,6 +565,7 @@ export default function HomePage() {
           />
         </div>
       </div>
+      <PopupModal />
     </div>
   )
 }
