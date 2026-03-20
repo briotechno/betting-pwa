@@ -1,508 +1,420 @@
 'use client'
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Copy, Check } from 'lucide-react'
+import { ChevronLeft, Copy, Check, Loader2, Upload, History as HistoryIcon, Info, Landmark, Phone } from 'lucide-react'
+import { walletController, userController } from '@/controllers'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { useAuthStore } from '@/store/authStore'
+import Button from '@/components/ui/Button'
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-type MethodId = 'whatsapp' | 'paytm' | 'gpay'
-
-interface PaymentMethod {
-  id: MethodId
-  label: string
-  icon: React.ReactNode
-}
-
-// ── Payment Methods ────────────────────────────────────────────────────────────
-
-const PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: 'whatsapp',
-    label: 'WHATSAPP DEPOSIT',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="#25d366" style={{ width: 34, height: 34 }}>
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'paytm',
-    label: 'PAYTM',
-    icon: (
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          background: '#002970',
-          borderRadius: '6px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ color: '#00baf2', fontWeight: 900, fontSize: '12px' }}>Pay</span>
-        <span style={{ color: '#fff', fontWeight: 900, fontSize: '10px' }}>tm</span>
-      </div>
-    ),
-  },
-  {
-    id: 'gpay',
-    label: 'GPAY',
-    icon: (
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          background: '#fff',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid #e0e0e0',
-          fontSize: '22px',
-        }}
-      >
-        🔵
-      </div>
-    ),
-  },
-]
-
-const PAYMENT_DETAILS: Record<MethodId, { name: string; number: string; min: number; max: number }> = {
-  whatsapp: { name: 'FairPlay WhatsApp', number: '+91 9000000000', min: 100, max: 100000000000 },
-  paytm:    { name: 'Pawan Sharma paytm', number: '00000000@pty',  min: 100, max: 100000000000 },
-  gpay:     { name: 'FairPlay GPay',      number: '00000000@gpay', min: 100, max: 100000000000 },
-}
-
+// ── Quick Amounts ────────────────────────────────────────────────────────────
 const QUICK_AMOUNTS = [500, 1000, 5000, 10000, 50000, 100000]
-
-// ── QR Code (Mock SVG) ────────────────────────────────────────────────────────
-
-function QRCode() {
-  const cells = [
-    1,1,1,1,1,1,1, 0, 1,0,1,0,1, 0, 1,1,1,1,1,1,1,
-    1,0,0,0,0,0,1, 0, 0,1,0,1,0, 0, 1,0,0,0,0,0,1,
-    1,0,1,1,1,0,1, 0, 1,1,0,0,1, 0, 1,0,1,1,1,0,1,
-    1,0,1,1,1,0,1, 0, 0,0,1,0,0, 0, 1,0,1,1,1,0,1,
-    1,0,1,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,1,1,1,0,1,
-    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 0, 1,0,0,0,0,0,1,
-    1,1,1,1,1,1,1, 0, 1,0,1,0,1, 0, 1,1,1,1,1,1,1,
-    0,0,0,0,0,0,0, 0, 0,1,0,1,0, 0, 0,0,0,0,0,0,0,
-    1,0,1,1,0,1,1, 0, 1,1,0,0,1, 1, 0,1,0,1,1,0,1,
-    0,1,0,0,1,0,0, 0, 0,0,1,0,0, 1, 0,0,1,0,0,1,0,
-    1,1,0,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,0,1,1,0,1,
-    0,0,1,0,0,1,0, 0, 0,1,0,0,1, 1, 0,1,0,0,0,1,0,
-    1,0,1,1,0,1,1, 0, 1,1,0,0,1, 0, 1,0,1,1,0,0,1,
-    0,0,0,0,0,0,0, 0, 0,0,1,0,0, 1, 0,0,1,0,1,0,0,
-    1,1,1,1,1,1,1, 0, 1,0,1,1,0, 0, 1,1,0,1,1,0,1,
-    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 1, 0,0,0,0,0,0,1,
-    1,0,1,1,1,0,1, 0, 1,1,0,0,1, 0, 1,0,1,1,0,0,1,
-    1,0,1,1,1,0,1, 0, 0,0,1,0,0, 1, 0,1,0,0,1,1,0,
-    1,0,1,1,1,0,1, 0, 1,0,1,1,0, 0, 1,0,0,1,0,0,1,
-    1,0,0,0,0,0,1, 0, 0,1,0,0,1, 1, 0,0,1,0,0,1,0,
-    1,1,1,1,1,1,1, 0, 1,1,0,0,1, 0, 1,1,0,0,1,0,1,
-  ]
-
-  return (
-    <div
-      style={{
-        background: '#fff',
-        padding: '10px',
-        borderRadius: '4px',
-        display: 'inline-block',
-        lineHeight: 0,
-      }}
-    >
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(21, 7px)', gap: '1px' }}>
-        {cells.map((c, i) => (
-          <div
-            key={i}
-            style={{ width: '7px', height: '7px', background: c ? '#000' : '#fff' }}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ── CopyButton ────────────────────────────────────────────────────────────────
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-  return (
-    <button
-      onClick={handleCopy}
-      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: copied ? '#e8612c' : '#aaa' }}
-    >
-      {copied ? <Check size={14} /> : <Copy size={14} />}
-    </button>
-  )
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function DepositPage() {
   const router = useRouter()
-  const [activeMethod, setActiveMethod] = useState<MethodId>('paytm')
-  const [utr, setUtr]                   = useState('')
-  const [amount, setAmount]             = useState('200000')
-  const [fileName, setFileName]         = useState('')
-  const [agreed, setAgreed]            = useState(false)
-  const [submitted, setSubmitted]       = useState(false)
+  const { show: showSnackbar } = useSnackbarStore()
+  const { isAuthenticated } = useAuthStore()
+  
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [depositMethods, setDepositMethods] = useState<any[]>([])
+  const [activeMethodId, setActiveMethodId] = useState<string | null>(null)
+  const [balance, setBalance] = useState({ balance: 0 })
+  
+  const [utr, setUtr] = useState('')
+  const [amount, setAmount] = useState('500')
+  const [screenshot, setScreenshot] = useState<string | null>(null)
+  const [screenshotName, setScreenshotName] = useState('')
+  const [screenshotMime, setScreenshotMime] = useState('')
+  const [agreed, setAgreed] = useState(false)
+  const [submittedCount, setSubmittedCount] = useState(0)
+  
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const details = PAYMENT_DETAILS[activeMethod]
+  const fetchData = async () => {
+    if (!isAuthenticated) {
+      setLoading(false)
+      return
+    }
 
-  // Validation
-  const utrError  = submitted && !utr.trim()
-  const fileError = submitted && !fileName
-  const termError = submitted && !agreed
+    try {
+      const token = localStorage.getItem('fairbet-auth') ? 
+        JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
+      
+      if (!token) return
 
-  const handleSubmit = () => {
-    setSubmitted(true)
-    if (!utr.trim() || !fileName || !agreed) return
-    alert('Deposit submitted successfully!')
+      const [balanceRes, methodsRes] = await Promise.all([
+        userController.getBalance(token),
+        walletController.getDepositMethods(token)
+      ])
+
+      if (balanceRes.error === '0') setBalance(balanceRes as any)
+      if (methodsRes.error === '0') {
+        let methods: any[] = []
+        if (Array.isArray(methodsRes.data)) {
+           methods = methodsRes.data
+        } else if (typeof methodsRes.data === 'object' && methodsRes.data !== null) {
+           methods = Object.values(methodsRes.data)
+        } else if (methodsRes.list) {
+           methods = Array.isArray(methodsRes.list) ? methodsRes.list : Object.values(methodsRes.list)
+        }
+        setDepositMethods(methods)
+        if (methods.length > 0) {
+           const firstId = methods[0].Bank_Id || methods[0].id || methods[0].Id
+           setActiveMethodId(String(firstId))
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch deposit data:', error)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  useEffect(() => {
+    fetchData()
+  }, [isAuthenticated])
+
+  const activeMethod = depositMethods.find(m => String(m.Bank_Id || m.id || m.Id) === activeMethodId)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    setFileName(file ? file.name : '')
+    if (!file) return
+
+    setScreenshotName(file.name)
+    setScreenshotMime(file.type)
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setScreenshot(base64String.split(',')[1] || base64String)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSubmit = async () => {
+    setSubmittedCount(prev => prev + 1)
+    
+    if (!activeMethodId) {
+      showSnackbar('Please select a payment method', 'error')
+      return
+    }
+    if (!utr.trim()) {
+      showSnackbar('Please enter valid UTR/Reference ID', 'error')
+      return
+    }
+    if (!amount || parseFloat(amount) <= 0) {
+      showSnackbar('Please enter a valid amount', 'error')
+      return
+    }
+    if (!agreed) {
+      showSnackbar('Please agree to the terms', 'error')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const token = localStorage.getItem('fairbet-auth') ? 
+        JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
+      if (!token) return
+
+      const response = await walletController.requestDeposit({
+        LoginToken: token,
+        Amount: amount,
+        Utr: utr,
+        BankId: activeMethodId,
+        Mime_type: screenshotMime,
+        Screenshot: screenshot || ''
+      })
+
+      if (response.error === '0') {
+        showSnackbar(response.msg || 'Deposit request submitted successfully', 'success')
+        setUtr('')
+        setScreenshot(null)
+        setScreenshotName('')
+        setAgreed(false)
+        setSubmittedCount(0)
+        setTimeout(fetchData, 2000)
+      } else {
+        showSnackbar(response.msg || 'Failed to submit deposit request', 'error')
+      }
+    } catch (error) {
+      showSnackbar('An error occurred while submitting', 'error')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard?.writeText(text)
+    showSnackbar('Copied to clipboard!', 'success')
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#181818] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#e8612c]" size={40} />
+      </div>
+    )
   }
 
   return (
-    <div
-      className="min-h-screen pb-24"
-      style={{ background: '#181818', color: '#fff', fontFamily: 'Inter, sans-serif' }}
-    >
+    <div className="min-h-screen pb-24 bg-[#181818] text-white">
       {/* ── Sub Header ── */}
-      <div
-        className="flex items-center px-3 py-3 sticky top-0 z-20"
-        style={{ background: '#222222' }}
-      >
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1"
-          style={{ color: '#e8612c', background: 'none', border: 'none', cursor: 'pointer' }}
+      <div className="flex items-center justify-between px-3 py-3 sticky top-0 z-20 bg-[#222222] border-b border-white/5 shadow-md">
+        <div className="flex items-center gap-1">
+          <button onClick={() => router.back()} className="text-[#e8612c] pr-2">
+            <ChevronLeft size={22} strokeWidth={3} />
+          </button>
+          <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Deposit Funds</h1>
+        </div>
+        <button 
+           onClick={() => router.push('/wallet/deposit/history')}
+           className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#e8612c] transition-colors bg-white/5 px-3 py-1.5 rounded-full"
         >
-          <ChevronLeft size={22} strokeWidth={3} />
+          <HistoryIcon size={14} />
+          History
         </button>
-        <h1 className="text-[15px] font-bold text-white">Choose Deposit Method</h1>
       </div>
 
-      {/* ── Page Body ── */}
-      <div className="max-w-[900px] mx-auto px-4 py-5 space-y-5">
-
-        {/* ── Payment Method Tabs ── */}
-        <div className="flex justify-center gap-2 flex-wrap">
-          {PAYMENT_METHODS.map((pm) => (
-            <button
-              key={pm.id}
-              onClick={() => setActiveMethod(pm.id)}
-              className="flex flex-col items-center gap-1.5 px-4 py-3 transition-all"
-              style={{
-                background:   activeMethod === pm.id ? '#111111' : '#1a1a1a',
-                border:       activeMethod === pm.id ? '2px solid #e8612c' : '2px solid #2e2e2e',
-                borderRadius: '4px',
-                minWidth:     '110px',
-                cursor:       'pointer',
-              }}
-            >
-              {pm.icon}
-              <span
-                style={{
-                  fontSize:   '10px',
-                  fontWeight: '700',
-                  color:      activeMethod === pm.id ? '#e8612c' : '#aaa',
-                  textAlign:  'center',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                {pm.label}
-              </span>
-            </button>
-          ))}
+      <div className="max-w-[900px] mx-auto px-4 py-6 space-y-6">
+        
+        {/* ── Current Balance ── */}
+        <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] border border-white/5 rounded-2xl p-6 flex items-center justify-between shadow-xl">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#e8612c]/10 flex items-center justify-center text-2xl">
+                 💰
+              </div>
+              <div className="space-y-0.5">
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Total Balance</p>
+                 <p className="text-2xl font-black text-[#e8612c]">₹ {balance.balance.toLocaleString()}</p>
+              </div>
+           </div>
+           <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+              <p className="text-[9px] font-black text-white/20 uppercase tracking-widest text-center mb-1">Status</p>
+              <div className="flex items-center gap-1.5">
+                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                 <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">Active</span>
+              </div>
+           </div>
         </div>
 
-        {/* ── Two-Column Panel ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          {/* ── LEFT: Account Details + QR ── */}
-          <div
-            className="space-y-3 p-4"
-            style={{ background: '#111111', border: '1px solid #2e2e2e', borderRadius: '4px' }}
-          >
-            {/* Name */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span style={{ color: '#aaa', fontSize: '12px' }}>Name : </span>
-                <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.name}</span>
-              </div>
-              <CopyButton text={details.name} />
-            </div>
-
-            {/* Divider */}
-            <div style={{ height: '1px', background: '#2e2e2e' }} />
-
-            {/* Number */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span style={{ color: '#aaa', fontSize: '12px' }}>Number : </span>
-                <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.number}</span>
-              </div>
-              <CopyButton text={details.number} />
-            </div>
-
-            {/* Divider */}
-            <div style={{ height: '1px', background: '#2e2e2e' }} />
-
-            {/* Min */}
-            <div>
-              <span style={{ color: '#aaa', fontSize: '12px' }}>Min Amount : </span>
-              <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.min.toLocaleString()}</span>
-            </div>
-
-            {/* Divider */}
-            <div style={{ height: '1px', background: '#2e2e2e' }} />
-
-            {/* Max */}
-            <div>
-              <span style={{ color: '#aaa', fontSize: '12px' }}>Max Amount : </span>
-              <span style={{ color: '#fff', fontSize: '13px', fontWeight: '600' }}>{details.max.toLocaleString()}</span>
-            </div>
-
-            {/* Divider */}
-            <div style={{ height: '1px', background: '#2e2e2e' }} />
-
-            {/* QR Code */}
-            <div className="flex justify-center pt-2 pb-1">
-              <QRCode />
-            </div>
-
-            {/* UPI to Bank link */}
-            <div className="text-center pt-1">
-              <p
-                style={{
-                  color:      '#e8612c',
-                  fontSize:   '12px',
-                  fontWeight: '800',
-                  textTransform: 'uppercase',
-                  lineHeight: '1.5',
-                  letterSpacing: '0.3px',
-                }}
-              >
-                HOW TO TRANSFER UPI TO BANK<br />
-                <a
-                  href="https://www.upitobank.xyz"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: '#e8612c', textDecoration: 'underline' }}
+        {/* ── Payment Methods ── */}
+        <div className="space-y-3">
+          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Select Payment Method</h3>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            {depositMethods.map((pm) => {
+              const id = String(pm.Bank_Id || pm.id || pm.Id)
+              const isActive = activeMethodId === id
+              return (
+                <button
+                  key={id}
+                  onClick={() => setActiveMethodId(id)}
+                  className={`flex flex-col items-center justify-center gap-3 p-4 min-w-[120px] rounded-2xl border transition-all ${
+                    isActive 
+                      ? 'bg-[#e8612c]/5 border-[#e8612c] shadow-[0_0_20px_rgba(232,97,44,0.1)]' 
+                      : 'bg-[#111] border-white/10 hover:border-white/20'
+                  }`}
                 >
-                  CLICK HERE WWW.UPITOBANK.XYZ
-                </a>
-              </p>
-            </div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isActive ? 'bg-[#e8612c] text-white shadow-lg' : 'bg-white/5 text-white/40'}`}>
+                    {pm.type?.toLowerCase().includes('bank') ? <Landmark size={24} /> : <Phone size={24} />}
+                  </div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-white' : 'text-white/40'}`}>
+                    {pm.Name || pm.name || pm.bankname || pm.Bank || 'Transfer'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-            {/* WhatsApp support button */}
-            <a
-              href="https://wa.me/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex flex-col items-center justify-center gap-1 py-3 w-full"
-              style={{
-                background:    '#e8612c',
-                border:        'none',
-                borderRadius:  '4px',
-                cursor:        'pointer',
-                textDecoration: 'none',
-              }}
-            >
-              <span style={{ color: '#fff', fontSize: '11px', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                FOR PAYMENT RELATED ISSUES CLICK HERE
-              </span>
-              <svg viewBox="0 0 24 24" fill="white" style={{ width: '22px', height: '22px' }}>
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.663-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-              </svg>
-            </a>
+        {/* ── Details Panel ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* ── LEFT: Account Info ── */}
+          <div className="lg:col-span-12 xl:col-span-5 space-y-4">
+             <div className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="bg-[#e8612c] px-4 py-2 flex items-center justify-between">
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Bank Details</span>
+                   <Landmark size={14} className="text-white/50" />
+                </div>
+                
+                <div className="p-5 space-y-4">
+                  {activeMethod ? (
+                    <>
+                      <DetailRow label="Bank Name" value={activeMethod.Name || activeMethod.name || activeMethod.Bank} onCopy={handleCopy} />
+                      <DetailRow label="Account Name" value={activeMethod.BankACnme || activeMethod.acname || activeMethod.ACname} onCopy={handleCopy} />
+                      <DetailRow label="Account No" value={activeMethod.AcNo || activeMethod.acno || activeMethod.ACno} onCopy={handleCopy} />
+                      <DetailRow label="IFSC Code" value={activeMethod.Isfc || activeMethod.ifsc} onCopy={handleCopy} />
+                      {activeMethod.Qr && (
+                         <div className="pt-2 flex flex-col items-center">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-3 text-center">Scan to Pay</p>
+                            <div className="bg-white p-2 rounded-xl inline-block shadow-inner">
+                               <img 
+                                 src={activeMethod.Qr.startsWith('http') || activeMethod.Qr.startsWith('data:') ? activeMethod.Qr : `data:image/jpeg;base64,${activeMethod.Qr}`} 
+                                 alt="QR Code" 
+                                 className="w-32 h-32 object-contain" 
+                               />
+                            </div>
+                         </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="py-10 text-center">
+                       <Landmark size={32} className="mx-auto text-white/10 mb-3" />
+                       <p className="text-[11px] font-bold text-white/20 uppercase tracking-widest">Select a method to see details</p>
+                    </div>
+                  )}
+                </div>
+             </div>
+
+             <div className="bg-[#111]/50 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
+                   <Info size={18} className="text-[#e8612c]" />
+                </div>
+                <div className="flex-1">
+                   <p className="text-[10px] font-bold text-white/80 uppercase">Payment Issues?</p>
+                   <p className="text-[9px] text-white/40 font-medium">Contact our 24/7 WhatsApp support for instant help.</p>
+                </div>
+                <button 
+                   onClick={() => window.open('https://wa.me/', '_blank')}
+                   className="p-2.5 bg-[#25d366] rounded-xl text-white shadow-lg hover:scale-110 transition-transform"
+                >
+                   <Phone size={18} fill="white" />
+                </button>
+             </div>
           </div>
 
-          {/* ── RIGHT: Deposit Form ── */}
-          <div
-            className="space-y-4 p-4"
-            style={{ background: '#111111', border: '1px solid #2e2e2e', borderRadius: '4px' }}
-          >
-            {/* Method heading */}
-            <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {activeMethod.toUpperCase()}
-            </h2>
+          {/* ── RIGHT: Submit Form ── */}
+          <div className="lg:col-span-12 xl:col-span-7 space-y-4">
+             <div className="bg-[#111] border border-white/5 rounded-2xl p-6 space-y-6 shadow-2xl">
+                <div className="flex items-center gap-3 border-b border-white/5 pb-4">
+                   <div className="w-2 h-2 rounded-full bg-[#e8612c]" />
+                   <h3 className="text-[13px] font-black uppercase tracking-[0.2em] text-white">Deposit Submission</h3>
+                </div>
 
-            {/* UTR Field */}
-            <div className="space-y-1">
-              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
-                Unique Transaction Reference <span style={{ color: '#e8612c' }}>*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="6 to 12 Digit UTR Number"
-                value={utr}
-                onChange={(e) => setUtr(e.target.value)}
-                className="w-full focus:outline-none"
-                style={{
-                  background:   '#fff',
-                  border:       `1px solid ${utrError ? '#e53935' : '#cccccc'}`,
-                  borderRadius: '2px',
-                  padding:      '9px 12px',
-                  fontSize:     '13px',
-                  color:        '#333',
-                  display:      'block',
-                }}
-              />
-              {utrError && (
-                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
-                  Please enter your UTR ID
-                </p>
-              )}
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {/* UTR */}
+                   <div className="space-y-1.5">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-white/30">UTR / Ref Number <span className="text-[#e8612c]">*</span></label>
+                      <input
+                        type="text"
+                        placeholder="12 digit UTR number"
+                        value={utr}
+                        onChange={(e) => setUtr(e.target.value)}
+                        className={`w-full h-12 bg-white/5 border rounded-xl px-4 text-sm font-bold text-white focus:outline-none transition-all ${
+                           submittedCount > 0 && !utr ? 'border-red-500' : 'border-white/10 focus:border-[#e8612c]'
+                        }`}
+                      />
+                   </div>
 
-            {/* File Upload */}
-            <div className="space-y-1">
-              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
-                Upload Your Payment Proof{' '}
-                <span style={{ color: '#e8612c', fontSize: '11px', fontWeight: '700' }}>[Required]</span>
-              </label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="font-bold text-white"
-                  style={{
-                    background:   '#333',
-                    border:       '1px solid #555',
-                    borderRadius: '2px',
-                    padding:      '7px 12px',
-                    fontSize:     '12px',
-                    cursor:       'pointer',
-                    whiteSpace:   'nowrap',
-                  }}
-                >
-                  Choose file
-                </button>
-                <span style={{ fontSize: '12px', color: '#aaa' }}>
-                  {fileName || 'No file chosen'}
-                </span>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-              </div>
-              {fileError && (
-                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
-                  Please Upload Payment Proof.
-                </p>
-              )}
-            </div>
+                   {/* Amount */}
+                   <div className="space-y-1.5">
+                      <label className="text-[11px] font-black uppercase tracking-widest text-white/30">Deposit Amount <span className="text-[#e8612c]">*</span></label>
+                      <div className="relative">
+                         <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-[#e8612c]">₹</div>
+                         <input
+                           type="number"
+                           placeholder="0.00"
+                           value={amount}
+                           onChange={(e) => setAmount(e.target.value)}
+                           className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 text-sm font-black text-white focus:outline-none focus:border-[#e8612c] transition-all"
+                         />
+                      </div>
+                   </div>
+                </div>
 
-            {/* Amount Field */}
-            <div className="space-y-1">
-              <label style={{ fontSize: '13px', color: '#fff', fontWeight: '600', display: 'block' }}>
-                Amount <span style={{ color: '#e8612c' }}>*</span>
-              </label>
-              <input
-                type="number"
-                placeholder="Enter Amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full focus:outline-none"
-                style={{
-                  background:   '#f5f5f5',
-                  border:       '1px solid #cccccc',
-                  borderRadius: '2px',
-                  padding:      '9px 12px',
-                  fontSize:     '13px',
-                  color:        '#333',
-                  display:      'block',
-                }}
-              />
-            </div>
+                {/* Quick Amounts */}
+                <div className="flex flex-wrap gap-2">
+                   {QUICK_AMOUNTS.map((amt) => (
+                      <button
+                         key={amt}
+                         onClick={() => setAmount(prev => String((parseFloat(prev) || 0) + amt))}
+                         className="flex-1 min-w-[80px] h-10 rounded-xl bg-white/5 border border-white/5 text-[11px] font-black hover:bg-[#e8612c] hover:border-[#e8612c] transition-all active:scale-95"
+                      >
+                         +{amt.toLocaleString()}
+                      </button>
+                   ))}
+                </div>
 
-            {/* Quick Amount Buttons */}
-            <div className="grid grid-cols-3 gap-2">
-              {QUICK_AMOUNTS.map((amt) => (
-                <button
-                  key={amt}
-                  onClick={() => setAmount((prev) => String((Number(prev) || 0) + amt))}
-                  className="font-bold text-white transition-all active:scale-95"
-                  style={{
-                    background:   '#000',
-                    border:       '1px solid #333',
-                    borderRadius: '2px',
-                    padding:      '8px 4px',
-                    fontSize:     '12px',
-                    cursor:       'pointer',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#e8612c')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#333')}
-                >
-                  +{amt >= 1000 ? `${(amt / 1000).toLocaleString()},000` : amt}
-                </button>
-              ))}
-            </div>
+                {/* File Upload */}
+                <div className="space-y-1.5 pt-2">
+                   <label className="text-[11px] font-black uppercase tracking-widest text-white/30">Payment Screenshot (Optional)</label>
+                   <div 
+                      onClick={() => fileRef.current?.click()}
+                      className={`w-full h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                         screenshot ? 'bg-green-500/5 border-green-500/30' : 'bg-white/5 border-white/10 hover:bg-white/[0.08]'
+                      }`}
+                   >
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      {screenshot ? (
+                         <>
+                            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shadow-lg">
+                               <Check size={18} strokeWidth={3} />
+                            </div>
+                            <span className="text-[10px] font-black text-green-500 uppercase tracking-widest truncate max-w-[200px]">{screenshotName}</span>
+                         </>
+                      ) : (
+                         <>
+                            <Upload size={24} className="text-white/20" />
+                            <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Click to upload image</span>
+                         </>
+                      )}
+                   </div>
+                </div>
 
-            {/* Terms checkbox */}
-            <div className="space-y-1">
-              <label className="flex items-start gap-2 cursor-pointer" style={{ fontSize: '12px', color: '#ccc' }}>
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  style={{
-                    width:        '15px',
-                    height:       '15px',
-                    marginTop:    '2px',
-                    accentColor:  '#e8612c',
-                    flexShrink:   0,
-                    cursor:       'pointer',
-                  }}
-                />
-                <span>
-                  I have read and agree with the{' '}
-                  <strong style={{ color: '#fff' }}>terms of payment and withdrawal policy.</strong>
-                </span>
-              </label>
-              {termError && (
-                <p style={{ color: '#e8612c', fontSize: '12px', fontWeight: '600' }}>
-                  Please check terms and condition
-                </p>
-              )}
-            </div>
+                {/* Terms */}
+                <div className="flex items-start gap-3 mt-4">
+                   <input
+                     type="checkbox"
+                     checked={agreed}
+                     onChange={(e) => setAgreed(e.target.checked)}
+                     className="w-5 h-5 rounded border-white/10 bg-white/5 accent-[#e8612c] mt-0.5 cursor-pointer"
+                   />
+                   <p className="text-[11px] text-white/40 font-medium leading-relaxed">
+                      I have transferred the funds to the selected account and I confirm that the UTR/Ref ID is correct. 
+                      Incorrect submissions may lead to account suspension.
+                   </p>
+                </div>
 
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              className="w-full font-bold text-white uppercase tracking-widest transition-all active:scale-95"
-              style={{
-                background:    '#e8612c',
-                border:        'none',
-                borderRadius:  '2px',
-                padding:       '13px',
-                fontSize:      '14px',
-                cursor:        'pointer',
-                letterSpacing: '1.5px',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#d4521f')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = '#e8612c')}
-            >
-              SUBMIT
-            </button>
+                <div className="pt-2">
+                   <Button
+                      fullWidth
+                      disabled={submitting}
+                      onClick={handleSubmit}
+                      className="h-14 text-sm font-black tracking-[0.2em] shadow-[0_8px_30px_rgb(232,97,44,0.3)]"
+                   >
+                      {submitting ? <Loader2 className="animate-spin" size={24} /> : 'SUBMIT DEPOSIT REQUEST'}
+                   </Button>
+                </div>
+             </div>
           </div>
         </div>
       </div>
     </div>
   )
+}
+
+function DetailRow({ label, value, onCopy }: { label: string; value: string; onCopy: (v: string) => void }) {
+   if (!value) return null
+   return (
+      <div className="group space-y-1">
+         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">{label}</p>
+         <div className="flex items-center justify-between gap-4">
+            <span className="text-[13px] font-black text-white/90 tracking-tight break-all">{value}</span>
+            <button 
+               onClick={() => onCopy(value)}
+               className="p-1.5 text-white/20 hover:text-[#e8612c] hover:bg-[#e8612c]/10 rounded-lg transition-all"
+            >
+               <Copy size={16} />
+            </button>
+         </div>
+      </div>
+   )
 }
