@@ -6,10 +6,11 @@ import Image from 'next/image'
 import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
+import { authController } from '@/controllers/auth'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuthStore()
+  const { setUser, setToken } = useAuthStore()
   const { show: showSnackbar } = useSnackbarStore()
 
   const [loginMode, setLoginMode] = useState<'mobile' | 'userId'>('mobile')
@@ -26,21 +27,36 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 1500))
+    try {
+      const response = await authController.login({
+        username: formData.identifier,
+        password: formData.password,
+        ip: '127.0.0.1', // Placeholder IP
+      })
 
-    login({
-      id: '1',
-      username: loginMode === 'mobile' ? `user_${formData.identifier.slice(-4)}` : formData.identifier,
-      email: '', // No email required
-      balance: 10000,
-      tier: 'Beginner'
-    })
-
-    showSnackbar('Logged in successfully.', 'success')
-
-    setLoading(false)
-    router.push('/')
+      if (response.error === '0') {
+        const user = {
+          id: response.UserId || '1',
+          username: formData.identifier,
+          email: '',
+          balance: parseFloat(response.balance || '0'),
+          tier: 'Beginner' as const,
+          loginToken: response.LoginToken
+        }
+        
+        setUser(user)
+        setToken(response.LoginToken)
+        
+        showSnackbar('Logged in successfully.', 'success')
+        router.push('/')
+      } else {
+        showSnackbar(response.msg || 'Login failed. Please check your credentials.', 'error')
+      }
+    } catch (error) {
+      showSnackbar('An error occurred during login. Please try again.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

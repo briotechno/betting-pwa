@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSnackbarStore } from '@/store/snackbarStore'
 
 export default function Snackbar() {
-  const { isOpen, message, hide } = useSnackbarStore()
+  const { isOpen, message, hide, color } = useSnackbarStore()
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -17,6 +17,21 @@ export default function Snackbar() {
 
   if (!show) return null
 
+  // Determine background color based on snackbar state
+  const getBackgroundColor = () => {
+    switch (color) {
+      case 'error':
+        return 'bg-[#d32f2f]' // Standard red for errors
+      case 'warning':
+        return 'bg-[#ffa000]' // Amber for warnings
+      case 'info':
+        return 'bg-[#1976d2]' // Blue for info
+      case 'success':
+      default:
+        return 'bg-[#4caf50]' // Green for success
+    }
+  }
+
   return (
     <div 
       className={`fixed top-0 left-0 right-0 z-[9999] flex justify-center pt-8 px-4 transition-all duration-300 pointer-events-none ${
@@ -26,7 +41,7 @@ export default function Snackbar() {
       <div 
         role="status"
         aria-live="polite"
-        className="flex items-center justify-between min-w-[344px] max-w-[672px] w-full sm:w-auto bg-[#4caf50] text-[#fff] px-4 py-2.5 rounded shadow-xl pointer-events-auto"
+        className={`flex items-center justify-between min-w-[344px] max-w-[672px] w-full sm:w-auto text-[#fff] px-4 py-2.5 rounded shadow-xl pointer-events-auto transition-colors duration-300 ${getBackgroundColor()}`}
         style={{
           boxShadow: '0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12)'
         }}

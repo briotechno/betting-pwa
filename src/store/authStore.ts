@@ -7,16 +7,18 @@ interface User {
   email: string
   balance: number
   tier: 'Beginner' | 'Silver' | 'Gold' | 'Platinum'
-  avatar?: string
+  avatar?: string;
+  loginToken?: string;
 }
 
 interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  login: (user: User) => void
-  logout: () => void
-  updateBalance: (balance: number) => void
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
+  updateBalance: (balance: number) => void;
+  logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,7 +28,11 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      login: (user) => set({ user, isAuthenticated: true }),
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setToken: (token) => 
+        set((state) => ({ 
+          user: state.user ? { ...state.user, loginToken: token || '' } : null 
+        })),
       logout: () => set({ user: null, isAuthenticated: false }),
       updateBalance: (balance) =>
         set((state) => ({

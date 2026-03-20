@@ -8,11 +8,12 @@ import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useI18nStore } from '@/store/i18nStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
+import { authController } from '@/controllers/auth'
 import { Language } from '@/i18n/translations'
 import { getTabs } from '@/constants/navigation'
 
 export default function Header() {
-  const { user, isAuthenticated, logout } = useAuthStore()
+  const { user, isAuthenticated, logout, setUser: setAuthUser, setToken } = useAuthStore()
   const { selections } = useBetSlipStore()
   const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen, setAuraCasinoOpen } = useLayoutStore()
   const { openSlip } = useBetSlipStore()
@@ -27,10 +28,10 @@ export default function Header() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
 
-  const { login } = useAuthStore()
   const topTabs = getTabs(t)
 
   const languages: { code: Language; name: string }[] = [
@@ -47,24 +48,47 @@ export default function Header() {
 
   const currentLang = languages.find(l => l.code === language) || languages[0]
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (!username || !password) {
       setShowErrors(true)
+      showSnackbar('Please enter both username and password', 'error')
       return
     }
 
-    // Mock Login Success
-    login({
-      id: '1',
-      username: username,
-      email: `${username}@example.com`,
-      balance: 10000,
-      tier: 'Gold',
-      avatar: 'https://github.com/shadcn.png'
-    })
+    setLoading(true)
+    try {
+      const response = await authController.login({
+        username: username,
+        password: password,
+        ip: '127.0.0.1' // This should be fetched properly, but used as placeholder
+      })
 
-    showSnackbar('Logged in successfully.', 'success')
+      if (response.error === '0') {
+        const user = {
+          id: response.UserId || '1',
+          username: username,
+          email: '',
+          balance: parseFloat(response.balance || '0'),
+          tier: 'Beginner' as const,
+          loginToken: response.LoginToken
+        }
+        
+        setAuthUser(user)
+        setToken(response.LoginToken)
+        showSnackbar('Logged in successfully.', 'success')
+        
+        // Clear fields
+        setUsername('')
+        setPassword('')
+      } else {
+        showSnackbar(response.msg || 'Login failed. Please check your credentials.', 'error')
+      }
+    } catch (error) {
+      showSnackbar('An error occurred during login. Please try again.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Prevent hydration mismatch for persisted store values

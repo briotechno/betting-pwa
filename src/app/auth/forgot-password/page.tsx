@@ -3,22 +3,36 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
+import { authController } from '@/controllers/auth'
+import { useSnackbarStore } from '@/store/snackbarStore'
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
+  const { show: showSnackbar } = useSnackbarStore()
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(true) // Start with error showing as in the image
+  const [error, setError] = useState(false)
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!phone) {
         setError(true)
+        showSnackbar("Mobile number is required", "error")
         return
     }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
-    setLoading(false)
+    try {
+      const res = await authController.forgotPassword(phone)
+      if (res.error === '0') {
+        showSnackbar("Instructions sent to your mobile number", "success")
+      } else {
+        showSnackbar(res.msg || "Failed to initiate password reset", "error")
+      }
+    } catch (err) {
+      showSnackbar("An error occurred. Please try again.", "error")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
