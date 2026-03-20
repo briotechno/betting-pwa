@@ -6,9 +6,6 @@ import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
 import Footer from './Footer'
 
-
-import NewsTicker from '../common/NewsTicker'
-
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useLayoutStore()
   const pathname = usePathname()
@@ -29,11 +26,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Header - fixed to top, full width */}
       <Header />
 
-      {/* News Ticker - Fixed below sub-header on desktop, below top header on mobile */}
-      <div className="fixed top-20 lg:top-[148px] left-0 right-0 z-[58] lg:pl-[220px]">
-        <NewsTicker />
-      </div>
-
       {/* Profile Sidebar - slide from right when active */}
       <ProfileSidebar />
 
@@ -52,7 +44,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       )}
 
       {/* Main page content - pt accounts for fixed header parts */}
-      <main className="min-h-screen pt-[112px] lg:pt-[180px]" style={{ background: '#121212' }}>
+      <main className="min-h-screen pt-0 lg:pt-[148px]" style={{ background: '#121212' }}>
         <div className="pb-0 lg:pb-0">
           {children}
         </div>

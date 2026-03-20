@@ -1,11 +1,9 @@
 'use client'
-import React, { useState, useEffect } from 'react'
-import { Settings, Save, RotateCcw, Target, ShieldCheck, Loader2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { Settings, Save, RotateCcw, Target, ShieldCheck } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useBetSlipStore } from '@/store/betSlipStore'
-import { useAuthStore } from '@/store/authStore'
-import { useSnackbarStore } from '@/store/snackbarStore'
-import { userController } from '@/controllers'
+
 
 export default function StakeSettingsPage() {
   const { 
@@ -14,92 +12,13 @@ export default function StakeSettingsPage() {
     autoAcceptOdds, 
     toggleAutoAcceptOdds 
   } = useBetSlipStore()
-  const { isAuthenticated } = useAuthStore()
-  const { show: showSnackbar } = useSnackbarStore()
   
-  const [stakes, setStakes] = useState<{ label: string, value: string }[]>([
-    { label: '', value: '100' },
-    { label: '', value: '500' },
-    { label: '', value: '1000' },
-    { label: '', value: '2000' },
-    { label: '', value: '5000' },
-    { label: '', value: '10000' }
-  ])
-  const [loading, setLoading] = useState(false)
-  const [fetching, setFetching] = useState(false)
+  const [stakes, setStakes] = useState(['100', '500', '1000', '2000', '5000', '10000', '25000', '50000', '100000', '250000'])
 
-  useEffect(() => {
-    const fetchStakes = async () => {
-      if (!isAuthenticated) return
-      
-      setFetching(true)
-      try {
-        const token = localStorage.getItem('fairbet-auth') ? 
-          JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
-        
-        if (!token) return
-
-        const response = await userController.getStakeButtons(token)
-        if (response.error === '0' && response.Btnname && response.Btnval) {
-          const newStakes = response.Btnname.map((name: string, i: number) => ({
-            label: name,
-            value: response.Btnval[i] || '0'
-          }))
-          // API might return more or less, we want exactly 6 for the UI/API consistency
-          const finalStakes = [...newStakes]
-          while (finalStakes.length < 6) finalStakes.push({ label: '', value: '0' })
-          setStakes(finalStakes.slice(0, 6))
-        }
-      } catch (error) {
-        console.error('Failed to fetch stakes:', error)
-      } finally {
-        setFetching(false)
-      }
-    }
-
-    fetchStakes()
-  }, [isAuthenticated])
-
-  const handleLabelChange = (index: number, label: string) => {
+  const handleStakeChange = (index: number, value: string) => {
     const newStakes = [...stakes]
-    newStakes[index].label = label
+    newStakes[index] = value
     setStakes(newStakes)
-  }
-
-  const handleValueChange = (index: number, value: string) => {
-    const newStakes = [...stakes]
-    newStakes[index].value = value
-    setStakes(newStakes)
-  }
-
-  const handleSave = async () => {
-    setLoading(true)
-    try {
-      const token = localStorage.getItem('fairbet-auth') ? 
-        JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
-      
-      if (!token) {
-        showSnackbar('You must be logged in to save settings', 'error')
-        return
-      }
-
-      const payload: Record<string, string> = {}
-      stakes.forEach((s, i) => {
-        payload[`Label${i + 1}`] = s.label || `Stake ${i + 1}`
-        payload[`Stake${i + 1}`] = s.value
-      })
-
-      const response = await userController.editStake(token, payload)
-      if (response.error === '0') {
-        showSnackbar('Stake settings saved successfully', 'success')
-      } else {
-        showSnackbar(response.msg || 'Failed to save stake settings', 'error')
-      }
-    } catch (error) {
-      showSnackbar('An error occurred while saving settings', 'error')
-    } finally {
-      setLoading(false)
-    }
   }
 
   return (
@@ -118,54 +37,25 @@ export default function StakeSettingsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {fetching ? (
-            <div className="col-span-full flex justify-center py-10">
-              <Loader2 className="animate-spin text-primary" size={32} />
-            </div>
-          ) : (
-            stakes.map((stake, idx) => (
-              <div key={idx} className="space-y-2 p-3 rounded-xl bg-surface border border-cardBorder">
-                <div className="space-y-1">
-                  <p className="text-[9px] text-textMuted font-black uppercase tracking-widest px-1">Label {idx + 1}</p>
-                  <input 
-                    type="text" 
-                    value={stake.label} 
-                    onChange={(e) => handleLabelChange(idx, e.target.value)}
-                    placeholder={`e.g. Stake ${idx + 1}`}
-                    className="w-full bg-black/40 border border-cardBorder rounded-lg py-1.5 px-3 text-[12px] font-bold text-white focus:border-primary focus:outline-none transition-all placeholder:text-white/20"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[9px] text-textMuted font-black uppercase tracking-widest px-1">Value</p>
-                  <input 
-                    type="number" 
-                    value={stake.value} 
-                    onChange={(e) => handleValueChange(idx, e.target.value)}
-                    className="w-full bg-black/40 border border-cardBorder rounded-lg py-1.5 px-3 text-[12px] font-bold text-white focus:border-primary focus:outline-none transition-all"
-                  />
-                </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {stakes.map((stake, idx) => (
+            <div key={idx} className="space-y-1">
+              <p className="text-[9px] text-textMuted font-black uppercase tracking-widest px-1">Stake {idx + 1}</p>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={stake} 
+                  onChange={(e) => handleStakeChange(idx, e.target.value)}
+                  className="w-full bg-surface border border-cardBorder rounded-lg py-2 px-3 text-sm font-black text-white focus:border-primary focus:outline-none transition-all"
+                />
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
 
         <div className="mt-8 flex gap-3">
-            <Button 
-              fullWidth 
-              className="flex-1" 
-              onClick={handleSave}
-              disabled={loading || fetching}
-            >
-              {loading ? <Loader2 className="animate-spin mr-2" size={18} /> : <Save size={18} className="mr-2" />}
-              SAVE SETTINGS
-            </Button>
-            <Button 
-              variant="outline" 
-              className="px-6 flex items-center justify-center gap-2 text-textMuted hover:text-white"
-              onClick={() => window.location.reload()}
-              disabled={loading || fetching}
-            >
+            <Button fullWidth className="flex-1">SAVE SETTINGS</Button>
+            <Button variant="outline" className="px-6 flex items-center justify-center gap-2 text-textMuted hover:text-white">
                 <RotateCcw size={16} /> RESET
             </Button>
         </div>

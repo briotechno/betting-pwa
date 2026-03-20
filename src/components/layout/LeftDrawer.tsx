@@ -29,7 +29,7 @@ const menuItems = [
   { id: 'about', label: 'About', icon: '/nav/about-us.png', href: '/about' },
   { id: 'privacy', label: 'Privacy Policy', icon: '/nav/privacy.png', href: '/privacy-policy' },
   { id: 'faq', label: 'FAQ', icon: '/nav/faqs.png', href: '/faqs' },
-  { id: 'offers', label: 'Offers', icon: '/nav/promotions.png', href: '/offers' },
+  { id: 'promotions', label: 'Promotions', icon: '/nav/promotions.png', href: '/promotions' },
   { id: 'loyalty', label: 'Loyalty', icon: '/nav/loyalty.png', href: '/loyalty' },
   { id: 'affiliate', label: 'Affiliate', icon: '/nav/affiliate.png', href: '/affiliate-partner' },
   { id: 'tc', label: 'T&C', icon: '/nav/terms-and-conditions.png', href: '/termsandconditions' },

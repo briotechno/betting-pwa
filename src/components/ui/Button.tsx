@@ -1,13 +1,11 @@
 import React from 'react'
 import { clsx } from 'clsx'
-import Link from 'next/link'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success'
   size?: 'xs' | 'sm' | 'md' | 'lg'
   fullWidth?: boolean
   loading?: boolean
-  href?: string
   children: React.ReactNode
 }
 
@@ -32,23 +30,24 @@ export default function Button({
   size = 'md',
   fullWidth = false,
   loading = false,
-  href,
   children,
   className,
   disabled,
   ...props
 }: ButtonProps) {
-  const styles = clsx(
-    'transition-all duration-200 active:scale-95 flex items-center justify-center gap-2',
-    variantStyles[variant],
-    sizeStyles[size],
-    fullWidth && 'w-full',
-    (disabled || loading) && 'opacity-50 cursor-not-allowed',
-    className
-  )
-
-  const content = (
-    <>
+  return (
+    <button
+      className={clsx(
+        'transition-all duration-200 active:scale-95 flex items-center justify-center gap-2',
+        variantStyles[variant],
+        sizeStyles[size],
+        fullWidth && 'w-full',
+        (disabled || loading) && 'opacity-50 cursor-not-allowed',
+        className
+      )}
+      disabled={disabled || loading}
+      {...props}
+    >
       {loading && (
         <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -56,24 +55,6 @@ export default function Button({
         </svg>
       )}
       {children}
-    </>
-  )
-
-  if (href) {
-    return (
-      <Link href={href} className={styles}>
-        {content}
-      </Link>
-    )
-  }
-
-  return (
-    <button
-      className={styles}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {content}
     </button>
   )
 }

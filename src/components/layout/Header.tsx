@@ -11,10 +11,9 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 import { authController } from '@/controllers/auth'
 import { Language } from '@/i18n/translations'
 import { getTabs } from '@/constants/navigation'
-import { userController } from '@/controllers'
 
 export default function Header() {
-  const { user, isAuthenticated, logout, setUser: setAuthUser, setToken, updateBalance } = useAuthStore()
+  const { user, isAuthenticated, logout, setUser: setAuthUser, setToken } = useAuthStore()
   const { selections } = useBetSlipStore()
   const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen, setAuraCasinoOpen } = useLayoutStore()
   const { openSlip } = useBetSlipStore()
@@ -49,18 +48,6 @@ export default function Header() {
 
   const currentLang = languages.find(l => l.code === language) || languages[0]
 
-  const refreshBalance = async () => {
-    if (!isAuthenticated || !user?.loginToken) return
-    try {
-      const response = await userController.getBalance(user.loginToken)
-      if (response.error === '0' && response.balance !== undefined) {
-        updateBalance(parseFloat(response.balance))
-      }
-    } catch (error) {
-      console.error('Failed to refresh balance:', error)
-    }
-  }
-
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (!username || !password) {
@@ -78,7 +65,7 @@ export default function Header() {
       })
 
       if (response.error === '0') {
-        const loggedUser = {
+        const user = {
           id: response.UserId || '1',
           username: username,
           email: '',
@@ -87,7 +74,7 @@ export default function Header() {
           loginToken: response.LoginToken
         }
         
-        setAuthUser(loggedUser)
+        setAuthUser(user)
         setToken(response.LoginToken)
         showSnackbar('Logged in successfully.', 'success')
         
@@ -104,14 +91,10 @@ export default function Header() {
     }
   }
 
+  // Prevent hydration mismatch for persisted store values
   useEffect(() => {
     setMounted(true)
-    if (isAuthenticated) {
-      refreshBalance()
-      const interval = setInterval(refreshBalance, 30000) // Refresh every 30s
-      return () => clearInterval(interval)
-    }
-  }, [isAuthenticated])
+  }, [])
 
   return (
     <div className="z-[60]">

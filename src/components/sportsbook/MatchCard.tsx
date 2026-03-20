@@ -1,15 +1,13 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { Clock, ChevronRight, Star, Loader2 } from 'lucide-react'
+import { Clock, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Badge from '@/components/ui/Badge'
 import { toTitleCase } from '@/utils/format'
 
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
-import { useSnackbarStore } from '@/store/snackbarStore'
-import { userController } from '@/controllers'
 
 interface OddsButton {
   back: number
@@ -26,7 +24,6 @@ interface MatchCardProps {
   sport: string
   startTime: string
   isLive?: boolean
-  isFavourite?: boolean
   odds?: {
     matchOdds?: { back: number; lay: number }
     teamA?: OddsButton
@@ -35,13 +32,10 @@ interface MatchCardProps {
   }
 }
 
-export default function MatchCard({ id, teamA, teamB, competition, sport, startTime, isLive, isFavourite = false, odds }: MatchCardProps) {
+export default function MatchCard({ id, teamA, teamB, competition, sport, startTime, isLive, odds }: MatchCardProps) {
   const { addSelection, selections } = useBetSlipStore()
   const { isAuthenticated } = useAuthStore()
-  const { show: showSnackbar } = useSnackbarStore()
   const router = useRouter()
-  const [favourite, setFavourite] = useState(isFavourite)
-  const [favLoading, setFavLoading] = useState(false)
 
   const handleOddsClick = (
     selectionName: string,
@@ -64,36 +58,6 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
     router.push(`/sports/${sport}/${id}?${selectionParams}`)
   }
 
-  const handleToggleFavourite = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (!isAuthenticated) {
-      router.push('/auth/login')
-      return
-    }
-
-    setFavLoading(true)
-    try {
-      const token = localStorage.getItem('fairbet-auth') ? 
-        JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
-      
-      if (!token) return
-
-      const response = await userController.toggleFavourite(token, id)
-      if (response.error === '0') {
-        setFavourite(!favourite)
-        showSnackbar(favourite ? 'Removed from favorites' : 'Added to favorites', 'success')
-      } else {
-        showSnackbar(response.msg || 'Failed to update favorite', 'error')
-      }
-    } catch (error) {
-      showSnackbar('An error occurred', 'error')
-    } finally {
-      setFavLoading(false)
-    }
-  }
-
   const isSelected = (selectionName: string, betType: 'back' | 'lay') => {
     const betId = `${id}-${selectionName}-${betType}`
     return selections.some((s) => s.id === betId)
@@ -112,16 +76,8 @@ export default function MatchCard({ id, teamA, teamB, competition, sport, startT
               <span className="text-[10px]">{startTime}</span>
             </div>
           )}
-          <div className="flex items-center gap-1.5 overflow-hidden">
-            <button 
-              onClick={handleToggleFavourite}
-              disabled={favLoading}
-              className={`p-1 rounded-full transition-colors ${favourite ? 'text-yellow-500' : 'text-textMuted hover:text-white'}`}
-            >
-              {favLoading ? <Loader2 size={12} className="animate-spin" /> : <Star size={12} fill={favourite ? 'currentColor' : 'none'} />}
-            </button>
             <span className="text-[10px] text-textMuted truncate max-w-[120px] md:max-w-none">{toTitleCase(competition)}</span>
-          </div>
+
         </div>
         <Link href={`/sports/${sport}/${id}`} className="text-textMuted hover:text-primary">
           <ChevronRight size={14} />

@@ -33,7 +33,6 @@ const template = {
     rules: 'Rules & Regulations',
     settings: 'Stake Settings',
     feedback: 'Feedback',
-    offers: 'Offers',
   },
   nav: {
     inplay: 'Inplay',
@@ -97,7 +96,6 @@ export const translations = {
       rules: 'नियम और कानून',
       settings: 'स्टेक सेटिंग्स',
       feedback: 'फीडबैक',
-      offers: 'ऑफ़र्स',
     },
     nav: {
       inplay: 'इनप्ले',
@@ -157,7 +155,6 @@ export const translations = {
       rules: 'নিয়ম ও প্রবিধান',
       settings: 'স্টেক সেটিংস',
       feedback: 'ফিডব্যাক',
-      offers: 'অফার',
     },
     nav: {
       inplay: 'ইনপ্লে',
@@ -217,7 +214,6 @@ export const translations = {
       rules: 'નિયમો અને વિનિયમો',
       settings: 'સ્ટેક સેટિંગ્સ',
       feedback: 'ફીડબેક',
-      offers: 'ઓફર',
     },
     nav: {
       inplay: 'ઇનપ્લે',
@@ -277,7 +273,6 @@ export const translations = {
       rules: 'ನಿಯಮಗಳು ಮತ್ತು ನಿಬಂಧನೆಗಳು',
       settings: 'ಸ್ಟೇಕ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
       feedback: 'ಪ್ರತಿಕ್ರಿಯೆ',
-      offers: 'ಕೊಡುಗೆಗಳು',
     },
     nav: {
       inplay: 'ಇನ್‌ಪ್ಲೇ',
@@ -337,7 +332,6 @@ export const translations = {
       rules: 'നിയമങ്ങളും നിയന്ത്രണങ്ങളും',
       settings: 'സ്റ്റേക്ക് ക്രമീകരണങ്ങൾ',
       feedback: 'അഭിപ്രായം',
-      offers: 'ഓഫറുകൾ',
     },
     nav: {
       inplay: 'ഇൻപ്ലേ',
@@ -397,7 +391,6 @@ export const translations = {
       rules: 'नियम आणि अटी',
       settings: 'स्टेक सेटिंग्स',
       feedback: 'फीडबैक',
-      offers: 'ऑफर्स',
     },
     nav: {
       inplay: 'इनप्ले',
@@ -457,7 +450,6 @@ export const translations = {
       rules: 'விதிகள் மற்றும் ஒழுங்குமுறைகள்',
       settings: 'நிலை அமைப்புகள்',
       feedback: 'கருத்து',
-      offers: 'சலுகைகள்',
     },
     nav: {
       inplay: 'இன்பிளே',
@@ -517,7 +509,6 @@ export const translations = {
       rules: 'నియమాలు & నిబంధనలు',
       settings: 'స్టేక్ సెట్టింగులు',
       feedback: 'అభిప్రాయం',
-      offers: 'ఆఫర్‌లు',
     },
     nav: {
       inplay: 'ఇన్‌ప్లే',
