@@ -81,14 +81,16 @@ export default function SettingsPage() {
   return (
     <div className="bg-[#181818] min-h-screen text-white pb-20 font-sans flex flex-col">
       {/* Sub Header */}
-      <div className="flex items-center px-4 py-3 bg-[#222222]">
-        <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
-          <ChevronLeft size={22} className="stroke-[3]" />
-        </button>
-        <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Settings</h1>
+      <div className="bg-[#222222]">
+        <div className="flex items-center px-4 py-3 max-w-[500px]">
+          <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
+            <ChevronLeft size={22} className="stroke-[3]" />
+          </button>
+          <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Settings</h1>
+        </div>
       </div>
 
-      <div className="p-4 pt-4">
+      <div className="p-4 pt-4 max-w-[500px] w-full">
         <h2 className="text-[#e8612c] text-[15px] font-bold mb-2">Edit Stakes</h2>
 
         {/* Stake Grid Card */}
@@ -133,7 +135,7 @@ export default function SettingsPage() {
                   <div
                     className="bg-[#e8612c] text-white h-10 rounded-[3px] flex items-center justify-center text-[15px] font-black tracking-tight shadow-md"
                   >
-                    {stake.value}
+                    +{stake.value}
                   </div>
                   <div className="text-[10px] text-[#666] font-bold text-center uppercase">{stake.label}</div>
                 </div>

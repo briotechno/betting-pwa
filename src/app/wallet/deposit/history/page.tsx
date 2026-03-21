@@ -25,11 +25,26 @@ export default function DepositHistoryPage() {
         
         if (!token) return
 
-        const response = await walletController.getDepositHistory(token)
-        if (response.error === '0') {
-          // API returns an array in data or list
-          setHistory(Array.isArray(response.data) ? response.data : response.list || [])
+        const response = await walletController.getDepositHistory(token) as any
+        
+        let historyData: any[] = []
+        if (response) {
+          if (Array.isArray(response)) {
+            historyData = response
+          } else if (response.data && Array.isArray(response.data)) {
+            historyData = response.data
+          } else if (response.list && Array.isArray(response.list)) {
+            historyData = response.list
+          } else {
+            // Handle dictionary response (keys "0", "1", "2"...)
+            const objValues = Object.values(response)
+            const potentialItems = objValues.filter(v => v && typeof v === 'object' && ((v as any).Amount !== undefined || (v as any).amount !== undefined))
+            if (potentialItems.length > 0) {
+              historyData = potentialItems
+            }
+          }
         }
+        setHistory(historyData)
       } catch (error) {
         console.error('Failed to fetch deposit history:', error)
       } finally {
@@ -102,30 +117,30 @@ export default function DepositHistoryPage() {
             <div key={idx} className="bg-[#111] border border-white/5 rounded-2xl p-5 space-y-4 hover:border-white/10 transition-colors shadow-lg group">
                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl bg-[#4caf50]/10 flex items-center justify-center text-[#4caf50]">
+                     <div className="w-10 h-10 rounded-xl bg-[#e8612c]/10 flex items-center justify-center text-[#e8612c]">
                         <ArrowDownLeft size={20} />
                      </div>
                      <div>
-                        <p className="text-[13px] font-black uppercase tracking-tight text-white/80">{item.bankname || item.Bank || 'Deposit'}</p>
-                        <p className="text-[10px] text-white/30 font-medium">UTR: {item.utr || item.Utr || 'N/A'}</p>
+                        <p className="text-[13px] font-black uppercase tracking-tight text-white/80">{(item.bankname || item.name || item.Bank || 'Deposit').toUpperCase()}</p>
+                        <p className="text-[10px] text-white/30 font-medium">UTR: {item.Utr || item.utr || 'N/A'}</p>
                      </div>
                   </div>
                   <div className="text-right">
-                     <p className="text-lg font-black text-[#4caf50]">₹ {parseFloat(item.Amount || item.amount).toLocaleString()}</p>
-                     <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest">{formatDate(item.date || item.created_at)}</p>
+                     <p className="text-lg font-black text-[#e8612c]">₹ {parseFloat(item.Amount || item.amount || 0).toLocaleString()}</p>
+                     <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest">{formatDate(item.Date || item.date || item.created_at)}</p>
                   </div>
                </div>
 
                <div className="flex items-center justify-between pt-3 border-t border-white/5">
                   <div className="flex items-center gap-2">
-                     {getStatusIcon(item.status)}
-                     <span className={`text-[11px] font-black uppercase tracking-wider ${getStatusColor(item.status)}`}>
-                        {item.status || 'Pending'}
+                     {getStatusIcon(item.Status || item.status)}
+                     <span className={`text-[11px] font-black uppercase tracking-wider ${getStatusColor(item.Status || item.status)}`}>
+                        {item.Status || item.status || 'Pending'}
                      </span>
                   </div>
                   <button 
                     onClick={() => window.open('https://wa.me/', '_blank')}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-[#e8612c] transition-colors"
                   >
                      <Phone size={10} />
                      Support
