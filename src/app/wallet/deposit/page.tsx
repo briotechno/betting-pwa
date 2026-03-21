@@ -86,7 +86,7 @@ export default function DepositPage() {
         } else if (historyRes.list && Array.isArray(historyRes.list)) {
           historyData = historyRes.list
         } else if (typeof historyRes === 'object') {
-          historyData = Object.values(historyRes).filter(v => v && typeof v === 'object' && ((v as any).Amount !== undefined || (v as any).amount !== undefined))
+          historyData = Object.values(historyRes).filter(v => v && typeof v === 'object' && ((v as any).Amount !== undefined || (v as any).amount !== undefined || (v as any).Utr !== undefined))
         }
         setHistory(historyData)
       }
@@ -251,7 +251,7 @@ export default function DepositPage() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
           {/* ── LEFT AREA: Deposit Step 1 or 2 ── */}
-          <div className="xl:col-span-7 space-y-8 animate-in fade-in duration-500">
+          <div className="xl:col-span-12 2xl:col-span-7 space-y-8 animate-in fade-in duration-500">
             {step === 1 ? (
               /* Step 1 Content */
               <div className="space-y-8">
@@ -437,19 +437,20 @@ export default function DepositPage() {
           </div>
 
           {/* ── RIGHT AREA: Transaction History (Persistent & Full Height) ── */}
-          <div className="xl:col-span-5 flex flex-col min-h-[855px] animate-in fade-in slide-in-from-right-10 duration-700">
+          <div className="xl:col-span-12 2xl:col-span-5 flex flex-col min-h-[855px] animate-in fade-in slide-in-from-right-10 duration-700">
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-hidden shadow-2xl relative">
               {/* Table Header */}
-              <div className="grid grid-cols-5 text-[10px] font-black uppercase tracking-widest py-6 px-6 bg-black border-b border-white/5 text-white/40">
-                <span>TRANS NO</span>
+              <div className="grid grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white/40">
+                <span>TRANS NO/UTR</span>
                 <span className="text-center">AMOUNT</span>
+                <span className="text-center">METHOD</span>
                 <span className="text-center">STATUS</span>
                 <span className="text-center">DATE</span>
-                <span className="text-right">REASON</span>
+                <span className="text-right">REMARKS</span>
               </div>
               
               {/* Table Body */}
-              <div className="flex-1 overflow-y-auto no-scrollbar pb-10">
+              <div className="flex-1 overflow-y-auto no-scrollbar pb-10 font-bold">
                 {historyLoading ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-white/10">
                     <Loader2 className="animate-spin" size={40} />
@@ -462,14 +463,22 @@ export default function DepositPage() {
                   </div>
                 ) : (
                   history.map((item, i) => (
-                    <div key={i} className={`grid grid-cols-5 items-center py-5 px-6 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                      <span className="text-[11px] font-bold text-white/30 truncate pr-2">#{item.RequestId || item.id || 'N/A'}</span>
-                      <span className="text-[13px] font-black text-[#e8612c] text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
-                      <span className={`text-[10px] font-black text-center uppercase ${getStatusColor(item.Status || item.status)}`}>
+                    <div key={i} className={`grid grid-cols-6 items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
+                      <span className="text-[10px] text-white/30 truncate pr-2">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
+                      <span className="text-[12px] text-[#e8612c] text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
+                      <span className="text-[10px] text-white/40 text-center uppercase">{item.Method || item.method || '—'}</span>
+                      <span className={`text-[10px] text-center uppercase ${getStatusColor(item.Status || item.status)}`}>
                         {item.Status || item.status || 'Pending'}
                       </span>
-                      <span className="text-[10px] font-bold text-white/30 text-center">{formatDate(item.Date || item.date || item.created_at, 'short')}</span>
-                      <span className="text-[10px] font-bold text-white/20 text-right italic truncate" title={item.Reason || item.reason}>{item.Reason || item.reason || '—'}</span>
+                      <span className="text-[9px] text-white/30 text-center leading-tight">
+                         {item.Date || item.date ? 
+                           (item.Date || item.date).split(' ').join('\n') : 
+                           formatDate(item.created_at)
+                         }
+                      </span>
+                      <span className="text-[9px] text-white/20 text-right italic truncate" title={item.Remarks || item.remarks || item.Reason || item.reason}>
+                        {item.Remarks || item.remarks || item.Reason || item.reason || '—'}
+                      </span>
                     </div>
                   ))
                 )}
