@@ -82,22 +82,4 @@ export const walletController = {
   getWithdrawalHistory: async (loginToken: string, accountId?: string | number): Promise<ApiResponse> => {
     return await fetchAPI('/withdrawlist', { LoginToken: loginToken, Id: accountId || '' });
   },
-
-  /**
-   * Get standard transaction context / account statement
-   * @param loginToken The encrypted session token
-   * @param sdate Start date (YYYY-MM-DD or similar string)
-   * @param edate End date (YYYY-MM-DD)
-   */
-  getAccountStatement: async (loginToken: string, sdate: string, edate: string): Promise<ApiResponse> => {
-    return await fetchAPI('/statement', { LoginToken: loginToken, sdate, edate });
-  },
-
-  /**
-   * Get bet list/statement for a particular game ID
-   * @param gid The unique game ID
-   */
-  getBetStatement: async (gid: string): Promise<ApiResponse> => {
-    return await fetchAPI('/statementbet', { gid });
-  },
 };

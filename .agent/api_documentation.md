@@ -71,7 +71,7 @@ Content-Type: application/json
 |---|---|---|---|
 | **28. Deposit List** | `/depositlist` | `LoginToken` | List of platform bank accounts / payment methods |
 | **31. Deposit** | `/deposit` | `LoginToken, Amount, Utr, BankId, Mime_type, Screenshot` | Submits Deposit Request |
-| **32. Deposit Req List** | `/depositreq` | `LoginToken` | User's deposit history |
+| **32. Deposit Req List** | `/depositreq` | `LoginToken` | User's deposit history |`
 
 ### Statements
 | Action | Endpoint | Req Body Parameters | Notes |
