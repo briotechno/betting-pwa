@@ -52,10 +52,10 @@ The Sportsbook is a multi-level navigation system that allows users to browse sp
 
 ### Future API Integration Flow
 Based on the [API Integration Guide](file:///c:/Users/ASUS/Documents/GitHub/betting-pwa/.agent/api_documentation.md):
-1. **Home/Sport List**: Call `POST /market/list` with `{ type }`.
-2. **Event List**: Call `POST /market/events` or `POST /market/popular`.
-3. **Live Odds Updates**: Replace hardcoded `matches.odds` with data from `POST /market/rates` (requires polling or WebSocket).
-4. **Bet Placement**: Clicking an `OddsBox` will `addSelection` to the store, and the Store will eventually call `POST /bet/place/*` endpoints.
+1. **Home/Sport List**: Call `POST /gamelist` with `{ "type": "..." }`.
+2. **Event List**: Call `POST /gamedata` or `POST /populareve`.
+3. **Live Odds Updates**: Replace hardcoded `matches.odds` with data from `POST /liverate` (requires polling or WebSocket).
+4. **Bet Placement**: Clicking an `OddsBox` will `addSelection` to the store, and the Store will eventually call `POST /livedealodd2` or `/livedealodd3` etc.
 
 ---
 
