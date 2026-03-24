@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText, Loader2, Calendar, Trophy, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
@@ -12,8 +12,17 @@ import { authController } from '@/controllers/auth'
 import { Language } from '@/i18n/translations'
 import { getTabs } from '@/constants/navigation'
 import { userController } from '@/controllers'
+import { marketController } from '@/controllers/market/marketController'
+
+interface SearchResult {
+  Datetime: string;
+  Type: string;
+  GameName: string;
+  Gid: string;
+}
 
 export default function Header() {
+  const router = useRouter()
   const { user, isAuthenticated, logout, setUser: setAuthUser, setToken, updateBalance } = useAuthStore()
   const { selections } = useBetSlipStore()
   const { sidebarCollapsed, setProfileSidebarOpen, setLeftDrawerOpen, setMoreMenuOpen, searchModalOpen, setSearchModalOpen, setAuraCasinoOpen } = useLayoutStore()
@@ -33,6 +42,12 @@ export default function Header() {
   const [rememberMe, setRememberMe] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+
   const topTabs = getTabs(t)
 
   const languages: { code: Language; name: string }[] = [
@@ -42,7 +57,7 @@ export default function Header() {
     { code: 'gu', name: 'ગુજરાતી' },
     { code: 'kn', name: 'ಕನ್ನಡ' },
     { code: 'ml', name: 'മലയാളം' },
-    { code: 'mr', name: 'मराठी' },
+    { code: 'mr', name: 'मરાઠી' },
     { code: 'ta', name: 'தமிழ்' },
     { code: 'te', name: 'తెలుగు' }
   ]
@@ -74,7 +89,7 @@ export default function Header() {
       const response = await authController.login({
         username: username,
         password: password,
-        ip: '127.0.0.1' // This should be fetched properly, but used as placeholder
+        ip: '127.0.0.1' 
       })
 
       if (response.error === '0') {
@@ -91,7 +106,6 @@ export default function Header() {
         setToken(response.LoginToken)
         showSnackbar('Logged in successfully.', 'success')
         
-        // Clear fields
         setUsername('')
         setPassword('')
       } else {
@@ -108,15 +122,49 @@ export default function Header() {
     setMounted(true)
     if (isAuthenticated) {
       refreshBalance()
-      const interval = setInterval(refreshBalance, 30000) // Refresh every 30s
+      const interval = setInterval(refreshBalance, 30000)
       return () => clearInterval(interval)
     }
   }, [isAuthenticated])
 
+  const handleSearch = async (val: string) => {
+    setSearchQuery(val)
+    if (val.length < 3) {
+      setSearchResults([])
+      setShowSearchResults(false)
+      return
+    }
+
+    if (!user?.loginToken) return
+
+    try {
+      setSearchLoading(true)
+      const res = await marketController.search(user.loginToken, val)
+      if (Array.isArray(res)) {
+        setSearchResults(res)
+        setShowSearchResults(true)
+      } else {
+        setSearchResults([])
+        setShowSearchResults(false)
+      }
+    } catch (err) {
+      console.error('Search failed:', err)
+    } finally {
+      setSearchLoading(false)
+    }
+  }
+
+  const handleResultClick = (result: SearchResult) => {
+    setShowSearchResults(false)
+    setSearchQuery('')
+    const sportSegment = result.Type.toLowerCase()
+    router.push(`/sports/${sportSegment}/${result.Gid}`)
+  }
+
   return (
     <div className="z-[60]">
       {/* ── Fixed Top Header (All Devices) ── */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-black  backdrop-blur-md h-20 lg:h-[92px]">
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-black backdrop-blur-md h-20 lg:h-[92px]">
         <div className="flex items-center justify-between px-2 md:px-5 h-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <button
@@ -126,17 +174,7 @@ export default function Header() {
               <img src="/menuIcon.png" alt="Menu" className="w-[30px] h-[30px] object-contain" />
             </button>
 
-            {/* Desktop Logo */}
-            <Link href="/" className="hidden lg:flex items-center h-14">
-              <img
-                src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
-                alt="Fairplay Logo"
-                className="h-full object-contain"
-              />
-            </Link>
-
-            {/* Mobile Logo */}
-            <Link href="/" className="lg:hidden flex items-center h-8">
+            <Link href="/" className="flex items-center h-8 lg:h-14">
               <img
                 src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
                 alt="Fairplay Logo"
@@ -147,18 +185,56 @@ export default function Header() {
 
           {/* Search Bar (Desktop Only) */}
           {mounted && isAuthenticated && (
-            <div className="hidden lg:flex items-center flex-1 max-w-md ml-8">
+            <div className="hidden lg:flex items-center flex-1 max-w-md ml-8 relative pt-2">
               <div className="relative w-full">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#777]" />
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => searchQuery.length >= 3 && setShowSearchResults(true)}
                   placeholder={t('common.search')}
-                  className="w-full rounded-[4px] py-1.5 pl-11 pr-4 text-[13px] text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c90] outline-none transition-all"
+                  className="w-full rounded-[4px] py-2 pl-11 pr-10 text-[13px] text-white bg-[#111] border border-[#2a2a2a] focus:border-[#e8612c90] outline-none transition-all font-bold placeholder:font-normal"
+                  onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
                 />
+                {searchLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 size={14} className="text-[#e8612c] animate-spin" />
+                  </div>
+                )}
               </div>
+
+              {/* Desktop Search Results Dropdown */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-2xl py-2 z-[70] max-h-[400px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-200 custom-scrollbar">
+                  {searchResults.map((res: SearchResult) => (
+                    <button
+                      key={res.Gid}
+                      onClick={() => handleResultClick(res)}
+                      className="w-full h-[52px] flex items-center gap-3 px-4 hover:bg-white/5 transition-colors group text-left border-b border-white/5 last:border-0"
+                    >
+                      <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center shrink-0 border border-white/5 group-hover:bg-[#f26522]/20 transition-colors">
+                        {res.Type.toLowerCase().includes('cricket') ? (
+                          <span className="text-[14px]">🏏</span>
+                        ) : res.Type.toLowerCase().includes('foot') ? (
+                          <span className="text-[14px]">⚽</span>
+                        ) : (
+                          <Trophy size={14} className="text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-black text-white group-hover:text-[#f26522] transition-colors truncate uppercase tracking-tight">
+                          {res.GameName}
+                        </p>
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-tighter mt-0.5">{res.Datetime} • {res.Type}</p>
+                      </div>
+                      <ArrowRight size={14} className="text-gray-600 group-hover:text-white transition-transform transform translate-x-[-5px] opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-
 
           {/* User Actions / Auth Form */}
           <div className="flex items-center gap-2 ml-auto">
@@ -202,9 +278,8 @@ export default function Header() {
                   </button>
                 </div>
 
-                {/* Desktop Authenticated - PRECISE MATCH TO IMAGE 4 */}
+                {/* Desktop Authenticated */}
                 <div className="hidden lg:flex items-center gap-4">
-                  {/* Language Selector */}
                   <div className="relative">
                     <button
                       onClick={() => setShowLanguageMenu(!showLanguageMenu)}
@@ -213,7 +288,6 @@ export default function Header() {
                       <span className="text-white text-[14px] font-bold">{currentLang.name}</span>
                       <ChevronDown size={14} className={`text-white ml-auto transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} />
                     </button>
-
                     {showLanguageMenu && (
                       <div className="absolute top-full left-0 mt-1 w-full bg-[#111] border border-white/10 rounded-md shadow-2xl py-1 z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
                         {languages.map((lang) => (
@@ -223,8 +297,7 @@ export default function Header() {
                               setLanguage(lang.code)
                               setShowLanguageMenu(false)
                             }}
-                            className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
-                              }`}
+                            className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'}`}
                           >
                             {lang.name}
                           </button>
@@ -233,7 +306,6 @@ export default function Header() {
                     )}
                   </div>
 
-                  {/* Open Bets */}
                   <button
                     onClick={openSlip}
                     className="h-10 px-5 rounded-full border border-[#f26522] text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
@@ -241,7 +313,6 @@ export default function Header() {
                     {t('common.open_bets')}
                   </button>
 
-                  {/* Deposit Now */}
                   <Link
                     href="/wallet/deposit"
                     className="h-10 px-5 rounded-full border border-[#58a049] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#58a049]/10 transition-all active:scale-95"
@@ -250,7 +321,6 @@ export default function Header() {
                     {t('common.deposit_now')}
                   </Link>
 
-                  {/* Wallet Balance */}
                   <Link
                     href="/wallet"
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
@@ -259,7 +329,6 @@ export default function Header() {
                     ₹{user.balance.toLocaleString()}
                   </Link>
 
-                  {/* Profile */}
                   <button
                     onClick={() => setProfileSidebarOpen(true)}
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
@@ -283,7 +352,6 @@ export default function Header() {
                           <span className="text-white text-[13px] font-bold">{currentLang.name}</span>
                           <ChevronDown size={14} className={`text-white ml-auto transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} />
                         </div>
-
                         {showLanguageMenu && (
                           <div className="absolute top-full left-0 mt-1 w-full bg-[#111] border border-white/10 rounded-md shadow-2xl py-1 z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
                             {languages.map((lang) => (
@@ -293,8 +361,7 @@ export default function Header() {
                                   setLanguage(lang.code)
                                   setShowLanguageMenu(false)
                                 }}
-                                className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'
-                                  }`}
+                                className={`w-full text-left px-4 py-2 text-[13px] transition-colors ${language === lang.code ? 'text-[#e8612c] bg-white/5 font-bold' : 'text-white/70 hover:text-white hover:bg-white/5'}`}
                               >
                                 {lang.name}
                               </button>
@@ -383,7 +450,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* ── Mobile Inplay Header (NOT STICKY) ── */}
+      {/* ── Mobile Inplay Header ── */}
       <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-20 relative z-[50]">
         <div className="flex w-[98%] h-[60px] p-1 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
           <Link
@@ -417,9 +484,8 @@ export default function Header() {
         </div>
       </div>
 
-      {/* ── Fixed Desktop Sub Header (Pins below Top Header) ── */}
+      {/* ── Fixed Desktop Sub Header ── */}
       <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar bg-[#000] px-4">
-
         <div className="flex items-center gap-1">
           {[
             { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },
@@ -432,25 +498,15 @@ export default function Header() {
             { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' }
           ].map((tab) => {
             const isActive = pathname === tab.href || (tab.id === 'inplay' && pathname === '/')
-
             return (
               <Link
                 key={tab.id}
                 href={tab.href}
-                onClick={() => {
-                  setActiveTab(tab.id)
-                }}
-                className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${isActive
-                  ? 'border-[0.09rem] border-[#f36c21] rounded-[30px] !pr-3 font-black text-[#f36c21]'
-                  : 'text-[#a5caf6] hover:text-white font-bold'
-                  }`}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${isActive ? 'border-[0.09rem] border-[#f36c21] rounded-[30px] !pr-3 font-black text-[#f36c21]' : 'text-[#a5caf6] hover:text-white font-bold'}`}
               >
                 <div className="h-[20px] w-[49px] flex items-center justify-center overflow-hidden shrink-0">
-                  <img
-                    src={tab.icon}
-                    alt={tab.label}
-                    className="h-full w-full object-contain"
-                  />
+                  <img src={tab.icon} alt={tab.label} className="h-full w-full object-contain" />
                 </div>
                 <span className="text-[11px] uppercase tracking-wide ml-1">{tab.label}</span>
               </Link>
