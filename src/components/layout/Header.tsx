@@ -428,7 +428,7 @@ export default function Header() {
             { id: 'tennis', label: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png', href: '/sportsbook/Tennis' },
             { id: 'premium', label: 'Premium Sportbook', icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png', href: '/premium-sportsbook' },
             { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },
-            { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino', onClick: () => setAuraCasinoOpen(true) },
+            { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino' },
             { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' }
           ].map((tab) => {
             const isActive = pathname === tab.href || (tab.id === 'inplay' && pathname === '/')
@@ -437,11 +437,7 @@ export default function Header() {
               <Link
                 key={tab.id}
                 href={tab.href}
-                onClick={(e) => {
-                  if (tab.onClick) {
-                    e.preventDefault()
-                    tab.onClick()
-                  }
+                onClick={() => {
                   setActiveTab(tab.id)
                 }}
                 className={`py-1 px-3 flex items-center gap-1 transition-all whitespace-nowrap ${isActive

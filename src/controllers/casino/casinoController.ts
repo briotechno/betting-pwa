@@ -5,7 +5,7 @@ export const casinoController = {
    * Get list of available casino games by provider
    * @param provider The game provider string (e.g., "Spribe")
    */
-  getCasinoGames: async (provider: string): Promise<ApiResponse> => {
+  getCasinoGames: async (provider: string): Promise<any> => {
     return await fetchAPI('/casinolist', { provider });
   },
 
@@ -26,7 +26,6 @@ export const casinoController = {
    * @param loginToken The encrypted session token
    */
   openSportsbook: async (loginToken: string): Promise<ApiResponse> => {
-    // Note: URL identical to csopen in spec
-    return await fetchAPI('/csopen', { LoginToken: loginToken });
+    return await fetchAPI('/sportsbook', { LoginToken: loginToken });
   },
 };

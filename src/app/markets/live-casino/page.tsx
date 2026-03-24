@@ -1,141 +1,271 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { casinoController } from '@/controllers/casino/casinoController'
+import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { Loader2, Search, X } from 'lucide-react'
+import GameOverlay from '@/components/casino/GameOverlay'
 
-const mainTabs = [
-  { id: 'lobby', label: 'Lobby' },
-  { id: 'live_roulette', label: 'Live Roulette' },
-  { id: 'indian_tables', label: 'Indian Tables' },
-  { id: 'money_wheel', label: 'Money Wheel' },
-  { id: 'game_show', label: 'Game Show' },
-  { id: 'live_sic_bo', label: 'Live Sic Bo' },
-  { id: 'live_dragon_tiger', label: 'Live Dragon Tiger' },
-  { id: 'live_dealer', label: 'Live Dealer' },
-  { id: 'live_baccarat', label: 'Live Baccarat' },
-  { id: 'live_blackjack', label: 'Live Blackjack' },
-  { id: 'live_lottery', label: 'Live Lottery' },
-  { id: 'live_poker', label: 'Live Poker' },
-  { id: 'live_lobby', label: 'Live Lobby' },
-]
+// Image base URL fallback
+const IMG_BASE_URL = 'https://luckmedia.link/';
 
-const providers = [
-  'Aura gaming', 'Evolution Gaming', 'Red Tiger', 'NetEnt', 'Pascal Gaming', 'Creed Roomz', 
-  'Smartsoft Gaming', 'Spribe', 'Ezugi', 'Aviatrix', 'Play\'n Go', 'Betsolutions'
-]
-
-const categories = [
-  {
-    id: 'live_roulette',
-    title: 'Live Roulette',
-    games: [
-      { img: 'https://luckmedia.link/ezg_trke_rulet/thumb_3_4_custom.webp', label: 'TURKISH ROULETTE', provider: 'EZUGI' },
-      { img: 'https://luckmedia.link/evo_speed_roulette/thumb_3_4_custom.webp', label: 'SPEED ROULETTE', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/ezg_speed_roulette/thumb_3_4_custom.webp', label: 'SPEED ROULETTE', provider: 'EZUGI' },
-      { img: 'https://luckmedia.link/evo_emperor_roulette/thumb_3_4_custom.webp', label: 'EMPEROR ROULETTE', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/ezg_prestige_auto_roulette/thumb_3_4_custom.webp', label: 'PRESTIGE AUTO ROULETTE', provider: 'EZUGI' },
-      { img: 'https://luckmedia.link/evo_immersive_roulette/thumb_3_4_custom.webp', label: 'IMMERSIVE ROULETTE', provider: 'EVOLUTION GAMING' },
-    ]
-  },
-  {
-    id: 'money_wheel',
-    title: 'Money Wheel',
-    games: [
-      { img: 'https://luckmedia.link/evo_first_person_dream_catcher/thumb_3_4_custom.webp', label: 'FIRST PERSON DREAM CATCHER', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/evo_imperial_quest/thumb_3_4_custom.webp', label: 'IMPERIAL QUEST', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/raw_mad_joker_superslice_zones/thumb_3_4_custom.webp', label: 'MAD JOKER SUPERSLICE ZONES', provider: 'RAW GAMING' },
-      { img: 'https://luckmedia.link/raw_joker__the_thief/thumb_3_4_custom.webp', label: 'JOKER THE THIEF', provider: 'RAW GAMING' },
-      { img: 'https://luckmedia.link/raw_blackbeards_superslice_rings/thumb_3_4_custom.webp', label: 'BLACKBEARDS SUPERSLICE RINGS', provider: 'RAW GAMING' },
-      { img: 'https://luckmedia.link/raw_lucky_mcgees_superslice_swirl/thumb_3_4_custom.webp', label: 'LUCKY MCGEES SUPERSLICE SWIRL', provider: 'RAW GAMING' },
-    ]
-  },
-  {
-    id: 'game_show',
-    title: 'Game Show',
-    games: [
-      { img: 'https://luckmedia.link/evo_crazy_time/thumb_3_4_custom.webp', label: 'CRAZY TIME', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/evo_crazy_coin_flip/thumb_3_4_custom.webp', label: 'CRAZY COIN FLIP', provider: 'EVOLUTION GAMING' },
-      { img: 'https://luckmedia.link/pltl_buffalo_blitz_live_slots/thumb_3_4_custom.webp', label: 'BUFFALO BLITZ LIVE SLOTS', provider: 'PLAYTECH LIVE' },
-      { img: 'https://luckmedia.link/pltl_the_greatest_cards_show/thumb_3_4_custom.webp', label: 'THE GREATEST CARDS SHOW', provider: 'PLAYTECH LIVE' },
-      { img: 'https://luckmedia.link/atm_cocktail_roulette/thumb_3_4_custom.webp', label: 'COCKTAIL ROULETTE', provider: 'ATMOSFERA' },
-      { img: 'https://luckmedia.link/evo_stock_market/thumb_3_4_custom.webp', label: 'STOCK MARKET', provider: 'EVOLUTION GAMING' },
-    ]
-  }
-]
+interface Game {
+  game_code: string;
+  game_id: string;
+  name: string;
+  image: string;
+  provider: string;
+  Category: string;
+}
 
 export default function LiveCasinoPage() {
+  const [games, setGames] = useState<Game[]>([])
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('lobby')
-  const [activeProvider, setActiveProvider] = useState('')
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [overlayGame, setOverlayGame] = useState<{ url: string | null; title: string; isOpen: boolean }>({
+    url: null,
+    title: '',
+    isOpen: false
+  })
+  const { user } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        setLoading(true)
+        const res = await casinoController.getCasinoGames('ALL')
+        
+        // API returns a flat array directly, or an object with data array
+        const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
+        const errorMsg = !Array.isArray(res) && res?.error === '1' ? (res.msg || 'Failed to fetch games') : null;
+
+        if (rawGames.length > 0) {
+          // Deduplicate by game_code
+          const uniqueGames = rawGames.reduce((acc: Game[], current: Game) => {
+            if (!acc.find(item => item.game_code === current.game_code)) {
+              acc.push(current);
+            }
+            return acc;
+          }, []);
+          setGames(uniqueGames)
+          
+          // Initial categories from full game set
+          const grouped = uniqueGames.reduce((acc: Record<string, Game[]>, game: Game) => {
+            const category = game.Category || 'Others'
+            if (!acc[category]) acc[category] = []
+            acc[category].push(game)
+            return acc
+          }, {})
+          setCategories(Object.keys(grouped))
+        } else if (errorMsg) {
+          showSnackbar(errorMsg, 'error')
+        }
+      } catch (err) {
+        showSnackbar('Network error', 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGames()
+  }, [])
+
+  // Derive providers based on active category
+  const providerList = React.useMemo(() => {
+    const listGames = activeTab === 'lobby' 
+      ? games 
+      : games.filter(g => (g.Category || 'Others') === activeTab)
+    return Array.from(new Set(listGames.map(g => g.provider))).sort()
+  }, [games, activeTab])
+
+  // Reset provider when category changes
+  useEffect(() => {
+    setSelectedProvider(null)
+  }, [activeTab])
+
+  // Filter games based on selected provider
+  const filteredGames = selectedProvider 
+    ? games.filter(g => g.provider === selectedProvider)
+    : games
+
+  // Group filtered games by category
+  const groupedGames = filteredGames.reduce((acc: Record<string, Game[]>, game) => {
+    const category = game.Category || 'Others'
+    if (!acc[category]) acc[category] = []
+    acc[category].push(game)
+    return acc
+  }, {})
+
+  const scrollToCategory = (id: string) => {
+    setActiveTab(id)
+    if (id === 'lobby') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    const element = sectionRefs.current[id]
+    if (element) {
+      const headerOffset = 180 // Higher offset for two navigation rows
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const handleGameClick = async (game: Game) => {
+    if (!user) {
+      showSnackbar('Please login to play', 'error')
+      return
+    }
+
+    try {
+      setOverlayGame({ url: null, title: game.name, isOpen: true })
+      
+      const res = await casinoController.openCasinoGame({
+        LoginToken: user.loginToken || '',
+        Game_id: game.game_id,
+        Game_code: game.game_code
+      })
+
+      if (res.error === '0' && res.url) {
+        setOverlayGame(prev => ({ ...prev, url: res.url }))
+      } else {
+        showSnackbar(res.msg || 'Failed to open game', 'error')
+        setOverlayGame(prev => ({ ...prev, isOpen: false }))
+      }
+    } catch (err) {
+      showSnackbar('Error launching game', 'error')
+      setOverlayGame(prev => ({ ...prev, isOpen: false }))
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-[#000] min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-[#e15b24] animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="bg-[#000] min-h-screen text-white">
-      {/* Category Tabs - Main horizontal scroll */}
-      <div className="flex overflow-x-auto no-scrollbar bg-[#3d3d3d] h-[45px] items-stretch sticky top-20 lg:top-[92px] z-[40]">
-        {mainTabs.map((tab) => (
+      {/* ── Two-Level Navigation ── */}
+      <div className="sticky top-20 lg:top-[92px] z-[40]">
+        {/* Row 1: Categories */}
+        <div className="flex overflow-x-auto no-scrollbar bg-[#3d3d3d] h-[45px] items-stretch border-b border-white/5">
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${
-              activeTab === tab.id ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-200 hover:text-white'
-            }`}
+            onClick={() => scrollToCategory('lobby')}
+            className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${activeTab === 'lobby' ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-200 hover:text-white'
+              }`}
           >
-            {tab.label}
+            Lobby
           </button>
-        ))}
-      </div>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => scrollToCategory(cat)}
+              className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${activeTab === cat ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-200 hover:text-white'
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-      {/* Provider Tabs - Secondary horizontal scroll */}
-      <div className="flex overflow-x-auto no-scrollbar bg-[#1a1a1a] h-[42px] items-stretch border-b border-white/5 sticky top-[125px] lg:top-[137px] z-[40]">
-        {providers.map((p) => (
+        {/* Row 2: Providers */}
+        <div className="flex overflow-x-auto no-scrollbar bg-[#1a1a1a] h-[45px] items-stretch border-b border-white/5 shadow-lg">
           <button
-            key={p}
-            onClick={() => setActiveProvider(p)}
-            className={`px-4 h-full text-[10px] font-black uppercase tracking-tight whitespace-nowrap border-r border-white/5 transition-all ${
-              activeProvider === p ? 'text-white bg-white/5' : 'text-white/60 hover:text-white'
-            }`}
+            onClick={() => setSelectedProvider(null)}
+            className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${!selectedProvider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
+              }`}
           >
-            {p}
+            ALL
           </button>
-        ))}
+          {providerList.map((provider) => (
+            <button
+              key={provider}
+              onClick={() => setSelectedProvider(provider)}
+              className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${selectedProvider === provider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              {provider}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Lobby Sections */}
-      <div className="p-3 space-y-8 mt-2">
-        {categories.map((cat) => (
-          <div key={cat.id} id={cat.id} className="w-full">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-[18px] font-bold text-white tracking-tight">{cat.title}</h2>
-              <button className="bg-[#4caf50] text-[#fff] px-4 py-1 rounded-full text-[11px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                See All
-              </button>
-            </div>
+      <div className="p-3 space-y-6 mt-4">
+        {categories.map((cat) => {
+          // Only show category if it has filtered games
+          const gamesInCat = groupedGames[cat] || [];
+          if (gamesInCat.length === 0) return null;
 
-            {/* Games Grid - 3 items per row as in image */}
-            <div className="grid grid-cols-3 gap-2 px-0.5">
-              {cat.games.map((game, idx) => (
-                <div key={idx} className="relative aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-md border border-white/5 bg-[#1a1a1a]">
-                  <img 
-                    src={game.img} 
-                    alt={game.label} 
-                    className="w-full h-full object-cover rounded-md shadow-lg"
-                    loading="lazy"
-                  />
-                  {/* Text Overlay matching reference style */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/40 to-transparent p-2 flex flex-col justify-end h-1/2">
-                    <span className="text-[9px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-md">
-                      {game.label}
-                    </span>
-                    <span className="text-[7px] font-black text-white/70 uppercase text-center mt-auto opacity-80">
-                      {game.provider}
-                    </span>
+          return (
+            <div
+              key={cat}
+              ref={(el) => { sectionRefs.current[cat] = el }}
+              className="w-full"
+            >
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="text-[16px] font-bold text-white tracking-tight leading-none uppercase">{cat}</h2>
+                <button className="bg-[#4caf50] text-[#fff] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                  See All
+                </button>
+              </div>
+
+              {/* Games Horizontal Slider - Matches Reference Look */}
+              <div className="flex overflow-x-auto no-scrollbar gap-2 px-0.5 pb-2">
+                {gamesInCat.map((game) => (
+                  <div
+                    key={game.game_code}
+                    onClick={() => handleGameClick(game)}
+                    className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[4px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
+                  >
+                    <img
+                      src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      alt={game.name}
+                      className="w-full h-full object-cover rounded-[4px]"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=128&font-size=0.33`
+                      }}
+                    />
+                    {/* Reference style Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2.5 flex flex-col justify-end h-[60%] pointer-events-none">
+                      <span className="text-[8px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-lg mb-1">
+                        {game.name}
+                      </span>
+                      <span className="text-[7px] font-extrabold text-white/40 uppercase text-center tracking-tighter">
+                        {game.provider}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Space for bottom nav */}
       <div className="h-24" />
+
+      <GameOverlay 
+        isOpen={overlayGame.isOpen}
+        url={overlayGame.url}
+        title={overlayGame.title}
+        isFloating={true}
+        onClose={() => setOverlayGame(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }
+
+

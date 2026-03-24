@@ -1,7 +1,11 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ChevronRight, ChevronLeft, History } from 'lucide-react'
+import { ChevronRight, ChevronLeft, History, X } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { casinoController } from '@/controllers/casino/casinoController'
+import GameOverlay from '@/components/casino/GameOverlay'
 import Badge from '@/components/ui/Badge'
 import MatchCard from '@/components/sportsbook/MatchCard'
 import OddsTable from '@/components/sportsbook/OddsTable'
@@ -219,7 +223,34 @@ export default function HomePage() {
   const [currentBanner, setCurrentBanner] = useState(0)
   const [activeHomeSport, setActiveHomeSport] = useState<'cricket' | 'soccer' | 'tennis'>('cricket')
   const { t } = useI18nStore()
+  const { user } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
+  const [showPremium, setShowPremium] = useState(false)
+  const [premiumUrl, setPremiumUrl] = useState<string | null>(null)
   const bannerTimer = useRef<NodeJS.Timeout | null>(null)
+
+  const handlePremiumClick = async () => {
+    if (!user) {
+      showSnackbar('Please login to access the premium sportsbook', 'error')
+      return
+    }
+
+    setShowPremium(true)
+    setPremiumUrl(null)
+
+    try {
+      const res = await casinoController.openSportsbook(user.loginToken || '')
+      if (res.error === '0' && res.url) {
+        setPremiumUrl(res.url)
+      } else {
+        showSnackbar(res.msg || 'Failed to fetch sportsbook URL', 'error')
+        setShowPremium(false)
+      }
+    } catch (err) {
+      showSnackbar('Network error', 'error')
+      setShowPremium(false)
+    }
+  }
 
   useEffect(() => {
     bannerTimer.current = setInterval(() => {
@@ -447,14 +478,18 @@ export default function HomePage() {
         </div>
 
         {/* Premium GIF Banner */}
-        <div className="w-full   overflow-hidden shadow-lg border border-white/5 bg-[#111]">
-          <Link href="/sports?sport=premium" className="block relative  ">
+        <div className="w-full overflow-hidden shadow-lg border border-white/5 bg-[#111]">
+          <div 
+            onClick={handlePremiumClick}
+            className="block relative cursor-pointer group"
+          >
             <img
               src="/premium.9849a83.gif"
               alt="Premium Sport"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
             />
-          </Link>
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+          </div>
         </div>
 
         {/* UPCOMING EVENTS SECTIONS */}
@@ -565,6 +600,15 @@ export default function HomePage() {
           />
         </div>
       </div>
+      {/* Floating Overlays */}
+      <GameOverlay 
+        isOpen={showPremium}
+        url={premiumUrl}
+        title="Premium Sportsbook"
+        isFloating={true}
+        onClose={() => setShowPremium(false)}
+      />
+      
       <PopupModal />
     </div>
   )
