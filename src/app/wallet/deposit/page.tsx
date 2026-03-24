@@ -440,13 +440,13 @@ export default function DepositPage() {
           <div className="xl:col-span-12 2xl:col-span-5 flex flex-col min-h-[855px] animate-in fade-in slide-in-from-right-10 duration-700">
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-hidden shadow-2xl relative">
               {/* Table Header */}
-              <div className="grid grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white/40">
+              <div className="grid grid-cols-5 md:grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white/40">
                 <span>TRANS NO/UTR</span>
                 <span className="text-center">AMOUNT</span>
                 <span className="text-center">METHOD</span>
                 <span className="text-center">STATUS</span>
                 <span className="text-center">DATE</span>
-                <span className="text-right">REMARKS</span>
+                <span className="text-right hidden md:block">REMARKS</span>
               </div>
               
               {/* Table Body */}
@@ -463,8 +463,8 @@ export default function DepositPage() {
                   </div>
                 ) : (
                   history.map((item, i) => (
-                    <div key={i} className={`grid grid-cols-6 items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                      <span className="text-[10px] text-white/30 truncate pr-2">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
+                    <div key={i} className={`grid grid-cols-5 md:grid-cols-6 items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
+                      <span className="text-[10px] text-white/30 break-all pr-2 whitespace-normal leading-relaxed">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
                       <span className="text-[12px] text-[#e8612c] text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
                       <span className="text-[10px] text-white/40 text-center uppercase">{item.Method || item.method || '—'}</span>
                       <span className={`text-[10px] text-center uppercase ${getStatusColor(item.Status || item.status)}`}>
@@ -476,7 +476,7 @@ export default function DepositPage() {
                            formatDate(item.created_at)
                          }
                       </span>
-                      <span className="text-[9px] text-white/20 text-right italic truncate" title={item.Remarks || item.remarks || item.Reason || item.reason}>
+                      <span className="text-[9px] text-white/20 text-right italic truncate hidden md:block" title={item.Remarks || item.remarks || item.Reason || item.reason}>
                         {item.Remarks || item.remarks || item.Reason || item.reason || '—'}
                       </span>
                     </div>
