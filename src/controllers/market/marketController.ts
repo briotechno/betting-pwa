@@ -10,6 +10,22 @@ export const marketController = {
   },
 
   /**
+   * Get list of competitions by type
+   * @param type The sport type (e.g. "Cricket", "Football")
+   */
+  getCompetitionList: async (type: string): Promise<ApiResponse> => {
+    return await fetchAPI('/competition', { type });
+  },
+
+  /**
+   * Get games for a specific competition
+   * @param code The competition code (e.g. "101480")
+   */
+  getCompetitionGames: async (code: string): Promise<ApiResponse> => {
+    return await fetchAPI('/competitiongames', { code });
+  },
+
+  /**
    * Get dynamic match rates/odds
    * @param marketId Comma separated market IDs
    */

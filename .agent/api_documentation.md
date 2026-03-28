@@ -141,6 +141,78 @@ This document serves as the high-fidelity specification for the Betting Platform
 
 ## 🎮 3. MARKET / GAME MODULE
 
+### 4. Competition List ✅
+**POST** `/competition`
+- **Request:** `{"type":"Cricket"}`
+  - *Description:* `type` can be `Cricket`, `Football`, `Tennis`, `Election`, `Table Tennis`, `Basketball`, `American Football`, `Volleyball`, `Snooker`, `Kabbadi`.
+- **Response:**
+  ```json
+  [
+    {
+      "CompetitionCode": "101480",
+      "Competition": "Indian Premier League"
+    },
+    {
+      "CompetitionCode": "12788830",
+      "Competition": "Pakistan National T20 Cup"
+    },
+    {
+      "CompetitionCode": "10693181",
+      "Competition": "Pakistan Super League"
+    },
+    {
+      "CompetitionCode": "12649673",
+      "Competition": "ICC Cricket World Cup League 2"
+    },
+    {
+      "CompetitionCode": "9886504",
+      "Competition": "Womens One Day Internationals"
+    }
+  ]
+  ```
+
+### 53. Competition Wise Games ✅
+**POST** `/competitiongames`
+- **Request:** `{"code":"101480"}`
+  - *Description:* `code` is a String representing `CompetitionCode` (API no 53).
+- **Response:**
+  ```json
+  {
+    "28127348": {
+      "DateTime": "31-03-2025 13:00:00",
+      "Competition": "Indian Premier League",
+      "Game_name": "Indian Premier League",
+      "Team1": "Indian Premier League",
+      "Team2": "TOURNAMENT_WINNER",
+      "MarketId": "1.245690241",
+      "Type": "Cricket",
+      "Event_Id": "28127348",
+      "gid": "16194",
+      "Game_Type": "Winner",
+      "TV": "Y",
+      "BM": "N",
+      "Fancy": "N",
+      "Goal": "N"
+    },
+    "35364409": {
+      "DateTime": "28-03-2026 19:30:00",
+      "Competition": "Indian Premier League",
+      "Game_name": "RC Bengaluru Vs Sunrisers Hyderabad",
+      "Team1": "RC Bengaluru",
+      "Team2": "Sunrisers Hyderabad",
+      "MarketId": "1.255200877",
+      "Type": "Cricket",
+      "Event_Id": "35364409",
+      "gid": "15797",
+      "Game_Type": "Game",
+      "TV": "Y",
+      "BM": "Y",
+      "Fancy": "Y",
+      "Goal": "N"
+    }
+  }
+  ```
+
 ### 5. Market Game List ✅
 **POST** `/gamelist`
 - **Request:** `{"type":"Cricket,Football,Tennis"}`
