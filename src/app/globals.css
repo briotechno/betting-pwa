@@ -93,6 +93,16 @@ body {
   .live-pulse {
     animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+
+  @keyframes rate-blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  .animate-rate-change {
+    animation: rate-blink 0.35s ease-in-out;
+  }
 }
 
 /* ===== COMPONENT STYLES ===== */
