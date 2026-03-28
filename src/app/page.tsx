@@ -35,7 +35,7 @@ export default function HomePage() {
   const { show: showSnackbar } = useSnackbarStore()
   const [showPremium, setShowPremium] = useState(false)
   const [premiumUrl, setPremiumUrl] = useState<string | null>(null)
-  const bannerTimer = useRef<NodeJS.Timeout|null>(null)
+  const bannerTimer = useRef<NodeJS.Timeout | null>(null)
 
   // Live Data State
   const [matches, setMatches] = useState<any[]>([])
@@ -77,7 +77,7 @@ export default function HomePage() {
       try {
         setIsLoading(true)
         const res = await marketController.getGameList('Cricket,Soccer,Tennis')
-        
+
         let matchData: any[] = []
         if (res && typeof res === 'object') {
           // Flatten dictionary/list response
@@ -86,7 +86,7 @@ export default function HomePage() {
         } else if (Array.isArray(res)) {
           matchData = res
         }
-        
+
         setMatches(matchData)
       } catch (err) {
         console.error('Failed to fetch matches:', err)
@@ -105,7 +105,7 @@ export default function HomePage() {
       .map(m => m.MarketId || m.marketid)
       .filter(id => !!id)
       .join(',')
-    
+
     if (!marketIds) return
 
     const fetchRates = async () => {
@@ -115,14 +115,14 @@ export default function HomePage() {
           // rates response usually has { marketid: { runner: [ { back: [...], lay: [...] } ] } }
           setOdds(prev => ({ ...prev, ...res }))
         } else if (Array.isArray(res)) {
-           // Handle array if that's what comes back
-           const oddsMap: Record<string, any> = {}
-           res.forEach(item => {
-             if (item.MarketId || item.marketid) {
-               oddsMap[item.MarketId || item.marketid] = item
-             }
-           })
-           setOdds(prev => ({ ...prev, ...oddsMap }))
+          // Handle array if that's what comes back
+          const oddsMap: Record<string, any> = {}
+          res.forEach(item => {
+            if (item.MarketId || item.marketid) {
+              oddsMap[item.MarketId || item.marketid] = item
+            }
+          })
+          setOdds(prev => ({ ...prev, ...oddsMap }))
         }
       } catch (err) {
         console.error('Failed to fetch live rates:', err)
@@ -138,7 +138,7 @@ export default function HomePage() {
         timeoutId = setTimeout(poll, 200)
       }
     }
-    
+
     poll()
     return () => {
       isMounted = false
@@ -147,13 +147,13 @@ export default function HomePage() {
   }, [matches])
 
   // Helper to map match + rates to OddsTable rows
-  const getSportMatches = (sportId: string, type: 'inplay' | 'upcoming' = 'inplay') => {
+  const getSportMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
       soccer: ['soccer', 'football'],
       tennis: ['tennis']
     }
-    
+
     const terms = searchTerms[sportId] || [sportId]
     const now = new Date()
 
@@ -164,23 +164,25 @@ export default function HomePage() {
         const isCorrectSport = terms.some(term => sType.includes(term))
         if (!isCorrectSport) return false
 
-        // 2. Time check
+        // 2. Time check (Inplay Filter)
         const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
         let startTimeStr = ''
         for (const k of timeKeys) {
           if (m[k]) { startTimeStr = m[k]; break; }
         }
-        
+
         let startTime: Date | null = null
         if (startTimeStr) {
+          // Robust parsing for common formats (ISO and DD-MM-YYYY)
           const dateVal = startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T')
           startTime = new Date(dateVal)
-          
+
+          // Manual parse for DD-MM-YYYY formats if standard parsing fails
           if (isNaN(startTime.getTime())) {
             const parts = startTimeStr.split(/[-/ :]/)
             if (parts.length >= 3) {
               const day = parseInt(parts[0], 10)
-              const month = parseInt(parts[1], 10) - 1
+              const month = parseInt(parts[1], 10) - 1 // 0-based
               const year = parseInt(parts[2], 10)
               if (day <= 31 && month <= 11) {
                 const hour = parseInt(parts[3] || '0', 10)
@@ -193,32 +195,35 @@ export default function HomePage() {
         }
 
         if (startTime && !isNaN(startTime.getTime())) {
-          if (type === 'upcoming') {
-            // Upcoming: Start time must be in the future
-            if (startTime <= now) return false
-          } else {
-            // Inplay: Start time must be in the past
-            if (startTime > now) return false 
-            
-            // Stale check (24h)
-            if (now.getTime() - startTime.getTime() > 24 * 60 * 60 * 1000) return false
-            
-            // Specific filter for stale matches as requested previously
-            if (startTimeStr.includes('28-03-2026 08:30:00')) return false
+          // Check if match hasn't started yet
+          if (startTime > now) return false
+
+          // Check if match is "Expired" (started more than 24 hours ago)
+          // Most matches (Tennis, Soccer, T20 Cricket) finish within 24h.
+          // This removes stale matches like "24-03-2026" from a 27-03-2026 view.
+          if (now.getTime() - startTime.getTime() > 24 * 60 * 60 * 1000) {
+            return false
+          }
+
+          // Specific filter to remove stagnant/irrelevant entries as requested
+          if (startTimeStr.includes('28-03-2026 08:30:00')) {
+            return false
           }
         }
 
-        // 3. Status & Activity check
+        // 3. Status & Activity check (Hide if no odds, empty values, or expired)
         const mId = m.MarketId || m.marketid
         const matchOdds = odds[mId]
-        
+
+        // Use live rate information if available
         if (matchOdds) {
           const status = (matchOdds.status || matchOdds.Status || '').toUpperCase()
           if (status === 'CLOSED') return false
 
+          // Match rate activity check
           const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
           const runnersArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
-          
+
           const hasActiveOdds = runnersArr.some((r: any) => {
             const backPrices = r.back || r.availableToBack || r.ex?.availableToBack
             const backArr = Array.isArray(backPrices) ? backPrices : (backPrices ? Object.values(backPrices) : [])
@@ -227,9 +232,10 @@ export default function HomePage() {
             return hasRate || hasLastPrice
           })
 
-          if (!hasActiveOdds && type === 'inplay') return false
-        } else if (!isLoading && type === 'inplay') {
-          return false 
+          if (!hasActiveOdds) return false
+        } else if (!isLoading) {
+          // Hide if no odds entries ever appeared and we've finished the first load cycle
+          return false
         }
 
         return true
@@ -237,9 +243,9 @@ export default function HomePage() {
       .map(m => {
         const mId = m.MarketId || m.marketid
         const matchOdds = odds[mId]
-        
+
         const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
-        const rowOdds: any[] = [null, null, null]
+        const rowOdds: any[] = [null, null, null] // Slots for 1, X, 2
 
         const getPrices = (data: any) => {
           if (!data) return [];
@@ -261,6 +267,160 @@ export default function HomePage() {
         };
 
         if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
+          // It's an object like {"0": {...}, "1": {...}}
+          // Match the keys directly if possible
+          if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
+          if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
+          if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
+
+          // If we have "0" and "1" but no "2", it's likely Cricket Team 1 (0) and Team 2 (1)
+          // We should shift Team 2 to index 2 to show under "2" column, leaving X empty
+          if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
+            rowOdds[2] = rowOdds[1]
+            rowOdds[1] = null
+          }
+        } else if (Array.isArray(rawRunners)) {
+          rawRunners.forEach((r, idx) => {
+            if (idx < 3) rowOdds[idx] = extractOdd(r)
+          })
+          if (rawRunners.length === 2) {
+            rowOdds[2] = rowOdds[1]
+            rowOdds[1] = null
+          }
+        }
+
+        // Fill remaining with empty
+        const finalOdds = rowOdds.map(o => o || { back: 0, lay: 0, backSize: '', laySize: '' })
+
+        // 🏆 NEW: Case-insensitive robust mapping
+        const getV = (obj: any, keys: string[]) => {
+          for (const k of keys) {
+            // Check direct match
+            if (obj[k] !== undefined) return obj[k]
+            // Check lowercase/uppercase versions
+            const foundK = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase())
+            if (foundK) return obj[foundK]
+          }
+          return undefined
+        }
+
+        const team1 = getV(m, ['Team1', 'team1'])
+        const team2 = getV(m, ['Team2', 'team2'])
+        const gName = getV(m, ['Game_name', 'GameName', 'ename', 'name', 'Competition'])
+        const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
+
+        let name = 'Match'
+        if (team1 && team2) {
+          if (team2 === 'TOURNAMENT_WINNER') {
+            name = team1
+          } else {
+            name = `${team1} vs ${team2}`
+          }
+        } else if (gName) {
+          name = gName
+        }
+
+        const status = (matchOdds?.status || matchOdds?.Status || '').toUpperCase()
+
+        return {
+          id: mId || getV(m, ['gid', 'Gid', 'Event_Id', 'marketid', 'MarketId']),
+          teamName: name,
+          odds: finalOdds,
+          startTime: undefined, // Hide start time for inplay table (shows Live icon instead)
+          status: status
+        }
+      })
+  }
+
+  // Helper to get upcoming (future) matches per sport
+  const getUpcomingMatches = (sportId: string) => {
+    const searchTerms: Record<string, string[]> = {
+      cricket: ['cricket'],
+      soccer: ['soccer', 'football'],
+      tennis: ['tennis']
+    }
+
+    const terms = searchTerms[sportId] || [sportId]
+    const now = new Date()
+
+    // Parse date helper (shared logic)
+    const parseDate = (str: string): Date | null => {
+      if (!str) return null
+      const dateVal = str.includes('T') ? str : str.replace(' ', 'T')
+      let d = new Date(dateVal)
+      if (isNaN(d.getTime())) {
+        const parts = str.split(/[-/ :]/)
+        if (parts.length >= 3) {
+          const day = parseInt(parts[0], 10)
+          const month = parseInt(parts[1], 10) - 1
+          const year = parseInt(parts[2], 10)
+          if (day <= 31 && month <= 11) {
+            const hour = parseInt(parts[3] || '0', 10)
+            const minute = parseInt(parts[4] || '0', 10)
+            const second = parseInt(parts[5] || '0', 10)
+            d = new Date(year, month, day, hour, minute, second)
+          }
+        }
+      }
+      return d && !isNaN(d.getTime()) ? d : null
+    }
+
+    return matches
+      .filter(m => {
+        const sType = (m.Type || m.sportname || '').toLowerCase()
+        const isCorrectSport = terms.some(term => sType.includes(term))
+        if (!isCorrectSport) return false
+
+        const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
+        let startTimeStr = ''
+        for (const k of timeKeys) {
+          if (m[k]) { startTimeStr = m[k]; break; }
+        }
+
+        const startTime = parseDate(startTimeStr)
+        // Only include matches that haven't started yet
+        if (!startTime || startTime <= now) return false
+
+        return true
+      })
+      .sort((a, b) => {
+        // Sort by start time ascending
+        const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
+        const getTime = (m: any) => {
+          let str = ''
+          for (const k of timeKeys) { if (m[k]) { str = m[k]; break; } }
+          const d = parseDate(str)
+          return d ? d.getTime() : Infinity
+        }
+        return getTime(a) - getTime(b)
+      })
+      .map(m => {
+        const mId = m.MarketId || m.marketid
+        const matchOdds = odds[mId]
+
+        const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
+        const rowOdds: any[] = [null, null, null]
+
+        const getPrices = (data: any) => {
+          if (!data) return []
+          return Array.isArray(data) ? data : Object.values(data)
+        }
+
+        const extractOdd = (r: any) => {
+          if (!r) return { back: 0, backSize: '', lay: 0, laySize: '' }
+          const backPrices = getPrices(r.back || r.availableToBack || r.ex?.availableToBack)
+          const layPrices = getPrices(r.lay || r.availableToLay || r.ex?.availableToLay)
+          const bestBack = backPrices[0]
+          const bestLay = layPrices[0]
+          return {
+            back: parseFloat(bestBack?.rate || bestBack?.price || r.lastPriceTraded || 0),
+            backSize: bestBack?.size || '',
+            lay: parseFloat(bestLay?.rate || bestLay?.price || 0),
+            laySize: bestLay?.size || '',
+          }
+        }
+
+        if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
           if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
           if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
           if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
@@ -273,8 +433,8 @@ export default function HomePage() {
             if (idx < 3) rowOdds[idx] = extractOdd(r)
           })
           if (rawRunners.length === 2) {
-             rowOdds[2] = rowOdds[1]
-             rowOdds[1] = null
+            rowOdds[2] = rowOdds[1]
+            rowOdds[1] = null
           }
         }
 
@@ -305,14 +465,12 @@ export default function HomePage() {
           name = gName
         }
 
-        const status = (matchOdds?.status || matchOdds?.Status || '').toUpperCase()
-
         return {
           id: mId || getV(m, ['gid', 'Gid', 'Event_Id', 'marketid', 'MarketId']),
           teamName: name,
           odds: finalOdds,
-          startTime: type === 'upcoming' ? dateTime : undefined,
-          status: status
+          startTime: dateTime,
+          status: ''
         }
       })
   }
@@ -320,7 +478,7 @@ export default function HomePage() {
   return (
     <div className="max-w-full">
       <PopupModal />
-      
+
       {/* Banner Carousel */}
       <div className="relative overflow-hidden bg-[#0a0a0a]">
         <div
@@ -341,12 +499,12 @@ export default function HomePage() {
 
       <div className="p-2 md:p-4 space-y-4">
         {/* INPLAY Section Header */}
-        <div className="flex items-center gap-2 px-1 mb-2">
+        {/* <div className="flex items-center gap-2 px-1 mb-2">
           <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
             <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[12px]"></i>
           </div>
           <h2 className="text-[15px] font-black text-white uppercase tracking-tight">INPLAY</h2>
-        </div>
+        </div> */}
 
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
@@ -429,7 +587,7 @@ export default function HomePage() {
                     key={game.name}
                     href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
                     className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
-                    style={isPurple 
+                    style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
                       : { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box', boxShadow: '#f37415 0px -1px 5px 2px' }
                     }
@@ -467,7 +625,7 @@ export default function HomePage() {
                     key={game.name}
                     href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
                     className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
-                    style={isPurple 
+                    style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
                       : { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box', boxShadow: '#f37415 0px -1px 5px 2px' }
                     }
@@ -493,70 +651,68 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* UPCOMING Section Header */}
-        <div className="flex items-center gap-2 px-1 mb-2 mt-6">
-          <div className="w-6 h-6 rounded-full bg-[#111] flex items-center justify-center border border-white/10 shadow-lg">
-            <History size={14} className="text-[#e8612c]" />
-          </div>
-          <h2 className="text-[15px] font-black text-white uppercase tracking-tight">UPCOMING</h2>
-        </div>
-
-        {isLoading ? (
-          <div className="py-10 flex flex-col items-center justify-center text-white/10">
-            <Loader2 size={30} className="animate-spin" />
-          </div>
-        ) : (
-          quickSports.map((sport) => {
-            const sportId = sport.id
-            const upcomingMatches = getSportMatches(sportId, 'upcoming')
-            if (upcomingMatches.length === 0) return null
-
-            return (
-              <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden bg-transparent rounded-b-[16px]">
-                {/* Sport Label Header */}
-                <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
-                  <div className="bg-[#1a1a1a] flex items-center px-3 gap-2 flex-1 h-full border-b border-[#e8612c]">
-                    <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                      {sportId === 'cricket' ? (
-                        <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      ) : sportId === 'soccer' ? (
-                        <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      ) : (
-                        <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      )}
-                    </div>
-                    <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
-                  </div>
-
-                  <div className="flex items-center h-full lg:w-[388px] bg-black border-b border-white/10">
-                    <div className="flex items-center justify-end pr-2 w-full">
-                      <div className="hidden lg:flex gap-1">
-                        <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
-                        <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
-                        <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
-                      </div>
-                      <div className="flex lg:hidden gap-1">
-                        <div className="w-[60px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
-                        <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
-                        <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <OddsTable
-                  matchId={sportId}
-                  matchName={`${sportId.toUpperCase()} UPCOMING`}
-                  competition="Main Markets"
-                  marketName="Match Odds"
-                  columns={['1', 'X', '2']}
-                  rows={upcomingMatches}
-                  sport={sportId}
-                  isUpcoming={true}
-                />
+        {/* UPCOMING Section */}
+        {!isLoading && (
+          <>
+            <div className="flex items-center gap-2 px-1 mb-2 mt-4">
+              <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
+                <i className="v-icon notranslate mdi mdi-clock-outline theme--light text-white text-[12px]"></i>
               </div>
-            )
-          })
+              <h2 className="text-[15px] font-black text-white uppercase tracking-tight">UPCOMING</h2>
+            </div>
+
+            {quickSports.map((sport) => {
+              const sportId = sport.id
+              const upcomingMatches = getUpcomingMatches(sportId)
+              if (upcomingMatches.length === 0) return null
+
+              return (
+                <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
+                  {/* Sport Label Header */}
+                  <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
+                    <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
+                      <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                        {sportId === 'cricket' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : sportId === 'soccer' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        )}
+                      </div>
+                      <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
+                    </div>
+
+                    <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
+                      <div className="flex items-center justify-end pr-2 w-full">
+                        <div className="hidden lg:flex gap-1">
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
+                        </div>
+                        <div className="flex lg:hidden gap-1">
+                          <div className="w-[60px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
+                          <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
+                          <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <OddsTable
+                    matchId={sportId}
+                    matchName={`${sportId.toUpperCase()} UPCOMING`}
+                    competition="Main Markets"
+                    marketName="Match Odds"
+                    columns={['1', 'X', '2']}
+                    rows={upcomingMatches}
+                    isUpcoming={true}
+                    sport={sportId}
+                  />
+                </div>
+              )
+            })}
+          </>
         )}
 
         {/* App Download Banner */}
