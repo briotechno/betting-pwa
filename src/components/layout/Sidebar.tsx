@@ -115,16 +115,16 @@ export default function Sidebar() {
   // Check path levels unconditionally
   const pathParts = pathname?.split('/').filter(Boolean) || []
   const isSportPath = pathname?.startsWith('/sportsbook') && pathParts.length >= 2
-  const isEventPath = pathParts.length >= 3 // /sportsbook/sport/eventId
-  
+  const isEventPath = pathParts.length >= 3 // /sportsbook/sport/competitionId
   const currentSport = isSportPath ? pathParts[1] : null
+  const competitionId = isEventPath ? pathParts[2] : null
   const activeSportData = games.find(g => g.name.toLowerCase() === currentSport?.toLowerCase())
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Fetch Leagues dynamically unconditionally regarding returns
+  // 1. Fetch Leagues dynamically if no competition is selected
   useEffect(() => {
     if (isSportPath && currentSport && !isEventPath) {
       let isMounted = true;
@@ -146,6 +146,37 @@ export default function Sidebar() {
       return () => { isMounted = false }
     }
   }, [currentSport, isSportPath, isEventPath])
+
+  // 2. Fetch Games dynamically if a competition IS selected
+  const [competitionGames, setCompetitionGames] = useState<any[]>([])
+  const [loadingGames, setLoadingGames] = useState(false)
+
+  useEffect(() => {
+    if (isSportPath && competitionId) {
+      let isMounted = true;
+      const fetchGames = async () => {
+        try {
+          setLoadingGames(true)
+          const res = await marketController.getCompetitionGames(competitionId)
+          if (isMounted) {
+            let matchData: any[] = [];
+            if (res && typeof res === 'object' && !res.error) {
+              matchData = Object.values(res).filter(v => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Event_Id || v.gid));
+            } else if (Array.isArray(res)) {
+              matchData = res;
+            }
+            setCompetitionGames(matchData)
+          }
+        } catch (error) {
+           console.error(error)
+        } finally {
+          if (isMounted) setLoadingGames(false)
+        }
+      }
+      fetchGames()
+      return () => { isMounted = false }
+    }
+  }, [competitionId, isSportPath])
 
   if (!mounted) return null
 
@@ -206,30 +237,28 @@ export default function Sidebar() {
 
             {/* Content List */}
             {isEventPath ? (
-              <>
-                {/* Event specific matches */}
-                <div className="flex flex-col pt-2 mb-auto">
-                  {cricketEvents.map((event, idx) => (
-                    <div 
-                      key={idx} 
-                      className="px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
-                    >
-                      {event}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Favourites Section */}
-                <div className="mt-auto border-t border-[#333]">
-                   <div className="bg-[#e8612c] px-4 py-3 text-center">
-                      <span className="text-white text-[12px] font-black tracking-widest uppercase">FAVOURITES</span>
-                   </div>
-                   <button className="w-full flex flex-col items-center justify-center p-4 text-gray-400 hover:text-white bg-[#252525] group">
-                      <Star size={32} className="text-yellow-400 mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="text-[10px] font-bold tracking-tight">Add to favorite</span>
-                   </button>
-                </div>
-              </>
+              <div className="flex flex-col pt-2 mb-auto">
+                {loadingGames ? (
+                  <div className="p-4 flex justify-center">
+                    <Loader2 className="animate-spin text-[#e8612c]" size={24} />
+                  </div>
+                ) : competitionGames.length > 0 ? (
+                  competitionGames.map((game, idx) => {
+                     const gameName = game.Team1 && game.Team2 ? `${game.Team1} V ${game.Team2}` : (game.Game_name || 'Game');
+                     return (
+                       <Link 
+                         key={game.gid || game.Event_Id || idx} 
+                         href={`/sportsbook/${currentSport}/${competitionId}/${game.gid || game.Event_Id}`}
+                         className="px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 block truncate"
+                       >
+                         {gameName}
+                       </Link>
+                     )
+                  })
+                ) : (
+                   <div className="p-4 text-center text-gray-500 text-[10px] uppercase font-bold">No games found</div>
+                )}
+              </div>
             ) : (
               <div className="flex flex-col pt-2">
                 {loadingLeagues ? (
@@ -239,7 +268,7 @@ export default function Sidebar() {
                 ) : dynamicLeagues.map((league: any, idx) => (
                   <Link 
                     key={league.CompetitionCode || idx}
-                    href={`/sportsbook/${currentSport}?competition=${league.CompetitionCode}`}
+                    href={`/sportsbook/${currentSport}/${league.CompetitionCode}`}
                     className="block px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 truncate"
                   >
                     {league.Competition}
