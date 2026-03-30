@@ -393,21 +393,9 @@ export default function DepositPage() {
                        <input 
                          type="number" 
                          value={amount} 
-                         onChange={(e) => setAmount(e.target.value)} 
-                         className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white focus:outline-none" 
+                         readOnly
+                         className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white/50 focus:outline-none cursor-not-allowed" 
                        />
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                       {QUICK_AMOUNTS.map(amt => (
-                         <button 
-                           key={amt} 
-                           onClick={() => setAmount(prev => String((parseFloat(prev) || 0) + amt))} 
-                           className="h-10 bg-black border border-white/10 rounded-md text-[11px] font-black text-white hover:bg-white/5 transition-colors"
-                         >
-                           +{amt.toLocaleString()}
-                         </button>
-                       ))}
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">

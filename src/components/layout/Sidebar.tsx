@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ChevronLeft, Home, Star } from 'lucide-react'
+import { ChevronLeft, Home, Star, Loader2 } from 'lucide-react'
 import { useLayoutStore } from '@/store/layoutStore'
+import { marketController } from '@/controllers/market/marketController'
 
 const games = [
   {
@@ -108,24 +109,49 @@ export default function Sidebar() {
   const router = useRouter()
   const { sidebarCollapsed: collapsed, setSidebarCollapsed: setCollapsed } = useLayoutStore()
   const [mounted, setMounted] = useState(false)
+  const [dynamicLeagues, setDynamicLeagues] = useState<any[]>([])
+  const [loadingLeagues, setLoadingLeagues] = useState(false)
+
+  // Check path levels unconditionally
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  const isSportPath = pathname?.startsWith('/sportsbook') && pathParts.length >= 2
+  const isEventPath = pathParts.length >= 3 // /sportsbook/sport/eventId
+  
+  const currentSport = isSportPath ? pathParts[1] : null
+  const activeSportData = games.find(g => g.name.toLowerCase() === currentSport?.toLowerCase())
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch Leagues dynamically unconditionally regarding returns
+  useEffect(() => {
+    if (isSportPath && currentSport && !isEventPath) {
+      let isMounted = true;
+      const fetchLeagues = async () => {
+        try {
+          setLoadingLeagues(true)
+          const res = await marketController.getCompetitionList(currentSport)
+          if (isMounted) {
+            if (Array.isArray(res)) setDynamicLeagues(res)
+            else if (res && typeof res === 'object' && !res.error) setDynamicLeagues(Object.values(res))
+          }
+        } catch (error) {
+           console.error(error)
+        } finally {
+          if (isMounted) setLoadingLeagues(false)
+        }
+      }
+      fetchLeagues()
+      return () => { isMounted = false }
+    }
+  }, [currentSport, isSportPath, isEventPath])
 
   if (!mounted) return null
 
   // Hide on auth pages
   const isAuthPage = pathname?.startsWith('/auth')
   if (isAuthPage) return null
-
-  // Check path levels
-  const pathParts = pathname?.split('/').filter(Boolean) || []
-  const isSportPath = pathname?.startsWith('/sportsbook/') && pathParts.length >= 2
-  const isEventPath = pathParts.length >= 3 // /sportsbook/sport/eventId
-  
-  const currentSport = isSportPath ? pathParts[1] : null
-  const activeSportData = games.find(g => g.name.toLowerCase() === currentSport?.toLowerCase())
 
   return (
     <aside
@@ -206,13 +232,17 @@ export default function Sidebar() {
               </>
             ) : (
               <div className="flex flex-col pt-2">
-                {cricketLeagues.map((league, idx) => (
+                {loadingLeagues ? (
+                  <div className="p-4 flex justify-center">
+                    <Loader2 className="animate-spin text-[#e8612c]" size={24} />
+                  </div>
+                ) : dynamicLeagues.map((league: any, idx) => (
                   <Link 
-                    key={idx} 
-                    href={`/sportsbook/Cricket/12542740`} // Mock ID for now
-                    className="px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                    key={league.CompetitionCode || idx}
+                    href={`/sportsbook/${currentSport}?competition=${league.CompetitionCode}`}
+                    className="block px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 truncate"
                   >
-                    {league}
+                    {league.Competition}
                   </Link>
                 ))}
               </div>

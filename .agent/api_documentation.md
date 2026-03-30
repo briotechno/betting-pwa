@@ -176,7 +176,7 @@ This document serves as the high-fidelity specification for the Betting Platform
 - **Request:** `{"code":"101480"}`
   - *Description:* `code` is a String representing `CompetitionCode` (API no 53).
 - **Response:**
-  ```json
+  ```jsonx`
   {
     "28127348": {
       "DateTime": "31-03-2025 13:00:00",

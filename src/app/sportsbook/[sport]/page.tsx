@@ -1,9 +1,10 @@
 'use client'
-import React, { useState } from 'react'
-import { useParams, useRouter, usePathname } from 'next/navigation'
-import { Star } from 'lucide-react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { Star, Loader2 } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
+import { marketController } from '@/controllers/market/marketController'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
@@ -11,41 +12,7 @@ const sportsList = [
   { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
-const matches = [
-  {
-    id: 1,
-    teamA: 'Border',
-    teamB: 'Mpumalanga Rhinos',
-    startTime: 'Today At 1:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '1.59', backVol: '156', back2: '1.64', backVol2: '178', back3: '2.12', backVol3: '105', lay: '2.18', layVol: '22,690', lay2: '2.20', layVol2: '149', lay3: '2.28', layVol3: '110' },
-      { back: '1.79', backVol: '139', back2: '1.84', backVol2: '26,961', back3: '1.85', backVol3: '100', lay: '1.90', layVol: '118', lay2: '2.58', layVol2: '114', lay3: '2.70', layVol3: '93' },
-    ]
-  },
-  {
-    id: 2,
-    teamA: 'Kwazulu Natal Inland',
-    teamB: 'Lions',
-    startTime: 'Today At 1:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '3.05', backVol: '978', back2: '3.10', backVol2: '170', back3: '3.15', backVol3: '61', lay: '3.60', layVol: '147', lay2: '3.65', layVol2: '156', lay3: '3.95', layVol3: '121' },
-      { back: '1.34', backVol: '357', back2: '1.38', backVol2: '412', back3: '1.39', backVol3: '379', lay: '1.46', layVol: '130', lay2: '1.47', layVol2: '357', lay3: '1.48', layVol3: '614' },
-    ]
-  },
-  {
-    id: 3,
-    teamA: 'Warriors',
-    teamB: 'Titans',
-    startTime: 'Today At 4:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '1.67', backVol: '1,003', back2: '1.68', backVol2: '340', back3: '1.69', backVol3: '74', lay: '1.72', layVol: '2,399', lay2: '1.73', layVol2: '353', lay3: '1.79', layVol3: '495' },
-      { back: '2.26', backVol: '2,055', back2: '2.28', backVol2: '388', back3: '2.38', backVol3: '1,990', lay: '2.48', layVol: '281', lay2: '2.50', layVol2: '902', lay3: '2.52', layVol3: '2,362' },
-    ]
-  }
-]
+// Hardcoded matches replaced by dynamic API fetch
 
 const MatchTable = ({ match }: { match: any }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -53,9 +20,15 @@ const MatchTable = ({ match }: { match: any }) => {
   return (
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
       {/* Live Badge - Overlapping Corner */}
-      <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
-        LIVE
-      </div>
+      {!match.isUpcoming ? (
+        <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
+          LIVE
+        </div>
+      ) : (
+        <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#147a93]">
+          UPCOMING
+        </div>
+      )}
 
       {/* Header */}
       <div
@@ -136,14 +109,30 @@ const MatchTable = ({ match }: { match: any }) => {
 }
 
 const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high' }) => {
+  const [blink, setBlink] = React.useState(false)
+  const prevValue = React.useRef(val)
+
+  React.useEffect(() => {
+    // Exact logic from main page
+    if (prevValue.current !== val && val !== '0' && val !== '0.00' && val !== '-' && parseFloat(val) > 0) {
+      setBlink(true)
+      const timer = setTimeout(() => setBlink(false), 300)
+      prevValue.current = val
+      return () => clearTimeout(timer)
+    }
+    prevValue.current = val
+  }, [val])
+
   const bgColor = type === 'back'
     ? (intensity === 'high' ? 'bg-[#a5d9fe]' : intensity === 'medium' ? 'bg-[#bce4ff]' : 'bg-[#d1eeff]')
     : (intensity === 'high' ? 'bg-[#f8d0ce]' : intensity === 'medium' ? 'bg-[#fbe3e2]' : 'bg-[#fff0f0]')
 
+  const isEmpty = !val || val === '0' || val === '0.00' || val === '-' || parseFloat(val) === 0
+
   return (
-    <button className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-black/5 ${bgColor} hover:brightness-95 active:scale-95`}>
-      <span className="text-[12px] lg:text-[12px] font-black text-[#2e2e2e] leading-none mb-0.5">{val || '-'}</span>
-      <span className="text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>
+    <button className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${isEmpty ? 'bg-[#e0e0e0] opacity-70' : bgColor} ${blink ? 'animate-rate-change' : ''} hover:brightness-95 active:scale-95`}>
+      <span className={`text-[12px] lg:text-[12px] font-black ${isEmpty ? 'text-[#999]' : 'text-[#2e2e2e]'} leading-none mb-0.5`}>{val || '-'}</span>
+      {!isEmpty && <span className="text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>}
     </button>
   )
 }
@@ -160,6 +149,182 @@ export default function SportDetailPage() {
   const activeSportId = sportsList.find(s => 
     pathname.toLowerCase().includes(s.id.toLowerCase())
   )?.id || 'Cricket'
+
+  const searchParams = useSearchParams()
+  const competitionCode = searchParams.get('competition')
+
+  const [competitions, setCompetitions] = useState<any[]>([])
+  const [loadingLeagues, setLoadingLeagues] = useState(false)
+
+  const [games, setGames] = useState<any[]>([])
+  const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
+  const [isLoading, setIsLoading] = useState(true)
+
+  // 0. Fetch Leagues 
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLeagues = async () => {
+      try {
+        setLoadingLeagues(true)
+        const res = await marketController.getCompetitionList(activeSportId)
+        if (isMounted) {
+          if (Array.isArray(res)) setCompetitions(res)
+          else if (res && typeof res === 'object' && !res.error) setCompetitions(Object.values(res))
+        }
+      } catch (error) {
+         console.error(error)
+      } finally {
+        if (isMounted) setLoadingLeagues(false)
+      }
+    }
+    fetchLeagues()
+    return () => { isMounted = false }
+  }, [activeSportId])
+
+  // 1. Fetch Gamlist initially
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch Games
+        let gameRes;
+        if (competitionCode) {
+          // If a specific league is selected, fetch only those games
+          gameRes = await marketController.getCompetitionGames(competitionCode);
+        } else {
+          // Otherwise fetch all games for the sport
+          gameRes = await marketController.getGameList(activeSportId);
+        }
+
+        if (isMounted) {
+          let matchData: any[] = [];
+          if (gameRes && typeof gameRes === 'object' && !gameRes.error) {
+            matchData = Object.values(gameRes).filter(v => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Event_Id || v.gid));
+          } else if (Array.isArray(gameRes)) {
+            matchData = gameRes;
+          }
+          setGames(matchData);
+        }
+      } catch (e) {
+        console.error("Error fetching data:", e);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+    return () => { isMounted = false; };
+  }, [activeSportId, competitionCode]);
+
+  // 2. Poll Live Odds for fetched games
+  useEffect(() => {
+    if (games.length === 0) return;
+    const marketIds = games.map(g => g.MarketId || g.marketid).filter(Boolean).join(',');
+    if (!marketIds) return;
+
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const poll = async () => {
+      try {
+        const res = await marketController.getLiveRates(marketIds);
+        if (isMounted && res && typeof res === 'object' && !res.error) {
+          if (Array.isArray(res)) {
+            const oddsMap: Record<string, any> = {};
+            res.forEach(item => { if (item.MarketId || item.marketid) oddsMap[item.MarketId || item.marketid] = item; });
+            setLiveOdds(prev => ({ ...prev, ...oddsMap }));
+          } else {
+            setLiveOdds(prev => ({ ...prev, ...res }));
+          }
+        }
+      } catch (e) {
+        console.error("Poll Error:", e)
+      }
+
+      if (isMounted) {
+        timeoutId = setTimeout(poll, 200); // Fast poll like main page
+      }
+    };
+
+    poll();
+    return () => {
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [games]);
+
+  // 3. Process matches for MatchTable format
+  const processedMatches = useMemo(() => {
+    return games.map((g, index) => {
+      const mId = g.MarketId || g.marketid;
+      const oddsData = liveOdds[mId];
+      const runners = oddsData?.runner || oddsData?.runners || [];
+      const runnerArr = Array.isArray(runners) ? runners : Object.values(runners);
+
+      const getPrices = (r: any, type: 'back'|'lay') => {
+        if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
+        const data = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
+        const arr = Array.isArray(data) ? data : Object.values(data || {});
+        
+        // Match main page extraction precisely
+        const rate1 = arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '';
+        
+        return {
+          p1: rate1 ? rate1.toString() : '',
+          v1: arr[0]?.size || '',
+          p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
+          v2: arr[1]?.size || '',
+          p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
+          v3: arr[2]?.size || '',
+        };
+      };
+
+      const teamAOdds = runnerArr[0];
+      const teamBOdds = runnerArr[1];
+
+      const backA = getPrices(teamAOdds, 'back');
+      const layA = getPrices(teamAOdds, 'lay');
+      const backB = getPrices(teamBOdds, 'back');
+      const layB = getPrices(teamBOdds, 'lay');
+
+      // Check if upcoming
+      let isUpcoming = false;
+      const now = new Date();
+      if (g.DateTime) {
+        let startTimeStr = g.DateTime;
+        let d = new Date(startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T'));
+        if (isNaN(d.getTime())) {
+          const parts = startTimeStr.split(/[-/ :]/);
+          if (parts.length >= 3) {
+            d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]), parseInt(parts[3]||'0'), parseInt(parts[4]||'0'), parseInt(parts[5]||'0'));
+          }
+        }
+        if (d && !isNaN(d.getTime()) && d > now) {
+          isUpcoming = true;
+        }
+      }
+
+      return {
+        id: g.Event_Id || g.gid || index,
+        teamA: g.Team1 || g.Game_name?.split(' Vs ')[0] || 'Team A',
+        teamB: g.Team2 || g.Game_name?.split(' Vs ')[1] || 'Team B',
+        startTime: g.DateTime || 'Live',
+        isUpcoming: isUpcoming,
+        odds: [
+          { 
+            back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,
+            lay: layA.p1, layVol: layA.v1, lay2: layA.p2, layVol2: layA.v2, lay3: layA.p3, layVol3: layA.v3
+          },
+          { 
+            back: backB.p1, backVol: backB.v1, back2: backB.p2, backVol2: backB.v2, back3: backB.p3, backVol3: backB.v3,
+            lay: layB.p1, layVol: layB.v1, lay2: layB.p2, layVol2: layB.v2, lay3: layB.p3, layVol3: layB.v3
+          }
+        ]
+      }
+    })
+  }, [games, liveOdds]);
 
   return (
     <div className="flex min-h-screen bg-[#1a1a1a]">
@@ -215,11 +380,50 @@ export default function SportDetailPage() {
           ))}
         </div>
 
-        {/* Match List */}
+        {/* Main Content Area based on Tab */}
         <div className="p-2 space-y-3">
-          {matches.map((match) => (
-            <MatchTable key={match.id} match={match} />
-          ))}
+          {activeSubTab === 'LEAGUES' ? (
+             <div className="flex flex-col gap-1">
+               {loadingLeagues ? (
+                 <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
+                   <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+                   <p className="text-[10px] font-black uppercase tracking-widest">Loading Leagues...</p>
+                 </div>
+               ) : competitions.length > 0 ? (
+                 competitions.map((comp: any) => (
+                   <button
+                     key={comp.CompetitionCode || comp.Competition}
+                     onClick={() => {
+                       setActiveSubTab('LIVE & UPCOMING');
+                       router.push(`/sportsbook/${activeSportId}?competition=${comp.CompetitionCode}`);
+                     }}
+                     className="w-full text-left px-4 py-3 bg-[#222] text-[13px] text-gray-300 hover:text-white cursor-pointer hover:bg-[#333] transition-colors border-l-2 border-transparent hover:border-[#e8612c] rounded-md font-bold mb-1"
+                   >
+                     {comp.Competition}
+                   </button>
+                 ))
+               ) : (
+                 <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Leagues Found</div>
+               )}
+             </div>
+          ) : activeSubTab === 'RESULTS' ? (
+             <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Results Available</div>
+          ) : (
+            <>
+              {isLoading && games.length === 0 ? (
+                <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
+                  <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Loading Live Data...</p>
+                </div>
+              ) : processedMatches.length > 0 ? (
+                processedMatches.map((match) => (
+                  <MatchTable key={match.id} match={match} />
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Matches Found</div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
