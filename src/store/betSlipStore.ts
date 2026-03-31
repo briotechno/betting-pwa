@@ -85,7 +85,7 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
 
   updateOdds: (id, delta) => {
     set((state) => ({
-      selections: state.selections.map((s) => 
+      selections: state.selections.map((s) =>
         s.id === id ? { ...s, odds: Math.max(1.01, parseFloat((s.odds + delta).toFixed(2))) } : s
       ),
     }))

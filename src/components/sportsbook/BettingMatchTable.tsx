@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Tag } from 'antd';
 import { marketController } from '@/controllers/market/marketController';
+import { Loader2 } from 'lucide-react';
 
 /**
  * Interface for API match data from getGameList
@@ -46,10 +46,9 @@ const BettingMatchTable = () => {
         setLoading(true);
         const res = await marketController.getGameList('Cricket');
         
-        // Handle object response (dictionary) or array
         let matchData: GameMatch[] = [];
         if (typeof res === 'object' && !Array.isArray(res)) {
-          matchData = Object.values(res).filter(v => typeof v === 'object' && v !== null && (v.MarketId || v.marketid));
+          matchData = Object.values(res).filter((v: any) => typeof v === 'object' && v !== null && (v.MarketId || v.marketid));
         } else if (Array.isArray(res)) {
           matchData = res;
         }
@@ -95,7 +94,7 @@ const BettingMatchTable = () => {
     const rateData = liveRates[marketId];
     if (!rateData || rateData.status !== 'OPEN') return '-';
 
-    const runner = rateData.runners?.[runnerId];
+    const runner = (rateData.runners as any)?.[runnerId];
     if (!runner) return '-';
 
     // Priority 1: availableToBack price
@@ -109,135 +108,78 @@ const BettingMatchTable = () => {
   };
 
   /**
-   * Render function for the rate box
+   * Render function for the rate box (Bright Green)
    */
-  const renderRateBox = (rate: string | number) => {
-    if (rate === '-') return '-';
-
-    return (
-      <div 
-        style={{ 
-          backgroundColor: '#a5d9fe', // Standard blue for back or custom green?
-          // User asked for "bright green background box"
-          background: '#72bbef', // Overriding with a nice bright blue/green shade often used per description
-          color: '#000',
-          fontWeight: '700',
-          padding: '8px 12px',
-          borderRadius: '4px',
-          textAlign: 'center',
-          minWidth: '60px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          display: 'inline-block',
-          fontSize: '14px'
-        }}
-      >
-        {rate}
-      </div>
-    );
-  };
-
-  // Specifically for "bright green" as requested
   const renderGreenRateBox = (rate: string | number) => {
-    if (rate === '-') return '-';
+    if (rate === '-') return <span className="text-gray-400">-</span>;
 
     return (
-      <div 
-        className="rate-box"
-        style={{ 
-          backgroundColor: '#58D68D', // Bright Green
-          color: '#fff',
-          fontWeight: 'bold',
-          padding: '6px 0',
-          borderRadius: '4px',
-          textAlign: 'center',
-          width: '64px',
-          display: 'block',
-          margin: '0 auto',
-          fontSize: '13px',
-          border: '1px solid #45B39D'
-        }}
-      >
+      <div className="bg-[#58D68D] text-white font-bold py-1.5 rounded-[4px] text-center w-16 mx-auto text-[13px] border border-[#45B39D] shadow-sm">
         {rate}
       </div>
     );
   };
 
-  const columns = [
-    {
-      title: 'Date & Time',
-      dataIndex: 'DateTime',
-      key: 'dateTime',
-      width: 150,
-      render: (text: string) => (
-        <div style={{ fontSize: '11px', color: '#666', fontWeight: '500' }}>
-          {text}
-        </div>
-      ),
-    },
-    {
-      title: 'Match',
-      key: 'match',
-      render: (record: GameMatch) => (
-        <div style={{ fontWeight: '600' }}>
-          <div style={{ color: '#222' }}>{record.Team1}</div>
-          <div style={{ color: '#222' }}>{record.Team2}</div>
-        </div>
-      ),
-    },
-    {
-      title: '1',
-      key: 'team1_back',
-      align: 'center' as const,
-      width: 100,
-      render: (record: GameMatch) => renderGreenRateBox(getRate(record.MarketId, '0')),
-    },
-    {
-      title: 'X',
-      key: 'draw',
-      align: 'center' as const,
-      width: 100,
-      render: () => <span style={{ color: '#ccc' }}>-</span>,
-    },
-    {
-      title: '2',
-      key: 'team2_back',
-      align: 'center' as const,
-      width: 100,
-      render: (record: GameMatch) => renderGreenRateBox(getRate(record.MarketId, '1')),
-    },
-  ];
+  if (loading && matches.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 gap-3">
+        <Loader2 className="animate-spin text-[#e8612c]" size={32} />
+        <span className="text-xs font-bold uppercase tracking-widest text-[#e8612c]">Synchronizing Market...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="betting-table-container">
-      <Table 
-        columns={columns} 
-        dataSource={matches} 
-        rowKey={(record) => record.Event_Id || record.MarketId}
-        loading={loading}
-        pagination={false}
-        size="middle"
-        bordered={false}
-        className="custom-betting-table"
-        scroll={{ x: 'max-content' }}
-      />
-      
-      <style jsx global>{`
-        .custom-betting-table .ant-table-thead > tr > th {
-          background-color: #f0f2f5;
-          text-align: center;
-          font-weight: 800;
-          font-size: 12px;
-          text-transform: uppercase;
-        }
-        .custom-betting-table .ant-table-tbody > tr > td {
-          padding: 8px 16px !important;
-        }
-        .custom-betting-table .ant-table-row:hover > td {
-          background-color: #fafafa !important;
-        }
-      `}</style>
+    <div className="w-full overflow-hidden rounded-xl border border-white/5 bg-white shadow-2xl">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[600px]">
+          <thead className="bg-[#f0f2f5]">
+            <tr className="border-b border-gray-100">
+              <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider w-[150px]">Date & Time</th>
+              <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider">Match</th>
+              <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider text-center w-[100px]">1</th>
+              <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider text-center w-[100px]">X</th>
+              <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider text-center w-[100px]">2</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {matches.map((match) => (
+              <tr key={match.Event_Id || match.MarketId} className="hover:bg-gray-50 transition-colors">
+                <td className="py-4 px-4">
+                  <div className="text-[11px] text-gray-500 font-bold whitespace-nowrap">
+                    {match.DateTime}
+                  </div>
+                </td>
+                <td className="py-4 px-4 font-bold text-[#222]">
+                  <div className="flex flex-col">
+                    <span className="truncate">{match.Team1}</span>
+                    <span className="truncate">{match.Team2}</span>
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-center">
+                  {renderGreenRateBox(getRate(match.MarketId, '0'))}
+                </td>
+                <td className="py-4 px-4 text-center">
+                  <span className="text-gray-300">-</span>
+                </td>
+                <td className="py-4 px-4 text-center">
+                  {renderGreenRateBox(getRate(match.MarketId, '1'))}
+                </td>
+              </tr>
+            ))}
+            {matches.length === 0 && !loading && (
+              <tr>
+                <td colSpan={5} className="py-10 text-center text-gray-400 italic text-sm">
+                  No active matches found for this category.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
 export default BettingMatchTable;
+
