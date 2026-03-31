@@ -1,88 +1,260 @@
 'use client'
-import React, { useState } from 'react'
-import { Search } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { casinoController } from '@/controllers/casino/casinoController'
+import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { Loader2, Search } from 'lucide-react'
+import GameOverlay from '@/components/casino/GameOverlay'
 
-const crashGames = [
-  { img: 'https://luckmedia.link/hcw_speed_crash/thumb_3_4_custom.webp', label: 'SPEED CRASH', provider: 'HACKSAW GAMING' },
-  { img: 'https://luckmedia.link/bgm_top_gun/thumb_3_4_custom.webp', label: 'TOP EAGLE', provider: 'BGAMING' },
-  { img: 'https://luckmedia.link/dwg_penalty_crash/thumb_3_4_custom.webp', label: 'PENALTY CRASH', provider: 'DARWIN GAMING' },
-  { img: 'https://luckmedia.link/kng_iron_dome/thumb_3_4_custom.webp', label: 'IRON DOME', provider: 'KINGMIDAS' },
-  { img: 'https://luckmedia.link/kng_toon_crash/thumb_3_4_custom.webp', label: 'TOON CRASH', provider: 'KINGMIDAS' },
-  { img: 'https://luckmedia.link/jil_keno_bonus_number/thumb_3_4_custom.webp', label: 'KENO BONUS NUMBER', provider: 'JILI GAMES' },
-  { img: 'https://luckmedia.link/onl_cosmox/thumb_3_4_custom.webp', label: 'COSMOX', provider: 'ONLYPLAY' },
-  { img: 'https://luckmedia.link/onl_goalx/thumb_3_4_custom.webp', label: 'GOALX', provider: 'ONLYPLAY' },
-  { img: 'https://luckmedia.link/onl_scorex/thumb_3_4_custom.webp', label: 'SCOREX', provider: 'ONLYPLAY' },
-  { img: 'https://luckmedia.link/onl_cricx/thumb_3_4_custom.webp', label: 'CRICX', provider: 'ONLYPLAY' },
-  { img: 'https://luckmedia.link/qbt_rocket_blast/thumb_3_4_custom.webp', label: 'ROCKET BLAST', provider: 'QUBIT GAMES' },
-  { img: 'https://luckmedia.link/dwg_charles_raider__the_temple_escape/thumb_3_4_custom.webp', label: 'TEMPLE ESCAPE', provider: 'DARWIN GAMING' },
-  { img: 'https://luckmedia.link/jil_crash_touchdown/thumb_3_4_custom.webp', label: 'TOUCHDOWN', provider: 'JILI GAMES' },
-  { img: 'https://luckmedia.link/spb_aviator/thumb_3_4_custom.webp', label: 'AVIATOR', provider: 'SPRIBE' },
-]
+// Image base URL fallback
+const IMG_BASE_URL = 'https://luckmedia.link/';
+
+interface Game {
+  game_code: string;
+  game_id: string;
+  name: string;
+  image: string;
+  provider: string;
+  Category: string;
+}
 
 export default function CrashGamesPage() {
+  const [games, setGames] = useState<Game[]>([])
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('lobby')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [overlayGame, setOverlayGame] = useState<{ url: string | null; title: string; isOpen: boolean }>({
+    url: null,
+    title: '',
+    isOpen: false
+  })
+  const { user } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  const filteredGames = crashGames.filter(game => 
-    game.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    game.provider.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        setLoading(true)
+        const res = await casinoController.getCasinoGames('ALL')
+        
+        const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
+        
+        if (rawGames.length > 0) {
+          // Filter for Crash Games specifically as requested
+          const crashGamesList = rawGames.filter((game: Game) => game.Category === 'Crash Games')
+
+          // Deduplicate by game_code
+          const uniqueGames = crashGamesList.reduce((acc: Game[], current: Game) => {
+            if (!acc.find(item => item.game_code === current.game_code)) {
+              acc.push(current);
+            }
+            return acc;
+          }, []);
+          setGames(uniqueGames)
+          
+          const grouped = uniqueGames.reduce((acc: Record<string, Game[]>, game: Game) => {
+            const category = game.Category || 'Others'
+            if (!acc[category]) acc[category] = []
+            acc[category].push(game)
+            return acc
+          }, {})
+          setCategories(Object.keys(grouped))
+        }
+      } catch (err) {
+        showSnackbar('Network error', 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGames()
+  }, [showSnackbar])
+
+  const providerList = React.useMemo(() => {
+    const listGames = activeTab === 'lobby' 
+      ? games 
+      : games.filter(g => (g.Category || 'Others') === activeTab)
+    return Array.from(new Set(listGames.map(g => g.provider))).sort()
+  }, [games, activeTab])
+
+  useEffect(() => {
+    setSelectedProvider(null)
+  }, [activeTab])
+
+  const filteredGames = selectedProvider 
+    ? games.filter(g => g.provider === selectedProvider)
+    : games
+
+  const groupedGamesByProvider = React.useMemo(() => {
+    return filteredGames.reduce((acc: Record<string, Game[]>, game) => {
+      const provider = game.provider || 'Others'
+      if (!acc[provider]) acc[provider] = []
+      acc[provider].push(game)
+      return acc
+    }, {})
+  }, [filteredGames])
+
+  const providersToDisplay = Object.keys(groupedGamesByProvider).sort()
+
+  const scrollToCategory = (id: string) => {
+    setActiveTab(id)
+    if (id === 'lobby') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    const element = sectionRefs.current[id]
+    if (element) {
+      const headerOffset = 180
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
+    }
+  }
+
+  const handleGameClick = async (game: Game) => {
+    if (!user) {
+      showSnackbar('Please login to play', 'error')
+      return
+    }
+
+    try {
+      setOverlayGame({ url: null, title: game.name, isOpen: true })
+      const res = await casinoController.openCasinoGame({
+        LoginToken: user.loginToken || '',
+        Game_id: game.game_id,
+        Game_code: game.game_code
+      })
+
+      if (res.error === '0' && res.url) {
+        setOverlayGame(prev => ({ ...prev, url: res.url }))
+      } else {
+        showSnackbar(res.msg || 'Failed to open game', 'error')
+        setOverlayGame(prev => ({ ...prev, isOpen: false }))
+      }
+    } catch (err) {
+      showSnackbar('Error launching game', 'error')
+      setOverlayGame(prev => ({ ...prev, isOpen: false }))
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-[#000] min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-[#e15b24] animate-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div className="bg-[#121212] min-h-screen text-white pb-24">
-      {/* Title Section */}
+    <div className="bg-[#000] min-h-screen text-white">
+      {/* ── Provider Navigation ── */}
+      <div className="sticky top-20 lg:top-[92px] z-[40]">
+        <div className="flex overflow-x-auto no-scrollbar bg-[#1a1a1a] h-[45px] items-stretch border-b border-white/5 shadow-lg">
+          <button
+            onClick={() => setSelectedProvider(null)}
+            className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${!selectedProvider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
+              }`}
+          >
+            ALL
+          </button>
+          {providerList.map((provider) => (
+            <button
+              key={provider}
+              onClick={() => setSelectedProvider(provider)}
+              className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${selectedProvider === provider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
+                }`}
+            >
+              {provider}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="px-4 pt-6 pb-2">
-        <h1 className="text-[24px] font-black tracking-tight mb-4">Crash Games</h1>
-        
-        {/* Search Bar */}
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <Search size={18} className="text-white/40" />
           </div>
           <input
             type="text"
-            placeholder="Search games"
+            placeholder="Search game"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 bg-[#2a2a2a] border-none rounded-full pl-12 pr-4 text-[14px] placeholder:text-white/40 focus:ring-2 focus:ring-[#e15b24]/50 outline-none transition-all"
+            className="w-full h-11 bg-[#1a1a1a] border border-white/10 rounded-full pl-12 pr-4 text-[14px] placeholder:text-white/40 focus:ring-1 focus:ring-[#e15b24]/50 outline-none transition-all"
           />
         </div>
       </div>
 
-      {/* Games Grid - 2 columns as in image */}
-      <div className="px-3 mt-4 grid grid-cols-2 gap-3">
-        {filteredGames.map((game, idx) => (
-          <div 
-            key={idx} 
-            className="relative aspect-[3/4] rounded-xl overflow-hidden active:scale-95 transition-all group overflow-hidden border-[1.5px] border-[#e15b24]/40 bg-[#1a1a1a] shadow-lg"
-          >
-            <img 
-              src={game.img} 
-              alt={game.label} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-            {/* Overlay Text Overlay */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/40 to-transparent p-3 flex flex-col justify-end h-1/2">
-              <span className="text-[13px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-md tracking-tighter">
-                {game.label}
-              </span>
-              <span className="text-[9px] font-black text-white/70 uppercase text-center mt-auto opacity-80 tracking-widest">
-                {game.provider}
-              </span>
+      <div className="p-3 space-y-8 mt-2">
+        {providersToDisplay.map((provider) => {
+          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game => 
+            game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            game.provider.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+          
+          if (gamesInProvider.length === 0) return null;
+
+          return (
+            <div key={provider} className="w-full">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="text-[14px] font-black text-white tracking-tight leading-none uppercase">{provider}</h2>
+                <button className="bg-[#4caf50] text-[#fff] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                  See All
+                </button>
+              </div>
+
+              <div className="flex overflow-x-auto no-scrollbar gap-2 px-0.5 pb-2">
+                {gamesInProvider.map((game: Game) => (
+                  <div
+                    key={game.game_code}
+                    onClick={() => handleGameClick(game)}
+                    className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[8px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
+                  >
+                    <img
+                      src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      alt={game.name}
+                      className="w-full h-full object-cover rounded-[8px]"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=128&font-size=0.33`
+                      }}
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2.5 flex flex-col justify-end h-[60%] pointer-events-none">
+                      <span className="text-[8px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-lg mb-1">
+                        {game.name}
+                      </span>
+                      <span className="text-[7px] font-extrabold text-white/40 uppercase text-center tracking-tighter">
+                        {game.provider}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            {/* High-fidelity orange border effect on active/hover */}
-            <div className="absolute inset-0 border-2 border-transparent group-active:border-[#e15b24] rounded-xl pointer-events-none transition-colors" />
+          );
+        })}
+
+        {providersToDisplay.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 opacity-40">
+            <p className="text-[14px] font-bold">No providers found</p>
           </div>
-        ))}
+        )}
       </div>
 
-      {filteredGames.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 px-10 text-center opacity-40">
-          <Search size={48} className="mb-4" />
-          <p className="text-[14px] font-bold">No games found for "{searchQuery}"</p>
-        </div>
-      )}
+      <div className="h-24" />
+
+      <GameOverlay 
+        isOpen={overlayGame.isOpen}
+        url={overlayGame.url}
+        title={overlayGame.title}
+        isFloating={true}
+        onClose={() => setOverlayGame(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }
+
+
