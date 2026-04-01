@@ -38,7 +38,7 @@ export default function LiveCasinoPage() {
       try {
         setLoading(true)
         const res = await casinoController.getCasinoGames('ALL')
-        
+
         // API returns a flat array directly, or an object with data array
         const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
         const errorMsg = !Array.isArray(res) && res?.error === '1' ? (res.msg || 'Failed to fetch games') : null;
@@ -52,7 +52,7 @@ export default function LiveCasinoPage() {
             return acc;
           }, []);
           setGames(uniqueGames)
-          
+
           // Initial categories from full game set
           const grouped = uniqueGames.reduce((acc: Record<string, Game[]>, game: Game) => {
             const category = game.Category || 'Others'
@@ -76,8 +76,8 @@ export default function LiveCasinoPage() {
 
   // Derive providers based on active category
   const providerList = React.useMemo(() => {
-    const listGames = activeTab === 'lobby' 
-      ? games 
+    const listGames = activeTab === 'lobby'
+      ? games
       : games.filter(g => (g.Category || 'Others') === activeTab)
     return Array.from(new Set(listGames.map(g => g.provider))).sort()
   }, [games, activeTab])
@@ -88,7 +88,7 @@ export default function LiveCasinoPage() {
   }, [activeTab])
 
   // Filter games based on selected provider
-  const filteredGames = selectedProvider 
+  const filteredGames = selectedProvider
     ? games.filter(g => g.provider === selectedProvider)
     : games
 
@@ -126,7 +126,7 @@ export default function LiveCasinoPage() {
 
     try {
       setOverlayGame({ url: null, title: game.name, isOpen: true })
-      
+
       const res = await casinoController.openCasinoGame({
         LoginToken: user.loginToken || '',
         Game_id: game.game_id,
@@ -229,7 +229,8 @@ export default function LiveCasinoPage() {
                     className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[4px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
                   >
                     <img
-                      src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      // src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      src={`/drmicon/${game.image}`}
                       alt={game.name}
                       className="w-full h-full object-cover rounded-[4px]"
                       loading="lazy"
@@ -257,7 +258,7 @@ export default function LiveCasinoPage() {
       {/* Space for bottom nav */}
       <div className="h-24" />
 
-      <GameOverlay 
+      <GameOverlay
         isOpen={overlayGame.isOpen}
         url={overlayGame.url}
         title={overlayGame.title}

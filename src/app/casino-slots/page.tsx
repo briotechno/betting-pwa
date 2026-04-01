@@ -39,9 +39,9 @@ export default function SlotGamesPage() {
       try {
         setLoading(true)
         const res = await casinoController.getCasinoGames('ALL')
-        
+
         const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
-        
+
         if (rawGames.length > 0) {
           const slotGamesList = rawGames.filter((game: Game) => game.Category === 'Video Slots')
           const uniqueGames = slotGamesList.reduce((acc: Game[], current: Game) => {
@@ -72,7 +72,7 @@ export default function SlotGamesPage() {
     return Array.from(new Set(games.map(g => g.provider))).sort()
   }, [games])
 
-  const filteredGames = selectedProvider 
+  const filteredGames = selectedProvider
     ? games.filter(g => g.provider === selectedProvider)
     : games
 
@@ -160,11 +160,11 @@ export default function SlotGamesPage() {
 
       <div className="p-3 space-y-8 mt-2">
         {providersToDisplay.map((provider) => {
-          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game => 
+          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game =>
             game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             game.provider.toLowerCase().includes(searchQuery.toLowerCase())
           );
-          
+
           if (gamesInProvider.length === 0) return null;
 
           return (
@@ -184,7 +184,8 @@ export default function SlotGamesPage() {
                     className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[8px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
                   >
                     <img
-                      src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      // src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      src={`/drmicon/${game.image}`}
                       alt={game.name}
                       className="w-full h-full object-cover rounded-[8px]"
                       loading="lazy"
@@ -216,7 +217,7 @@ export default function SlotGamesPage() {
 
       <div className="h-24" />
 
-      <GameOverlay 
+      <GameOverlay
         isOpen={overlayGame.isOpen}
         url={overlayGame.url}
         title={overlayGame.title}

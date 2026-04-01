@@ -39,9 +39,9 @@ export default function CrashGamesPage() {
       try {
         setLoading(true)
         const res = await casinoController.getCasinoGames('ALL')
-        
+
         const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
-        
+
         if (rawGames.length > 0) {
           // Filter for Crash Games specifically as requested
           const crashGamesList = rawGames.filter((game: Game) => game.Category === 'Crash Games')
@@ -54,7 +54,7 @@ export default function CrashGamesPage() {
             return acc;
           }, []);
           setGames(uniqueGames)
-          
+
           const grouped = uniqueGames.reduce((acc: Record<string, Game[]>, game: Game) => {
             const category = game.Category || 'Others'
             if (!acc[category]) acc[category] = []
@@ -74,8 +74,8 @@ export default function CrashGamesPage() {
   }, [showSnackbar])
 
   const providerList = React.useMemo(() => {
-    const listGames = activeTab === 'lobby' 
-      ? games 
+    const listGames = activeTab === 'lobby'
+      ? games
       : games.filter(g => (g.Category || 'Others') === activeTab)
     return Array.from(new Set(listGames.map(g => g.provider))).sort()
   }, [games, activeTab])
@@ -84,7 +84,7 @@ export default function CrashGamesPage() {
     setSelectedProvider(null)
   }, [activeTab])
 
-  const filteredGames = selectedProvider 
+  const filteredGames = selectedProvider
     ? games.filter(g => g.provider === selectedProvider)
     : games
 
@@ -190,11 +190,11 @@ export default function CrashGamesPage() {
 
       <div className="p-3 space-y-8 mt-2">
         {providersToDisplay.map((provider) => {
-          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game => 
+          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game =>
             game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             game.provider.toLowerCase().includes(searchQuery.toLowerCase())
           );
-          
+
           if (gamesInProvider.length === 0) return null;
 
           return (
@@ -214,7 +214,8 @@ export default function CrashGamesPage() {
                     className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[8px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
                   >
                     <img
-                      src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      // src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
+                      src={`/drmicon/${game.image}`}
                       alt={game.name}
                       className="w-full h-full object-cover rounded-[8px]"
                       loading="lazy"
@@ -246,7 +247,7 @@ export default function CrashGamesPage() {
 
       <div className="h-24" />
 
-      <GameOverlay 
+      <GameOverlay
         isOpen={overlayGame.isOpen}
         url={overlayGame.url}
         title={overlayGame.title}
