@@ -258,7 +258,7 @@ export default function DepositPage() {
                  <div className="bg-[#1a1a1a] border border-white/5 rounded-[32px] p-8 shadow-2xl space-y-6">
                     <div className="space-y-3">
                       <label className="text-[14px] font-black uppercase tracking-wider text-white/40 ml-1">Deposit Amount</label>
-                      <div className="flex gap-4">
+                      <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
                           <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-black text-[#e8612c]">₹</span>
                           <input
@@ -271,7 +271,7 @@ export default function DepositPage() {
                         </div>
                         <button 
                           onClick={() => parseFloat(amount) > 0 ? setStep(2) : showSnackbar('Please enter valid amount', 'error')}
-                          className="h-16 px-8 bg-[#e8612c] hover:bg-[#ff7a45] text-white rounded-2xl font-black tracking-widest uppercase shadow-lg shadow-[#e8612c]/20"
+                          className="h-16 w-full md:w-auto px-8 bg-[#e8612c] hover:bg-[#ff7a45] text-white rounded-2xl font-black tracking-widest uppercase shadow-lg shadow-[#e8612c]/20"
                         >
                           SUBMIT
                         </button>
