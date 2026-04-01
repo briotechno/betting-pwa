@@ -186,7 +186,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col shrink-0 transition-all duration-300 overflow-hidden fixed top-[148px] left-0 bottom-0 z-50 bg-[#1e1e1e] border-r border-[#333]"
+      className="hidden lg:flex flex-col shrink-0 transition-all duration-300 overflow-hidden fixed top-[182px] left-0 bottom-0 z-50 bg-[#1e1e1e] border-r border-[#333]"
       style={{
         width: collapsed ? '65px' : '220px',
         minWidth: collapsed ? '65px' : '200px',

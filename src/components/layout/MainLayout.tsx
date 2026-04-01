@@ -26,13 +26,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[65px]' : 'lg:pl-[220px]'}`}>
-      {/* Header - fixed to top, full width */}
-      <Header />
-
-      {/* News Ticker - Fixed below sub-header on desktop, in-flow on mobile */}
-      <div className="relative mt-0 lg:fixed lg:top-[148px] lg:left-0 lg:right-0 lg:z-[58] lg:pl-[220px]">
+      {/* News Ticker - Fixed at the very top of the screen */}
+      <div className="fixed top-0 left-0 right-0 z-[70]">
         <NewsTicker />
       </div>
+
+      {/* Header - fixed below news ticker */}
+      <Header />
 
       {/* Profile Sidebar - slide from right when active */}
       <ProfileSidebar />
@@ -51,8 +51,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </a>
       )}
 
-      {/* Main page content - pt accounts for fixed header parts */}
-      <main className="min-h-screen pt-0 lg:pt-[180px]" style={{ background: '#121212' }}>
+      {/* Main page content - pt accounts for news ticker (34px) + header (148px) = 182px */}
+      <main className="min-h-screen pt-0 lg:pt-[182px]" style={{ background: '#121212' }}>
         <div className="pb-0 lg:pb-0">
           {children}
         </div>

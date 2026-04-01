@@ -44,7 +44,7 @@ export default function ProfileSidebar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 right-0 bottom-0 w-[280px] bg-[#000] z-[101] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${profileSidebarOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-[34px] right-0 bottom-0 w-[280px] bg-[#000] z-[101] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${profileSidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <div className="flex-1 overflow-y-auto no-scrollbar pb-4">

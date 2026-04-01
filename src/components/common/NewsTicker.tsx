@@ -1,12 +1,14 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { Megaphone, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { userController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
 
 export default function NewsTicker() {
   const { isAuthenticated } = useAuthStore()
-  const [news, setNews] = useState<string>('')
+  const [news, setNews] = useState<string[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,12 +28,14 @@ export default function NewsTicker() {
         }
 
         const response = await userController.getNews(token)
-        if (response.error === '0' && response.news) {
-          // The API might return an array or a single string
-          const newsText = Array.isArray(response.news) 
-            ? response.news.join(' | ') 
-            : response.news
-          setNews(newsText)
+        const rawNews = response.news || response.msg || ''
+        
+        if (response.error === '0' && rawNews) {
+          const newsItems = typeof rawNews === 'string' 
+            ? rawNews.split(' | ').filter(item => item.trim() !== '')
+            : Array.isArray(rawNews) ? rawNews : [rawNews]
+          
+          setNews(newsItems)
         }
       } catch (error) {
         console.error('Failed to fetch news:', error)
@@ -43,42 +47,67 @@ export default function NewsTicker() {
     fetchNews()
   }, [isAuthenticated])
 
-  if (!isAuthenticated || (!loading && !news)) return null
+  useEffect(() => {
+    if (news.length <= 1) return
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % news.length)
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [news])
+
+  if (!isAuthenticated || (!loading && news.length === 0)) return null
 
   return (
-    <div className="w-full h-8 bg-[#1a1a1a] border-b border-white/5 flex items-center overflow-hidden relative group">
-      <div className="absolute left-0 top-0 bottom-0 z-10 bg-[#e8612c] px-3 flex items-center gap-2 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
-        <Megaphone size={14} className="text-white" />
-        <span className="text-[10px] font-black text-white uppercase tracking-tighter">News</span>
+    <div className="w-full h-[34px] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 flex items-center overflow-hidden relative z-[70]">
+      {/* Decorative Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#f26522]/10 via-transparent to-[#f26522]/5 pointer-events-none" />
+      
+      {/* Label with Premium Styling */}
+      <div className="flex-shrink-0 h-full bg-gradient-to-r from-[#f26522] to-[#e8612c] px-4 flex items-center gap-2 shadow-[4px_0_15px_rgba(0,0,0,0.4)] z-10">
+        <motion.div
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Megaphone size={13} className="text-white drop-shadow-sm" />
+        </motion.div>
+        <span className="text-[10px] font-black text-white uppercase tracking-[0.15em] whitespace-nowrap">
+          Updates
+        </span>
       </div>
       
-      <div className="flex-1 h-full flex items-center overflow-hidden ml-[80px]">
+      <div className="flex-1 h-full flex items-center overflow-hidden relative">
         {loading ? (
-          <div className="flex items-center gap-2 px-4">
-            <Loader2 size={12} className="animate-spin text-white/30" />
-            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Loading latest news...</span>
+          <div className="flex items-center gap-2 px-6">
+            <Loader2 size={11} className="animate-spin text-[#f26522]" />
+            <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Syncing Latest News...</span>
           </div>
         ) : (
-          <div className="whitespace-nowrap animate-ticker inline-block pl-[100%] hover:pause-ticker">
-            <span className="text-[12px] font-bold text-white/80 pr-[100px] inline-block uppercase tracking-wide">
-              {news || 'Welcome to Fairplay 247! Latest updates will appear here.'}
-            </span>
+          <div className="w-full h-full relative flex items-center px-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-1 rounded-full bg-[#f26522] shadow-[0_0_8px_rgba(242,101,34,0.6)]" />
+                  <span className="text-[11px] font-bold text-white/90 uppercase tracking-wide truncate">
+                    {news[currentIndex]}
+                  </span>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
-        }
-        .animate-ticker {
-          animation: ticker 40s linear infinite;
-        }
-        .pause-ticker {
-          animation-play-state: paused;
-        }
-      `}</style>
+      {/* Glossy Overlay */}
+      <div className="absolute inset-0 bg-white/5 pointer-events-none h-[1px] top-0" />
     </div>
   )
 }
+
+

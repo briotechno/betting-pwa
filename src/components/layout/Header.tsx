@@ -164,7 +164,7 @@ export default function Header() {
   return (
     <div className="z-[60]">
       {/* ── Fixed Top Header (All Devices) ── */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-black backdrop-blur-md h-20 lg:h-[92px]">
+      <div className="fixed top-[34px] left-0 right-0 z-[60] bg-black backdrop-blur-md h-20 lg:h-[92px] transition-all duration-300">
         <div className="flex items-center justify-between px-2 md:px-5 h-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <button
@@ -451,7 +451,7 @@ export default function Header() {
       </div>
 
       {/* ── Mobile Inplay Header ── */}
-      <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-20 relative z-[50]">
+      <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-[114px] relative z-[50]">
         <div className="flex w-[98%] h-[60px] p-1 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
           <Link
             href="/"
@@ -485,7 +485,7 @@ export default function Header() {
       </div>
 
       {/* ── Fixed Desktop Sub Header ── */}
-      <div className="hidden lg:flex fixed top-[92px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar bg-[#000] px-4">
+      <div className="hidden lg:flex fixed top-[126px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar bg-[#000] px-4 transition-all duration-300">
         <div className="flex items-center gap-1">
           {[
             { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },

@@ -60,7 +60,7 @@ export default function LeftDrawer() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 bottom-0 w-[260px] z-[101] bg-[#000] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${leftDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-[34px] left-0 bottom-0 w-[260px] z-[101] bg-[#000] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${leftDrawerOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         {/* Header Section */}
