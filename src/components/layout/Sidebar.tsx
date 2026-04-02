@@ -244,15 +244,6 @@ export default function Sidebar() {
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2 bg-[#f36c21] text-white text-[10px] font-black uppercase tracking-[0.2em] mb-2 flex items-center justify-between">
-                       <span>Favourites</span>
-                       <Star size={12} className="fill-white" />
-                    </div>
-                    <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
-                       <Star size={24} className="text-white/10 mb-2" />
-                       <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Add to favorite</span>
-                    </div>
-                    <div className="h-[1px] bg-white/5 my-2" />
                     {competitionGames.length > 0 ? (
                       competitionGames.map((game, idx) => {
                         const gameName = game.Team1 && game.Team2 ? `${game.Team1} V ${game.Team2}` : (game.Game_name || 'Game');

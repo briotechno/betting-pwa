@@ -70,14 +70,17 @@ const MarketTable = ({
   const params = useParams()
   const addSelection = useBetSlipStore(state => state.addSelection)
 
-  const getRunnerRates = (runnerId: string | number) => {
+  const getRunnerRates = (runnerId: string | number, rIdx: number) => {
     const rateData = liveRates[marketId]
     const runnersData = rateData?.runner || rateData?.runners || []
     const runnerArr = Array.isArray(runnersData) ? runnersData : Object.values(runnersData)
     
-    // Find runner by id or index
-    let r = runnerArr.find((item: any) => item.selectionId === runnerId || item.id === runnerId)
-    if (!r && typeof runnerId === 'number') r = runnerArr[runnerId]
+    // Find runner by id or selectionId or index
+    let r = runnerArr.find((item: any) => 
+      (item.selectionId && item.selectionId.toString() === runnerId.toString()) || 
+      (item.id && item.id.toString() === runnerId.toString())
+    )
+    if (!r) r = runnerArr[rIdx]
 
     const getPrices = (r: any, type: 'back'|'lay') => {
       if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
@@ -105,76 +108,98 @@ const MarketTable = ({
   }
 
   return (
-    <div className="bg-white rounded-t-lg rounded-b-lg shadow-lg border border-[#f36c21]/20 overflow-hidden mb-4">
-      {/* Table Header Section */}
-      <div className="h-11 lg:h-12 flex items-center justify-between cursor-pointer select-none bg-[#333]">
-        <div className="flex items-center h-full" onClick={navigateToGame}>
-           <div className="h-full bg-[#f36c21] px-4 flex items-center justify-center min-w-[140px] relative overflow-hidden" style={{ clipPath: 'polygon(0 0, 90% 0, 100% 100%, 0% 100%)' }}>
-             <span className="text-white text-[12px] lg:text-[13px] font-black uppercase tracking-wider">{marketName}</span>
-           </div>
-           {isUpcoming && (
-             <div className="ml-4 flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-[#1a9ebf]" />
-               <span className="text-[#1a9ebf] text-[10px] font-black uppercase italic tracking-tighter">Upcoming: {startTime}</span>
-             </div>
-           )}
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative">
+      {/* Live Badge */}
+      <div className={`absolute -top-[11px] -left-[4px] ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[10px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
+        {isUpcoming ? 'UPCOMING' : 'LIVE'}
+      </div>
+
+      {/* Match Header (Gray) */}
+      <div className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]">
+        {/* Left Side Slanted */}
+        <div 
+          onClick={navigateToGame}
+          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" 
+          style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
+        >
+          <div className="flex items-center gap-2 mt-2">
+            <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform">
+              {isCollapsed ? '+' : '−'}
+            </span>
+            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
+              {matchName}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-4 px-4 h-full" onClick={() => setIsCollapsed(!isCollapsed)}>
-           <div className="hidden lg:flex gap-16 mr-8 text-[10px] font-black uppercase tracking-widest text-white/40">
-              <span className="w-[124px] text-center">Back</span>
-              <span className="w-[124px] text-center">Lay</span>
-           </div>
-           {isCollapsed ? <ChevronDown className="text-white/60" size={20} /> : <ChevronUp className="text-white/60" size={20} />}
+
+        {/* Right Side Icons */}
+        <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
+          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+          <div className="hidden lg:flex flex-1 justify-end mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
+             {startTime}
+          </div>
         </div>
       </div>
 
+      {/* Market Category Sub-Header */}
+      <div className="bg-[#333] flex items-center justify-between px-3 h-10 border-t border-white/5">
+         <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
+            <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
+         </div>
+         <div className="flex gap-[68px] lg:gap-[68px] mr-1 lg:mr-10">
+            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Back</span>
+            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Lay</span>
+         </div>
+      </div>
+
+      {/* Table Body */}
       {!isCollapsed && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#f9f9f9] border-b border-gray-100">
-                <th className="py-2 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Runners</th>
-                <th className="py-2 px-4 text-center lg:text-right hidden lg:table-cell"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
+        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
+          <table className="w-full border-collapse">
+            <tbody className="divide-y divide-gray-100">
               {runners.map((runner, rIdx) => {
-                const { back, lay } = getRunnerRates(runner.selectionId || runner.id || rIdx)
+                const runnerId = runner.selectionId || runner.id || rIdx
+                const { back, lay } = getRunnerRates(runnerId, rIdx)
                 const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
                 
+                const rateData = liveRates[marketId]
+                const isSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No'
+
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
-                  if (!odds || odds === '-' || odds === '0') return;
+                  if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
                   addSelection({
-                    id: `${marketId}-${runner.selectionId || rIdx}-${side}`,
-                    matchId: marketId,
+                    id: `${marketId}-${runnerId}-${side}`,
+                    matchId: matchId.toString(),
+                    eventId: matchId.toString(),
+                    selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
                     selectionName: runnerName,
                     odds: parseFloat(odds),
-                    betType: side
+                    betType: side,
+                    marketType: (marketName.toLowerCase().includes('bookmaker') ? 'BOOKMAKER' : (marketName.toLowerCase().includes('fancy') ? 'FANCY' : 'ODDS')),
+                    marketIndex: rIdx,
+                    runnersCount: runners.length
                   })
                 }
 
                 return (
-                  <tr key={runner.selectionId || rIdx} className="hover:bg-gray-50 transition-colors group">
-                    <td className="py-3 px-4" onClick={navigateToGame}>
-                      <div className="flex items-center gap-3">
-                        <button className="text-gray-300 hover:text-[#f36c21 transition-colors">
-                          <Star size={16} />
-                        </button>
-                        <span className="text-[13px] lg:text-[14px] font-black text-[#2e2e2e] uppercase tracking-tight group-hover:text-[#f36c21] transition-colors">{runnerName}</span>
-                      </div>
+                  <tr key={runnerId} className="hover:bg-gray-50/50 transition-colors group relative">
+                    <td className="py-3 px-3 lg:px-4">
+                      <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
+                        {runnerName}
+                      </span>
                     </td>
-                    <td className="py-2 px-4">
+                    <td className="p-1 px-2 relative min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
-                           <div className="flex gap-1">
+                           <div className="flex gap-1 py-1">
                               <div className="hidden lg:flex gap-1">
                                  <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
                                  <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
                               </div>
                               <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
                            </div>
-                           <div className="flex gap-1">
+                           <div className="flex gap-1 py-1">
                               <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
                               <div className="hidden lg:flex gap-1">
                                  <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
@@ -182,6 +207,15 @@ const MarketTable = ({
                               </div>
                            </div>
                         </div>
+
+                        {/* Market Suspended Overlay */}
+                        {isSuspended && (
+                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
+                            <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
+                               <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
+                            </div>
+                          </div>
+                        )}
                     </td>
                   </tr>
                 )
@@ -520,11 +554,7 @@ export default function CompetitionDetailPage() {
                 </div>
               ) : matchSections.length > 0 ? (
                 matchSections.map((group) => (
-                  <div key={group.gid} className="space-y-4">
-                    <div className="flex items-center gap-3 mb-2 ml-1">
-                       <div className="w-1 h-4 bg-[#f36c21] rounded-full shadow-[0_0_8px_rgba(243,108,33,1)]" />
-                       <h2 className="text-white text-[13px] font-black uppercase tracking-widest opacity-90">{group.name}</h2>
-                    </div>
+                  <div key={group.gid} className="space-y-1">
                     {group.sections.map((section: any) => (
                       <MarketTable 
                         key={section.id} 

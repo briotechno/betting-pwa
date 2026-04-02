@@ -56,24 +56,31 @@ const MarketTable = ({
   runners, 
   marketId, 
   liveRates, 
-  matchName 
+  matchName,
+  marketType,
+  marketIndex = 0
 }: { 
   marketName: string, 
   runners: any[], 
   marketId: string, 
   liveRates: any,
-  matchName: string
+  matchName: string,
+  marketType: string,
+  marketIndex?: number
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const addSelection = useBetSlipStore(state => state.addSelection)
 
-  const getRunnerRates = (runnerId: string | number) => {
+  const getRunnerRates = (runnerId: string | number, rIdx: number) => {
     const rateData = liveRates[marketId]
     const runnersData = rateData?.runner || rateData?.runners || []
     const runnerArr = Array.isArray(runnersData) ? runnersData : Object.values(runnersData)
     
-    let r = runnerArr.find((item: any) => item.selectionId === runnerId || item.id === runnerId)
-    if (!r && typeof runnerId === 'number') r = runnerArr[runnerId]
+    let r = runnerArr.find((item: any) => 
+      (item.selectionId && item.selectionId.toString() === runnerId.toString()) || 
+      (item.id && item.id.toString() === runnerId.toString())
+    )
+    if (!r) r = runnerArr[rIdx]
 
     const getPrices = (r: any, type: 'back'|'lay') => {
       if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
@@ -97,70 +104,89 @@ const MarketTable = ({
   }
 
   return (
-    <div className="bg-white rounded-t-lg rounded-b-lg shadow-lg border border-[#f36c21]/10 overflow-hidden mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {/* Header (Gray/Slanted Orange) */}
       <div 
-        className="h-10 lg:h-11 flex items-center justify-between cursor-pointer select-none bg-[#f36c21]"
+        className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        <div className="flex items-center h-full px-4">
-           <span className="text-white text-[12px] lg:text-[13px] font-black uppercase tracking-wider">{marketName}</span>
-           <div className="ml-4 opacity-70">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-           </div>
+        <div 
+          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" 
+          style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
+        >
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
+              {isCollapsed ? '+' : '−'}
+            </span>
+            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
+              {matchName}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-4 px-4">
-           <div className="hidden lg:flex gap-16 mr-8 text-[10px] font-black uppercase tracking-widest text-white/80">
-              <span className="w-[124px] text-center">Back</span>
-              <span className="w-[124px] text-center">Lay</span>
-           </div>
-           {isCollapsed ? <ChevronDown className="text-white" size={18} /> : <ChevronUp className="text-white" size={18} />}
+
+        <div className="flex-1 h-full flex items-center justify-end pr-4 gap-3 z-0">
+          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
         </div>
       </div>
 
+      {/* Sub-Header Category */}
+      <div className="bg-[#333] flex items-center justify-between px-3 h-10 border-t border-white/5">
+         <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
+            <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
+         </div>
+         <div className="flex gap-[68px] lg:gap-[68px] mr-1 lg:mr-10">
+            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Back</span>
+            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Lay</span>
+         </div>
+      </div>
+
       {!isCollapsed && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#f9f9f9] border-b border-gray-100">
-                <th className="py-2 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Runners</th>
-                <th className="py-2 px-4 text-center lg:text-right hidden lg:table-cell"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
+        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
+          <table className="w-full border-collapse">
+            <tbody className="divide-y divide-gray-100">
               {runners.map((runner, rIdx) => {
-                const { back, lay } = getRunnerRates(runner.selectionId || runner.id || rIdx)
-                const runnerName = runner.name || runner.RunnerName || `Runner ${rIdx + 1}`
+                const runnerId = runner.selectionId || runner.id || rIdx
+                const { back, lay } = getRunnerRates(runnerId, rIdx)
+                const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
                 
+                const rateData = liveRates[marketId]
+                const isSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No'
+
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
-                  if (!odds || odds === '-') return;
+                  if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
                   addSelection({
-                    id: `${marketId}-${runner.selectionId || rIdx}-${side}`,
-                    matchId: marketId,
+                    id: `${marketId}-${runnerId}-${side}`,
+                    matchId: marketId.toString(),
+                    eventId: marketId.toString(),
+                    selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
                     selectionName: runnerName,
                     odds: parseFloat(odds),
-                    betType: side
+                    betType: side,
+                    marketType: marketType || (marketName.toLowerCase().includes('bookmaker') ? 'BOOKMAKER' : (marketName.toLowerCase().includes('fancy') ? 'FANCY' : 'ODDS')),
+                    marketIndex: rIdx,
+                    runnersCount: runners.length
                   })
                 }
 
                 return (
-                  <tr key={runner.selectionId || rIdx} className="hover:bg-gray-50 transition-colors group">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#f36c21] transition-colors">{runnerName}</span>
-                      </div>
+                  <tr key={runnerId} className="hover:bg-gray-50/50 transition-colors group relative">
+                    <td className="py-3 px-3 lg:px-4">
+                      <span className="text-[13px] lg:text-[14px] font-bold text-gray-900 tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
+                        {runnerName}
+                      </span>
                     </td>
-                    <td className="py-1 px-4">
+                    <td className="p-1 px-2 relative min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
-                           <div className="flex gap-1">
+                           <div className="flex gap-1 py-1">
                               <div className="hidden lg:flex gap-1">
                                  <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
                                  <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
                               </div>
                               <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
                            </div>
-                           <div className="flex gap-1">
+                           <div className="flex gap-1 py-1">
                               <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
                               <div className="hidden lg:flex gap-1">
                                  <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
@@ -168,6 +194,15 @@ const MarketTable = ({
                               </div>
                            </div>
                         </div>
+
+                        {/* Market Suspended Overlay */}
+                        {isSuspended && (
+                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
+                            <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
+                               <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
+                            </div>
+                          </div>
+                        )}
                     </td>
                   </tr>
                 )
@@ -291,10 +326,10 @@ export default function GameDetailPage() {
   }
 
   const allMarkets = gameData ? [
-    ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS)) : []),
-    ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER)).map((m: any) => ({ ...m, isBookmaker: true })) : []),
-    ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY)).map((m: any) => ({ ...m, isFancy: true })) : []),
-    ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events)) : [])
+    ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS)).map((m: any) => ({ ...m, category: 'ODDS' })) : []),
+    ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER)).map((m: any) => ({ ...m, isBookmaker: true, category: 'BOOKMAKER' })) : []),
+    ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY)).map((m: any) => ({ ...m, isFancy: true, category: 'FANCY' })) : []),
+    ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events)).map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : [])
   ].filter((m, i, self) => m && self.findIndex(t => (t.MarketId || t.marketid) === (m.MarketId || m.marketid)) === i) : [];
 
   return (
@@ -325,15 +360,15 @@ export default function GameDetailPage() {
            {allMarkets.length > 0 ? (
              <div className="space-y-8">
                {/* Group by category if needed, but here we just list them robustly */}
-               {allMarkets.map((m: any) => {
-                 const isBM = m.isBookmaker || m.Type === 'BOOKMAKER' || m.name?.toLowerCase().includes('bookmaker');
-                 const isFancy = m.isFancy || m.Type === 'FANCY';
+               {allMarkets.map((m: any, mIdx: number) => {
+                 const isBM = m.isBookmaker || m.category === 'BOOKMAKER' || m.name?.toLowerCase().includes('bookmaker');
+                 const isFancy = m.category === 'FANCY';
                  
                  let runners = m.runner || m.runners || [];
                  if (!Array.isArray(runners)) runners = Object.values(runners);
 
                  return (
-                   <div key={m.MarketId || m.marketid || m.eid}>
+                   <div key={m.MarketId || m.marketid || m.eid || mIdx}>
                      {(isBM || isFancy) && (
                        <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2 ml-1">
                          {isBM ? 'Bookmaker (0% Commission & Instant Bet)' : 'Fancy Markets'}
@@ -345,6 +380,8 @@ export default function GameDetailPage() {
                        marketId={m.MarketId || m.marketid || m.eid} 
                        liveRates={liveOdds}
                        matchName={matchName}
+                       marketType={m.category || 'ODDS'}
+                       marketIndex={mIdx}
                      />
                    </div>
                  );

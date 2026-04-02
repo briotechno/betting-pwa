@@ -9,6 +9,12 @@ export interface BetSelection {
   odds: number
   betType: 'back' | 'lay'
   stake?: number
+  // Fields for API placement
+  eventId: string
+  selectionId: string
+  marketType: string
+  marketIndex: number
+  runnersCount?: number
 }
 
 interface BetSlipState {
@@ -43,17 +49,12 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
   toggleSlip: () => set((state) => ({ isOpen: !state.isOpen })),
 
   addSelection: (selection) => {
-    const existing = get().selections.find((s) => s.id === selection.id)
-    if (existing) {
-      set((state) => ({
-        selections: state.selections.filter((s) => s.id !== selection.id),
-      }))
-    } else {
-      set((state) => ({
-        selections: [...state.selections, selection],
-        isOpen: true,
-      }))
-    }
+    // Force one bet at a time by replacing the entire selections array
+    set({
+      selections: [selection],
+      stakes: { [selection.id]: 0 }, // Reset stake for the new selection
+      isOpen: true,
+    })
   },
 
   removeSelection: (id) => {

@@ -52,6 +52,7 @@ export const bettingController = {
     IP: string;
     No: string | number;
     Yes: string | number;
+    Type: 'B' | 'L';
   }): Promise<ApiResponse> => {
     return await fetchAPI('/dealfancy', data);
   },
@@ -91,6 +92,7 @@ export const bettingController = {
     Rate: string | number;
     IP: string;
     SelectionId: string;
+    Type: 'B' | 'L';
   }): Promise<ApiResponse> => {
     return await fetchAPI('/dealwinner', data);
   },

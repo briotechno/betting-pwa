@@ -66,18 +66,111 @@ export default function BetContainer() {
   const quickStakes = [100, 500, 1000, 5000, 10000, 25000]
 
   const placeBets = async () => {
-    if (!user?.loginToken) {
-      alert("Please login to place bets")
+    if (selections.length === 0) return
+    if (!user || !user.loginToken) {
+       alert("Please login to place a bet")
+       setActiveTab('BETSLIP')
+       return
+    }
+
+    setLoading(true)
+    const selection = selections[0]
+    const stake = stakes[selection.id]
+    
+    if (!stake || stake <= 0) {
+      alert("Please enter a valid stake amount")
+      setLoading(false)
       return
     }
-    setLoading(true)
+
     try {
-      // Logic for placing each bet sequentially or in bulk
-      // For now, clear the slip on "Success"
-      alert("Bet placed successfully!")
-      clearAll()
-    } catch (e) {
-      console.error("Bet Placement failed", e)
+      let res;
+      const common = {
+        LoginToken: user.loginToken,
+        Eid: selection.eventId,
+        Amount: stake,
+        Rate: selection.odds,
+        IP: '127.0.0.1' 
+      }
+
+      const mType = selection.marketType?.toUpperCase() || 'ODDS'
+      const isWinner = selection.marketName.toLowerCase().includes('winner')
+      const runnersCount = selection.runnersCount || 2
+
+      if (isWinner) {
+        res = await bettingController.placeWinnerBet({
+          ...common,
+          SelectionId: selection.selectionId,
+          Type: selection.betType === 'back' ? 'B' : 'L'
+        })
+      } else {
+        switch (mType) {
+          case 'BOOKMAKER':
+            res = await bettingController.placeBookmakerBet({
+              ...common,
+              SelectionId: selection.selectionId,
+              Type: selection.betType === 'back' ? 'B' : 'L'
+            })
+            break
+
+          case 'FANCY':
+            res = await bettingController.placeFancyBet({
+              ...common,
+              No: selection.betType === 'lay' ? selection.odds : 0,
+              Yes: selection.betType === 'back' ? selection.odds : 0,
+              Type: selection.betType === 'back' ? 'B' : 'L'
+            })
+            break
+
+          case 'LINE':
+            res = await bettingController.placeLineBet({
+              ...common,
+              SelectionId: selection.selectionId,
+              Type: selection.betType === 'back' ? 'B' : 'L'
+            })
+            break
+
+          case 'EXTRA':
+          case 'GOAL':
+            res = await bettingController.placeExtraBet({
+              ...common,
+              SelectionId: selection.selectionId,
+              Type: selection.betType === 'back' ? 'B' : 'L'
+            })
+            break
+
+          default: // ODDS
+            const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
+            const teamLetter = teamMap[selection.marketIndex] || 'A'
+            const betTypeChar = selection.betType === 'back' ? 'B' : 'L'
+
+            if (runnersCount === 3) {
+              res = await bettingController.place3TeamOddBet({ 
+                ...common, 
+                Team: teamLetter as 'A' | 'B' | 'C', 
+                Type: betTypeChar 
+              })
+            } else {
+              res = await bettingController.place2TeamOddBet({ 
+                ...common, 
+                Team: teamLetter as 'A' | 'B', 
+                Type: betTypeChar 
+              })
+            }
+            break
+        }
+      }
+
+      if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
+         alert("Bet placed successfully!")
+         clearAll()
+         fetchBets() // Refresh open bets
+      } else {
+         alert(res?.msg || res?.message || res?.description || "Failed to place bet")
+      }
+    } catch (err) {
+      console.error(err)
+      alert("An error occurred while placing bet")
     } finally {
       setLoading(false)
     }
@@ -153,7 +246,7 @@ export default function BetContainer() {
                               type="number" 
                               value={sel.odds} 
                               readOnly
-                              className="w-full text-center text-[13px] font-black focus:outline-none" 
+                              className="w-full text-center text-[13px] font-black focus:outline-none text-gray-900" 
                             />
                             <button className="px-2 h-full hover:bg-gray-50 text-gray-400"><Plus size={12} /></button>
                           </div>
@@ -165,7 +258,7 @@ export default function BetContainer() {
                             placeholder="0"
                             value={stakes[sel.id] || ''}
                             onChange={(e) => setStake(sel.id, parseFloat(e.target.value) || 0)}
-                            className="w-full h-9 border border-gray-200 rounded-md text-center text-[13px] font-black focus:border-[#f36c21]/50 focus:outline-none placeholder:opacity-30" 
+                            className="w-full h-9 border border-gray-200 rounded-md text-center text-[13px] font-black focus:border-[#f36c21]/50 focus:outline-none placeholder:opacity-30 text-gray-900" 
                           />
                         </div>
                       </div>
