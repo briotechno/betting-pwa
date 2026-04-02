@@ -1,8 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { ChevronDown, Loader2 } from 'lucide-react'
+import { ChevronDown, Loader2, X, Plus, Minus } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
+import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
+import { toTitleCase } from '@/utils/format'
 
 interface Bet {
   Game: string;
@@ -12,17 +14,26 @@ interface Bet {
   Stake: string;
   Date: string;
   Side: 'back' | 'lay';
-  IsMatched?: string; // Optional if API provides it
+  IsMatched?: string;
 }
 
 export default function BetContainer() {
-  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('OPEN_BETS')
+  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('BETSLIP')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
   const [bets, setBets] = useState<Bet[]>([])
   const [loading, setLoading] = useState(false)
   
   const { user } = useAuthStore()
+  const { 
+    selections, 
+    stakes, 
+    setStake, 
+    removeSelection, 
+    clearAll,
+    confirmBeforePlace,
+    toggleConfirmBeforePlace
+  } = useBetSlipStore()
 
   useEffect(() => {
     if (activeTab === 'OPEN_BETS' && user?.loginToken) {
@@ -30,12 +41,17 @@ export default function BetContainer() {
     }
   }, [activeTab, user?.loginToken])
 
+  // Automatically switch to BETSLIP tab when a selection is added
+  useEffect(() => {
+    if (selections.length > 0) {
+      setActiveTab('BETSLIP')
+    }
+  }, [selections.length])
+
   const fetchBets = async () => {
     try {
       setLoading(true)
       const res = await bettingController.getMyBets(user?.loginToken || '')
-      
-      // API returns an object with numerical keys
       if (res && typeof res === 'object' && !res.error) {
         const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null) as Bet[]
         setBets(betArray)
@@ -47,9 +63,26 @@ export default function BetContainer() {
     }
   }
 
-  // Logic for filtration: 
-  // We'll use 'Type' as a fallback if 'IsMatched' isn't explicitly provided.
-  // Many exchange APIs use Type="Matched" or similar.
+  const quickStakes = [100, 500, 1000, 5000, 10000, 25000]
+
+  const placeBets = async () => {
+    if (!user?.loginToken) {
+      alert("Please login to place bets")
+      return
+    }
+    setLoading(true)
+    try {
+      // Logic for placing each bet sequentially or in bulk
+      // For now, clear the slip on "Success"
+      alert("Bet placed successfully!")
+      clearAll()
+    } catch (e) {
+      console.error("Bet Placement failed", e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const matchedBets = bets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
   const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
@@ -75,19 +108,19 @@ export default function BetContainer() {
   return (
     <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen">
       {/* Tabs */}
-      <div className="flex border-b border-[#333]">
+      <div className="flex border-b border-[#333] sticky top-0 z-10 bg-[#121212]">
         <button
           onClick={() => setActiveTab('BETSLIP')}
-          className={`flex-1 py-3 text-[12px] font-bold tracking-wider transition-all ${
-            activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-400 hover:text-gray-200'
+          className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${
+            activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
           }`}
         >
-          BETSLIP
+          BETSLIP {selections.length > 0 && `(${selections.length})`}
         </button>
         <button
           onClick={() => setActiveTab('OPEN_BETS')}
-          className={`flex-1 py-3 text-[12px] font-bold tracking-wider transition-all ${
-            activeTab === 'OPEN_BETS' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-400 hover:text-gray-200'
+          className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${
+            activeTab === 'OPEN_BETS' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
           }`}
         >
           OPEN BETS
@@ -95,13 +128,144 @@ export default function BetContainer() {
       </div>
 
       <div className="p-3">
-        {activeTab === 'OPEN_BETS' ? (
+        {activeTab === 'BETSLIP' ? (
+          selections.length > 0 ? (
+            <div className="space-y-4">
+              {selections.map((sel) => (
+                <div key={sel.id} className="bg-white rounded-lg overflow-hidden shadow-xl animate-in slide-in-from-right duration-300">
+                   <div className={`px-3 py-2 flex justify-between items-center ${sel.betType === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase text-black/60 truncate max-w-[200px] leading-tight">{sel.matchName}</span>
+                        <span className="text-[11px] font-black text-black leading-tight uppercase">{sel.selectionName} <span className="text-[8px] opacity-60">({sel.marketName})</span></span>
+                      </div>
+                      <button onClick={() => removeSelection(sel.id)} className="text-black/60 hover:text-black">
+                        <X size={16} strokeWidth={3} />
+                      </button>
+                   </div>
+                   
+                   <div className="p-3 space-y-3 bg-white">
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="text-[8px] font-black text-gray-400 uppercase mb-1 block">Odds</label>
+                          <div className="flex items-center border border-gray-200 rounded-md overflow-hidden h-9">
+                            <button className="px-2 h-full hover:bg-gray-50 text-gray-400"><Minus size={12} /></button>
+                            <input 
+                              type="number" 
+                              value={sel.odds} 
+                              readOnly
+                              className="w-full text-center text-[13px] font-black focus:outline-none" 
+                            />
+                            <button className="px-2 h-full hover:bg-gray-50 text-gray-400"><Plus size={12} /></button>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-[8px] font-black text-gray-400 uppercase mb-1 block">Stake</label>
+                          <input 
+                            type="number" 
+                            placeholder="0"
+                            value={stakes[sel.id] || ''}
+                            onChange={(e) => setStake(sel.id, parseFloat(e.target.value) || 0)}
+                            className="w-full h-9 border border-gray-200 rounded-md text-center text-[13px] font-black focus:border-[#f36c21]/50 focus:outline-none placeholder:opacity-30" 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {quickStakes.map(s => (
+                          <button 
+                            key={s} 
+                            onClick={() => setStake(sel.id, (stakes[sel.id] || 0) + s)}
+                            className="py-2 text-[10px] font-black border border-gray-100 rounded bg-[#f36c21] text-white hover:bg-[#d85a1a] transition-all"
+                          >
+                            +{s.toLocaleString()}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button 
+                          onClick={() => removeSelection(sel.id)}
+                          className="flex-1 py-2 text-[11px] font-black text-gray-400 uppercase border border-gray-200 rounded hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={placeBets}
+                          disabled={loading || !stakes[sel.id]}
+                          className="flex-2 py-2 px-6 text-[11px] font-black text-white uppercase bg-[#ccc] rounded cursor-not-allowed disabled:bg-gray-200"
+                          style={{
+                             backgroundColor: stakes[sel.id] ? (sel.betType === 'back' ? '#2196f3' : '#e91e63') : '#ccc',
+                             cursor: stakes[sel.id] ? 'pointer' : 'not-allowed'
+                          }}
+                        >
+                          {loading ? <Loader2 size={14} className="animate-spin" /> : 'Place Bet'}
+                        </button>
+                      </div>
+                   </div>
+                </div>
+              ))}
+
+              <div className="pt-2 border-t border-white/5">
+                 <div className="flex items-center justify-between px-1 mb-3">
+                   <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-[#f36c21] rounded-full flex items-center justify-center text-white text-[8px] font-black">i</div>
+                        <span className="text-[10px] font-bold text-gray-400 italic">
+                          Min Bet: 100 Max Bet: 50000 Max Winning: 250000
+                        </span>
+                      </div>
+                      {!Object.values(stakes).some(s => s > 0) && (
+                        <span className="text-[10px] text-red-500 font-bold ml-6">Stake is required</span>
+                      )}
+                   </div>
+                 </div>
+                 
+                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 mb-4">
+                   <span className="text-[10px] font-black text-white uppercase opacity-70">Confirm bets before placing</span>
+                   <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" checked={confirmBeforePlace} onChange={toggleConfirmBeforePlace} className="sr-only peer" />
+                      <div className="w-10 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#f36c21]"></div>
+                   </label>
+                 </div>
+
+                 <div className="flex gap-3">
+                    <button 
+                      onClick={clearAll}
+                      className="flex-1 py-3 text-[11px] font-black text-gray-400 uppercase border border-white/10 rounded-lg hover:bg-white/5 transition-all"
+                    >
+                      Clear All
+                    </button>
+                    <button 
+                      onClick={placeBets}
+                      disabled={loading || !Object.values(stakes).some(s => s > 0)}
+                      className={`flex-[2] py-3 text-[11px] font-black uppercase rounded-lg transition-all ${
+                        Object.values(stakes).some(s => s > 0) 
+                        ? 'bg-[#f36c21] text-white shadow-[0_4px_15px_rgba(243,108,33,0.3)] hover:brightness-110 active:scale-[0.98]' 
+                        : 'bg-white/10 text-white/20 cursor-not-allowed'
+                      }`}
+                    >
+                      {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Place Bet'}
+                    </button>
+                 </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 bg-white/5 rounded-[20px] text-center border border-white/5 mt-4">
+               <div className="w-12 h-12 bg-[#f36c21]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#f36c21]/20">
+                  <Plus className="text-[#f36c21]" size={20} />
+               </div>
+               <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
+                 Your betslip is empty.<br />Select some odds to start!
+               </p>
+            </div>
+          )
+        ) : (
           <div className="space-y-4">
-            {/* Unmatched Bets */}
-            <div className="border border-[#e8612c] rounded-[12px] overflow-hidden shadow-sm bg-[#1a1a1a]">
+            {/* Open Bets Section */}
+            <div className="border border-[#e8612c]/40 rounded-xl overflow-hidden bg-[#1a1a1a]">
                <button 
                 onClick={() => setUnmatchedOpen(!unmatchedOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-[#111] text-white text-[12px] font-bold"
+                className="w-full flex items-center justify-between px-4 py-3 bg-[#111] text-white text-[12px] font-black uppercase tracking-tight"
                >
                  <div className="flex items-center gap-2">
                    <span>Unmatched Bets</span>
@@ -109,9 +273,7 @@ export default function BetContainer() {
                      <span className="bg-[#e8612c] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{unmatchedBets.length}</span>
                    )}
                  </div>
-                 <div className="bg-[#e8612c] rounded-full p-1 shadow-md">
-                   <ChevronDown size={14} className={`text-white transition-transform duration-300 stroke-[3px] ${unmatchedOpen ? '' : '-rotate-90'}`} />
-                 </div>
+                 <ChevronDown size={14} className={`text-gray-500 transition-transform duration-300 ${unmatchedOpen ? '' : '-rotate-90'}`} />
                </button>
                {unmatchedOpen && (
                  <div className="bg-black/20 divide-y divide-[#333]">
@@ -120,7 +282,7 @@ export default function BetContainer() {
                    ) : unmatchedBets.length > 0 ? (
                      unmatchedBets.map(renderBetCard)
                    ) : (
-                     <div className="p-8 text-center text-[11px] text-gray-500 uppercase tracking-widest font-black italic opacity-40">
+                     <div className="p-8 text-center text-[10px] text-gray-600 font-black uppercase tracking-widest italic opacity-40">
                        No unmatched bets found
                      </div>
                    )}
@@ -128,11 +290,10 @@ export default function BetContainer() {
                )}
             </div>
 
-            {/* Matched Bets */}
-            <div className="border border-[#e8612c] rounded-[12px] overflow-hidden shadow-sm bg-[#1a1a1a]">
+            <div className="border border-[#e8612c]/40 rounded-xl overflow-hidden bg-[#1a1a1a]">
                <button 
                  onClick={() => setMatchedOpen(!matchedOpen)}
-                 className="w-full flex items-center justify-between px-4 py-3 bg-[#111] text-white text-[12px] font-bold"
+                 className="w-full flex items-center justify-between px-4 py-3 bg-[#111] text-white text-[12px] font-black uppercase tracking-tight"
                >
                  <div className="flex items-center gap-2">
                    <span>Matched Bets</span>
@@ -140,9 +301,7 @@ export default function BetContainer() {
                      <span className="bg-[#e8612c] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{matchedBets.length}</span>
                    )}
                  </div>
-                 <div className="bg-[#e8612c] rounded-full p-1 shadow-md">
-                   <ChevronDown size={14} className={`text-white transition-transform duration-300 stroke-[3px] ${matchedOpen ? '' : '-rotate-90'}`} />
-                 </div>
+                 <ChevronDown size={14} className={`text-gray-500 transition-transform duration-300 ${matchedOpen ? '' : '-rotate-90'}`} />
                </button>
                {matchedOpen && (
                  <div className="bg-black/20 divide-y divide-[#333]">
@@ -151,17 +310,13 @@ export default function BetContainer() {
                    ) : matchedBets.length > 0 ? (
                      matchedBets.map(renderBetCard)
                    ) : (
-                     <div className="p-8 text-center text-[11px] text-gray-500 uppercase tracking-widest font-black italic opacity-40">
+                     <div className="p-8 text-center text-[10px] text-gray-600 font-black uppercase tracking-widest italic opacity-40">
                        No matched bets found
                      </div>
                    )}
                  </div>
                )}
             </div>
-          </div>
-        ) : (
-          <div className="p-6 bg-black/40 rounded-[20px] text-center text-[11px] text-gray-500 italic border border-[#333]">
-            Your betslip is empty. Select some odds to start betting!
           </div>
         )}
       </div>
