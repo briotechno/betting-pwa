@@ -323,11 +323,12 @@ export default function HomePage() {
         const status = (matchOdds?.status || matchOdds?.Status || '').toUpperCase()
 
         return {
-          id: mId || getV(m, ['gid', 'Gid', 'Event_Id', 'marketid', 'MarketId']),
+          id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
           teamName: name,
           odds: finalOdds,
           startTime: undefined, // Hide start time for inplay table (shows Live icon instead)
-          status: status
+          status: status,
+          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league'
         }
       })
   }
@@ -466,11 +467,12 @@ export default function HomePage() {
         }
 
         return {
-          id: mId || getV(m, ['gid', 'Gid', 'Event_Id', 'marketid', 'MarketId']),
+          id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
           teamName: name,
           odds: finalOdds,
           startTime: dateTime,
-          status: ''
+          status: '',
+          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league'
         }
       })
   }

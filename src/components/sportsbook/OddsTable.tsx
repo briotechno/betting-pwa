@@ -20,6 +20,7 @@ interface OddsTableRow {
   odds: OddsEntry[]
   startTime?: string
   status?: string // 'OPEN', 'SUSPENDED', etc.
+  competitionId?: string
 }
 
 interface OddsTableProps {
@@ -146,7 +147,10 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
       return
     }
 
-    // Redirect to detail page with selection info
+    const targetId = rowId || matchId
+    const targetSport = sport || 'cricket'
+    const targetComp = 'league' // Default if not found in selection context
+    
     const selectionParams = new URLSearchParams({
       selection: teamName,
       odds: oddsValue.toString(),
@@ -154,9 +158,15 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
       market: marketName
     }).toString()
 
-    const targetId = rowId || matchId
+    // Updated route to match the project structure
+    router.push(`/sportsbook/${targetSport}/${targetComp}/${targetId}?${selectionParams}`)
+  }
+
+  const handleRowClick = (matchId: string | undefined, competitionId: string | undefined) => {
+    if (!matchId) return
     const targetSport = sport || 'cricket'
-    router.push(`/sports/${targetSport}/${targetId}?${selectionParams}`)
+    const targetComp = competitionId || 'league'
+    router.push(`/sportsbook/${targetSport}/${targetComp}/${matchId}`)
   }
 
   return (
@@ -196,7 +206,10 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </td>
                   )}
 
-                  <td className={`py-2 px-1.5 ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}>
+                  <td 
+                    onClick={() => handleRowClick(row.id, row.competitionId)}
+                    className={`py-2 px-1.5 cursor-pointer hover:bg-gray-50/50 transition-colors ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}
+                  >
                     <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                       {row.teamName.includes(' vs ') ? (
                         <>
