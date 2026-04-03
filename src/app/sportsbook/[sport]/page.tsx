@@ -12,54 +12,69 @@ const sportsList = [
   { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
-// Hardcoded matches replaced by dynamic API fetch
-
 const MatchTable = ({ match }: { match: any }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const router = useRouter()
+  const params = useParams()
+  // Time - Desktop Only
+  const navigateToMatch = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/sportsbook/${params.sport}/${match.competitionId || 'league'}/${match.matchId}`)
+  }
 
   return (
-    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-5 relative group">
       {/* Live Badge - Overlapping Corner */}
       {!match.isUpcoming ? (
-        <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
+        <div 
+          onClick={navigateToMatch}
+          className="absolute -top-[12px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
+        >
           LIVE
         </div>
       ) : (
-        <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#147a93]">
+        <div 
+          onClick={navigateToMatch}
+          className="absolute -top-[12px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
+        >
           UPCOMING
         </div>
       )}
 
       {/* Header */}
-      <div
-        className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {/* Left Side - Orange with slanted edge */}
-        <div className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
-              {isCollapsed ? '+' : '−'}
-            </span>
-            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
-              {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
-            </span>
-          </div>
+      <div className="h-10 lg:h-12 flex items-center relative select-none bg-[#e0e0e0] overflow-hidden">
+        {/* Toggle Button Column */}
+        <div 
+          className="w-10 lg:w-12 h-full flex items-center justify-center bg-[#e8612c] text-white cursor-pointer hover:bg-[#d85826] transition-colors z-20"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <span className="text-[18px] lg:text-[20px] font-medium leading-none mb-1">
+            {isCollapsed ? '+' : '−'}
+          </span>
         </div>
 
-        {/* Right Side - Gray with icons */}
-        <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
+        {/* Match Name - Main Clickable Area */}
+        <div 
+          onClick={navigateToMatch}
+          className="flex-1 h-full flex items-center pl-2 lg:pl-4 bg-gradient-to-r from-[#e8612c] to-[#e8612c] cursor-pointer hover:to-[#f1713d] transition-all relative z-10"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)' }}
+        >
+          <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight group-hover:pl-1 transition-all">
+            {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
+          </span>
+        </div>
+
+        {/* Right Side - Icons */}
+        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-20px] pl-8 flex-1">
           <div className="w-4 h-4 flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
-        </div>
-        
-        {/* Time - Desktop Only */}
-        <div className="hidden lg:flex mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
-           {match.startTime}
+          <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
+             {match.startTime}
+          </div>
         </div>
       </div>
 
@@ -303,6 +318,8 @@ export default function SportDetailPage() {
         teamB: g.Team2 || g.Game_name?.split(' Vs ')[1] || 'Team B',
         startTime: g.DateTime || 'Live',
         isUpcoming: isUpcoming,
+        matchId: g.gid || g.Event_Id,
+        competitionId: g.CompetitionCode || g.cid || 'all',
         odds: [
           { 
             back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,
