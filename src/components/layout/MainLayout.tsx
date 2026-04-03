@@ -2,6 +2,7 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
+import { useAuthStore } from '@/store/authStore'
 import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
 import Footer from './Footer'
@@ -11,6 +12,7 @@ import NewsTicker from '../common/NewsTicker'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useLayoutStore()
+  const { isAuthenticated } = useAuthStore()
   const pathname = usePathname()
 
   // If we are on an auth page, don't show the header and remove the sidebar offset/padding
@@ -26,10 +28,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[65px]' : 'lg:pl-[220px]'}`}>
-      {/* News Ticker - Fixed at the very top of the screen */}
-      <div className="fixed top-0 left-0 right-0 z-[70]">
-        <NewsTicker />
-      </div>
+      {/* News Ticker - Fixed at the very top of the screen only when authenticated */}
+      {isAuthenticated && (
+        <div className="fixed top-0 left-0 right-0 z-[70]">
+          <NewsTicker />
+        </div>
+      )}
 
       {/* Header - fixed below news ticker */}
       <Header />
@@ -51,8 +55,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </a>
       )}
 
-      {/* Main page content - pt accounts for news ticker (34px) + header (148px) = 182px */}
-      <main className="min-h-screen pt-0 lg:pt-[182px]" style={{ background: '#121212' }}>
+      {/* Main page content - pt accounts for news ticker (34px) + header (76px) + subheader (52px) = 162px, if no news ticker then 128px */}
+      <main
+        className={`min-h-screen pt-0 ${isAuthenticated ? 'lg:pt-[162px]' : 'lg:pt-[128px]'}`}
+        style={{ background: '#121212' }}
+      >
         <div className="pb-0 lg:pb-0">
           {children}
         </div>

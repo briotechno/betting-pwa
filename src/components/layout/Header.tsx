@@ -164,7 +164,7 @@ export default function Header() {
   return (
     <div className="z-[60]">
       {/* ── Fixed Top Header (All Devices) ── */}
-      <div className="fixed top-[34px] left-0 right-0 z-[60] bg-black backdrop-blur-md h-20 lg:h-[92px] transition-all duration-300">
+      <div className={`fixed ${isAuthenticated ? 'top-[34px]' : 'top-0'} left-0 right-0 z-[60] bg-black backdrop-blur-md h-16 lg:h-[76px] transition-all duration-300`}>
         <div className="flex items-center justify-between px-2 md:px-5 h-full max-w-[2000px] mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <button
@@ -174,7 +174,7 @@ export default function Header() {
               <img src="/menuIcon.png" alt="Menu" className="w-[30px] h-[30px] object-contain" />
             </button>
 
-            <Link href="/" className="flex items-center h-8 lg:h-14">
+            <Link href="/" className="flex items-center h-8 lg:h-12">
               <img
                 src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
                 alt="Fairplay Logo"
@@ -239,11 +239,11 @@ export default function Header() {
           {/* User Actions / Auth Form */}
           <div className="flex items-center gap-2 ml-auto">
             {mounted && !isAuthenticated && (
-              <div className="lg:hidden flex items-center gap-2">
-                <Link href="/auth/login" className="px-5 py-1.5 text-[11px] font-black rounded-full text-white bg-[#e8612c] uppercase tracking-tighter whitespace-nowrap">
+              <div className="lg:hidden flex items-center gap-1.5">
+                <Link href="/auth/login" className="px-3 py-1.5 text-[10px] font-black rounded-full text-white bg-[#e8612c] uppercase tracking-tighter whitespace-nowrap">
                   {t('common.login')}
                 </Link>
-                <Link href="/auth/signup" className="px-4 py-1.5 text-[11px] font-black rounded-full text-white bg-[#28a745] uppercase tracking-tighter whitespace-nowrap">
+                <Link href="/auth/signup" className="px-3 py-1.5 text-[10px] font-black rounded-full text-white bg-[#28a745] uppercase tracking-tighter whitespace-nowrap">
                   {t('common.signup')}
                 </Link>
               </div>
@@ -252,27 +252,27 @@ export default function Header() {
             {mounted && isAuthenticated && user ? (
               <>
                 {/* Mobile Authenticated */}
-                <div className="lg:hidden flex items-center gap-1.5">
+                <div className="lg:hidden flex items-center gap-1">
                   <button
-                    className="w-8 h-8 rounded-full bg-[#f26522] flex items-center justify-center shadow-md active:scale-95 transition-all"
+                    className="w-7 h-7 rounded-full bg-[#f26522] flex items-center justify-center shadow-md active:scale-95 transition-all"
                     onClick={() => setSearchModalOpen(!searchModalOpen)}
                   >
-                    <Search size={14} className="text-white" strokeWidth={3} />
+                    <Search size={12} className="text-white" strokeWidth={4} />
                   </button>
 
-                  <Link href="/wallet/deposit" className="h-8 px-3 rounded-full border border-[#28a745] flex items-center justify-center active:scale-95 transition-all">
-                    <img src="/nav/deposit.svg" alt="Deposit" className="w-4 h-4" />
+                  <Link href="/wallet/deposit" className="h-7 w-7 rounded-full border border-[#28a745] flex items-center justify-center active:scale-95 transition-all">
+                    <img src="/nav/deposit.svg" alt="Deposit" className="w-3.5 h-3.5" />
                   </Link>
 
-                  <Link href="/wallet" className="h-8 px-3 rounded-full border border-[#f26522] flex items-center gap-1.5 active:scale-95 transition-all">
-                    <img src="/nav/wallet.svg" alt="Wallet" className="w-3.5 h-3.5" />
-                    <span className="text-white text-[13px] font-black uppercase tracking-tight">
+                  <Link href="/wallet" className="h-7 px-2 rounded-full border border-[#f26522] flex items-center gap-1 active:scale-95 transition-all">
+                    <img src="/nav/wallet.svg" alt="Wallet" className="w-3 h-3" />
+                    <span className="text-white text-[11px] font-black uppercase tracking-tight">
                       ₹{user.balance.toLocaleString()}
                     </span>
                   </Link>
 
-                  <button onClick={() => setProfileSidebarOpen(true)} className="h-8 px-4 rounded-full border border-[#f26522] flex items-center justify-center active:scale-95 transition-all">
-                    <svg width="10" height="12" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <button onClick={() => setProfileSidebarOpen(true)} className="h-7 w-7 rounded-full border border-[#f26522] flex items-center justify-center active:scale-95 transition-all">
+                    <svg width="10" height="11" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.5 4.05263C3.5 6.01132 5.07033 7.60526 7 7.60526C8.92967 7.60526 10.5 6.01132 10.5 4.05263C10.5 2.09395 8.92967 0.5 7 0.5C5.07033 0.5 3.5 2.09395 3.5 4.05263ZM13.2222 15.5H14V14.7105C14 11.6639 11.557 9.18421 8.55556 9.18421H5.44444C2.44222 9.18421 0 11.6639 0 14.7105V15.5H13.2222Z" fill="white" />
                     </svg>
                   </button>
@@ -451,7 +451,7 @@ export default function Header() {
       </div>
 
       {/* ── Mobile Inplay Header ── */}
-      <div className="lg:hidden px-2 py-1.5 bg-[#1a1a1a] mt-[114px] relative z-[50]">
+      <div className={`lg:hidden px-2 py-1.5 bg-[#1a1a1a] ${isAuthenticated ? 'mt-[98px]' : 'mt-[64px]'} relative z-[50]`}>
         <div className="flex w-[98%] h-[60px] p-1 rounded-[12px] bg-[#3d3d3d] mx-auto relative z-[1] items-center justify-between">
           <Link
             href="/"
@@ -485,7 +485,7 @@ export default function Header() {
       </div>
 
       {/* ── Fixed Desktop Sub Header ── */}
-      <div className="hidden lg:flex fixed top-[126px] left-0 right-0 z-[59] items-center justify-center h-[56px] overflow-x-auto no-scrollbar bg-[#000] px-4 transition-all duration-300">
+      <div className={`hidden lg:flex fixed ${isAuthenticated ? 'top-[110px]' : 'top-[76px]'} left-0 right-0 z-[59] items-center justify-center h-[52px] overflow-x-auto no-scrollbar bg-[#000] px-4 transition-all duration-300`}>
         <div className="flex items-center gap-1">
           {[
             { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },

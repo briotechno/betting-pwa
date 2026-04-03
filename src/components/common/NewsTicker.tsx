@@ -1,14 +1,13 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { Megaphone, Loader2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { userController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
 
 export default function NewsTicker() {
   const { isAuthenticated } = useAuthStore()
-  const [news, setNews] = useState<string[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [newsItems, setNewsItems] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -31,11 +30,11 @@ export default function NewsTicker() {
         const rawNews = response.news || response.msg || ''
         
         if (response.error === '0' && rawNews) {
-          const newsItems = typeof rawNews === 'string' 
+          const items = typeof rawNews === 'string' 
             ? rawNews.split(' | ').filter(item => item.trim() !== '')
             : Array.isArray(rawNews) ? rawNews : [rawNews]
           
-          setNews(newsItems)
+          setNewsItems(items)
         }
       } catch (error) {
         console.error('Failed to fetch news:', error)
@@ -47,59 +46,48 @@ export default function NewsTicker() {
     fetchNews()
   }, [isAuthenticated])
 
-  useEffect(() => {
-    if (news.length <= 1) return
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % news.length)
-    }, 8000)
-    return () => clearInterval(interval)
-  }, [news])
+  if (!isAuthenticated || (!loading && newsItems.length === 0)) return null
 
-  if (!isAuthenticated || (!loading && news.length === 0)) return null
+  const newsString = newsItems.join('       |       ')
 
   return (
-    <div className="w-full h-[34px] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 flex items-center overflow-hidden relative z-[70]">
+    <div className="w-full h-[34px] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 flex items-center overflow-hidden relative z-[70] px-4">
       {/* Decorative Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#f26522]/10 via-transparent to-[#f26522]/5 pointer-events-none" />
       
-      {/* Label with Premium Styling */}
-      <div className="flex-shrink-0 h-full bg-gradient-to-r from-[#f26522] to-[#e8612c] px-4 flex items-center gap-2 shadow-[4px_0_15px_rgba(0,0,0,0.4)] z-10">
+      {/* Small Megaphone Icon */}
+      <div className="flex-shrink-0 flex items-center gap-2 z-10 bg-[#0a0a0a]/80 pr-4">
         <motion.div
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <Megaphone size={13} className="text-white drop-shadow-sm" />
+          <Megaphone size={13} className="text-[#f26522] drop-shadow-sm" />
         </motion.div>
-        <span className="text-[10px] font-black text-white uppercase tracking-[0.15em] whitespace-nowrap">
-          Updates
-        </span>
       </div>
       
       <div className="flex-1 h-full flex items-center overflow-hidden relative">
         {loading ? (
-          <div className="flex items-center gap-2 px-6">
+          <div className="flex items-center gap-2 px-2">
             <Loader2 size={11} className="animate-spin text-[#f26522]" />
             <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest">Syncing Latest News...</span>
           </div>
         ) : (
-          <div className="w-full h-full relative flex items-center px-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentIndex}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-1 rounded-full bg-[#f26522] shadow-[0_0_8px_rgba(242,101,34,0.6)]" />
-                  <span className="text-[11px] font-bold text-white/90 uppercase tracking-wide truncate">
-                    {news[currentIndex]}
-                  </span>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+          <div className="flex whitespace-nowrap items-center">
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: '-100%' }}
+              transition={{
+                duration: Math.max(20, newsString.length * 0.2), // Dynamic duration based on length
+                repeat: Infinity,
+                ease: 'linear'
+              }}
+              className="flex items-center"
+            >
+              <span className="text-[11px] font-bold text-white/90 uppercase tracking-wide px-4">
+                {newsString}
+              </span>
+              {/* Duplicate for smoother loop if needed, but for simple marquee 100% to -100% is fine */}
+            </motion.div>
           </div>
         )}
       </div>

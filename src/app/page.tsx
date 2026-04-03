@@ -542,9 +542,9 @@ export default function HomePage() {
                         <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
                       </div>
                       <div className="flex lg:hidden gap-1">
-                        <div className="w-[60px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
-                        <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
-                        <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
+                        <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
+                        <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
+                        <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
                       </div>
                     </div>
                   </div>
@@ -691,9 +691,9 @@ export default function HomePage() {
                           <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
                         </div>
                         <div className="flex lg:hidden gap-1">
-                          <div className="w-[60px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
-                          <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
-                          <div className="w-[60px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
+                          <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
+                          <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
+                          <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
                         </div>
                       </div>
                     </div>

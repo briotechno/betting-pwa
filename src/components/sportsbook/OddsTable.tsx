@@ -112,7 +112,7 @@ function RateButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-[62px] h-[42px] rounded-[0.25rem] flex flex-col items-center justify-center transition-all border border-transparent ${isEmpty
+      className={`w-[58px] sm:w-[62px] h-[36px] sm:h-[42px] rounded-[0.2rem] flex flex-col items-center justify-center transition-all border border-transparent ${isEmpty
           ? 'bg-[#e0e0e0] text-[#999]'
           : isUpcoming
             ? `${colorClass} text-black/60 opacity-60 cursor-not-allowed`
@@ -196,15 +196,15 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </td>
                   )}
 
-                  <td className={`py-2 px-3 ${row.startTime ? 'min-w-[100px] max-w-[100px]' : 'min-w-[130px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}>
+                  <td className={`py-2 px-1.5 ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}>
                     <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                       {row.teamName.includes(' vs ') ? (
                         <>
-                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[10px]' : 'text-[11px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
-                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[10px]' : 'text-[11px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
+                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
+                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
                         </>
                       ) : (
-                        <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[10px]' : 'text-[11px]'}`}>{toTitleCase(row.teamName)}</div>
+                        <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName)}</div>
                       )}
                     </div>
                   </td>
@@ -226,7 +226,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
                   <td className="py-1 pr-2 lg:w-[410px]">
 
-                    <div className="flex items-center justify-end gap-1.5">
+                    <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                       {[0, 1, 2].map((runnerIdx) => {
                         const odd = row.odds[runnerIdx] || { back: 0, lay: 0, backSize: '', laySize: '' }
                         const isInactive = row.status === 'SUSPENDED' || row.status === 'CLOSED'
