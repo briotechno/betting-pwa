@@ -1,11 +1,13 @@
 'use client'
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronUp, ChevronLeft, Plus, Search } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
+import { useAuthStore } from '@/store/authStore'
+import { bettingController } from '@/controllers/betting/bettingController'
 
 const OddsBox = ({ 
   val, 
@@ -130,13 +132,13 @@ const MarketTable = ({
       </div>
 
       {/* Sub-Header Category */}
-      <div className="bg-[#333] flex items-center justify-between px-3 h-10 border-t border-white/5">
+      <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
          <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
             <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
          </div>
-         <div className="flex gap-[68px] lg:gap-[68px] mr-1 lg:mr-10">
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Back</span>
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Lay</span>
+         <div className="flex gap-1 lg:gap-[68px] mr-1 lg:mr-10 items-center">
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Back</span>
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Lay</span>
          </div>
       </div>
 
@@ -218,14 +220,44 @@ const MarketTable = ({
 export default function GameDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user } = useAuthStore()
   
   const sportId = params.sport as string
   const competitionId = params.id as string
   const matchId = params.matchId as string
-
+  
+  const [activeTab, setActiveTab] = useState<'MARKETS' | 'OPEN_BETS'>('MARKETS')
   const [gameData, setGameData] = useState<any>(null)
   const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
   const [isLoading, setIsLoading] = useState(true)
+  
+  // Open Bets Data
+  const [bets, setBets] = useState<any[]>([])
+  const [betsLoading, setBetsLoading] = useState(false)
+  const [unmatchedOpen, setUnmatchedOpen] = useState(true)
+  const [matchedOpen, setMatchedOpen] = useState(true)
+
+  const fetchBets = useCallback(async () => {
+    if (!user?.loginToken) return
+    try {
+      setBetsLoading(true)
+      const res = await bettingController.getMyBets(user.loginToken)
+      if (res && typeof res === 'object' && !res.error) {
+        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null)
+        setBets(betArray)
+      }
+    } catch (err) {
+      console.error('Failed to fetch bets:', err)
+    } finally {
+      setBetsLoading(false)
+    }
+  }, [user?.loginToken])
+
+  useEffect(() => {
+    if (activeTab === 'OPEN_BETS') {
+      fetchBets()
+    }
+  }, [activeTab, fetchBets])
 
   // 1. Fetch Game Data
   useEffect(() => {
@@ -350,51 +382,158 @@ export default function GameDetailPage() {
           </div>
         </div>
 
-        <div className="p-3 lg:p-6 space-y-6">
-           <div className="flex items-center justify-between border-b border-[#f36c21]/30 pb-1 mb-4">
+        <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
+           {/* Mobile Only Tab Navigation */}
+           <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 sticky top-12 z-20">
+              <button 
+                onClick={() => setActiveTab('MARKETS')}
+                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'MARKETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}
+              >
+                Markets
+              </button>
+              <button 
+                onClick={() => setActiveTab('OPEN_BETS')}
+                className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}
+              >
+                Open Bets {bets.length > 0 && `(${bets.length})`}
+              </button>
+           </div>
+
+           {/* Desktop Only Header */}
+           <div className="hidden lg:flex items-center justify-between border-b border-[#f36c21]/30 pb-1 mb-4">
               <div className="bg-[#f36c21] px-4 py-1.5 rounded-t-md">
                  <span className="text-white text-[11px] font-black uppercase tracking-widest">Markets</span>
               </div>
            </div>
 
-           {allMarkets.length > 0 ? (
-             <div className="space-y-8">
-               {/* Group by category if needed, but here we just list them robustly */}
-               {allMarkets.map((m: any, mIdx: number) => {
-                 const isBM = m.isBookmaker || m.category === 'BOOKMAKER' || m.name?.toLowerCase().includes('bookmaker');
-                 const isFancy = m.category === 'FANCY';
-                 
-                 let runners = m.runner || m.runners || [];
-                 if (!Array.isArray(runners)) runners = Object.values(runners);
+           <div className="p-3 lg:p-0">
+             {activeTab === 'MARKETS' ? (
+                allMarkets.length > 0 ? (
+                  <div className="space-y-8">
+                    {allMarkets.map((m: any, mIdx: number) => {
+                      const isBM = m.isBookmaker || m.category === 'BOOKMAKER' || m.name?.toLowerCase().includes('bookmaker');
+                      const isFancy = m.category === 'FANCY';
+                      
+                      let runners = m.runner || m.runners || [];
+                      if (!Array.isArray(runners)) runners = Object.values(runners);
 
-                 return (
-                   <div key={m.MarketId || m.marketid || m.eid || mIdx}>
-                     {(isBM || isFancy) && (
-                       <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2 ml-1">
-                         {isBM ? 'Bookmaker (0% Commission & Instant Bet)' : 'Fancy Markets'}
-                       </p>
-                     )}
-                     <MarketTable 
-                       marketName={m.name || (isBM ? 'Match Winner (Bookmaker)' : 'Match Odds')} 
-                       runners={runners} 
-                       marketId={m.MarketId || m.marketid || m.eid} 
-                       liveRates={liveOdds}
-                       matchName={matchName}
-                       marketType={m.category || 'ODDS'}
-                       marketIndex={mIdx}
-                     />
-                   </div>
-                 );
-               })}
-             </div>
-           ) : (
-             <div className="py-24 text-center bg-white/5 rounded-[32px] border border-white/5 mx-4 flex flex-col items-center">
-               <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      return (
+                        <div key={m.MarketId || m.marketid || m.eid || mIdx}>
+                          {(isBM || isFancy) && (
+                            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2 ml-1">
+                              {isBM ? 'Bookmaker (0% Commission & Instant Bet)' : 'Fancy Markets'}
+                            </p>
+                          )}
+                          <MarketTable 
+                            marketName={m.name || (isBM ? 'Match Winner (Bookmaker)' : 'Match Odds')} 
+                            runners={runners} 
+                            marketId={m.MarketId || m.marketid || m.eid} 
+                            liveRates={liveOdds}
+                            matchName={matchName}
+                            marketType={m.category || 'ODDS'}
+                            marketIndex={mIdx}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-24 text-center bg-white/5 rounded-[32px] border border-white/5 mx-4 flex flex-col items-center">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <p className="text-white/20 text-[12px] font-black uppercase tracking-[0.3em] italic">No Available Markets for this Session</p>
+                  </div>
+                )
+             ) : (
+               <div className="space-y-4 pt-2">
+                 {/* Open Bets Tab Content */}
+                 <div className="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+                    <button 
+                      onClick={() => setUnmatchedOpen(!unmatchedOpen)}
+                      className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[12px] font-black uppercase tracking-widest"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={unmatchedOpen ? 'text-[#f36c21]' : ''}>Unmatched Bets</span>
+                        {bets.filter(b => b.IsMatched === '0').length > 0 && (
+                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{bets.filter(b => b.IsMatched === '0').length}</span>
+                        )}
+                      </div>
+                      <ChevronDown size={16} className={`transition-transform duration-300 ${unmatchedOpen ? '' : '-rotate-90'}`} />
+                    </button>
+                    
+                    {unmatchedOpen && (
+                      <div className="divide-y divide-white/5 bg-[#111]">
+                        {betsLoading ? (
+                          <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
+                        ) : bets.filter(b => b.IsMatched === '0').length > 0 ? (
+                          bets.filter(b => b.IsMatched === '0').map((bet, i) => (
+                            <div key={i} className="p-4 flex flex-col gap-2">
+                               <div className="flex justify-between items-start">
+                                  <span className="text-white text-[11px] font-bold uppercase truncate max-w-[70%]">{bet.Game}</span>
+                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-sm uppercase ${bet.Side === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>{bet.Side}</span>
+                               </div>
+                               <div className="flex justify-between items-center text-[10px]">
+                                  <span className="text-white/50">{bet.Selection}</span>
+                                  <span className="text-white font-black">@ {bet.Rate}</span>
+                               </div>
+                               <div className="flex justify-between items-center text-[9px]">
+                                  <span className="text-white/30">{bet.Date}</span>
+                                  <span className="text-[#f36c21] font-black">₹{bet.Stake}</span>
+                               </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center text-white/20 text-[10px] font-black uppercase tracking-widest italic">Zero Unmatched Bets</div>
+                        )}
+                      </div>
+                    )}
+                 </div>
+
+                 <div className="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+                    <button 
+                      onClick={() => setMatchedOpen(!matchedOpen)}
+                      className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[12px] font-black uppercase tracking-widest"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={matchedOpen ? 'text-[#f36c21]' : ''}>Matched Bets</span>
+                        {bets.filter(b => b.IsMatched === '1').length > 0 && (
+                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{bets.filter(b => b.IsMatched === '1').length}</span>
+                        )}
+                      </div>
+                      <ChevronDown size={16} className={`transition-transform duration-300 ${matchedOpen ? '' : '-rotate-90'}`} />
+                    </button>
+                    
+                    {matchedOpen && (
+                      <div className="divide-y divide-white/5 bg-[#111]">
+                        {betsLoading ? (
+                          <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
+                        ) : bets.filter(b => b.IsMatched === '1').length > 0 ? (
+                          bets.filter(b => b.IsMatched === '1').map((bet, i) => (
+                             <div key={i} className="p-4 flex flex-col gap-2">
+                               <div className="flex justify-between items-start">
+                                  <span className="text-white text-[11px] font-bold uppercase truncate max-w-[70%]">{bet.Game}</span>
+                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-sm uppercase ${bet.Side === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>{bet.Side}</span>
+                               </div>
+                               <div className="flex justify-between items-center text-[10px]">
+                                  <span className="text-white/50">{bet.Selection}</span>
+                                  <span className="text-white font-black">@ {bet.Rate}</span>
+                               </div>
+                               <div className="flex justify-between items-center text-[9px]">
+                                  <span className="text-white/30">{bet.Date}</span>
+                                  <span className="text-[#f36c21] font-black">₹{bet.Stake}</span>
+                               </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center text-white/20 text-[10px] font-black uppercase tracking-widest italic">Zero Matched Bets</div>
+                        )}
+                      </div>
+                    )}
+                 </div>
                </div>
-               <p className="text-white/20 text-[12px] font-black uppercase tracking-[0.3em] italic">No Available Markets for this Session</p>
-             </div>
-           )}
+             )}
+           </div>
         </div>
       </div>
 

@@ -119,14 +119,14 @@ const MarketTable = ({
         {/* Left Side Slanted */}
         <div 
           onClick={navigateToGame}
-          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" 
+          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-6 lg:pr-12 z-10 transition-all duration-300" 
           style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
         >
-          <div className="flex items-center gap-2 mt-2">
-            <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform">
+          <div className="flex items-center gap-1.5 lg:gap-2 mt-2 max-w-[240px] lg:max-w-none">
+            <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[16px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform flex-shrink-0">
               {isCollapsed ? '+' : '−'}
             </span>
-            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
+            <span className="text-white text-[11px] lg:text-[14px] font-bold truncate uppercase tracking-tight">
               {matchName}
             </span>
           </div>
@@ -142,13 +142,13 @@ const MarketTable = ({
       </div>
 
       {/* Market Category Sub-Header */}
-      <div className="bg-[#333] flex items-center justify-between px-3 h-10 border-t border-white/5">
+      <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
          <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
             <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
          </div>
-         <div className="flex gap-[68px] lg:gap-[68px] mr-1 lg:mr-10">
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Back</span>
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest w-[124px] text-center">Lay</span>
+         <div className="flex gap-1 lg:gap-[68px] mr-1 lg:mr-10 items-center">
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Back</span>
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Lay</span>
          </div>
       </div>
 
@@ -190,7 +190,7 @@ const MarketTable = ({
                         {runnerName}
                       </span>
                     </td>
-                    <td className="p-1 px-2 relative min-w-[200px]">
+                    <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
                            <div className="flex gap-1 py-1">
                               <div className="hidden lg:flex gap-1">
