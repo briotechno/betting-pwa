@@ -6,6 +6,8 @@ import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
+import BetSlipForm from '@/components/sportsbook/BetSlipForm'
+import { useAuthStore } from '@/store/authStore'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
@@ -68,6 +70,7 @@ const MarketTable = ({
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
   const params = useParams()
+  const { selections, clearAll } = useBetSlipStore()
   const addSelection = useBetSlipStore(state => state.addSelection)
 
   const getRunnerRates = (runnerId: string | number, rIdx: number) => {
@@ -183,41 +186,57 @@ const MarketTable = ({
                   })
                 }
 
-                return (
-                  <tr key={runnerId} className="hover:bg-gray-50/50 transition-colors group relative">
-                    <td className="py-3 px-3 lg:px-4">
-                      <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
-                        {runnerName}
-                      </span>
-                    </td>
-                    <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
-                        <div className="flex justify-end gap-1 lg:gap-2">
-                           <div className="flex gap-1 py-1">
-                              <div className="hidden lg:flex gap-1">
-                                 <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
-                                 <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
-                              </div>
-                              <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
-                           </div>
-                           <div className="flex gap-1 py-1">
-                              <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
-                              <div className="hidden lg:flex gap-1">
-                                 <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
-                                 <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
-                              </div>
-                           </div>
-                        </div>
+                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${marketId}-${runnerId}`))
 
-                        {/* Market Suspended Overlay */}
-                        {isSuspended && (
-                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
-                            <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
-                               <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
-                            </div>
+                return (
+                  <React.Fragment key={runnerId}>
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative">
+                      <td className="py-3 px-3 lg:px-4">
+                        <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
+                          {runnerName}
+                        </span>
+                      </td>
+                      <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
+                          <div className="flex justify-end gap-1 lg:gap-2">
+                             <div className="flex gap-1 py-1">
+                                <div className="hidden lg:flex gap-1">
+                                   <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
+                                   <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
+                                </div>
+                                <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
+                             </div>
+                             <div className="flex gap-1 py-1">
+                                <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
+                                <div className="hidden lg:flex gap-1">
+                                   <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
+                                   <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
+                                </div>
+                             </div>
                           </div>
-                        )}
-                    </td>
-                  </tr>
+
+                          {/* Market Suspended Overlay */}
+                          {isSuspended && (
+                            <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
+                              <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
+                                 <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
+                              </div>
+                            </div>
+                          )}
+                      </td>
+                    </tr>
+
+                    {/* Inline Mobile Betslip */}
+                    {isSelectedOnMobile && selections[0] && (
+                      <tr className="lg:hidden animate-in slide-in-from-top-4 duration-300">
+                        <td colSpan={2} className="p-2 pt-0 bg-white">
+                           <BetSlipForm 
+                              selection={selections[0]} 
+                              onClose={clearAll} 
+                           />
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 )
               })}
             </tbody>

@@ -18,9 +18,9 @@ export default function NewsTicker() {
       }
 
       try {
-        const token = localStorage.getItem('fairbet-auth') ? 
+        const token = localStorage.getItem('fairbet-auth') ?
           JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
-        
+
         if (!token) {
           setLoading(false)
           return
@@ -28,12 +28,12 @@ export default function NewsTicker() {
 
         const response = await userController.getNews(token)
         const rawNews = response.news || response.msg || ''
-        
+
         if (response.error === '0' && rawNews) {
-          const items = typeof rawNews === 'string' 
+          const items = typeof rawNews === 'string'
             ? rawNews.split(' | ').filter(item => item.trim() !== '')
             : Array.isArray(rawNews) ? rawNews : [rawNews]
-          
+
           setNewsItems(items)
         }
       } catch (error) {
@@ -54,9 +54,9 @@ export default function NewsTicker() {
     <div className="w-full h-[34px] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 flex items-center overflow-hidden relative z-[70] px-4">
       {/* Decorative Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#f26522]/10 via-transparent to-[#f26522]/5 pointer-events-none" />
-      
+
       {/* Small Megaphone Icon */}
-      <div className="flex-shrink-0 flex items-center gap-2 z-10 bg-[#0a0a0a]/80 pr-4">
+      <div className="flex-shrink-0 flex items-center gap-2 z-10   pr-2">
         <motion.div
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
@@ -64,7 +64,7 @@ export default function NewsTicker() {
           <Megaphone size={13} className="text-[#f26522] drop-shadow-sm" />
         </motion.div>
       </div>
-      
+
       <div className="flex-1 h-full flex items-center overflow-hidden relative">
         {loading ? (
           <div className="flex items-center gap-2 px-2">
