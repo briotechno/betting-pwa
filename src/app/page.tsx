@@ -585,7 +585,7 @@ export default function HomePage() {
                 return (
                   <Link
                     key={game.name}
-                    href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '')}`}
                     className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
                     style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
@@ -623,7 +623,7 @@ export default function HomePage() {
                 return (
                   <Link
                     key={game.name}
-                    href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '')}`}
                     className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
                     style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
