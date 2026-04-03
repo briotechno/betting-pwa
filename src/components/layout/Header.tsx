@@ -460,6 +460,9 @@ export default function Header() {
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
           </Link>
+          
+          <div className="h-8 w-[1px] bg-white/10" />
+
           <button
             onClick={() => setAuraCasinoOpen(true)}
             className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
@@ -467,6 +470,9 @@ export default function Header() {
             <img src="/nav/aura-casino.png" alt="Aura Casino" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Aura Casino</span>
           </button>
+
+          <div className="h-8 w-[1px] bg-white/10" />
+
           <Link
             href="/sportsbook"
             className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/sportsbook' ? 'opacity-100 scale-105' : 'opacity-60'}`}
@@ -474,6 +480,9 @@ export default function Header() {
             <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">SportsBook</span>
           </Link>
+
+          <div className="h-8 w-[1px] bg-white/10" />
+
           <button
             onClick={() => setMoreMenuOpen(true)}
             className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
