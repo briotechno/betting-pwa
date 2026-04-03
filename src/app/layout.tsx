@@ -14,6 +14,7 @@ import AuraCasinoOverlay from '@/components/casino/AuraCasinoOverlay'
 import DesktopBottomNav from '@/components/layout/DesktopBottomNav'
 import Snackbar from '@/components/ui/Snackbar'
 import Providers from './providers'
+import SessionGuard from '@/components/common/SessionGuard'
 import { Suspense } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -50,6 +51,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`}>
         <Providers>
+          <SessionGuard />
 
           {/* Sidebar - desktop only, fixed to left */}
           <Suspense fallback={null}>

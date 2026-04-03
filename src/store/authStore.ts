@@ -9,6 +9,7 @@ interface User {
   tier: 'Beginner' | 'Silver' | 'Gold' | 'Platinum'
   avatar?: string;
   loginToken?: string;
+  lastLoginAt?: number;
 }
 
 interface AuthState {
@@ -28,7 +29,10 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
 
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setUser: (user) => set({ 
+        user: user ? { ...user, lastLoginAt: Date.now() } : null, 
+        isAuthenticated: !!user 
+      }),
       setToken: (token) => 
         set((state) => ({ 
           user: state.user ? { ...state.user, loginToken: token || '' } : null 
