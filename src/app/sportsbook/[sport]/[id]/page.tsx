@@ -55,7 +55,8 @@ const MarketTable = ({
   startTime, 
   isWinnerType,
   matchId,
-  matchName
+  matchName,
+  eventId
 }: { 
   marketName: string, 
   runners: any[], 
@@ -65,7 +66,8 @@ const MarketTable = ({
   startTime: string,
   isWinnerType?: boolean,
   matchId: string,
-  matchName: string
+  matchName: string,
+  eventId: string
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
@@ -173,7 +175,7 @@ const MarketTable = ({
                   addSelection({
                     id: `${marketId}-${runnerId}-${side}`,
                     matchId: matchId.toString(),
-                    eventId: matchId.toString(),
+                    eventId: eventId.toString(),
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
@@ -479,7 +481,8 @@ export default function CompetitionDetailPage() {
             startTime: g.DateTime,
             isWinnerType: g.Game_Type === 'Winner' || m.name === 'Winner',
             matchId: gid,
-            matchName: details.Team1 && details.Team2 ? `${details.Team1} V ${details.Team2}` : (g.Game_name || `${g.Team1} V ${g.Team2}`)
+            matchName: details.Team1 && details.Team2 ? `${details.Team1} V ${details.Team2}` : (g.Game_name || `${g.Team1} V ${g.Team2}`),
+            eventId: g.Event_Id || gid.toString()
           });
         });
       }
@@ -499,7 +502,8 @@ export default function CompetitionDetailPage() {
             isUpcoming,
             startTime: g.DateTime,
             matchId: gid,
-            matchName: g.Game_name || `${g.Team1} V ${g.Team2}`
+            matchName: g.Game_name || `${g.Team1} V ${g.Team2}`,
+            eventId: g.Event_Id || gid.toString()
           });
         }
       }

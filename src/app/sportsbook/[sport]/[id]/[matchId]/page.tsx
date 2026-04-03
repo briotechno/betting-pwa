@@ -61,7 +61,8 @@ const MarketTable = ({
   liveRates, 
   matchName,
   marketType,
-  marketIndex = 0
+  marketIndex = 0,
+  eventId
 }: { 
   marketName: string, 
   runners: any[], 
@@ -69,7 +70,8 @@ const MarketTable = ({
   liveRates: any,
   matchName: string,
   marketType: string,
-  marketIndex?: number
+  marketIndex: number,
+  eventId: string
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
@@ -156,12 +158,13 @@ const MarketTable = ({
                 const rateData = liveRates[marketId]
                 const isSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No'
 
-                const handleAddBet = (odds: string, side: 'back' | 'lay') => {
+                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
-                  addSelection({
+                  
+                   addSelection({
                     id: `${marketId}-${runnerId}-${side}`,
                     matchId: marketId.toString(),
-                    eventId: marketId.toString(),
+                    eventId: eventId.toString(),
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
@@ -450,6 +453,7 @@ export default function GameDetailPage() {
                             matchName={matchName}
                             marketType={m.category || 'ODDS'}
                             marketIndex={mIdx}
+                            eventId={gameData?.Event_Id || gameData?.eid || gameData?.EventId || matchId}
                           />
                         </div>
                       );
