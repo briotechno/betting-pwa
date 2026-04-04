@@ -306,12 +306,12 @@ export default function Header() {
                     )}
                   </div>
 
-                  <button
-                    onClick={openSlip}
-                    className="h-10 px-5 rounded-full border border-[#f26522] text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
+                  <Link
+                    href="/bets"
+                    className="h-10 px-5 rounded-full border border-[#f26522] flex items-center justify-center text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
                     {t('common.open_bets')}
-                  </button>
+                  </Link>
 
                   <Link
                     href="/wallet/deposit"
