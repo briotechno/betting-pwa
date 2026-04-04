@@ -8,7 +8,7 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 
 export default function PremiumSportsbookPage() {
   const router = useRouter()
-  const { user } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
   const { show: showSnackbar } = useSnackbarStore()
   const [url, setUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -80,7 +80,7 @@ export default function PremiumSportsbookPage() {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex flex-col">
+    <div className={`fixed inset-0 ${isAuthenticated ? 'top-[34px]' : 'top-0'} z-[60] bg-black flex flex-col`}>
       {/* Header matching app style */}
       <div className="flex items-center justify-between px-3 h-14 bg-[#1a1a1a] border-b border-white/10 shrink-0">
         <div className="flex items-center gap-3">

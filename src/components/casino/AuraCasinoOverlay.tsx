@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 
 export default function AuraCasinoOverlay() {
   const { auraCasinoOpen, setAuraCasinoOpen } = useLayoutStore()
-  const { user } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
   const [showTapToContinue, setShowTapToContinue] = useState(true)
 
@@ -17,7 +17,7 @@ export default function AuraCasinoOverlay() {
   if (!mounted || !auraCasinoOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+    <div className={`fixed inset-0 ${isAuthenticated ? 'top-[34px]' : 'top-0'} z-[100] bg-black flex flex-col`}>
       {/* Header - Similar to the image */}
       <div className="flex items-center justify-between px-3 h-14 bg-[#1a1a1a] border-b border-white/10 shrink-0">
         <div className="flex items-center gap-3">

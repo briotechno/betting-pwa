@@ -2,6 +2,8 @@
 import React from 'react'
 import { X, Maximize2, RefreshCw } from 'lucide-react'
 
+import { useAuthStore } from '@/store/authStore'
+
 interface GameOverlayProps {
   url: string | null;
   title: string;
@@ -12,10 +14,11 @@ interface GameOverlayProps {
 }
 
 export default function GameOverlay({ url, title, isOpen, onClose, onRefresh, isFloating = false }: GameOverlayProps) {
+  const { isAuthenticated } = useAuthStore()
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col pt-[ env(safe-area-inset-top) ] animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className={`fixed inset-0 ${isAuthenticated ? 'top-[34px]' : 'top-0'} z-[100] bg-black flex flex-col pt-[ env(safe-area-inset-top) ] animate-in fade-in slide-in-from-bottom-4 duration-300`}>
       {/* Immersive Floating Close Button */}
       {isFloating && (
         <button
