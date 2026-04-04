@@ -40,13 +40,20 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
     setLoading(true)
     try {
       let res;
+      // Normalizing the API parameters: 
+      // - Eid is usually the overall match/game/event ID
+      // - selectionId is the specific runner/choice
       const common = {
         LoginToken: user.loginToken,
-        Eid: selection.eventId,
+        Eid: selection.eventId, // The Game/Match ID
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1' 
       }
+
+      console.log('--- Placing Mobile Bet Data ---');
+      console.log('Selection State:', JSON.stringify(selection, null, 2));
+      console.log('API Common Object:', JSON.stringify(common, null, 2));
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
       const isWinner = selection.marketName.toLowerCase().includes('winner')

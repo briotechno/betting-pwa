@@ -163,7 +163,8 @@ const MarketTable = ({
           <table className="w-full border-collapse">
             <tbody className="divide-y divide-gray-100">
               {runners.map((runner, rIdx) => {
-                const runnerId = runner.selectionId || runner.id || rIdx
+                // Improved ID detection: scan for all common API field names
+                const runnerId = runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx
                 const { back, lay } = getRunnerRates(runnerId, rIdx)
                 const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
                 
@@ -172,10 +173,12 @@ const MarketTable = ({
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
+                  
                   addSelection({
                     id: `${marketId}-${runnerId}-${side}`,
-                    matchId: matchId.toString(),
-                    eventId: eventId.toString(),
+                    matchId: matchId.toString(), // The game/match id (gid/eid)
+                    marketId: marketId.toString(), // The pool id
+                    eventId: eventId.toString(),   // Essential for API common params
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
@@ -423,13 +426,11 @@ export default function CompetitionDetailPage() {
     };
   }, [games, gameDetails]);
 
-  // Process data for rendering
   const matchSections = useMemo(() => {
-    return games.map((g, index) => {
+    return games.map((g) => {
       const gid = g.gid || g.Event_Id;
       let details = gameDetails[gid];
       
-      // Handle numerical wrapper if present (e.g., response is {"0": {...}})
       if (details && details["0"]) {
         details = details["0"];
       }
@@ -447,7 +448,6 @@ export default function CompetitionDetailPage() {
       if (details) {
         const allMarkets: any[] = [];
 
-        // 1. Gather from standard categories
         ['ODDS', 'BOOKMAKER', 'FANCY'].forEach(cat => {
           const mData = details[cat] || [];
           const mArr = Array.isArray(mData) ? mData : Object.values(mData);
@@ -456,7 +456,6 @@ export default function CompetitionDetailPage() {
           });
         });
 
-        // 2. Gather from "events" key (per user's response)
         const eventsData = details.events || [];
         const eventsArr = Array.isArray(eventsData) ? eventsData : Object.values(eventsData);
         eventsArr.forEach((m: any) => {
@@ -465,7 +464,6 @@ export default function CompetitionDetailPage() {
           }
         });
 
-        // 3. Transform to sections
         allMarkets.forEach((m: any) => {
           let runners = m.runner || m.runners || [];
           if (!Array.isArray(runners)) {
@@ -482,12 +480,11 @@ export default function CompetitionDetailPage() {
             isWinnerType: g.Game_Type === 'Winner' || m.name === 'Winner',
             matchId: gid,
             matchName: details.Team1 && details.Team2 ? `${details.Team1} V ${details.Team2}` : (g.Game_name || `${g.Team1} V ${g.Team2}`),
-            eventId: g.Event_Id || gid.toString()
+            eventId: m.eid || g.Event_Id || gid.toString()
           });
         });
       }
 
-      // If still no sections, add the base market from competitiongames as fallback
       if (sections.length === 0) {
         const baseMarketId = g.MarketId || g.marketid;
         if (baseMarketId) {

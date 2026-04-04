@@ -151,20 +151,22 @@ const MarketTable = ({
           <table className="w-full border-collapse">
             <tbody className="divide-y divide-gray-100">
               {runners.map((runner, rIdx) => {
-                const runnerId = runner.selectionId || runner.id || rIdx
+                // Improved ID detection: scan for all common API field names
+                const runnerId = runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx
                 const { back, lay } = getRunnerRates(runnerId, rIdx)
                 const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
                 
                 const rateData = liveRates[marketId]
                 const isSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No'
 
-                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
+                const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
                   
-                   addSelection({
+                  addSelection({
                     id: `${marketId}-${runnerId}-${side}`,
-                    matchId: marketId.toString(),
-                    eventId: eventId.toString(),
+                    matchId: eventId.toString(), // The overall Game/Match ID
+                    marketId: marketId.toString(), // The specific pool/market ID
+                    eventId: eventId.toString(),   // Essential for API common params
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
@@ -453,7 +455,7 @@ export default function GameDetailPage() {
                             matchName={matchName}
                             marketType={m.category || 'ODDS'}
                             marketIndex={mIdx}
-                            eventId={gameData?.Event_Id || gameData?.eid || gameData?.EventId || matchId}
+                            eventId={m.eid || gameData?.Event_Id || gameData?.eid || gameData?.EventId || matchId}
                           />
                         </div>
                       );

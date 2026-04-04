@@ -11,6 +11,7 @@ export interface BetSelection {
   stake?: number
   // Fields for API placement
   eventId: string
+  marketId: string
   selectionId: string
   marketType: string
   marketIndex: number
