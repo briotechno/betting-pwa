@@ -4,6 +4,7 @@ import { ChevronDown, Loader2, X, Plus, Minus } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 
 interface Bet {
@@ -34,6 +35,7 @@ export default function BetContainer() {
     confirmBeforePlace,
     toggleConfirmBeforePlace
   } = useBetSlipStore()
+  const snackbar = useSnackbarStore()
 
   useEffect(() => {
     if (activeTab === 'OPEN_BETS' && user?.loginToken) {
@@ -68,7 +70,7 @@ export default function BetContainer() {
   const placeBets = async () => {
     if (selections.length === 0) return
     if (!user || !user.loginToken) {
-      alert("Please login to place a bet")
+      snackbar.show("Please login to place a bet", "error")
       setActiveTab('BETSLIP')
       return
     }
@@ -78,7 +80,7 @@ export default function BetContainer() {
     const stake = stakes[selection.id]
 
     if (!stake || stake <= 0) {
-      alert("Please enter a valid stake amount")
+      snackbar.show("Please enter a valid stake amount", "warning")
       setLoading(false)
       return
     }
@@ -169,15 +171,15 @@ export default function BetContainer() {
       }
 
       if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
-        alert("Bet placed successfully!")
+        snackbar.show("Bet placed successfully!", "success")
         clearAll()
         fetchBets() // Refresh open bets
       } else {
-        alert(res?.msg || res?.message || res?.description || "Failed to place bet")
+        snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }
     } catch (err) {
       console.error(err)
-      alert("An error occurred while placing bet")
+      snackbar.show("An error occurred while placing bet", "error")
     } finally {
       setLoading(false)
     }

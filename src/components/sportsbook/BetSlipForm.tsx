@@ -4,6 +4,7 @@ import { X, Plus, Minus, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 
 interface BetSlipFormProps {
@@ -21,6 +22,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
     clearAll,
     updateOdds
   } = useBetSlipStore()
+  const snackbar = useSnackbarStore()
   
   const [loading, setLoading] = useState(false)
   const stake = stakes[selection.id] || 0
@@ -28,12 +30,12 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
 
   const placeBet = async () => {
     if (!user || !user.loginToken) {
-       alert("Please login to place a bet")
+       snackbar.show("Please login to place a bet", "error")
        return
     }
 
     if (!stake || stake <= 0) {
-      alert("Please enter a valid stake amount")
+      snackbar.show("Please enter a valid stake amount", "warning")
       return
     }
 
@@ -115,14 +117,14 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       }
 
       if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
-         alert("Bet placed successfully!")
+         snackbar.show("Bet placed successfully!", "success")
          clearAll()
       } else {
-         alert(res?.msg || res?.message || res?.description || "Failed to place bet")
+         snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }
     } catch (err) {
       console.error(err)
-      alert("An error occurred while placing bet")
+      snackbar.show("An error occurred while placing bet", "error")
     } finally {
       setLoading(false)
     }
