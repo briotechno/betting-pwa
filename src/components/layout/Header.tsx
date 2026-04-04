@@ -69,7 +69,11 @@ export default function Header() {
     try {
       const response = await userController.getBalance(user.loginToken)
       if (response.error === '0' && response.balance !== undefined) {
-        updateBalance(parseFloat(response.balance))
+        updateBalance(
+           parseFloat(response.balance), 
+           parseFloat(response.exposure || '0'),
+           parseFloat(response.available_balance || '0')
+        )
       }
     } catch (error) {
       console.error('Failed to refresh balance:', error)
@@ -98,6 +102,8 @@ export default function Header() {
           username: username,
           email: '',
           balance: parseFloat(response.balance || '0'),
+          exposure: parseFloat(response.exposure || '0'),
+          availableBalance: parseFloat(response.available_balance || '0'),
           tier: 'Beginner' as const,
           loginToken: response.LoginToken
         }
@@ -267,7 +273,7 @@ export default function Header() {
                   <Link href="/wallet" className="h-7 px-2 rounded-full border border-[#f26522] flex items-center gap-1 active:scale-95 transition-all">
                     <img src="/nav/wallet.svg" alt="Wallet" className="w-3 h-3" />
                     <span className="text-white text-[11px] font-black uppercase tracking-tight">
-                      ₹{user.balance.toLocaleString()}
+                      ₹{user.balance?.toLocaleString() ?? '0'}
                     </span>
                   </Link>
 
@@ -326,7 +332,7 @@ export default function Header() {
                     className="h-10 px-5 rounded-full border border-[#f26522] flex items-center gap-2 text-white text-[13px] font-bold tracking-tight hover:bg-[#f26522]/10 transition-all active:scale-95"
                   >
                     <Wallet size={16} className="text-white" />
-                    ₹{user.balance.toLocaleString()}
+                    ₹{user.balance?.toLocaleString() ?? '0'}
                   </Link>
 
                   <button

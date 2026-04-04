@@ -6,6 +6,8 @@ interface User {
   username: string
   email: string
   balance: number
+  exposure: number
+  availableBalance: number
   tier: 'Beginner' | 'Silver' | 'Gold' | 'Platinum'
   avatar?: string;
   loginToken?: string;
@@ -18,7 +20,7 @@ interface AuthState {
   isLoading: boolean;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
-  updateBalance: (balance: number) => void;
+  updateBalance: (balance: number, exposure?: number, availableBalance?: number) => void;
   logout: () => void;
 }
 
@@ -38,9 +40,14 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, loginToken: token || '' } : null 
         })),
       logout: () => set({ user: null, isAuthenticated: false }),
-      updateBalance: (balance) =>
+      updateBalance: (balance, exposure, availableBalance) =>
         set((state) => ({
-          user: state.user ? { ...state.user, balance } : null,
+          user: state.user ? { 
+            ...state.user, 
+            balance, 
+            exposure: exposure !== undefined ? exposure : (state.user.exposure || 0),
+            availableBalance: availableBalance !== undefined ? availableBalance : (state.user.availableBalance || 0)
+          } : null,
         })),
     }),
     {
