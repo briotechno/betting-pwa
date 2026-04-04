@@ -18,12 +18,25 @@ export interface BetSelection {
   runnersCount?: number
 }
 
+export interface Bet {
+  Game: string;
+  Selection: string;
+  Type: string;
+  Rate: string;
+  Stake: string;
+  Date: string;
+  Side: 'back' | 'lay';
+  IsMatched?: string;
+}
+
 interface BetSlipState {
   isOpen: boolean
   selections: BetSelection[]
   stakes: Record<string, number>
   confirmBeforePlace: boolean
   autoAcceptOdds: boolean
+  myBets: Bet[]
+  setMyBets: (bets: Bet[]) => void
   openSlip: () => void
   closeSlip: () => void
   toggleSlip: () => void
@@ -43,6 +56,9 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
   stakes: {},
   confirmBeforePlace: true,
   autoAcceptOdds: false,
+  myBets: [],
+
+  setMyBets: (bets) => set({ myBets: bets }),
 
 
   openSlip: () => set({ isOpen: true }),

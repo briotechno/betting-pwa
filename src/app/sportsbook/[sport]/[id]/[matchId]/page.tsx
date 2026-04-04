@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronUp, ChevronLeft, Plus, Search } from 'lucide-react'
-import { toTitleCase } from '@/utils/format'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -269,7 +268,7 @@ export default function GameDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   
   // Open Bets Data
-  const [bets, setBets] = useState<any[]>([])
+  const { myBets: bets, setMyBets: setGlobalBets } = useBetSlipStore()
   const [betsLoading, setBetsLoading] = useState(false)
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
@@ -280,15 +279,15 @@ export default function GameDetailPage() {
       setBetsLoading(true)
       const res = await bettingController.getMyBets(user.loginToken)
       if (res && typeof res === 'object' && !res.error) {
-        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null)
-        setBets(betArray)
+        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null) as any[]
+        setGlobalBets(betArray)
       }
     } catch (err) {
       console.error('Failed to fetch bets:', err)
     } finally {
       setBetsLoading(false)
     }
-  }, [user?.loginToken])
+  }, [user?.loginToken, setGlobalBets])
 
   useEffect(() => {
     if (activeTab === 'OPEN_BETS') {
@@ -484,41 +483,53 @@ export default function GameDetailPage() {
                   </div>
                 )
              ) : (
-               <div className="space-y-4 pt-2">
-                 {/* Open Bets Tab Content */}
-                 <div className="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+                <div className="space-y-4 pt-2">
+                  {/* UNMATCHED BETS SECTION */}
+                  <div className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
                     <button 
                       onClick={() => setUnmatchedOpen(!unmatchedOpen)}
-                      className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[12px] font-black uppercase tracking-widest"
+                      className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[13px] font-bold tracking-tight"
                     >
                       <div className="flex items-center gap-2">
                         <span className={unmatchedOpen ? 'text-[#f36c21]' : ''}>Unmatched Bets</span>
-                        {bets.filter(b => b.IsMatched === '0').length > 0 && (
-                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{bets.filter(b => b.IsMatched === '0').length}</span>
+                        {bets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1').length > 0 && (
+                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+                            {bets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1').length}
+                          </span>
                         )}
                       </div>
-                      <ChevronDown size={16} className={`transition-transform duration-300 ${unmatchedOpen ? '' : '-rotate-90'}`} />
+                      <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300">
+                        <ChevronDown size={16} className={`text-white transition-transform duration-300 ${unmatchedOpen ? 'rotate-180' : ''}`} />
+                      </div>
                     </button>
                     
                     {unmatchedOpen && (
-                      <div className="divide-y divide-white/5 bg-[#111]">
+                      <div className="px-4 pb-4 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300 transition-all">
                         {betsLoading ? (
                           <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
-                        ) : bets.filter(b => b.IsMatched === '0').length > 0 ? (
-                          bets.filter(b => b.IsMatched === '0').map((bet, i) => (
-                            <div key={i} className="p-4 flex flex-col gap-2">
-                               <div className="flex justify-between items-start">
-                                  <span className="text-white text-[11px] font-bold uppercase truncate max-w-[70%]">{bet.Game}</span>
-                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-sm uppercase ${bet.Side === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>{bet.Side}</span>
+                        ) : bets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1').length > 0 ? (
+                          bets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1').map((bet, i) => (
+                            <div key={i} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-3">
+                               <div className="flex flex-col">
+                                  <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
+                                  <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection} {bet.Side === 'lay' && '(LAY)'}</span>
                                </div>
-                               <div className="flex justify-between items-center text-[10px]">
-                                  <span className="text-white/50">{bet.Selection}</span>
-                                  <span className="text-white font-black">@ {bet.Rate}</span>
-                               </div>
-                               <div className="flex justify-between items-center text-[9px]">
-                                  <span className="text-white/30">{bet.Date}</span>
-                                  <span className="text-[#f36c21] font-black">₹{bet.Stake}</span>
-                               </div>
+                               <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
+                                  <thead className="bg-gray-50/50">
+                                    <tr className="border-b border-gray-100">
+                                      <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest">Odds</th>
+                                      <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">Stake</th>
+                                      <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Profit/Liability</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
+                                      <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
+                                      <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
+                                      <td className="py-2.5 px-3 text-[13px] font-black text-right">0</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
                             </div>
                           ))
                         ) : (
@@ -526,50 +537,74 @@ export default function GameDetailPage() {
                         )}
                       </div>
                     )}
-                 </div>
+                  </div>
 
-                 <div className="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+                  {/* MATCHED BETS SECTION */}
+                  <div className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
                     <button 
                       onClick={() => setMatchedOpen(!matchedOpen)}
-                      className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[12px] font-black uppercase tracking-widest"
+                      className="w-full flex items-center justify-between px-4 py-3 bg-[#222] text-white/90 text-[13px] font-bold tracking-tight"
                     >
                       <div className="flex items-center gap-2">
                         <span className={matchedOpen ? 'text-[#f36c21]' : ''}>Matched Bets</span>
-                        {bets.filter(b => b.IsMatched === '1').length > 0 && (
-                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{bets.filter(b => b.IsMatched === '1').length}</span>
+                        {bets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1').length > 0 && (
+                          <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+                            {bets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1').length}
+                          </span>
                         )}
                       </div>
-                      <ChevronDown size={16} className={`transition-transform duration-300 ${matchedOpen ? '' : '-rotate-90'}`} />
+                      <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300">
+                        <ChevronDown size={16} className={`text-white transition-transform duration-300 ${matchedOpen ? 'rotate-180' : ''}`} />
+                      </div>
                     </button>
                     
                     {matchedOpen && (
-                      <div className="divide-y divide-white/5 bg-[#111]">
+                      <div className="px-4 pb-4 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300 transition-all">
+                        {/* Average Odds UI */}
+                        <div className="flex items-center gap-2 pb-1 opacity-80 pt-3">
+                           <div className="w-3.5 h-3.5 border border-[#f36c21] rounded-sm bg-[#f36c21] flex items-center justify-center">
+                              <div className="w-2 h-1 border-l-2 border-b-2 border-white transform -rotate-45 -mt-0.5"></div>
+                           </div>
+                           <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Average Odds</span>
+                        </div>
+
                         {betsLoading ? (
                           <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
-                        ) : bets.filter(b => b.IsMatched === '1').length > 0 ? (
-                          bets.filter(b => b.IsMatched === '1').map((bet, i) => (
-                             <div key={i} className="p-4 flex flex-col gap-2">
-                               <div className="flex justify-between items-start">
-                                  <span className="text-white text-[11px] font-bold uppercase truncate max-w-[70%]">{bet.Game}</span>
-                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-sm uppercase ${bet.Side === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>{bet.Side}</span>
+                        ) : bets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1').length > 0 ? (
+                          bets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1').map((bet, i) => {
+                             const profit = (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0);
+                             return (
+                               <div key={i} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-1">
+                                 <div className="flex flex-col">
+                                   <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
+                                   <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection} {bet.Side === 'lay' && '(LAY)'}</span>
+                                 </div>
+                                 <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
+                                   <thead className="bg-gray-50/50">
+                                     <tr className="border-b border-gray-100">
+                                       <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th>
+                                       <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Stake</th>
+                                       <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Profit/Liability</th>
+                                     </tr>
+                                   </thead>
+                                   <tbody>
+                                     <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
+                                       <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
+                                       <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
+                                       <td className="py-2.5 px-3 text-[13px] font-black text-right">{profit}</td>
+                                     </tr>
+                                   </tbody>
+                                 </table>
                                </div>
-                               <div className="flex justify-between items-center text-[10px]">
-                                  <span className="text-white/50">{bet.Selection}</span>
-                                  <span className="text-white font-black">@ {bet.Rate}</span>
-                               </div>
-                               <div className="flex justify-between items-center text-[9px]">
-                                  <span className="text-white/30">{bet.Date}</span>
-                                  <span className="text-[#f36c21] font-black">₹{bet.Stake}</span>
-                               </div>
-                            </div>
-                          ))
+                             );
+                          })
                         ) : (
                           <div className="p-12 text-center text-white/20 text-[10px] font-black uppercase tracking-widest italic">Zero Matched Bets</div>
                         )}
                       </div>
                     )}
-                 </div>
-               </div>
+                  </div>
+                </div>
              )}
            </div>
         </div>

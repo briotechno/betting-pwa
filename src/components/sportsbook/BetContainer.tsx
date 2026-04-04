@@ -3,26 +3,14 @@ import React, { useState, useEffect } from 'react'
 import { ChevronDown, Loader2, X, Plus, Minus } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
-import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
+import { useBetSlipStore, BetSelection, Bet } from '@/store/betSlipStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
-
-interface Bet {
-  Game: string;
-  Selection: string;
-  Type: string;
-  Rate: string;
-  Stake: string;
-  Date: string;
-  Side: 'back' | 'lay';
-  IsMatched?: string;
-}
 
 export default function BetContainer() {
   const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('BETSLIP')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
-  const [bets, setBets] = useState<Bet[]>([])
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
 
@@ -30,6 +18,8 @@ export default function BetContainer() {
   const {
     selections,
     stakes,
+    myBets: bets,
+    setMyBets: setBets,
     setStake,
     removeSelection,
     clearAll,
@@ -56,7 +46,7 @@ export default function BetContainer() {
       setLoading(true)
       const res = await bettingController.getMyBets(user?.loginToken || '')
       if (res && typeof res === 'object' && !res.error) {
-        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null) as Bet[]
+        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null) as any[]
         setBets(betArray)
       }
     } catch (err) {
