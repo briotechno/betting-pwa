@@ -155,9 +155,23 @@ const MarketTable = ({
                 const runnerId = runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx
                 const { back, lay } = getRunnerRates(runnerId, rIdx)
                 const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
-                
+
                 const rateData = liveRates[marketId]
-                const isSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No'
+                
+                // Deep suspension check for the specific runner/selection
+                const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No' || rateData?.suspended === 'Y'
+                
+                let isSelectionSuspended = false
+                if (rateData?.runners) {
+                  const r = rateData.runners.find((p: any) => p.selectionId?.toString() === runnerId?.toString())
+                  if (r?.status === 'SUSPENDED') isSelectionSuspended = true
+                } else if (rateData?.rates) {
+                  // For ODD/Bookmaker types where rates is an array
+                  const r = rateData.rates[rIdx]
+                  if (r?.selectionStatus === 'SUSPENDED') isSelectionSuspended = true
+                }
+
+                const isSuspended = isMarketSuspended || isSelectionSuspended
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
