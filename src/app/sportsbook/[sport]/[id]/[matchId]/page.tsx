@@ -198,9 +198,17 @@ const MarketTable = ({
                   <React.Fragment key={runnerId}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative">
                       <td className="py-3 px-3 lg:px-4">
-                        <span className="text-[13px] lg:text-[14px] font-bold text-gray-900 tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
-                          {runnerName}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-[13px] lg:text-[14px] font-bold text-gray-900 tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
+                            {runnerName}
+                          </span>
+                          {/* Display Chart value if available (received from gamedata/gamedatalogin) */}
+                          {runner.Chart !== null && runner.Chart !== undefined && (
+                            <span className="text-[10px] font-bold text-[#f26522] mt-0.5 animate-in fade-in slide-in-from-left-1 duration-300">
+                              {runner.Chart || '0'}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-1 px-2 relative min-w-[200px]">
                           <div className="flex justify-end gap-1 lg:gap-2">
@@ -295,40 +303,66 @@ export default function GameDetailPage() {
     }
   }, [activeTab, fetchBets])
 
-  // 1. Fetch Game Data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        const res = await marketController.getGameData(matchId)
-        if (res && typeof res === 'object' && !res.error) {
-          let parsed = typeof res === 'string' ? JSON.parse(res) : res
-          // Handle numerical wrapper if present (e.g., {"0": {...}})
-          if (parsed && parsed["0"]) parsed = parsed["0"];
-          setGameData(parsed)
-        }
-      } catch (err) {
-        console.error("Failed to fetch game data", err)
-      } finally {
-        setIsLoading(false)
+  // 1. Fetch Game Data & Structure
+  const fetchGameData = useCallback(async (isInitial = false) => {
+    try {
+      if (isInitial) setIsLoading(true)
+      let res;
+      
+      // Use authenticated endpoint if user is logged in
+      if (user?.loginToken) {
+        res = await marketController.getGameDataLogin(user.loginToken, matchId)
+      } else {
+        res = await marketController.getGameData(matchId)
       }
-    }
-    fetchData()
-  }, [matchId])
 
-  // 2. Poll Rates
+      if (res && typeof res === 'object' && !res.error) {
+        let parsed = typeof res === 'string' ? JSON.parse(res) : res
+        // Handle numerical wrapper if present (e.g., {"0": {...}})
+        if (parsed && parsed["0"]) parsed = parsed["0"];
+        setGameData(parsed)
+        return parsed // Return for sequential loop use
+      }
+    } catch (err) {
+      console.error("Failed to fetch game data", err)
+    } finally {
+      if (isInitial) setIsLoading(false)
+    }
+    return null
+  }, [matchId, user?.loginToken])
+
   useEffect(() => {
-    if (!gameData) return
+    fetchGameData(true)
+  }, [fetchGameData])
+
+  // 2. Poll Rates & Game Data (for Chart updates)
+  useEffect(() => {
+    // Only start polling once we have the match ID
+    if (!matchId) return
     let isMounted = true
     let timeoutId: NodeJS.Timeout
 
     const poll = async () => {
+      // 2a. Refresh game data structure (for live Chart values)
+      // This call is now awaited and we use the returned data for subsequent rate calls
+      const latestData = await fetchGameData()
+
+      if (!isMounted) return
+
+      // Use the data if available, otherwise fallback to state
+      const dataToUse = latestData || gameData
+      if (!dataToUse) {
+         timeoutId = setTimeout(poll, 2000)
+         return
+      }
+
+      // 2b. Refetch live rates/odds
       const marketsToPoll: any[] = []
       
       // Collect ODDS, BM, FANCY markets
       const categories = ['ODDS', 'BOOKMAKER', 'FANCY']
       categories.forEach(cat => {
-        const items = gameData[cat] || []
+        const items = dataToUse[cat] || []
         const itemArr = Array.isArray(items) ? items : Object.values(items)
         itemArr.forEach((m: any) => {
           const mid = m.MarketId || m.marketid
@@ -339,7 +373,7 @@ export default function GameDetailPage() {
       })
 
       // Also collect from "events" key if any
-      const events = gameData.events || []
+      const events = dataToUse.events || []
       const eventArr = Array.isArray(events) ? events : Object.values(events)
       eventArr.forEach((m: any) => {
         const mid = m.MarketId || m.marketid
@@ -375,7 +409,8 @@ export default function GameDetailPage() {
 
     poll()
     return () => { isMounted = false; if (timeoutId) clearTimeout(timeoutId) }
-  }, [gameData, matchId])
+    // Critical: removed gameData from dependencies to prevent effect restarts on every update
+  }, [matchId, fetchGameData])
 
   const matchName = useMemo(() => {
      if (!gameData) return 'Event Detail'
