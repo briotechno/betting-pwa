@@ -67,7 +67,7 @@ export default function CategoryMoreDrawer() {
             {sportsItems.map((item) => (
               <Link
                 key={item.name}
-                href={`/sports/${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                href="/premium-sportsbook"
                 onClick={() => setMoreMenuOpen(false)}
                 className="flex flex-col items-center gap-2 group transition-all"
               >
