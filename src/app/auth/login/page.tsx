@@ -40,6 +40,8 @@ export default function LoginPage() {
           username: formData.identifier,
           email: '',
           balance: parseFloat(response.balance || '0'),
+          exposure: parseFloat(response.exposure || '0'),
+          availableBalance: parseFloat(response.available_balance || response.balance || '0'),
           tier: 'Beginner' as const,
           loginToken: response.LoginToken
         }

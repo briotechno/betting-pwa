@@ -122,6 +122,8 @@ export default function SignupPage() {
           username: formData.username,
           email: '',
           balance: 0,
+          exposure: 0,
+          availableBalance: 0,
           tier: 'Beginner' as const,
           loginToken: response.apitoken
         }
