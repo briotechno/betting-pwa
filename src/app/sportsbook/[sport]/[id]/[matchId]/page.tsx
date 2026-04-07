@@ -76,8 +76,20 @@ const MarketTable = ({
   const { selections, clearAll } = useBetSlipStore()
   const addSelection = useBetSlipStore(state => state.addSelection)
 
-  const getRunnerRates = (runnerId: string | number, rIdx: number) => {
-    const rateData = liveRates[marketId]
+  const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string) => {
+    const mId = specificMarketId || marketId
+    const rateData = liveRates[mId]
+    
+    const mType = specificMarketId ? (liveRates[mId]?.Type || 'FANCY') : marketType
+
+    // For FANCY markets or specific row markets (Sessions), check the top-level rate structure
+    if (mType === 'FANCY' && !rateData?.runner && !rateData?.runners) {
+       return {
+         back: { p1: (rateData?.backPrice1 || rateData?.BackPrice1 || '')?.toString(), v1: rateData?.backSize1 || '', p2: '', v2: '', p3: '', v3: '' },
+         lay: { p1: (rateData?.layPrice1 || rateData?.LayPrice1 || '')?.toString(), v1: rateData?.laySize1 || '', p2: '', v2: '', p3: '', v3: '' }
+       }
+    }
+
     const runnersData = rateData?.runner || rateData?.runners || []
     const runnerArr = Array.isArray(runnersData) ? runnersData : Object.values(runnersData)
     
@@ -93,8 +105,8 @@ const MarketTable = ({
       const arr = Array.isArray(data) ? data : Object.values(data || {});
       
       return {
-        p1: (arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '')?.toString(),
-        v1: arr[0]?.size || '',
+        p1: (arr[0]?.rate || arr[0]?.price || (type === 'back' ? (r.lastPriceTraded || r.backPrice || r.rate) : (r.layPrice || r.rate)) || '')?.toString(),
+        v1: arr[0]?.size || r.backSize || r.laySize || '',
         p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
         v2: arr[1]?.size || '',
         p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
@@ -107,6 +119,8 @@ const MarketTable = ({
 
     return { back, lay }
   }
+
+  const isFancyGroup = marketName.toUpperCase() === 'FANCY'
 
   return (
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -124,7 +138,7 @@ const MarketTable = ({
               {isCollapsed ? '+' : '−'}
             </span>
             <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
-              {matchName}
+              {marketName}
             </span>
           </div>
         </div>
@@ -136,12 +150,16 @@ const MarketTable = ({
 
       {/* Sub-Header Category */}
       <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
-         <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
-            <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
+         <div className="flex items-center gap-2">
+            {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>}
          </div>
-         <div className="flex gap-1 lg:gap-[68px] mr-1 lg:mr-10 items-center">
-            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Back</span>
-            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Lay</span>
+         <div className="flex mr-1 lg:mr-10 items-center justify-end flex-1 gap-1 lg:gap-2">
+            <div className={`flex gap-1 lg:gap-1 items-center justify-center ${isFancyGroup ? 'w-[58px] lg:w-[60px]' : 'w-[58px] lg:w-[184px]'}`}>
+               <span className="text-[10px] font-black text-white/80 uppercase tracking-widest text-center">{isFancyGroup ? 'No' : 'Back'}</span>
+            </div>
+            <div className={`flex gap-1 lg:gap-1 items-center justify-center ${isFancyGroup ? 'w-[58px] lg:w-[60px]' : 'w-[58px] lg:w-[184px]'}`}>
+               <span className="text-[10px] font-black text-white/80 uppercase tracking-widest text-center">{isFancyGroup ? 'Yes' : 'Lay'}</span>
+            </div>
          </div>
       </div>
 
@@ -149,110 +167,131 @@ const MarketTable = ({
         <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
           <table className="w-full border-collapse">
             <tbody className="divide-y divide-gray-100">
-              {runners.map((runner, rIdx) => {
-                // Improved ID detection: scan for all common API field names
-                const runnerId = runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx
-                const { back, lay } = getRunnerRates(runnerId, rIdx)
-                const runnerName = runner.name || runner.RunnerName ||`Runner ${rIdx + 1}`
+              {(Array.isArray(runners) ? runners : Object.values(runners || {})).length > 0 ? (Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
+                 // If it's a grouped fancy table, each "runner" is actually a different "market" item
+                 const mId = isFancyGroup ? (runner.MarketId || runner.marketid || runner.eid) : marketId
+                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx)
+                 
+                 const { back, lay } = getRunnerRates(runnerId, rIdx, mId)
+                 
+                 const runnerName = isFancyGroup ? (runner.name || runner.RunnerName) : (runner.name || runner.RunnerName || (marketType === 'FANCY' ? 'FANCY ODDS' : `Runner ${rIdx + 1}`))
 
-                const rateData = liveRates[marketId]
-                
-                // Deep suspension check for the specific runner/selection
-                const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No' || rateData?.suspended === 'Y'
-                
-                let isSelectionSuspended = false
-                if (rateData?.runners) {
-                  const r = rateData.runners.find((p: any) => p.selectionId?.toString() === runnerId?.toString())
-                  if (r?.status === 'SUSPENDED') isSelectionSuspended = true
-                } else if (rateData?.rates) {
-                  // For ODD/Bookmaker types where rates is an array
-                  const r = rateData.rates[rIdx]
-                  if (r?.selectionStatus === 'SUSPENDED') isSelectionSuspended = true
-                }
+                 const rateData = liveRates[mId]
+                 
+                 // Deep suspension check
+                 const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No' || rateData?.suspended === 'Y' || rateData?.active === '0'
+                 
+                 let isSelectionSuspended = false
+                 if (!isFancyGroup) {
+                   if (rateData?.runners) {
+                     const r = rateData.runners.find((p: any) => (p.selectionId || p.id)?.toString() === runnerId?.toString())
+                     if (r?.status === 'SUSPENDED') isSelectionSuspended = true
+                   } else if (rateData?.rates) {
+                     const r = rateData.rates[rIdx]
+                     if (r?.selectionStatus === 'SUSPENDED') isSelectionSuspended = true
+                   }
+                 }
+                 
+                 if (rateData?.Msg?.toUpperCase() === 'BALL RUNNING') isSelectionSuspended = true
 
-                const isSuspended = isMarketSuspended || isSelectionSuspended
+                 const isSuspended = isMarketSuspended || isSelectionSuspended
 
-                const handleAddBet = (odds: string, side: 'back' | 'lay') => {
-                  if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
-                  
-                  addSelection({
-                    id: `${marketId}-${runnerId}-${side}`,
-                    matchId: eventId.toString(), // The overall Game/Match ID
-                    marketId: marketId.toString(), // The specific pool/market ID
-                    eventId: eventId.toString(),   // Essential for API common params
-                    selectionId: runnerId.toString(),
-                    matchName: matchName,
-                    marketName: marketName,
-                    selectionName: runnerName,
-                    odds: parseFloat(odds),
-                    betType: side,
-                    marketType: marketType || (marketName.toLowerCase().includes('bookmaker') ? 'BOOKMAKER' : (marketName.toLowerCase().includes('fancy') ? 'FANCY' : 'ODDS')),
-                    marketIndex: rIdx,
-                    runnersCount: runners.length
-                  })
-                }
+                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
+                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
+                   
+                   addSelection({
+                     id: `${mId}-${runnerId}-${side}`,
+                     matchId: eventId.toString(),
+                     marketId: mId.toString(),
+                     eventId: eventId.toString(),
+                     selectionId: runnerId.toString(),
+                     matchName: matchName,
+                     marketName: isFancyGroup ? runnerName : marketName,
+                     selectionName: isFancyGroup ? (side === 'back' ? 'Yes' : 'No') : runnerName,
+                     odds: parseFloat(odds),
+                     betType: side,
+                     marketType: isFancyGroup ? 'FANCY' : (marketType || 'ODDS'),
+                     marketIndex: rIdx,
+                     runnersCount: runners.length || 1
+                   })
+                 }
 
-                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${marketId}-${runnerId}`))
+                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
 
-                return (
-                  <React.Fragment key={runnerId}>
-                    <tr className="hover:bg-gray-50/50 transition-colors group relative">
-                      <td className="py-3 px-3 lg:px-4">
-                        <div className="flex flex-col">
-                          <span className="text-[13px] lg:text-[14px] font-bold text-gray-900 tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
-                            {runnerName}
-                          </span>
-                          {/* Display Chart value if available (received from gamedata/gamedatalogin) */}
-                          {runner.Chart !== null && runner.Chart !== undefined && (
-                            <span className="text-[10px] font-bold text-[#f26522] mt-0.5 animate-in fade-in slide-in-from-left-1 duration-300">
-                              {runner.Chart || '0'}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-1 px-2 relative min-w-[200px]">
-                          <div className="flex justify-end gap-1 lg:gap-2">
-                             <div className="flex gap-1 py-1">
-                                <div className="hidden lg:flex gap-1">
-                                   <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
-                                   <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
-                                </div>
-                                <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
+                 return (
+                   <React.Fragment key={mId + '-' + runnerId}>
+                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
+                       <td className="py-3 px-3 lg:px-4">
+                         <div className="flex flex-col">
+                           <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase">
+                             {runnerName}
+                           </span>
+                         </div>
+                       </td>
+                       <td className="p-1 px-2 relative min-w-[200px]">
+                           <div className="flex justify-end gap-1 lg:gap-2">
+                              {isFancyGroup ? (
+                                // For Fancy: Swap order to No (Lay) first, then Yes (Back)
+                                <>
+                                  <div className="flex gap-1 py-1">
+                                    <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
+                                  </div>
+                                  <div className="flex gap-1 py-1">
+                                    <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
+                                  </div>
+                                </>
+                              ) : (
+                                // For Match Odds / Bookmaker: Standard Back then Lay
+                                <>
+                                  <div className="flex gap-1 py-1">
+                                     <div className="hidden lg:flex gap-1">
+                                        <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
+                                        <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
+                                     </div>
+                                     <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
+                                  </div>
+                                  <div className="flex gap-1 py-1">
+                                     <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
+                                     <div className="hidden lg:flex gap-1">
+                                        <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
+                                        <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
+                                     </div>
+                                  </div>
+                                </>
+                              )}
+                           </div>
+
+                           {/* Market Message/Suspended Overlay */}
+                           {(isSuspended || rateData?.Msg) && (
+                             <div className="absolute inset-0 bg-white/60 backdrop-blur-[0.5px] z-10 flex items-center justify-center pointer-events-auto">
+                               <div className="bg-[#555] px-4 py-1 rounded-[3px] shadow-lg transform -skew-x-12">
+                                  <span className="text-white text-[10px] font-black uppercase tracking-widest transform skew-x-12 block">
+                                     {rateData?.Msg || 'SUSPENDED'}
+                                  </span>
+                               </div>
                              </div>
-                             <div className="flex gap-1 py-1">
-                                <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
-                                <div className="hidden lg:flex gap-1">
-                                   <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
-                                   <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
-                                </div>
-                             </div>
-                          </div>
+                           )}
+                       </td>
+                     </tr>
 
-                          {/* Market Suspended Overlay */}
-                          {isSuspended && (
-                            <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
-                              <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
-                                 <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
-                              </div>
-                            </div>
-                          )}
-                      </td>
-                    </tr>
-
-                    {/* Inline Mobile Betslip */}
-                    {isSelectedOnMobile && selections[0] && (
-                      <tr className="lg:hidden animate-in slide-in-from-top-4 duration-300">
-                        <td colSpan={2} className="p-2 pt-0 bg-white">
-                          <BetSlipForm 
-                            selection={selections[0]} 
-                            onClose={clearAll} 
-                          />
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                )
-              })}
+                     {/* Inline Mobile Betslip */}
+                     {isSelectedOnMobile && selections[0] && (
+                       <tr className="lg:hidden animate-in slide-in-from-top-4 duration-300">
+                         <td colSpan={2} className="p-2 pt-0 bg-white">
+                           <BetSlipForm 
+                             selection={selections[0]} 
+                             onClose={clearAll} 
+                           />
+                         </td>
+                       </tr>
+                     )}
+                   </React.Fragment>
+                 )
+              }) : (marketType === 'FANCY' ? (
+                <tr className="border-b border-gray-100 last:border-0 text-center py-8">
+                   <td colSpan={2} className="py-8 text-gray-400 text-[11px] font-bold uppercase tracking-widest">Session Match Loading...</td>
+                </tr>
+              ) : null)}
             </tbody>
           </table>
         </div>
@@ -337,70 +376,85 @@ export default function GameDetailPage() {
 
   // 2. Poll Rates & Game Data (for Chart updates)
   useEffect(() => {
-    // Only start polling once we have the match ID
     if (!matchId) return
     let isMounted = true
     let timeoutId: NodeJS.Timeout
 
     const poll = async () => {
-      // 2a. Refresh game data structure (for live Chart values)
-      // This call is now awaited and we use the returned data for subsequent rate calls
       const latestData = await fetchGameData()
-
       if (!isMounted) return
 
-      // Use the data if available, otherwise fallback to state
       const dataToUse = latestData || gameData
       if (!dataToUse) {
          timeoutId = setTimeout(poll, 2000)
          return
       }
 
-      // 2b. Refetch live rates/odds
       const marketsToPoll: any[] = []
       
-      // Collect ODDS, BM, FANCY markets
-      const categories = ['ODDS', 'BOOKMAKER', 'FANCY']
+      // Use refined market categories
+      const categories = ['ODDS', 'BOOKMAKER', 'FANCY', 'events', 'EXTRA']
       categories.forEach(cat => {
         const items = dataToUse[cat] || []
         const itemArr = Array.isArray(items) ? items : Object.values(items)
         itemArr.forEach((m: any) => {
-          const mid = m.MarketId || m.marketid
+          const mid = m.MarketId || m.marketid || m.eid || m.eid_list
           if (mid) {
-            marketsToPoll.push({ gid: matchId, MarketId: mid.toString(), eventid: matchId })
+            marketsToPoll.push({ 
+              gid: matchId, 
+              MarketId: mid.toString(), 
+              eventid: matchId,
+              gkey: m.gkey || '',
+              ekey: m.ekey || '',
+              type: m.Type || m.category
+            })
           }
         })
       })
 
-      // Also collect from "events" key if any
-      const events = dataToUse.events || []
-      const eventArr = Array.isArray(events) ? events : Object.values(events)
-      eventArr.forEach((m: any) => {
-        const mid = m.MarketId || m.marketid
-        if (mid && !marketsToPoll.find(mp => mp.MarketId === mid.toString())) {
-          marketsToPoll.push({ gid: matchId, MarketId: mid.toString(), eventid: matchId })
-        }
-      })
-
       if (marketsToPoll.length > 0) {
         const oddsMap: Record<string, any> = {}
-        for (const m of marketsToPoll) {
-          if (!isMounted) break
+        
+        // Use Promise.all to fetch all market rates in parallel for speed
+        await Promise.all(marketsToPoll.map(async (m) => {
+          if (!isMounted) return
           try {
-            const res = await marketController.getGameRate(m)
-            if (res && typeof res === 'object' && !res.error) {
-              if (res[m.MarketId]) {
-                oddsMap[m.MarketId] = typeof res[m.MarketId] === 'string' ? JSON.parse(res[m.MarketId]) : res[m.MarketId]
-              }
-              // Check nested wrappers
-              Object.keys(res).forEach(k => {
-                if (res[k] && typeof res[k] === 'object' && res[k][m.MarketId]) {
-                   oddsMap[m.MarketId] = typeof res[k][m.MarketId] === 'string' ? JSON.parse(res[k][m.MarketId]) : res[k][m.MarketId]
-                }
-              })
+            let res;
+            if (!m.MarketId && m.gkey && m.ekey) {
+               res = await marketController.getMultiMarketRate('0', [{ gkey: m.gkey, ekey: m.ekey }])
+            } else {
+               res = await marketController.getGameRate(m)
             }
-          } catch (e) { console.error(e) }
-        }
+
+            if (res && typeof res === 'object' && !res.error) {
+              const mid = m.MarketId
+              
+              // 1. Check if the response IS the data (has status/runners/etc)
+              if (res.status || res.runners || res.backPrice1 || res.rates) {
+                 oddsMap[mid] = res
+              } 
+              // 2. Check if it's wrapped in the marketId key
+              else if (res[mid]) {
+                oddsMap[mid] = typeof res[mid] === 'string' ? JSON.parse(res[mid]) : res[mid]
+              }
+              // 3. Fallback scanning
+              else {
+                Object.keys(res).forEach(k => {
+                  if (!oddsMap[mid] && res[k] && typeof res[k] === 'object') {
+                    if (res[k][mid]) {
+                      oddsMap[mid] = typeof res[k][mid] === 'string' ? JSON.parse(res[k][mid]) : res[k][mid]
+                    } else if (k === mid) {
+                      oddsMap[mid] = res[k]
+                    }
+                  }
+                })
+              }
+            }
+          } catch (e) {
+            // Silently fail individual market poles to keep the loop going
+          }
+        }))
+        
         if (isMounted) setLiveOdds(prev => ({ ...prev, ...oddsMap }))
       }
 
@@ -409,13 +463,31 @@ export default function GameDetailPage() {
 
     poll()
     return () => { isMounted = false; if (timeoutId) clearTimeout(timeoutId) }
-    // Critical: removed gameData from dependencies to prevent effect restarts on every update
   }, [matchId, fetchGameData])
 
   const matchName = useMemo(() => {
      if (!gameData) return 'Event Detail'
      return gameData.GameName || gameData.eventName || gameData.Team1 ? `${gameData.Team1} V ${gameData.Team2}` : 'Live Match'
   }, [gameData])
+
+  const allMarkets = useMemo(() => {
+    if (!gameData) return []
+    
+    const raw = [
+      ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS)).map((m: any) => ({ ...m, category: 'ODDS' })) : []),
+      ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER)).map((m: any) => ({ ...m, category: 'BOOKMAKER' })) : []),
+      ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY)).map((m: any) => ({ ...m, category: 'FANCY' })) : []),
+      ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events)).map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : []),
+      ...(gameData.EXTRA ? (Array.isArray(gameData.EXTRA) ? gameData.EXTRA : Object.values(gameData.EXTRA)).map((m: any) => ({ ...m, category: 'EXTRA' })) : [])
+    ]
+
+    // Use a composite key (MarketId + eid) to ensure uniqueness without over-filtering empty MarketIds
+    return raw.filter((m, i, self) => {
+      if (!m) return false;
+      const uid = (m.MarketId || m.marketid || '') + '-' + (m.eid || m.eid_list || i);
+      return self.findIndex(t => ((t.MarketId || t.marketid || '') + '-' + (t.eid || t.eid_list || self.indexOf(t))) === uid) === i;
+    })
+  }, [gameData]);
 
   if (isLoading) {
     return (
@@ -427,13 +499,6 @@ export default function GameDetailPage() {
       </div>
     )
   }
-
-  const allMarkets = gameData ? [
-    ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS)).map((m: any) => ({ ...m, category: 'ODDS' })) : []),
-    ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER)).map((m: any) => ({ ...m, isBookmaker: true, category: 'BOOKMAKER' })) : []),
-    ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY)).map((m: any) => ({ ...m, isFancy: true, category: 'FANCY' })) : []),
-    ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events)).map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : [])
-  ].filter((m, i, self) => m && self.findIndex(t => (t.MarketId || t.marketid) === (m.MarketId || m.marketid)) === i) : [];
 
   return (
     <div className="flex-1 min-h-screen bg-[#111] flex flex-col lg:flex-row">
@@ -479,24 +544,32 @@ export default function GameDetailPage() {
 
            <div className="p-3 lg:p-0">
              {activeTab === 'MARKETS' ? (
-                allMarkets.length > 0 ? (
-                  <div className="space-y-8">
-                    {allMarkets.map((m: any, mIdx: number) => {
-                      const isBM = m.isBookmaker || m.category === 'BOOKMAKER' || m.name?.toLowerCase().includes('bookmaker');
-                      const isFancy = m.category === 'FANCY';
-                      
-                      let runners = m.runner || m.runners || [];
-                      if (!Array.isArray(runners)) runners = Object.values(runners);
+                (() => {
+                  const groupedFancy = allMarkets.filter(m => m.category === 'FANCY');
+                  const otherMarkets = allMarkets.filter(m => m.category !== 'FANCY');
+                  
+                  if (allMarkets.length === 0) {
+                     return (
+                        <div className="py-24 text-center bg-white/5 rounded-[32px] border border-white/5 mx-4 flex flex-col items-center">
+                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          </div>
+                          <p className="text-white/20 text-[12px] font-black uppercase tracking-[0.3em] italic">No Available Markets for this Session</p>
+                        </div>
+                     )
+                  }
 
-                      return (
-                        <div key={m.MarketId || m.marketid || m.eid || mIdx}>
-                          {(isBM || isFancy) && (
-                            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2 ml-1">
-                              {isBM ? 'Bookmaker (0% Commission & Instant Bet)' : 'Fancy Markets'}
-                            </p>
-                          )}
+                  return (
+                    <div className="space-y-4">
+                      {/* Individual Tables for Odds and Bookmakers */}
+                      {otherMarkets.map((m: any, mIdx: number) => {
+                        let runners = m.runner || m.runners || [];
+                        if (!Array.isArray(runners)) runners = Object.values(runners);
+                        
+                        return (
                           <MarketTable 
-                            marketName={m.name || (isBM ? 'Match Winner (Bookmaker)' : 'Match Odds')} 
+                            key={m.MarketId || m.marketid || m.eid || mIdx}
+                            marketName={m.name || (m.category === 'BOOKMAKER' ? 'Match Winner (Bookmaker)' : 'Match Odds')} 
                             runners={runners} 
                             marketId={m.MarketId || m.marketid || m.eid} 
                             liveRates={liveOdds}
@@ -505,18 +578,25 @@ export default function GameDetailPage() {
                             marketIndex={mIdx}
                             eventId={m.eid || gameData?.Event_Id || gameData?.eid || gameData?.EventId || matchId}
                           />
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="py-24 text-center bg-white/5 rounded-[32px] border border-white/5 mx-4 flex flex-col items-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        );
+                      })}
+
+                      {/* Grouped Table for all Fancy Session markers */}
+                      {groupedFancy.length > 0 && (
+                        <MarketTable 
+                          marketName="FANCY" 
+                          runners={groupedFancy} 
+                          marketId="FANCY_GROUP" 
+                          liveRates={liveOdds}
+                          matchName={matchName}
+                          marketType="FANCY"
+                          marketIndex={999}
+                          eventId={matchId}
+                        />
+                      )}
                     </div>
-                    <p className="text-white/20 text-[12px] font-black uppercase tracking-[0.3em] italic">No Available Markets for this Session</p>
-                  </div>
-                )
+                  );
+                })()
              ) : (
                 <div className="space-y-4 pt-2">
                   {/* UNMATCHED BETS SECTION */}
