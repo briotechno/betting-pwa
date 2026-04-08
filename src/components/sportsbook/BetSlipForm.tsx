@@ -52,46 +52,59 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
       const isWinner = selection.marketName.toLowerCase().includes('winner')
+      const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
+      const teamLetter = teamMap[selection.marketIndex] || 'A'
+      const betTypeChar = selection.betType === 'back' ? 'B' : 'L'
       const runnersCount = selection.runnersCount || 2
 
       if (isWinner) {
         res = await bettingController.placeWinnerBet({
           ...common,
           SelectionId: selection.selectionId,
-          Type: selection.betType === 'back' ? 'B' : 'L'
+          Type: betTypeChar
         })
       } else {
         switch (mType) {
           case 'BOOKMAKER':
             res = await bettingController.placeBookmakerBet({
               ...common,
-              SelectionId: selection.selectionId,
-              Type: selection.betType === 'back' ? 'B' : 'L'
+              Eid: selection.marketId, // Use MarketId as Eid per [ekey for rates]
+              Team: teamLetter, 
+              Type: betTypeChar
             })
             break
 
           case 'FANCY':
             res = await bettingController.placeFancyBet({
               ...common,
-              No: selection.betType === 'lay' ? selection.odds : 0,
-              Yes: selection.betType === 'back' ? selection.odds : 0,
-              Type: selection.betType === 'back' ? 'B' : 'L'
+              Eid: selection.marketId, // Use MarketId as Eid
+              No: selection.odds, // Value/Rate
+              Yes: selection.odds, // Value/Rate
+              Rate: 100, // Fixed price for fancy often 100/100
+              Type: betTypeChar
             })
             break
 
           case 'LINE':
             res = await bettingController.placeLineBet({
               ...common,
-              SelectionId: selection.selectionId,
-              Type: selection.betType === 'back' ? 'B' : 'L'
+              Eid: selection.marketId, // Use MarketId as Eid
+              Type: betTypeChar
+            })
+            break
+
+          case 'EXTRA':
+          case 'GOAL':
+          case 'GOALS':
+            res = await bettingController.placeExtraBet({
+              ...common,
+              Eid: selection.marketId, // Use MarketId as Eid
+              Team: teamLetter,
+              Type: betTypeChar
             })
             break
 
           default: // ODDS
-            const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
-            const teamLetter = teamMap[selection.marketIndex] || 'A'
-            const betTypeChar = selection.betType === 'back' ? 'B' : 'L'
-
             if (runnersCount === 3) {
               res = await bettingController.place3TeamOddBet({ 
                 ...common, 
