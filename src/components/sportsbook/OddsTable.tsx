@@ -139,27 +139,15 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
     return selections.some((s) => s.id === id)
   }
 
-  const handleClick = (rowId: string | undefined, teamName: string, oddsValue: number, betType: 'back' | 'lay') => {
-    if (!oddsValue || isUpcoming) return
-
+  const handleClick = (rowId: string | undefined) => {
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
     }
-
     const targetId = rowId || matchId
-    const targetSport = sport || 'cricket'
-    const targetComp = 'league' // Default if not found in selection context
-    
-    const selectionParams = new URLSearchParams({
-      selection: teamName,
-      odds: oddsValue.toString(),
-      type: betType,
-      market: marketName
-    }).toString()
-
-    // Updated route to match the project structure
-    router.push(`/sportsbook/${targetSport}/${targetComp}/${targetId}?${selectionParams}`)
+    if (!targetId) return
+    const row = rows.find(r => r.id === targetId)
+    handleRowClick(targetId, row?.competitionId)
   }
 
   const handleRowClick = (matchId: string | undefined, competitionId: string | undefined) => {
@@ -254,7 +242,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                               isSelected={isSelected(row.id, row.teamName, odd.back, 'back')}
                               isRowInactive={isInactive}
                               isUpcoming={isUpcoming}
-                              onClick={() => handleClick(row.id, row.teamName, odd.back, 'back')}
+                              onClick={() => handleClick(row.id)}
                             />
 
                             {/* Lay Box */}
@@ -267,7 +255,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                                 isSelected={isSelected(row.id, row.teamName, odd.lay, 'lay')}
                                 isRowInactive={isInactive}
                                 isUpcoming={isUpcoming}
-                                onClick={() => handleClick(row.id, row.teamName, odd.lay, 'lay')}
+                                onClick={() => handleClick(row.id)}
                               />
                             </div>
                           </React.Fragment>

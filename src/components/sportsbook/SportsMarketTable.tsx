@@ -46,23 +46,12 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
     return selections.some(s => s.id === `${matchId}-${teamName}-${price}-${type}`)
   }
 
-  const handleOddsClick = (match: Match, team: TeamRow, odd: OddValue, type: 'back' | 'lay') => {
-    if (odd.price === '-') return
-
+  const handleOddsClick = (match: Match) => {
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
     }
-
-    // Redirect to detail page with selection info
-    const selectionParams = new URLSearchParams({
-      selection: team.teamName,
-      odds: odd.price.toString(),
-      type: type,
-      market: 'Match Odds'
-    }).toString()
-
-    router.push(`/sports/cricket/${match.id}?${selectionParams}`)
+    router.push(`/sportsbook/cricket/league/${match.id}`)
   }
 
   return (
@@ -147,7 +136,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                             <div key={idx} className="flex items-center justify-center gap-[2px] w-20 md:w-[122px] border-r last:border-r-0 border-gray-100">
                               {/* Back Odds */}
                               <button
-                                onClick={() => handleOddsClick(match, team, team.back[idx] || { price: '-', size: '-' }, 'back')}
+                                onClick={() => handleOddsClick(match)}
                                 disabled={!team.back[idx] || team.back[idx].price === '-'}
                                 className={`w-[38px] md:w-[60px] h-9 md:h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.back[idx] || team.back[idx].price === '-'
                                     ? 'bg-[#f8f8f8] text-transparent'
@@ -166,7 +155,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
 
                               {/* Lay Odds */}
                               <button
-                                onClick={() => handleOddsClick(match, team, team.lay[idx] || { price: '-', size: '-' }, 'lay')}
+                                onClick={() => handleOddsClick(match)}
                                 disabled={!team.lay[idx] || team.lay[idx].price === '-'}
                                 className={`w-[38px] md:w-[60px] h-9 md:h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all ${!team.lay[idx] || team.lay[idx].price === '-'
                                     ? 'bg-[#f8f8f8] text-transparent'
