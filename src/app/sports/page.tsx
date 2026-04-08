@@ -237,7 +237,7 @@ function SportsPageContent() {
       {/* Center - matches list */}
       <div className={`flex-1 min-w-0 overflow-y-auto transition-all ${showBetSlipMargin ? 'lg:mr-[380px]' : ''}`}>
         {/* Sub-tabs */}
-        <div className="flex sticky top-0 z-10" style={{ background: '#000', borderBottom: '1px solid #1a1a1a' }}>
+        <div className="flex relative z-10" style={{ background: '#000', borderBottom: '1px solid #1a1a1a' }}>
           {tabTypes.map((tab) => (
             <button
               key={tab}

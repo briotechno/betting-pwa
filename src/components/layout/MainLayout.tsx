@@ -6,6 +6,8 @@ import { useAuthStore } from '@/store/authStore'
 import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
 import Footer from './Footer'
+import Sidebar from './Sidebar'
+import { Suspense } from 'react'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useLayoutStore()
@@ -24,39 +26,43 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[65px]' : 'lg:pl-[220px]'}`}>
-
-      {/* Header - fixed below news ticker */}
+    <div className="min-h-screen flex flex-col" style={{ background: '#121212' }}>
+      {/* Header - Now top level, no left space */}
       <Header />
 
-      {/* Profile Sidebar - slide from right when active */}
-      <ProfileSidebar />
+      <div className="flex flex-1">
+        {/* Sidebar - Now correctly contained in flow */}
+        <Suspense fallback={null}>
+          <Sidebar />
+        </Suspense>
 
-      {/* Floating WhatsApp Icon */}
-      {!isAuthPage && (
-        <a
-          href="https://wa.me/1234567890"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-24 left-4 z-[55]"
-        >
-          <div className="w-[50px] h-[50px]   rounded-full flex items-center justify-center c transition-transform hover:scale-110">
-            <img src="/whatsapp.png" alt="WhatsApp" className="w-[50px] h-[50px] object-cover" />
-          </div>
-        </a>
-      )}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Profile Sidebar - slide from right when active */}
+          <ProfileSidebar />
 
-      {/* Main page content - pt accounts for news ticker (34px) + header (76px) + subheader (52px) = 162px, if no news ticker then 128px */}
-      <main
-        className={`min-h-screen pt-0 ${isAuthenticated ? 'lg:pt-[162px]' : 'lg:pt-[128px]'}`}
-        style={{ background: '#121212' }}
-      >
-        <div className="pb-0 lg:pb-0">
-          {children}
+          {/* Floating WhatsApp Icon */}
+          {!isAuthPage && (
+            <a
+              href="https://wa.me/1234567890"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fixed bottom-24 left-4 z-[55]"
+            >
+              <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center transition-transform hover:scale-110">
+                <img src="/whatsapp.png" alt="WhatsApp" className="w-[50px] h-[50px] object-cover" />
+              </div>
+            </a>
+          )}
+
+          {/* Main page content */}
+          <main className="flex-1">
+            <div className="pb-0 lg:pb-0">
+              {children}
+            </div>
+            <Footer />
+          </main>
         </div>
-        <Footer />
-      </main>
+      </div>
     </div>
-
   )
 }

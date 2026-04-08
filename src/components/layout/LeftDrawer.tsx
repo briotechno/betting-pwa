@@ -60,7 +60,7 @@ export default function LeftDrawer() {
 
       {/* Drawer */}
       <div
-        className={`fixed top-[34px] left-0 bottom-0 w-[260px] z-[101] bg-[#000] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${leftDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-[29px] left-0 bottom-0 w-[260px] z-[101] bg-[#000] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${leftDrawerOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         {/* Header Section */}
@@ -98,44 +98,44 @@ export default function LeftDrawer() {
             </Link>
           </div>
         )}
-  
-          {/* Menu Items */}
-          <div className="flex-1 overflow-y-auto no-scrollbar py-0 drawerLeft">
-            {menuItems.map((item) => {
-              const isActive = pathname.startsWith(item.href)
-  
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setLeftDrawerOpen(false)}
-                  className={`flex items-center py-2.5 transition-all group border-b border-gray-600 ${isActive ? 'bg-[#e15b24]' : 'hover:bg-white/[0.03]'
-                    }`}
-                >
-                  <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
-                    <div className="flex items-center justify-start w-full">
-                      <img
-                        src={item.icon}
-                        alt={item.id}
-                        className={`w-6 h-6 object-contain transition-transform duration-300 group-hover:scale-105 ${isActive ? 'brightness-[10]' : ''
+
+        {/* Menu Items */}
+        <div className="flex-1 overflow-y-auto no-scrollbar py-0 drawerLeft">
+          {menuItems.map((item) => {
+            const isActive = pathname.startsWith(item.href)
+
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => setLeftDrawerOpen(false)}
+                className={`flex items-center py-2.5 transition-all group border-b border-gray-600 ${isActive ? 'bg-[#e15b24]' : 'hover:bg-white/[0.03]'
+                  }`}
+              >
+                <div className="ml-4 flex items-center self-center flex-1 flex-wrap overflow-hidden">
+                  <div className="flex items-center justify-start w-full">
+                    <img
+                      src={item.icon}
+                      alt={item.id}
+                      className={`w-6 h-6 object-contain transition-transform duration-300 group-hover:scale-105 ${isActive ? 'brightness-[10]' : ''
+                        }`}
+                    />
+                    <div className="flex flex-1 justify-between items-center ml-4 pr-3">
+                      <span className={`text-[16px] font-bold text-white tracking-tight ${isActive ? 'font-black' : ''}`}>
+                        {item.id === 'tc' ? 'T&C' : t(`common.${item.id}`)}
+                      </span>
+                      <ChevronRight
+                        size={18}
+                        className={`transition-colors ${isActive ? 'text-white' : 'text-white/30 group-hover:text-white'
                           }`}
                       />
-                      <div className="flex flex-1 justify-between items-center ml-4 pr-3">
-                        <span className={`text-[16px] font-bold text-white tracking-tight ${isActive ? 'font-black' : ''}`}>
-                          {item.id === 'tc' ? 'T&C' : t(`common.${item.id}`)}
-                        </span>
-                        <ChevronRight
-                          size={18}
-                          className={`transition-colors ${isActive ? 'text-white' : 'text-white/30 group-hover:text-white'
-                            }`}
-                        />
-                      </div>
                     </div>
                   </div>
-                </Link>
-              )
-            })}
-          </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
 
         {/* Footer Actions */}
         <div className="p-6 flex flex-col gap-6">

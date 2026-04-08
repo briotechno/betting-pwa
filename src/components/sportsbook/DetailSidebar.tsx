@@ -17,7 +17,7 @@ export default function DetailSidebar() {
   const router = useRouter()
 
   return (
-    <div className="hidden lg:flex flex-col w-[240px] shrink-0 border-r border-cardBorder bg-surface sticky top-[120px] h-[calc(100vh-120px)] overflow-y-auto z-10">
+    <div className="hidden lg:flex flex-col w-[240px] shrink-0 border-r border-cardBorder bg-surface relative z-10">
       <div className="p-4 space-y-6">
         {/* Navigation Section */}
         <div className="space-y-1">

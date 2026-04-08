@@ -470,7 +470,7 @@ export default function GameDetailPage() {
   return (
     <div className="flex-1 min-h-screen bg-[#111] flex flex-col lg:flex-row">
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="bg-[#1a1a1a] border-b border-white/5 px-2 lg:px-4 h-12 flex items-center justify-between sticky top-0 z-20">
+        <div className="bg-[#1a1a1a] border-b border-white/5 px-2 lg:px-4 h-12 flex items-center justify-between relative z-20">
           <div className="flex items-center gap-2 lg:gap-4 overflow-hidden">
             <button onClick={() => router.back()} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all flex-shrink-0"><ChevronLeft size={20} /></button>
             <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">
@@ -493,7 +493,7 @@ export default function GameDetailPage() {
           </div>
         </div>
         <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
-           <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 sticky top-12 z-20">
+           <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 relative z-20">
               <button onClick={() => setActiveTab('MARKETS')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'MARKETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}>Markets</button>
               <button onClick={() => setActiveTab('OPEN_BETS')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}>Open Bets {bets.length > 0 && `(${bets.length})`}</button>
            </div>
@@ -540,7 +540,7 @@ export default function GameDetailPage() {
         </div>
       </div>
       {user && (
-        <div className="hidden lg:block w-[320px] sticky top-0 h-screen border-l border-white/5 bg-[#1a1a1a]">
+        <div className="hidden lg:block w-[320px] relative border-l border-white/5 bg-[#1a1a1a]">
           <BetContainer />
         </div>
       )}

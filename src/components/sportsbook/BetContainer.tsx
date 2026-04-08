@@ -193,9 +193,9 @@ export default function BetContainer() {
   const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
   return (
-    <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen sticky top-0 self-start">
+    <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen relative self-start">
       {/* Tabs */}
-      <div className="flex border-b border-[#333] sticky top-0 z-[60] bg-[#121212]">
+      <div className="flex border-b border-[#333] relative z-[60] bg-[#121212]">
         <button
           onClick={() => setActiveTab('BETSLIP')}
           className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'

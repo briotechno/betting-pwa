@@ -53,10 +53,6 @@ export default function RootLayout({
         <Providers>
           <SessionGuard />
 
-          {/* Sidebar - desktop only, fixed to left */}
-          <Suspense fallback={null}>
-            <Sidebar />
-          </Suspense>
 
           {/* Main content area - client component to handle dynamic padding */}
           <MainLayout>

@@ -517,7 +517,7 @@ export default function CompetitionDetailPage() {
           </div>
         </div>
 
-        <div className="flex bg-[#111] border-b border-white/5 h-12 sticky top-0 z-50">
+        <div className="flex bg-[#111] border-b border-white/5 h-12 relative z-20">
           {subTabs.map((tab) => (
             <button
               key={tab}
@@ -564,7 +564,7 @@ export default function CompetitionDetailPage() {
 
       {user && (
         <div className="hidden lg:block lg:w-[360px] shrink-0 border-l border-white/5 bg-[#1a1a1a]">
-          <div className="sticky top-0 h-screen overflow-y-auto">
+          <div className="relative overflow-y-auto">
             <BetContainer />
           </div>
         </div>
