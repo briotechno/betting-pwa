@@ -563,7 +563,7 @@ export default function CompetitionDetailPage() {
       </div>
 
       {user && (
-        <div className="hidden lg:block lg:w-[360px] shrink-0 border-l border-white/5 bg-[#1a1a1a]">
+        <div className="hidden lg:block lg:w-[420px] shrink-0 border-l border-white/5 bg-[#1a1a1a]">
           <div className="relative overflow-y-auto">
             <BetContainer />
           </div>

@@ -59,7 +59,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <div className="pb-0 lg:pb-0">
               {children}
             </div>
-            <Footer />
+            {pathname === '/' && <Footer />}
           </main>
         </div>
       </div>
