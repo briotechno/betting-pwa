@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import BetSlipForm from '@/components/sportsbook/BetSlipForm'
 import { useSnackbarStore } from '@/store/snackbarStore'
+import { pusherClient } from '@/utils/pusher'
 
 const OddsBox = ({ 
   val, 
@@ -342,7 +343,7 @@ export default function GameDetailPage() {
         setGameData(parsed)
         return parsed
       }
-    } catch (err) { console.error("Failed to fetch game data", err) } finally { if (isInitial) setIsLoading(false) }
+    } catch (err) { } finally { if (isInitial) setIsLoading(false) }
     return null
   }, [matchId, user?.loginToken])
 
@@ -377,46 +378,89 @@ export default function GameDetailPage() {
 
   useEffect(() => {
     if (!matchId) return
+    
+    // 🔌 Setup Pusher Real-time Listener
+    const channel = pusherClient.subscribe('eventrefersh')
+    
+    channel.bind('my-event', (msg: any) => {
+      // The developer said msg[0] contains the gid
+      const eventGid = msg[0]?.toString()
+      if (eventGid === matchId.toString()) {
+        fetchGameData() // Trigger a structural refresh
+      }
+    })
+
+    return () => {
+      pusherClient.unsubscribe('eventrefersh')
+    }
+  }, [matchId, fetchGameData])
+
+  useEffect(() => {
+    if (!matchId) return
     let isMounted = true
     let timeoutId: NodeJS.Timeout
-    const poll = async () => {
-      const latestData = await fetchGameData()
-      if (!isMounted) return
-      const dataToUse = latestData || gameData
-      if (!dataToUse) { timeoutId = setTimeout(poll, 2000); return }
+    
+    const pollOdds = async () => {
+      // Structure refresh is now handled by Pusher
+      // But we still need to poll for individual Market Rates (odds) 
+      // as Pusher here only notifies about structural changes (reference refresh)
+      
+      const dataToUse = gameData
+      if (!dataToUse) { 
+        // If we don't have gameData yet, try to fetch it
+        await fetchGameData()
+        if (isMounted) timeoutId = setTimeout(pollOdds, 2000)
+        return 
+      }
+
       const marketsToPoll: any[] = []
       const categories = ['ODDS', 'BOOKMAKER', 'FANCY', 'events', 'EXTRA']
+      
       categories.forEach(cat => {
         const items = dataToUse[cat] || []
         const itemArr = Array.isArray(items) ? items : Object.values(items)
         itemArr.forEach((m: any) => {
           const mid = m.MarketId || m.marketid || m.eid
           if (mid) {
-            marketsToPoll.push({ gid: matchId, MarketId: mid.toString(), eventid: matchId, gkey: m.gkey || '', ekey: m.ekey || '' })
+            marketsToPoll.push({ 
+              gid: matchId, 
+              MarketId: mid.toString(), 
+              eventid: matchId, 
+              gkey: m.gkey || '', 
+              ekey: m.ekey || '' 
+            })
           }
         })
       })
+
       if (marketsToPoll.length > 0) {
         const oddsMap: Record<string, any> = {}
         const batchSize = 25
+        
         for (let i = 0; i < marketsToPoll.length; i += batchSize) {
            const batch = marketsToPoll.slice(i, i + batchSize)
            await Promise.all(batch.map(async (m) => {
               if (!isMounted) return
               try {
                 let res;
-                if (!m.MarketId && m.gkey && m.ekey) res = await marketController.getMultiMarketRate('0', [{ gkey: m.gkey, ekey: m.ekey }])
-                else res = await marketController.getGameRate(m)
+                if (!m.MarketId && m.gkey && m.ekey) {
+                  res = await marketController.getMultiMarketRate('0', [{ gkey: m.gkey, ekey: m.ekey }])
+                } else {
+                  res = await marketController.getGameRate(m)
+                }
+                
                 if (res && typeof res === 'object' && !res.error) {
                    const mid = m.MarketId, ekey = m.ekey, gid = m.gid;
                    let finalData = null
                    const searchKeys = [gid, "0"];
+                   
                    for (const sk of searchKeys) {
                       if (res[sk]) {
                          if (ekey && res[sk][ekey]) { finalData = res[sk][ekey]; break; }
                          if (mid && res[sk][mid]) { finalData = res[sk][mid]; break; }
                       }
                    }
+                   
                    if (!finalData) {
                       if (ekey && res[ekey]) finalData = res[ekey];
                       else if (mid && res[mid]) finalData = res[mid];
@@ -429,7 +473,9 @@ export default function GameDetailPage() {
                         }
                       }
                    }
+                   
                    if (!finalData && (res.no1 || res.no2 || res.rates || res.runners)) finalData = res;
+                   
                    if (finalData) {
                       if (typeof finalData === 'string') try { finalData = JSON.parse(finalData) } catch(e) {}
                       oddsMap[mid] = finalData
@@ -440,11 +486,15 @@ export default function GameDetailPage() {
         }
         if (isMounted) setLiveOdds(prev => ({ ...prev, ...oddsMap }))
       }
-      if (isMounted) timeoutId = setTimeout(poll, 1500)
+      
+      // Keep polling odds every 1.5s as Pusher event only covers structural refresh (reference)
+      // If the developer later provides a Pusher event for Odds, we can remove this polling too.
+      if (isMounted) timeoutId = setTimeout(pollOdds, 1500)
     }
-    poll()
+
+    pollOdds()
     return () => { isMounted = false; if (timeoutId) clearTimeout(timeoutId) }
-  }, [matchId, fetchGameData])
+  }, [matchId, gameData, fetchGameData])
 
   const matchName = useMemo(() => {
      if (!gameData) return 'Event Detail'
