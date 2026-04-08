@@ -36,11 +36,11 @@ export default function InlineBetContainer({
     }
 
     return (
-        <div className={`bg-white p-3 border-x-[1.5px] border-b-[1.5px] ${type === 'back' ? 'border-[#a5d9fe]' : 'border-[#f8d0ce]'} space-y-4 animate-in fade-in slide-in-from-top-1 duration-200`}>
+        <div className={`bg-white p-4 border border-[#a5d9fe] rounded-[2px] space-y-4 animate-in fade-in slide-in-from-top-1 duration-200 shadow-sm`}>
             {/* Header / Context */}
-            <div className="space-y-0.5">
-                <p className="text-[12px] font-bold text-[#333] leading-tight">{toTitleCase(matchName)}</p>
-                <p className="text-[12px] font-bold text-[#333] leading-tight">{toTitleCase(selection)} {toTitleCase(marketName)}</p>
+            <div className="space-y-1">
+                <p className="text-[13px] font-bold text-[#333] leading-tight">{toTitleCase(matchName)}</p>
+                <p className="text-[13px] font-bold text-[#333] leading-tight">{toTitleCase(selection)} {toTitleCase(marketName)}</p>
             </div>
 
 
@@ -48,45 +48,44 @@ export default function InlineBetContainer({
             <div className="grid grid-cols-2 gap-4">
                 {/* Odds Input */}
                 <div className="relative">
-                    <label className="absolute -top-[7px] left-2 px-1 bg-white text-[10px] text-gray-400 font-bold z-10 leading-none">Odds</label>
-                    <div className="flex items-center h-10 border border-gray-300 rounded-[4px] px-2">
+                    <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] text-gray-400 font-bold z-10 leading-none">Odds</label>
+                    <div className="flex items-center h-10 border border-gray-300 rounded-[2px] px-2">
                         <input 
                             type="number" 
+                            readOnly
                             value={odds} 
-                            step="0.01"
-                            onChange={(e) => setOdds(parseFloat(e.target.value))}
-                            className="flex-1 w-full text-left font-bold text-[15px] outline-none bg-transparent"
+                            className="flex-1 w-full text-center font-bold text-[15px] outline-none bg-transparent text-gray-800"
                         />
                     </div>
                 </div>
 
                 {/* Stake Input */}
                 <div className="relative">
-                    <label className="absolute -top-[7px] left-2 px-1 bg-white text-[10px] text-gray-500 font-bold z-10 leading-none">Stake</label>
+                    <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] text-[#f36c21] font-bold z-10 leading-none">Stake</label>
                     <div className="flex flex-col">
                         <input 
                             type="number" 
                             value={stake}
                             placeholder="0"
                             onChange={(e) => setStake(e.target.value)}
-                            className="h-10 border border-gray-400 rounded-[4px] text-left px-3 font-bold text-[18px] outline-none text-[#333]"
+                            className="h-10 border border-[#f36c21] rounded-[2px] text-center px-3 font-bold text-[15px] outline-none text-[#333]"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Choose stake size */}
-            <div className="space-y-4 pt-1">
+            <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                    <span className="text-[12px] font-bold text-[#333]">or Choose You Stake Size</span>
-                    <button className="text-[12px] font-bold text-[#e15b24] uppercase tracking-tighter">EDIT STAKES</button>
+                    <span className="text-[11px] font-bold text-gray-600">or Choose You Stake Size</span>
+                    <button className="text-[11px] font-bold text-[#f36c21] uppercase">EDIT STAKES</button>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     {stakes.map((s) => (
                         <button 
                             key={s} 
                             onClick={() => handleStakeClick(s)}
-                            className="h-11 bg-[#e15b24] text-white rounded-[2px] text-[15px] font-black shadow-sm active:scale-95 transition-transform"
+                            className="h-10 bg-[#f36c21] text-white rounded-[2px] text-[13px] font-black shadow-sm active:scale-95 transition-transform"
                         >
                             +{s.toLocaleString()}
                         </button>
@@ -95,18 +94,18 @@ export default function InlineBetContainer({
             </div>
 
             {/* Actions */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-[1fr_1.5fr] gap-2">
                 <button 
                     onClick={onCancel}
-                    className="h-12 border border-gray-400 text-[#333] rounded-[2px] text-[15px] font-bold uppercase active:bg-gray-50"
+                    className="h-10 border border-black text-gray-600 rounded-[2px] text-[13px] font-black uppercase active:bg-gray-50 transition-colors"
                 >
                     CANCEL
                 </button>
                 <button 
                     disabled={!stake}
                     onClick={() => onPlaceBet(parseInt(stake))}
-                    className={`h-12 rounded-[2px] text-[15px] font-bold uppercase transition-colors ${
-                        !stake ? 'bg-[#dfdfdf] text-[#b3b3b3] cursor-not-allowed' : 'bg-green-600 text-white shadow-lg'
+                    className={`h-10 rounded-[2px] text-[13px] font-black uppercase transition-all shadow-sm ${
+                        !stake ? 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed' : 'bg-[#f36c21] text-white active:brightness-110'
                     }`}
                 >
                     PLACE BET
@@ -114,25 +113,26 @@ export default function InlineBetContainer({
             </div>
 
             {/* Min/Max Info Block */}
-            <div className="flex items-start gap-2 pt-1">
-                <div className="bg-[#e15b24] p-1 rounded-full shrink-0 mt-0.5">
-                    <Info size={18} className="text-white fill-white" />
+            <div className="flex items-start gap-2">
+                <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+                    <span className="text-[11px] font-black italic">i</span>
                 </div>
-                <p className="text-[12px] font-bold text-[#e15b24] leading-tight">
+                <p className="text-[11px] font-black text-[#f36c21] leading-tight">
                     Min Bet: 100 Max Bet: 50000 Max Winning: 250000
                 </p>
             </div>
 
             {/* Toggle */}
             <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                <span className="text-[13px] font-bold text-[#333]">Confirm bets before placing</span>
+                <span className="text-[13px] font-bold text-gray-600">Confirm bets before placing</span>
                 <button 
                     onClick={() => setConfirmBeforePlace(!confirmBeforePlace)}
-                    className={`w-12 h-6 rounded-full transition-colors relative ${confirmBeforePlace ? 'bg-[#e15b24]' : 'bg-gray-300'}`}
+                    className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
                 >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${confirmBeforePlace ? 'right-1' : 'left-1'}`} />
+                    <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
                 </button>
             </div>
         </div>
     )
 }
+

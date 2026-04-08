@@ -562,11 +562,13 @@ export default function CompetitionDetailPage() {
         </div>
       </div>
 
-      <div className="hidden lg:block lg:w-[360px] shrink-0 border-l border-white/5 bg-[#1a1a1a]">
-        <div className="sticky top-0 h-screen overflow-y-auto">
-          <BetContainer />
+      {user && (
+        <div className="hidden lg:block lg:w-[360px] shrink-0 border-l border-white/5 bg-[#1a1a1a]">
+          <div className="sticky top-0 h-screen overflow-y-auto">
+            <BetContainer />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

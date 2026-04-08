@@ -150,7 +150,10 @@ const MatchTable = ({ match }: { match: any }) => {
   )
 }
 
+import { useAuthStore } from '@/store/authStore'
+
 export default function SportsbookPage() {
+  const { user } = useAuthStore()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
   const router = useRouter()
   const pathname = usePathname()
@@ -222,9 +225,11 @@ export default function SportsbookPage() {
       </div>
 
       {/* Bet Container - attached but separate column */}
-      <div className="hidden lg:block lg:w-[350px] shrink-0">
-        <BetContainer />
-      </div>
+      {user && (
+        <div className="hidden lg:block lg:w-[350px] shrink-0">
+          <BetContainer />
+        </div>
+      )}
     </div>
   )
 }

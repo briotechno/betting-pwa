@@ -152,7 +152,10 @@ const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: str
   )
 }
 
+import { useAuthStore } from '@/store/authStore'
+
 export default function SportDetailPage() {
+  const { user } = useAuthStore()
   const params = useParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -435,9 +438,11 @@ export default function SportDetailPage() {
       </div>
 
       {/* Bet Container - attached but separate column */}
-      <div className="hidden lg:block lg:w-[350px] shrink-0">
-        <BetContainer />
-      </div>
+      {user && (
+        <div className="hidden lg:block lg:w-[350px] shrink-0">
+          <BetContainer />
+        </div>
+      )}
     </div>
   )
 }

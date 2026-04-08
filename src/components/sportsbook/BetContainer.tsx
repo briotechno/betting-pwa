@@ -28,6 +28,9 @@ export default function BetContainer() {
   } = useBetSlipStore()
   const snackbar = useSnackbarStore()
 
+  // Requirement: Hide for unlogged users
+  if (!user) return null
+
   useEffect(() => {
     if (activeTab === 'OPEN_BETS' && user?.loginToken) {
       fetchBets()
@@ -102,10 +105,6 @@ export default function BetContainer() {
         Rate: selection.odds,
         IP: '127.0.0.1'
       }
-
-      console.log('--- Placing Bet Data ---');
-      console.log('Selection State:', JSON.stringify(selection, null, 2));
-      console.log('API Common Object:', JSON.stringify(common, null, 2));
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
       const isWinner = selection.marketName.toLowerCase().includes('winner')
@@ -193,29 +192,10 @@ export default function BetContainer() {
   const matchedBets = bets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
   const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
-  const renderBetCard = (bet: Bet) => (
-    <div key={`${bet.Game}-${bet.Date}`} className="bg-[#1a1a1a] p-3 border-b border-[#333] last:border-0">
-      <div className="flex justify-between items-start mb-1">
-        <span className="text-[11px] font-bold text-white uppercase tracking-tight truncate flex-1 pr-2">{bet.Game}</span>
-        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${bet.Side === 'back' ? 'bg-[#a5d9fe] text-black' : 'bg-[#f8d0ce] text-black'}`}>
-          {bet.Side}
-        </span>
-      </div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-[10px] text-gray-400 font-medium">{bet.Selection}</span>
-        <span className="text-[10px] text-white font-black">@ {bet.Rate}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="text-[9px] text-gray-500">{bet.Date}</span>
-        <span className="text-[10px] text-[#e8612c] font-bold">₹{bet.Stake}</span>
-      </div>
-    </div>
-  )
-
   return (
-    <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen">
+    <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen sticky top-0 self-start">
       {/* Tabs */}
-      <div className="flex border-b border-[#333] sticky top-0 z-10 bg-[#121212]">
+      <div className="flex border-b border-[#333] sticky top-0 z-[60] bg-[#121212]">
         <button
           onClick={() => setActiveTab('BETSLIP')}
           className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
@@ -232,133 +212,131 @@ export default function BetContainer() {
         </button>
       </div>
 
-      <div className="p-3">
+      <div className="p-2">
         {activeTab === 'BETSLIP' ? (
           selections.length > 0 ? (
             <div className="space-y-4">
               {selections.map((sel) => {
-                const stake = stakes[sel.id] || 0;
-                const profit = (stake * (sel.odds - 1)).toFixed(0);
-
                 return (
-                  <div key={sel.id} className="relative bg-white rounded-lg p-3 pt-4 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-right duration-300 overflow-hidden">
+                  <div key={sel.id} className="relative bg-white rounded-[2px] p-4 border border-[#a5d9fe] shadow-sm animate-in fade-in slide-in-from-right duration-300 overflow-hidden">
                     {/* Bet Placing Loading Overlay */}
                     {loading && (
                       <div className="absolute inset-0 z-50 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">
-                        <span className="text-[16px] font-medium text-gray-800 mb-1">Your bet will be placed in...</span>
+                        <span className="text-[15px] font-medium text-gray-800 mb-1">Your bet will be placed in...</span>
                         <div className="flex flex-col items-center">
                           <span className="text-[20px] font-black text-gray-900 leading-none">{countdown}</span>
-                          {/* Small decorative squiggle similar to the image */}
                           <div className="w-4 h-4 mt-1 border-t-2 border-black rounded-full animate-spin"></div>
                         </div>
                       </div>
                     )}
 
-                    <div className={loading ? 'opacity-20 blur-[1px] transition-all duration-300' : 'transition-all duration-300'}>
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex flex-col">
-                          <span className="text-[14px] font-medium text-gray-800 leading-tight">
-                            {sel.matchName}
-                          </span>
-                          <span className="text-[14px] font-medium text-gray-800 leading-tight">
-                            {sel.selectionName} {sel.marketName.toLowerCase().includes('fancy') ? 'fancy' : ''}
-                          </span>
-                        </div>
-                        <button onClick={() => removeSelection(sel.id)} className="text-gray-400 hover:text-red-500 transition-colors pt-1">
-                          <X size={18} />
-                        </button>
+                    <div className={loading ? 'opacity-20 blur-[1px]' : ''}>
+                      <div className="mb-3">
+                        <div className="text-[13px] font-bold text-gray-800 leading-tight">{sel.matchName}</div>
+                        <div className="text-[13px] font-bold text-gray-800 leading-tight">{sel.selectionName}</div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 mb-5">
+                      <div className="grid grid-cols-2 gap-4 mb-4">
                         {/* Odds Input with Floating Label */}
                         <div className="relative">
-                          <label className="absolute -top-2.5 left-3 px-1.5 bg-white text-[11px] font-medium text-gray-500 z-10">Odds</label>
-                          <div className="flex items-center border border-gray-300 rounded-md overflow-hidden h-11">
-                            <button className="px-3 h-full text-gray-400 hover:text-gray-600 border-r border-gray-200"><Minus size={14} /></button>
-                            <input type="text" readOnly value={sel.odds} className="w-full text-center text-[15px] font-bold text-gray-900 bg-transparent outline-none" />
-                            <button className="px-3 h-full text-gray-400 hover:text-gray-600 border-l border-gray-200"><Plus size={14} /></button>
+                          <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10">Odds</label>
+                          <div className="flex items-center border border-gray-300 rounded-[2px] overflow-hidden h-[42px]">
+                            <button 
+                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
+                            >
+                              <Minus size={14} strokeWidth={3} />
+                            </button>
+                            <input 
+                              type="text" 
+                              readOnly 
+                              value={sel.odds} 
+                              className="w-full text-center text-[15px] font-bold text-gray-800 bg-transparent outline-none" 
+                            />
+                            <button 
+                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
+                            >
+                              <Plus size={14} strokeWidth={3} />
+                            </button>
                           </div>
                         </div>
 
                         {/* Stake Input with Orange Border */}
                         <div className="relative">
-                          <label className="absolute -top-2.5 left-3 px-1.5 bg-white text-[11px] font-medium text-[#f36c21] z-10">Stake</label>
-                          <div className="h-11">
+                          <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-[#f36c21] z-10">Stake</label>
+                          <div className="h-[42px]">
                             <input 
                               type="number" 
                               value={stakes[sel.id] || ''} 
                               onChange={(e) => setStake(sel.id, parseFloat(e.target.value) || 0)}
-                              placeholder="Amount"
-                              className="w-full h-full border-2 border-[#f36c21] rounded-md text-center text-[15px] font-black text-gray-900 outline-none px-4"
+                              placeholder="0"
+                              className="w-full h-full border border-[#f36c21] rounded-[2px] text-[15px] font-bold text-gray-800 outline-none px-3"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center mb-2 px-1">
-                         <span className="text-[12px] text-gray-600 font-bold opacity-80 select-none">or Choose You Stake Size</span>
+                      <div className="flex justify-between items-center mb-3">
+                         <span className="text-[11px] text-gray-600 font-bold">or Choose You Stake Size</span>
                          <button className="text-[11px] font-black text-[#f36c21] uppercase hover:underline">Edit Stakes</button>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1.5 mb-5 px-1">
+                      <div className="grid grid-cols-3 gap-2 mb-4">
                         {quickStakes.map(s => (
                           <button
                             key={s}
                             onClick={() => setStake(sel.id, (stakes[sel.id] || 0) + s)}
-                            className="bg-[#f36c21] text-white py-2.5 rounded-[2px] text-[13px] font-black hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                            className="bg-[#f36c21] text-white py-2.5 rounded-[2px] text-[13px] font-black hover:brightness-110 active:scale-95 transition-all"
                           >
                             +{s.toLocaleString()}
                           </button>
                         ))}
                       </div>
 
-                      <div className="flex gap-2 mb-4">
+                      <div className="grid grid-cols-2 gap-2 mb-4">
                         <button
                           onClick={() => removeSelection(sel.id)}
-                          className="flex-1 py-3 text-[13px] font-black text-gray-500 border-2 border-gray-300 rounded-md hover:bg-gray-50 transition-colors uppercase tracking-widest"
+                          className="py-2.5 text-[13px] font-black text-gray-500 border border-black rounded-[2px] hover:bg-gray-50 transition-colors uppercase"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={placeBets}
                           disabled={loading || !stakes[sel.id]}
-                          className="flex-[1.8] bg-[#f36c21] text-white py-2 rounded-md flex flex-col items-center justify-center shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group relative overflow-hidden"
+                          className={`py-2.5 rounded-[2px] text-[13px] font-black uppercase shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            stakes[sel.id] ? 'bg-[#f36c21] text-white' : 'bg-[#e0e0e0] text-gray-400'
+                          }`}
                         >
-                           <span className="text-[14px] font-black uppercase tracking-widest">Place Bet</span>
-                           <span className="text-[10px] font-black uppercase opacity-90 group-disabled:hidden">Profit: {profit}</span>
-                           <span className="absolute top-1.5 right-2 text-[10px] font-black opacity-60">3s</span>
+                          Place Bet
                         </button>
                       </div>
 
-
                       {/* Footer Info */}
-                      <div className="flex items-start gap-2 mb-6 px-1">
-                         <div className="bg-[#f36c21] rounded-full p-1.5 flex items-center justify-center text-white flex-shrink-0">
-                            <Plus size={10} className="rotate-45" />
+                      <div className="flex items-start gap-2 mb-6">
+                         <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+                            <span className="text-[11px] font-black italic">i</span>
                          </div>
-                         <p className="text-[11px] font-bold text-[#f36c21] leading-tight mt-0.5">
-                            Min Bet: 100 Max Bet: 100000 Max Winning: 2000000
+                         <p className="text-[11px] font-black text-[#f36c21] leading-[1.3]">
+                            Min Bet: 100 Max Bet: 25000 Max Winning: 250000
                          </p>
                       </div>
 
                       {/* Footer Toggle */}
-                      <div className="flex items-center justify-between py-2 border-t border-gray-100 px-1">
-                         <span className="text-[14px] text-gray-600 font-bold opacity-80">Confirm bets before placing</span>
+                      <div className="flex items-center justify-between py-2 border-t border-gray-100">
+                         <span className="text-[13px] text-gray-600 font-bold">Confirm bets before placing</span>
                          <button 
                            onClick={toggleConfirmBeforePlace}
-                           className={`w-11 h-6 rounded-full transition-colors relative flex items-center px-1 ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-gray-300'}`}
+                           className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
                          >
-                            <div className={`w-4 h-4 bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
+                            <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
                          </button>
                       </div>
                     </div>
                   </div>
                 )
-
               })}
             </div>
           ) : (
-            <div className="p-8 bg-white/5 rounded-[20px] text-center border border-white/5 mt-4">
+            <div className="p-8 bg-white/5 rounded-[4px] text-center border border-white/5 mt-4">
               <div className="w-12 h-12 bg-[#f36c21]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#f36c21]/20">
                 <Plus className="text-[#f36c21]" size={20} />
               </div>
@@ -370,7 +348,7 @@ export default function BetContainer() {
         ) : (
           <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
             {/* UNMATCHED BETS SECTION */}
-            <div className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
+            <div className="rounded-[4px] overflow-hidden border border-[#f36c21] bg-[#111]">
               <div 
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setUnmatchedOpen(!unmatchedOpen)}
@@ -392,7 +370,7 @@ export default function BetContainer() {
                             <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
                             <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
                           </div>
-                          <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
+                          <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
                             <thead className="bg-gray-50/50">
                               <tr className="border-b border-gray-100">
                                 <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest">Odds</th>
@@ -420,7 +398,7 @@ export default function BetContainer() {
             </div>
 
             {/* MATCHED BETS SECTION */}
-            <div className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
+            <div className="rounded-[4px] overflow-hidden border border-[#f36c21] bg-[#111]">
               <div 
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setMatchedOpen(!matchedOpen)}
@@ -453,7 +431,7 @@ export default function BetContainer() {
                             <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
                           </div>
 
-                          <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
+                          <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
                             <thead className="bg-gray-50/50">
                               <tr className="border-b border-gray-100">
                                 <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th>

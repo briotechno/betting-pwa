@@ -42,20 +42,13 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
     setLoading(true)
     try {
       let res;
-      // Normalizing the API parameters: 
-      // - Eid is usually the overall match/game/event ID
-      // - selectionId is the specific runner/choice
       const common = {
         LoginToken: user.loginToken,
-        Eid: selection.eventId, // The Game/Match ID
+        Eid: selection.eventId,
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1' 
       }
-
-      console.log('--- Placing Mobile Bet Data ---');
-      console.log('Selection State:', JSON.stringify(selection, null, 2));
-      console.log('API Common Object:', JSON.stringify(common, null, 2));
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
       const isWinner = selection.marketName.toLowerCase().includes('winner')
@@ -131,67 +124,66 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
   }
 
   return (
-    <div className="bg-[#fff] border-2 border-[#a5d9fe] rounded-lg overflow-hidden my-2 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+    <div className="bg-[#fff] border border-[#a5d9fe] rounded-[2px] overflow-hidden my-2 shadow-2xl animate-in slide-in-from-top-4 duration-300">
       {/* Header Info */}
-      <div className="p-3 border-b border-gray-100 bg-white">
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight mb-0.5">{selection.matchName}</p>
-        <p className="text-[12px] font-black text-[#333] uppercase leading-tight">{selection.selectionName} <span className="text-[9px] opacity-60 font-medium">({selection.marketName})</span></p>
+      <div className="p-3 bg-white">
+        <p className="text-[11px] text-gray-500 font-bold uppercase tracking-tight mb-0.5 opacity-70">{selection.matchName}</p>
+        <p className="text-[13px] font-black text-[#333] uppercase leading-tight">{selection.selectionName}</p>
       </div>
 
-      <div className={`p-4 space-y-4 ${selection.betType === 'back' ? 'bg-[#a5d9fe]/5' : 'bg-[#f8d0ce]/5'}`}>
+      <div className="p-4 space-y-4">
         {/* Controls Row */}
-        <div className="flex gap-4">
-          <div className="flex-1 group">
-            <label className="text-[9px] font-black text-gray-400 uppercase mb-1 block group-focus-within:text-[#f36c21] transition-colors">Odds</label>
-            <div className="flex items-center border border-gray-200 rounded-md overflow-hidden h-10 bg-white focus-within:border-[#f36c21]/50">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative">
+            <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10 leading-none">Odds</label>
+            <div className="flex items-center h-10 border border-gray-300 rounded-[2px] overflow-hidden bg-white">
               <button 
                 onClick={() => updateOdds(selection.id, -0.01)}
-                className="px-3 h-full hover:bg-gray-50 text-gray-400 active:scale-90 transition-transform"
+                className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
-                <Minus size={14} />
+                <Minus size={14} strokeWidth={3} />
               </button>
               <input 
                 type="number" 
                 value={selection.odds} 
                 readOnly
-                className="w-full text-center text-[14px] font-black focus:outline-none text-gray-900" 
+                className="w-full text-center text-[15px] font-bold focus:outline-none text-gray-900 bg-transparent" 
               />
               <button 
                 onClick={() => updateOdds(selection.id, 0.01)}
-                className="px-3 h-full hover:bg-gray-50 text-gray-400 active:scale-90 transition-transform"
+                className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
-                <Plus size={14} />
+                <Plus size={14} strokeWidth={3} />
               </button>
             </div>
           </div>
 
-          <div className="flex-1 group">
-             <label className={`text-[9px] font-black ${stake === 0 ? 'text-red-500' : 'text-gray-400'} uppercase mb-1 block group-focus-within:text-[#f36c21]`}>Stake</label>
-             <div className={`flex items-center border ${stake === 0 ? 'border-red-500' : 'border-gray-200'} rounded-md overflow-hidden h-10 bg-white focus-within:border-[#f36c21]/50`}>
+          <div className="relative">
+             <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-[#f36c21] z-10 leading-none">Stake</label>
+             <div className="h-10 border border-[#f36c21] rounded-[2px] overflow-hidden bg-white">
                 <input 
                   type="number" 
                   placeholder="0"
                   value={stake || ''}
                   onChange={(e) => setStake(selection.id, parseFloat(e.target.value) || 0)}
-                  className="w-full text-center text-[14px] font-black focus:outline-none placeholder:opacity-30 text-gray-900" 
+                  className="w-full h-full text-center text-[15px] font-bold focus:outline-none placeholder:opacity-30 text-gray-900 bg-transparent" 
                 />
              </div>
-             {stake === 0 && <p className="text-[8px] text-red-500 font-bold mt-1 uppercase italic tracking-tighter">Stake is required</p>}
           </div>
         </div>
 
         {/* Quick Stakes Grid */}
-        <div className="space-y-2">
-           <div className="flex justify-between items-center mb-1">
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Quick Stakes</p>
-              <button className="text-[9px] font-black text-[#f36c21] uppercase tracking-widest hover:underline">Edit Stakes</button>
+        <div className="space-y-3">
+           <div className="flex justify-between items-center">
+              <p className="text-[11px] font-bold text-gray-600">or Choose You Stake Size</p>
+              <button className="text-[11px] font-black text-[#f36c21] uppercase hover:underline">Edit Stakes</button>
            </div>
            <div className="grid grid-cols-3 gap-2">
              {quickStakes.map(s => (
                <button 
                  key={s} 
                  onClick={() => setStake(selection.id, (stake || 0) + s)}
-                 className="py-2.5 text-[11px] font-black rounded bg-[#e8612c] text-white hover:brightness-110 active:scale-[0.97] transition-all shadow-sm"
+                 className="py-2.5 text-[13px] font-black rounded-[2px] bg-[#f36c21] text-white hover:brightness-110 active:scale-[0.97] transition-all shadow-sm"
                >
                  +{s.toLocaleString()}
                </button>
@@ -200,45 +192,45 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-2">
+        <div className="grid grid-cols-[1fr_1.5fr] gap-2">
            <button 
              onClick={onClose}
-             className="flex-1 py-3 text-[12px] font-black text-gray-500 uppercase border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+             className="py-2.5 text-[13px] font-black text-gray-500 uppercase border border-black rounded-[2px] hover:bg-gray-50 transition-colors"
            >
              Cancel
            </button>
            <button 
              onClick={placeBet}
              disabled={loading || stake === 0}
-             className={`flex-[2] py-3 text-[12px] font-black uppercase rounded-lg transition-all ${
+             className={`py-2.5 text-[13px] font-black uppercase rounded-[2px] transition-all shadow-sm ${
                stake > 0 
-               ? 'bg-[#1a91eb] text-white shadow-lg active:scale-95' 
-               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+               ? 'bg-[#f36c21] text-white active:brightness-110' 
+               : 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed'
              }`}
-             style={{
-                backgroundColor: stake > 0 ? (selection.betType === 'back' ? '#1a91eb' : '#f2708b') : '#eee'
-             }}
            >
              {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Place Bet'}
            </button>
         </div>
 
         {/* Footer Info */}
-        <div className="pt-2 border-t border-gray-100 flex flex-col gap-2">
-           <div className="flex items-start gap-2">
-              <div className="w-4 h-4 bg-[#f36c21] rounded-full flex items-center justify-center text-white text-[8px] font-black flex-shrink-0 mt-0.5">i</div>
-              <p className="text-[9px] text-[#e8612c] font-bold leading-tight">
-                Min Bet: 100 Max Bet: 100000 Max Winning: 2000000
-              </p>
-           </div>
+        <div className="flex items-start gap-2 pt-1">
+            <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+                <span className="text-[11px] font-black italic">i</span>
+            </div>
+            <p className="text-[11px] font-black text-[#f36c21] leading-tight">
+                Min Bet: 100 Max Bet: 25000 Max Winning: 250000
+            </p>
+        </div>
 
-           <div className="flex items-center justify-between pb-2">
-              <span className="text-[10px] font-bold text-[#333] uppercase opacity-70">Confirm bets before placing</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                 <input type="checkbox" checked={confirmBeforePlace} onChange={toggleConfirmBeforePlace} className="sr-only peer" />
-                 <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#f36c21]"></div>
-              </label>
-           </div>
+        {/* Toggle */}
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+            <span className="text-[13px] font-bold text-gray-600 uppercase opacity-80">Confirm bets before placing</span>
+            <button 
+                onClick={toggleConfirmBeforePlace}
+                className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
+            >
+                <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
+            </button>
         </div>
       </div>
     </div>

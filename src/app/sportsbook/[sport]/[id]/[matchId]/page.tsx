@@ -539,7 +539,11 @@ export default function GameDetailPage() {
            </div>
         </div>
       </div>
-      <div className="hidden lg:block w-[320px] sticky top-0 h-screen border-l border-white/5 bg-[#1a1a1a]"><BetContainer /></div>
+      {user && (
+        <div className="hidden lg:block w-[320px] sticky top-0 h-screen border-l border-white/5 bg-[#1a1a1a]">
+          <BetContainer />
+        </div>
+      )}
     </div>
   )
 }
