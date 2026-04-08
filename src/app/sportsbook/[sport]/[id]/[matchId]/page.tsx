@@ -8,6 +8,7 @@ import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import BetSlipForm from '@/components/sportsbook/BetSlipForm'
+import { useSnackbarStore } from '@/store/snackbarStore'
 
 const OddsBox = ({ 
   val, 
@@ -138,7 +139,14 @@ const MarketTable = ({
   }
 
   const isFancyGroup = marketName.toUpperCase() === 'FANCY'
-  const isMatchOdd = marketType === 'ODDS' || marketName.toUpperCase().includes('MATCH ODD')
+  const isMatchOdd = marketType !== 'FANCY' && (
+      marketType === 'ODDS' || 
+      marketType === 'BOOKMAKER' || 
+      marketType === 'EXTRA' || 
+      marketName.toUpperCase().includes('MATCH') || 
+      marketName.toUpperCase().includes('WINNER') || 
+      marketName.toUpperCase().includes('TIE')
+  )
 
   return (
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -300,6 +308,9 @@ export default function GameDetailPage() {
   const [gameData, setGameData] = useState<any>(null)
   const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
   const [isLoading, setIsLoading] = useState(true)
+  const [isFav, setIsFav] = useState(false)
+  const [favLoading, setFavLoading] = useState(false)
+  const showSnackbar = useSnackbarStore(state => state.show)
   const { myBets: bets, setMyBets: setGlobalBets } = useBetSlipStore()
   const [betsLoading, setBetsLoading] = useState(false)
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
@@ -336,6 +347,33 @@ export default function GameDetailPage() {
   }, [matchId, user?.loginToken])
 
   useEffect(() => { fetchGameData(true) }, [fetchGameData])
+
+  useEffect(() => {
+    if (gameData) {
+      setIsFav(gameData.IsFavorite === '1' || gameData.isFavorite === 'Yes' || gameData.fav === '1')
+    }
+  }, [gameData])
+
+  const handleToggleFav = async () => {
+    if (!user?.loginToken) {
+      showSnackbar('Please login to add favorites', 'error')
+      return
+    }
+    try {
+      setFavLoading(true)
+      const res = await marketController.toggleFavourite(user.loginToken, matchId)
+      if (res && res.error === '0') {
+        setIsFav(prev => !prev)
+        showSnackbar(res.msg || (isFav ? 'Removed from favorites' : 'Added to favorites'), 'success')
+      } else {
+        showSnackbar(res?.msg || 'Failed to update favorite', 'error')
+      }
+    } catch (err) {
+      showSnackbar('Something went wrong', 'error')
+    } finally {
+      setFavLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!matchId) return
@@ -435,7 +473,23 @@ export default function GameDetailPage() {
         <div className="bg-[#1a1a1a] border-b border-white/5 px-2 lg:px-4 h-12 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2 lg:gap-4 overflow-hidden">
             <button onClick={() => router.back()} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all flex-shrink-0"><ChevronLeft size={20} /></button>
-            <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">{matchName}<Star size={16} className="text-yellow-500 fill-yellow-500 flex-shrink-0" /></h1>
+            <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">
+              {matchName}
+              <button 
+                onClick={handleToggleFav} 
+                disabled={favLoading}
+                className={`transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
+              >
+                {favLoading ? (
+                  <Loader2 size={16} className="text-yellow-500 animate-spin" />
+                ) : (
+                  <Star 
+                    size={18} 
+                    className={`transition-colors ${isFav ? 'text-yellow-500 fill-yellow-500' : 'text-white/40 fill-none'}`} 
+                  />
+                )}
+              </button>
+            </h1>
           </div>
         </div>
         <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">

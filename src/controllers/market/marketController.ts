@@ -98,4 +98,13 @@ export const marketController = {
   getMarketAnalysis: async (loginToken: string): Promise<ApiResponse> => {
     return await fetchAPI('/marketanay', { LoginToken: loginToken });
   },
+
+  /**
+   * Toggle favourite for an event
+   * @param loginToken The encrypted session token
+   * @param eid The event ID
+   */
+  toggleFavourite: async (loginToken: string, eid: string): Promise<ApiResponse> => {
+    return await fetchAPI('/favourite', { LoginToken: loginToken, Eid: eid });
+  },
 };
