@@ -7,7 +7,7 @@ import { useBetSlipStore } from '@/store/betSlipStore'
 
 const navItems = [
   { id: 'sports', label: 'Sportsbook', icon: 'https://www.fairplay247.vip/_nuxt/img/sportsbook.5e7a4f5.png', href: '/sportsbook' },
-  { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino' },
+  { id: 'casino', label: 'Mac88', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/mac88' },
   { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' },
   { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },
 ]

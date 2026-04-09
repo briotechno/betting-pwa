@@ -24,10 +24,10 @@ export default function DesktopBottomNav() {
       isCasino: false
     },
     {
-      label: 'Live Casino',
+      label: 'Mac88',
       icon: '/nav/live-casino.png',
-      onClick: () => setAuraCasinoOpen(true),
-      isCasino: true
+      href: '/mac88',
+      isCasino: false
     },
     {
       label: 'Slot Games',
@@ -69,17 +69,10 @@ export default function DesktopBottomNav() {
               {index > 0 && (
                 <div className="h-10 w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent self-center shrink-0" />
               )}
-              {item.href ? (
-                <Link href={item.href} className="flex-1 h-full flex items-center justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-white/5 transition-colors" />
-                  {content}
-                </Link>
-              ) : (
-                <button onClick={item.onClick} className="flex-1 h-full flex items-center justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-white/5 transition-colors" />
-                  {content}
-                </button>
-              )}
+              <Link href={item.href} className="flex-1 h-full flex items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/5 transition-colors" />
+                {content}
+              </Link>
             </React.Fragment>
           )
         })}

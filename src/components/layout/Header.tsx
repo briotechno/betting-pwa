@@ -477,13 +477,13 @@ export default function Header() {
           
           <div className="h-8 w-[1px] bg-white/10" />
 
-          <button
-            onClick={() => setAuraCasinoOpen(true)}
+          <Link
+            href="/mac88"
             className="flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group opacity-60 hover:opacity-100"
           >
-            <img src="/nav/aura-casino.png" alt="Aura Casino" className="w-7 h-7 object-contain" />
-            <span className="text-[10px] font-bold text-white uppercase tracking-tight">Aura Casino</span>
-          </button>
+            <img src="/nav/aura-casino.png" alt="Mac88" className="w-7 h-7 object-contain" />
+            <span className="text-[10px] font-bold text-white uppercase tracking-tight">Mac88</span>
+          </Link>
 
           <div className="h-8 w-[1px] bg-white/10" />
 
@@ -517,7 +517,7 @@ export default function Header() {
             { id: 'tennis', label: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png', href: '/sportsbook/Tennis' },
             { id: 'premium', label: 'Premium Sportbook', icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png', href: '/premium-sportsbook' },
             { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },
-            { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino' },
+            { id: 'casino', label: 'Mac88', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/mac88' },
             { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' }
           ].map((tab) => {
             const isActive = pathname === tab.href || (tab.id === 'inplay' && pathname === '/')

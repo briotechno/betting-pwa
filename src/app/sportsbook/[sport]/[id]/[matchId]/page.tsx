@@ -177,13 +177,33 @@ const MarketTable = ({
          <div className="flex items-center gap-2">
             {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>}
          </div>
-         <div className="flex mr-1 lg:mr-0 items-center justify-end flex-1 gap-1 lg:gap-2">
-          <div className={`flex items-center justify-center ${isMatchOdd ? 'w-[110px] lg:w-[184px]' : 'w-[58px] lg:w-[184px]'}`}>
-             <span className="text-[10px] font-black text-white/80 uppercase tracking-widest text-center">{isFancyGroup ? 'No' : 'Back'}</span>
-          </div>
-          <div className={`flex items-center justify-center ${isMatchOdd ? 'w-[110px] lg:w-[184px]' : 'w-[58px] lg:w-[184px]'}`}>
-             <span className="text-[10px] font-black text-white/80 uppercase tracking-widest text-center">{isFancyGroup ? 'Yes' : 'Lay'}</span>
-          </div>
+         <div className="flex mr-1 lg:mr-0 items-center justify-end flex-1 gap-1 lg:gap-2 h-full">
+           {/* Header alignment logic: Aligning Back/Lay exactly above the p1 (best) prices */}
+           <div className={`flex justify-end gap-0.5 lg:gap-1 ${isMatchOdd ? 'w-[110px] lg:w-[184px]' : 'w-[54px] lg:w-[60px]'}`}>
+              {/* For Match Odds, Back Label is at the right-most cell (p1) */}
+              {isMatchOdd && (
+                <>
+                  <div className="hidden lg:block w-[60px]" />
+                  <div className="hidden lg:block w-[60px]" />
+                </>
+              )}
+              <div className="w-[54px] lg:w-[60px] flex items-center justify-center">
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'No' : 'Back'}</span>
+              </div>
+           </div>
+           
+           <div className={`flex justify-start gap-0.5 lg:gap-1 ${isMatchOdd ? 'w-[110px] lg:w-[184px]' : 'w-[54px] lg:w-[60px]'}`}>
+              {/* For Match Odds, Lay Label is at the left-most cell (p1) */}
+              <div className="w-[54px] lg:w-[60px] flex items-center justify-center">
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'Yes' : 'Lay'}</span>
+              </div>
+              {isMatchOdd && (
+                <>
+                  <div className="hidden lg:block w-[60px]" />
+                  <div className="hidden lg:block w-[60px]" />
+                </>
+              )}
+           </div>
          </div>
       </div>
 
