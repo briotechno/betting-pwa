@@ -22,7 +22,7 @@ const banners = [
 
 const quickSports = [
   { id: 'cricket', label: 'Cricket', emoji: '🏏' },
-  { id: 'soccer', label: 'Soccer', emoji: '⚽' },
+  { id: 'football', label: 'Football', emoji: '⚽' },
   { id: 'tennis', label: 'Tennis', emoji: '🎾' },
 ]
 
@@ -76,7 +76,7 @@ export default function HomePage() {
     const fetchMatches = async () => {
       try {
         setIsLoading(true)
-        const res = await marketController.getGameList('Cricket,Soccer,Tennis')
+        const res = await marketController.getGameList('Cricket,Football,Tennis,Soccer')
 
         let matchData: any[] = []
         if (res && typeof res === 'object') {
@@ -150,7 +150,7 @@ export default function HomePage() {
   const getSportMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
-      soccer: ['soccer', 'football'],
+      football: ['soccer', 'football'],
       tennis: ['tennis']
     }
 
@@ -173,16 +173,14 @@ export default function HomePage() {
 
         let startTime: Date | null = null
         if (startTimeStr) {
-          // Robust parsing for common formats (ISO and DD-MM-YYYY)
           const dateVal = startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T')
           startTime = new Date(dateVal)
 
-          // Manual parse for DD-MM-YYYY formats if standard parsing fails
           if (isNaN(startTime.getTime())) {
             const parts = startTimeStr.split(/[-/ :]/)
             if (parts.length >= 3) {
               const day = parseInt(parts[0], 10)
-              const month = parseInt(parts[1], 10) - 1 // 0-based
+              const month = parseInt(parts[1], 10) - 1
               const year = parseInt(parts[2], 10)
               if (day <= 31 && month <= 11) {
                 const hour = parseInt(parts[3] || '0', 10)
@@ -195,46 +193,34 @@ export default function HomePage() {
         }
 
         if (startTime && !isNaN(startTime.getTime())) {
-          // Check if match hasn't started yet
-          if (startTime > now) return false
+          const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
+                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
 
-          // Check if match is "Expired" (started more than 24 hours ago)
-          // Most matches (Tennis, Soccer, T20 Cricket) finish within 24h.
-          // This removes stale matches like "24-03-2026" from a 27-03-2026 view.
-          if (now.getTime() - startTime.getTime() > 24 * 60 * 60 * 1000) {
-            return false
-          }
-
-          // Specific filter to remove stagnant/irrelevant entries as requested
-          if (startTimeStr.includes('28-03-2026 08:30:00')) {
+          if (startTime > now && !isWinnerMarket) return false
+          
+          if (!isWinnerMarket && (now.getTime() - startTime.getTime() > 24 * 60 * 60 * 1000)) {
             return false
           }
         }
 
-        // 3. Status & Activity check (Hide if no odds, empty values, or expired)
+        // 3. Activity check
         const mId = m.MarketId || m.marketid
         const matchOdds = odds[mId]
+        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
+                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
 
-        // Use live rate information if available
         if (matchOdds) {
           const status = (matchOdds.status || matchOdds.Status || '').toUpperCase()
           if (status === 'CLOSED') return false
-
-          // Match rate activity check
           const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
           const runnersArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
-
           const hasActiveOdds = runnersArr.some((r: any) => {
-            const backPrices = r.back || r.availableToBack || r.ex?.availableToBack
-            const backArr = Array.isArray(backPrices) ? backPrices : (backPrices ? Object.values(backPrices) : [])
-            const hasRate = backArr.some((b: any) => parseFloat(b?.price || b?.rate || 0) > 0)
-            const hasLastPrice = parseFloat(r.lastPriceTraded || 0) > 0
-            return hasRate || hasLastPrice
+            const bp = r.back || r.availableToBack || r.ex?.availableToBack
+            const ap = Array.isArray(bp) ? bp : (bp ? Object.values(bp) : [])
+            return ap.some((b: any) => parseFloat(b?.price || b?.rate || 0) > 0) || parseFloat(r.lastPriceTraded || 0) > 0
           })
-
-          if (!hasActiveOdds) return false
-        } else if (!isLoading) {
-          // Hide if no odds entries ever appeared and we've finished the first load cycle
+          if (!hasActiveOdds && !isWinnerMarket) return false
+        } else if (!isLoading && !isWinnerMarket) {
           return false
         }
 
@@ -242,10 +228,11 @@ export default function HomePage() {
       })
       .map(m => {
         const mId = m.MarketId || m.marketid
+        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
+                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
         const matchOdds = odds[mId]
-
         const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
-        const rowOdds: any[] = [null, null, null] // Slots for 1, X, 2
+        const rowOdds: any[] = [null, null, null]
 
         const getPrices = (data: any) => {
           if (!data) return [];
@@ -266,38 +253,28 @@ export default function HomePage() {
           }
         };
 
-        if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
-          // It's an object like {"0": {...}, "1": {...}}
-          // Match the keys directly if possible
-          if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
-          if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
-          if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
-
-          // If we have "0" and "1" but no "2", it's likely Cricket Team 1 (0) and Team 2 (1)
-          // We should shift Team 2 to index 2 to show under "2" column, leaving X empty
-          if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
-            rowOdds[2] = rowOdds[1]
-            rowOdds[1] = null
+        const runnerArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
+        
+        if (isWinnerMarket) {
+          runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
+        } else {
+          if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
+             if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
+             if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
+             if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
+          } else {
+             runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
           }
-        } else if (Array.isArray(rawRunners)) {
-          rawRunners.forEach((r, idx) => {
-            if (idx < 3) rowOdds[idx] = extractOdd(r)
-          })
-          if (rawRunners.length === 2) {
-            rowOdds[2] = rowOdds[1]
-            rowOdds[1] = null
+          if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
+             rowOdds[2] = rowOdds[1]; rowOdds[1] = null;
           }
         }
 
-        // Fill remaining with empty
         const finalOdds = rowOdds.map(o => o || { back: 0, lay: 0, backSize: '', laySize: '' })
 
-        // 🏆 NEW: Case-insensitive robust mapping
         const getV = (obj: any, keys: string[]) => {
           for (const k of keys) {
-            // Check direct match
             if (obj[k] !== undefined) return obj[k]
-            // Check lowercase/uppercase versions
             const foundK = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase())
             if (foundK) return obj[foundK]
           }
@@ -306,30 +283,22 @@ export default function HomePage() {
 
         const team1 = getV(m, ['Team1', 'team1'])
         const team2 = getV(m, ['Team2', 'team2'])
-        const gName = getV(m, ['Game_name', 'GameName', 'ename', 'name', 'Competition'])
-        const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
-
-        let name = 'Match'
-        if (team1 && team2) {
-          if (team2 === 'TOURNAMENT_WINNER') {
-            name = team1
-          } else {
-            name = `${team1} vs ${team2}`
-          }
-        } else if (gName) {
-          name = gName
-        }
-
-        const status = (matchOdds?.status || matchOdds?.Status || '').toUpperCase()
+        const name = (team2 === 'TOURNAMENT_WINNER') ? team1 : (team1 && team2 ? `${team1} vs ${team2}` : getV(m, ['Game_name', 'Competition']) || 'Match')
 
         return {
           id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
           teamName: name,
           odds: finalOdds,
-          startTime: undefined, // Hide start time for inplay table (shows Live icon instead)
-          status: status,
-          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league'
+          startTime: undefined,
+          status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
+          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league',
+          isWinner: isWinnerMarket
         }
+      })
+      .sort((a, b) => {
+        if (a.isWinner && !b.isWinner) return -1
+        if (!a.isWinner && b.isWinner) return 1
+        return 0
       })
   }
 
@@ -527,7 +496,7 @@ export default function HomePage() {
                     <div className="w-6 h-6 flex items-center justify-center shrink-0">
                       {sportId === 'cricket' ? (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      ) : sportId === 'soccer' ? (
+                      ) : (sportId === 'football' || sportId === 'soccer') ? (
                         <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
                       ) : (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
