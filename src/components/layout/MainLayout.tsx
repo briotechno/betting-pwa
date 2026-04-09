@@ -30,13 +30,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Header - Now top level, no left space */}
       <Header />
 
-      <div className="flex flex-1">
+      <div className={`flex w-full ${pathname?.startsWith('/sportsbook') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
         {/* Sidebar - Now correctly contained in flow */}
         <Suspense fallback={null}>
           <Sidebar />
         </Suspense>
 
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex flex-col min-w-0 flex-auto max-w-full relative">
           {/* Profile Sidebar - slide from right when active */}
           <ProfileSidebar />
 
@@ -55,7 +55,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           )}
 
           {/* Main page content */}
-          <main className="flex-1">
+          <main className="flex-auto max-w-full relative">
             <div className="pb-0 lg:pb-0">
               {children}
             </div>

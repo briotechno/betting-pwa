@@ -71,9 +71,9 @@ export default function Header() {
       const response = await userController.getBalance(user.loginToken)
       if (response.error === '0' && response.balance !== undefined) {
         updateBalance(
-           parseFloat(response.balance), 
-           parseFloat(response.exposure || '0'),
-           parseFloat(response.available_balance || '0')
+          parseFloat(response.balance),
+          parseFloat(response.exposure || '0'),
+          parseFloat(response.available_balance || '0')
         )
       }
     } catch (error) {
@@ -94,7 +94,7 @@ export default function Header() {
       const response = await authController.login({
         username: username,
         password: password,
-        ip: '127.0.0.1' 
+        ip: '127.0.0.1'
       })
 
       if (response.error === '0') {
@@ -108,11 +108,11 @@ export default function Header() {
           tier: 'Beginner' as const,
           loginToken: response.LoginToken
         }
-        
+
         setAuthUser(loggedUser)
         setToken(response.LoginToken)
         showSnackbar('Logged in successfully.', 'success')
-        
+
         setUsername('')
         setPassword('')
       } else {
@@ -474,7 +474,7 @@ export default function Header() {
             <img src="/nav/inplay.png" alt="Inplay" className="w-7 h-7 object-contain" />
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">Inplay</span>
           </Link>
-          
+
           <div className="h-8 w-[1px] bg-white/10" />
 
           <Link
@@ -508,7 +508,7 @@ export default function Header() {
       </div>
 
       {/* ── Desktop Sub Header ── */}
-      <div className={`hidden lg:flex relative z-[58] items-center justify-center h-[52px] overflow-x-auto no-scrollbar bg-[#000] px-4 transition-all duration-300`}>
+      <div className={`hidden lg:flex relative z-[58] items-center justify-center h-[58px] overflow-x-auto no-scrollbar bg-[#000] px-4 transition-all duration-300`}>
         <div className="flex items-center gap-1">
           {[
             { id: 'inplay', label: 'Inplay', icon: 'https://www.fairplay247.vip/_nuxt/img/inplay.a7c4dae.png', href: '/' },

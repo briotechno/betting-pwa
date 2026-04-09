@@ -35,14 +35,14 @@ const MatchTable = ({ match }: { match: any }) => {
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-5 relative group">
       {/* Live Badge - Overlapping Corner */}
       {!match.isUpcoming ? (
-        <div 
+        <div
           onClick={navigateToMatch}
           className="absolute -top-[12px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
         >
           LIVE
         </div>
       ) : (
-        <div 
+        <div
           onClick={navigateToMatch}
           className="absolute -top-[12px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
         >
@@ -53,7 +53,7 @@ const MatchTable = ({ match }: { match: any }) => {
       {/* Header */}
       <div className="h-10 lg:h-12 flex items-center relative select-none bg-[#e0e0e0] overflow-hidden">
         {/* Toggle Button Column */}
-        <div 
+        <div
           className="w-10 lg:w-12 h-full flex items-center justify-center bg-[#e8612c] text-white cursor-pointer hover:bg-[#d85826] transition-colors z-20"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
@@ -63,7 +63,7 @@ const MatchTable = ({ match }: { match: any }) => {
         </div>
 
         {/* Match Name - Main Clickable Area */}
-        <div 
+        <div
           onClick={navigateToMatch}
           className="flex-1 h-full flex items-center pl-2 lg:pl-4 bg-gradient-to-r from-[#e8612c] to-[#e8612c] cursor-pointer hover:to-[#f1713d] transition-all relative z-10"
           style={{ clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)' }}
@@ -82,7 +82,7 @@ const MatchTable = ({ match }: { match: any }) => {
           </div>
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
           <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
-             {match.startTime}
+            {match.startTime}
           </div>
         </div>
       </div>
@@ -154,7 +154,7 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick }: { val: string,
   const isEmpty = !val || val === '0' || val === '0.00' || val === '-' || parseFloat(val) === 0
 
   return (
-    <button 
+    <button
       onClick={onClick}
       className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${isEmpty ? 'bg-[#e0e0e0] opacity-70' : bgColor} ${blink ? 'animate-rate-change' : ''} hover:brightness-95 active:scale-95`}
     >
@@ -176,7 +176,7 @@ export default function SportDetailPage() {
   const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
 
   // Find active sport based on URL path or default to Cricket on /sportsbook
-  const activeSportId = sportsList.find(s => 
+  const activeSportId = sportsList.find(s =>
     pathname.toLowerCase().includes(s.id.toLowerCase())
   )?.id || 'Cricket'
 
@@ -202,7 +202,7 @@ export default function SportDetailPage() {
           else if (res && typeof res === 'object' && !res.error) setCompetitions(Object.values(res))
         }
       } catch (error) {
-         console.error(error)
+        console.error(error)
       } finally {
         if (isMounted) setLoadingLeagues(false)
       }
@@ -284,14 +284,14 @@ export default function SportDetailPage() {
       const runners = oddsData?.runner || oddsData?.runners || [];
       const runnerArr = Array.isArray(runners) ? runners : Object.values(runners);
 
-      const getPrices = (r: any, type: 'back'|'lay') => {
+      const getPrices = (r: any, type: 'back' | 'lay') => {
         if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
         const data = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
         const arr = Array.isArray(data) ? data : Object.values(data || {});
-        
+
         // Match main page extraction precisely
         const rate1 = arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '';
-        
+
         return {
           p1: rate1 ? rate1.toString() : '',
           v1: arr[0]?.size || '',
@@ -319,7 +319,7 @@ export default function SportDetailPage() {
         if (isNaN(d.getTime())) {
           const parts = startTimeStr.split(/[-/ :]/);
           if (parts.length >= 3) {
-            d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]), parseInt(parts[3]||'0'), parseInt(parts[4]||'0'), parseInt(parts[5]||'0'));
+            d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
           }
         }
         if (d && !isNaN(d.getTime()) && d > now) {
@@ -336,11 +336,11 @@ export default function SportDetailPage() {
         matchId: g.gid || g.Event_Id,
         competitionId: g.CompetitionCode || g.cid || 'all',
         odds: [
-          { 
+          {
             back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,
             lay: layA.p1, layVol: layA.v1, lay2: layA.p2, layVol2: layA.v2, lay3: layA.p3, layVol3: layA.v3
           },
-          { 
+          {
             back: backB.p1, backVol: backB.v1, back2: backB.p2, backVol2: backB.v2, back3: backB.p3, backVol3: backB.v3,
             lay: layB.p1, layVol: layB.v1, lay2: layB.p2, layVol2: layB.v2, lay3: layB.p3, layVol3: layB.v3
           }
@@ -350,9 +350,9 @@ export default function SportDetailPage() {
   }, [games, liveOdds]);
 
   return (
-    <div className="flex min-h-screen bg-[#1a1a1a]">
+    <div className="flex min-h-screen bg-[#1a1a1a] lg:gap-4 lg:bg-transparent">
       {/* Main Content Area */}
-      <div className="flex-1 pb-20 overflow-hidden">
+      <div className="flex-1 pb-20 bg-[#1a1a1a] rounded-lg overflow-hidden">
         {/* Sports Navigation Bar - Mobile Only */}
         <div className="md:hidden bg-[#1a1a1a] px-2 pt-2 pb-0">
           <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
@@ -360,15 +360,14 @@ export default function SportDetailPage() {
               <button
                 key={sport.id}
                 onClick={() => {
-                   if (sport.id === 'Cricket') {
-                     router.push('/sportsbook')
-                   } else {
-                     router.push('/sportsbook/' + sport.id)
-                   }
+                  if (sport.id === 'Cricket') {
+                    router.push('/sportsbook')
+                  } else {
+                    router.push('/sportsbook/' + sport.id)
+                  }
                 }}
-                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
-                  activeSportId === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
-                }`}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${activeSportId === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
+                  }`}
               >
                 <div className="relative mb-1">
                   <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
@@ -376,9 +375,8 @@ export default function SportDetailPage() {
                     {sport.count}
                   </div>
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-tight ${
-                  activeSportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
-                }`}>
+                <span className={`text-[10px] font-black uppercase tracking-tight ${activeSportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
+                  }`}>
                   {sport.name}
                 </span>
               </button>
@@ -406,30 +404,30 @@ export default function SportDetailPage() {
         {/* Main Content Area based on Tab */}
         <div className="p-2 space-y-3">
           {activeSubTab === 'LEAGUES' ? (
-             <div className="flex flex-col gap-1">
-               {loadingLeagues ? (
-                 <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
-                   <Loader2 size={40} className="animate-spin text-[#e8612c]" />
-                   <p className="text-[10px] font-black uppercase tracking-widest">Loading Leagues...</p>
-                 </div>
-               ) : competitions.length > 0 ? (
-                 competitions.map((comp: any) => (
-                   <button
-                     key={comp.CompetitionCode || comp.Competition}
-                     onClick={() => {
-                        router.push(`/sportsbook/${activeSportId}/${comp.CompetitionCode}`);
-                     }}
-                     className="w-full text-left px-4 py-3 bg-[#222] text-[13px] text-gray-300 hover:text-white cursor-pointer hover:bg-[#333] transition-colors border-l-2 border-transparent hover:border-[#e8612c] rounded-md font-bold mb-1"
-                   >
-                     {comp.Competition}
-                   </button>
-                 ))
-               ) : (
-                 <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Leagues Found</div>
-               )}
-             </div>
+            <div className="flex flex-col gap-1">
+              {loadingLeagues ? (
+                <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
+                  <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Loading Leagues...</p>
+                </div>
+              ) : competitions.length > 0 ? (
+                competitions.map((comp: any) => (
+                  <button
+                    key={comp.CompetitionCode || comp.Competition}
+                    onClick={() => {
+                      router.push(`/sportsbook/${activeSportId}/${comp.CompetitionCode}`);
+                    }}
+                    className="w-full text-left px-4 py-3 bg-[#222] text-[13px] text-gray-300 hover:text-white cursor-pointer hover:bg-[#333] transition-colors border-l-2 border-transparent hover:border-[#e8612c] rounded-md font-bold mb-1"
+                  >
+                    {comp.Competition}
+                  </button>
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Leagues Found</div>
+              )}
+            </div>
           ) : activeSubTab === 'RESULTS' ? (
-             <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Results Available</div>
+            <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Results Available</div>
           ) : (
             <>
               {isLoading && games.length === 0 ? (
@@ -451,7 +449,7 @@ export default function SportDetailPage() {
 
       {/* Bet Container - attached but separate column */}
       {user && (
-        <div className="hidden lg:block lg:w-[350px] shrink-0">
+        <div className="hidden lg:block lg:w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
           <BetContainer />
         </div>
       )}

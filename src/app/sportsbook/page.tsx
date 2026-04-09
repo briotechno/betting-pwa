@@ -50,7 +50,7 @@ const matches = [
 ]
 
 const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high' }) => {
-  const bgColor = type === 'back' 
+  const bgColor = type === 'back'
     ? (intensity === 'high' ? 'bg-[#a5d9fe]' : intensity === 'medium' ? 'bg-[#bce4ff]' : 'bg-[#d1eeff]')
     : (intensity === 'high' ? 'bg-[#f8d0ce]' : intensity === 'medium' ? 'bg-[#fbe3e2]' : 'bg-[#fff0f0]')
 
@@ -73,7 +73,7 @@ const MatchTable = ({ match }: { match: any }) => {
       </div>
 
       {/* Header */}
-      <div 
+      <div
         className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
@@ -92,16 +92,16 @@ const MatchTable = ({ match }: { match: any }) => {
         {/* Right Side - Gray with icons */}
         <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
           <div className="w-4 h-4 flex items-center justify-center">
-             <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
-                <path d="M8 5v14l11-7z" />
-             </svg>
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
+              <path d="M8 5v14l11-7z" />
+            </svg>
           </div>
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
         </div>
-        
+
         {/* Time - Desktop Only */}
         <div className="hidden lg:flex mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
-           {match.startTime}
+          {match.startTime}
         </div>
       </div>
 
@@ -123,19 +123,19 @@ const MatchTable = ({ match }: { match: any }) => {
                       {/* Odds columns - Responsive */}
                       <div className="flex gap-1 py-1">
                         {/* Mobile: Only show 2 columns; Desktop: Show all 6 */}
-                        
+
                         {/* Back Columns */}
                         <div className="hidden lg:flex gap-1">
-                           <OddsBox val={(match.odds[tIdx] as any).back3 || ''} vol={(match.odds[tIdx] as any).backVol3 || ''} type="back" intensity="low" />
-                           <OddsBox val={(match.odds[tIdx] as any).back2 || ''} vol={(match.odds[tIdx] as any).backVol2 || ''} type="back" intensity="medium" />
+                          <OddsBox val={(match.odds[tIdx] as any).back3 || ''} vol={(match.odds[tIdx] as any).backVol3 || ''} type="back" intensity="low" />
+                          <OddsBox val={(match.odds[tIdx] as any).back2 || ''} vol={(match.odds[tIdx] as any).backVol2 || ''} type="back" intensity="medium" />
                         </div>
                         <OddsBox val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" />
 
                         {/* Lay Columns */}
                         <OddsBox val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" />
                         <div className="hidden lg:flex gap-1">
-                           <OddsBox val={(match.odds[tIdx] as any).lay2 || ''} vol={(match.odds[tIdx] as any).layVol2 || ''} type="lay" intensity="medium" />
-                           <OddsBox val={(match.odds[tIdx] as any).lay3 || ''} vol={(match.odds[tIdx] as any).layVol3 || ''} type="lay" intensity="low" />
+                          <OddsBox val={(match.odds[tIdx] as any).lay2 || ''} vol={(match.odds[tIdx] as any).layVol2 || ''} type="lay" intensity="medium" />
+                          <OddsBox val={(match.odds[tIdx] as any).lay3 || ''} vol={(match.odds[tIdx] as any).layVol3 || ''} type="lay" intensity="low" />
                         </div>
                       </div>
                     </div>
@@ -159,14 +159,14 @@ export default function SportsbookPage() {
   const pathname = usePathname()
 
   // Find active sport based on URL path or default to Cricket on /sportsbook
-  const activeSport = sportsList.find(s => 
+  const activeSport = sportsList.find(s =>
     pathname.includes(s.id)
   )?.id || 'Cricket'
 
   return (
-    <div className="flex min-h-screen bg-[#1a1a1a]">
+    <div className="flex min-h-screen bg-[#1a1a1a] lg:gap-4 lg:bg-transparent">
       {/* Main Content Area */}
-      <div className="flex-1 pb-20 overflow-hidden">
+      <div className="flex-1 pb-20 bg-[#1a1a1a] rounded-lg overflow-hidden">
         {/* Sports Navigation Bar - Mobile Only */}
         <div className="md:hidden bg-[#1a1a1a] px-2 pt-2 pb-0">
           <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
@@ -174,15 +174,14 @@ export default function SportsbookPage() {
               <button
                 key={sport.id}
                 onClick={() => {
-                   if (sport.id === 'Cricket') {
-                     router.push('/sportsbook')
-                   } else {
-                     router.push('/sportsbook/' + sport.id)
-                   }
+                  if (sport.id === 'Cricket') {
+                    router.push('/sportsbook')
+                  } else {
+                    router.push('/sportsbook/' + sport.id)
+                  }
                 }}
-                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${
-                  activeSport === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
-                }`}
+                className={`flex-1 flex flex-col items-center justify-center py-2 px-1 relative ${activeSport === sport.id ? 'after:content-[""] after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-[2px] after:bg-[#e8612c]' : ''
+                  }`}
               >
                 <div className="relative mb-1">
                   <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
@@ -190,9 +189,8 @@ export default function SportsbookPage() {
                     {sport.count}
                   </div>
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-tight ${
-                  activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
-                }`}>
+                <span className={`text-[10px] font-black uppercase tracking-tight ${activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
+                  }`}>
                   {sport.name}
                 </span>
               </button>
@@ -226,7 +224,7 @@ export default function SportsbookPage() {
 
       {/* Bet Container - attached but separate column */}
       {user && (
-        <div className="hidden lg:block lg:w-[350px] shrink-0">
+        <div className="hidden lg:block lg:w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
           <BetContainer />
         </div>
       )}

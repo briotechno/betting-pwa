@@ -197,7 +197,7 @@ export default function BetContainer() {
   const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
   return (
-    <div className="w-full bg-[#121212] border-l border-[#333] min-h-screen relative self-start">
+    <div className="w-full bg-[#121212] border-l border-[#333] lg:border-none min-h-screen lg:min-h-0 relative self-start">
       {/* Tabs */}
       <div className="flex border-b border-[#333] relative z-[60] bg-[#121212]">
         <button
@@ -352,7 +352,7 @@ export default function BetContainer() {
         ) : (
           <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
             {/* UNMATCHED BETS SECTION */}
-            <div className="rounded-[4px] overflow-hidden border border-[#f36c21] bg-[#111]">
+            <div className="rounded-[12px] overflow-hidden border border-[#f36c21] bg-[#111]">
               <div 
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setUnmatchedOpen(!unmatchedOpen)}
@@ -402,7 +402,7 @@ export default function BetContainer() {
             </div>
 
             {/* MATCHED BETS SECTION */}
-            <div className="rounded-[4px] overflow-hidden border border-[#f36c21] bg-[#111]">
+            <div className="rounded-[12px] overflow-hidden border border-[#f36c21] bg-[#111]">
               <div 
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setMatchedOpen(!matchedOpen)}
