@@ -589,14 +589,38 @@ export default function GameDetailPage() {
           <div className="p-3 lg:p-0">
             {activeTab === 'MARKETS' ? (
               <div className="space-y-4">
-                {allMarkets.filter(m => m.category !== 'FANCY').map((m: any, mIdx: number) => {
+                {/* 1. ODDS Markets */}
+                {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || (m.category === 'BOOKMAKER' ? 'Match Winner (Bookmaker)' : 'Match Odds')} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category || 'ODDS'} marketIndex={mIdx} eventId={m.eid || matchId} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} />
                 })}
+
+                {/* 2. BOOKMAKER Markets */}
+                {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
+                  let runners = m.runner || m.runners || [];
+                  if (!Array.isArray(runners)) runners = Object.values(runners);
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} />
+                })}
+
+                {/* 3. FANCY Group */}
                 {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
                   <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} />
                 )}
+
+                {/* 4. EXTRA Markets (e.g. Tied Match) */}
+                {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
+                  let runners = m.runner || m.runners || [];
+                  if (!Array.isArray(runners)) runners = Object.values(runners);
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} />
+                })}
+
+                {/* 5. Others */}
+                {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA'].includes(m.category)).map((m: any, mIdx: number) => {
+                  let runners = m.runner || m.runners || [];
+                  if (!Array.isArray(runners)) runners = Object.values(runners);
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} />
+                })}
               </div>
             ) : (
               <div className="space-y-4 pt-2">
