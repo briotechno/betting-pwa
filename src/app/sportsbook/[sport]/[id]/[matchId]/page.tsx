@@ -86,9 +86,17 @@ const MarketTable = ({
   const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string) => {
     const mId = (specificMarketId || marketId)?.toString()
     const rateData = liveRates[mId]
+    let isRunnerSuspended = false
 
     if (rateData) {
       const hasRunners = rateData.runners || rateData.runner || rateData.rates
+
+      // For Fancy markets, if prices are null/undefined or missing, it is often suspended
+      if (marketType === 'FANCY' && !hasRunners) {
+        if (!rateData.no1 && !rateData.no2 && !rateData.rate && rateData.rate !== 0) {
+          isRunnerSuspended = true
+        }
+      }
 
       if (!hasRunners || marketType === 'FANCY') {
         const bp = rateData.no1 ?? rateData.no2 ?? rateData.backPrice1 ?? rateData.BackPrice1 ?? ''
@@ -98,7 +106,8 @@ const MarketTable = ({
 
         return {
           back: { p1: bp.toString(), v1: bs.toString(), p2: '', v2: '', p3: '', v3: '' },
-          lay: { p1: lp.toString(), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' }
+          lay: { p1: lp.toString(), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' },
+          isRunnerSuspended: isRunnerSuspended
         }
       }
     }
@@ -113,14 +122,17 @@ const MarketTable = ({
     )
     if (!r) r = runnerArr[rIdx]
 
+    // Check runner-level suspension status
+    if (r && (r.selectionStatus === 'SUSPENDED' || r.status === 'SUSPENDED' || r.selectionStatus === '1' || r.status === '1')) {
+      isRunnerSuspended = true
+    }
+
     const getPrices = (r: any, type: 'back' | 'lay') => {
       if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
       const exData = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
 
       if (exData) {
         const arr = Array.isArray(exData) ? exData : Object.values(exData);
-        // Correct order for Back: [0]=best, [1]=next, [2]=next
-        // Correct order for Lay: [0]=best, [1]=next, [2]=next
         return {
           p1: (arr[0]?.rate || arr[0]?.price || '')?.toString(),
           v1: (arr[0]?.size || '')?.toString(),
@@ -136,7 +148,7 @@ const MarketTable = ({
         p2: '', v2: '', p3: '', v3: ''
       }
     };
-    return { back: getPrices(r, 'back'), lay: getPrices(r, 'lay') }
+    return { back: getPrices(r, 'back'), lay: getPrices(r, 'lay'), isRunnerSuspended: isRunnerSuspended }
   }
 
   const isFancyGroup = marketName.toUpperCase() === 'FANCY'
@@ -217,7 +229,7 @@ const MarketTable = ({
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
                 const rateData = liveRates[mId]
-                const { back, lay } = getRunnerRates(runnerId, rIdx, mId)
+                const { back, lay, isRunnerSuspended } = getRunnerRates(runnerId, rIdx, mId)
                 const runnerName = isFancyGroup ? (runner.name || runner.RunnerName) : (runner.name || runner.RunnerName || (marketType === 'FANCY' ? 'FANCY ODDS' : `Runner ${rIdx + 1}`))
 
                 const isMarketSuspended = rateData?.status === 'SUSPENDED' ||
@@ -228,7 +240,7 @@ const MarketTable = ({
                   rateData?.ball_run === 'Y' ||
                   rateData?.status1 === '2'
 
-                const isSuspended = isMarketSuspended || !!rateData?.Msg
+                const isSuspended = isMarketSuspended || !!rateData?.Msg || isRunnerSuspended
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
