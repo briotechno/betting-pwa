@@ -108,16 +108,16 @@ const MatchTable = ({ match }: { match: any }) => {
 
                         {/* Back Columns */}
                         <div className="hidden lg:flex gap-1">
-                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back3} vol={match.odds[tIdx].backVol3} type="back" intensity="low" />
-                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back2} vol={match.odds[tIdx].backVol2} type="back" intensity="medium" />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back3} vol={match.odds[tIdx].backVol3} type="back" intensity="low" isUpcoming={match.isUpcoming} />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back2} vol={match.odds[tIdx].backVol2} type="back" intensity="medium" isUpcoming={match.isUpcoming} />
                         </div>
-                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" />
+                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" isUpcoming={match.isUpcoming} />
 
                         {/* Lay Columns */}
-                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" />
+                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" isUpcoming={match.isUpcoming} />
                         <div className="hidden lg:flex gap-1">
-                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay2} vol={match.odds[tIdx].layVol2} type="lay" intensity="medium" />
-                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay3} vol={match.odds[tIdx].layVol3} type="lay" intensity="low" />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay2} vol={match.odds[tIdx].layVol2} type="lay" intensity="medium" isUpcoming={match.isUpcoming} />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay3} vol={match.odds[tIdx].layVol3} type="lay" intensity="low" isUpcoming={match.isUpcoming} />
                         </div>
                       </div>
                     </div>
@@ -132,7 +132,7 @@ const MatchTable = ({ match }: { match: any }) => {
   )
 }
 
-const OddsBox = ({ val, vol, type, intensity = 'high', onClick }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void }) => {
+const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void, isUpcoming?: boolean }) => {
   const [blink, setBlink] = React.useState(false)
   const prevValue = React.useRef(val)
 
@@ -156,10 +156,15 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick }: { val: string,
   return (
     <button
       onClick={onClick}
-      className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${isEmpty ? 'bg-[#e0e0e0] opacity-70' : bgColor} ${blink ? 'animate-rate-change' : ''} hover:brightness-95 active:scale-95`}
+      disabled={isUpcoming}
+      className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent relative overflow-hidden ${isEmpty && !isUpcoming ? 'bg-[#e0e0e0] opacity-70' : bgColor} ${blink && !isUpcoming ? 'animate-rate-change' : ''} hover:brightness-95 active:scale-95`}
     >
-      <span className={`text-[12px] lg:text-[12px] font-black ${isEmpty ? 'text-[#999]' : 'text-[#2e2e2e]'} leading-none mb-0.5`}>{val || '-'}</span>
-      {!isEmpty && <span className="text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>}
+      <span className={`relative z-0 text-[12px] lg:text-[12px] font-black ${isEmpty ? 'text-[#999]' : 'text-[#2e2e2e]'} leading-none mb-0.5`}>{val || '-'}</span>
+      {!isEmpty && <span className="relative z-0 text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>}
+      
+      {isUpcoming && (
+        <div className="absolute inset-0 bg-[#212121] opacity-[0.46] z-10"></div>
+      )}
     </button>
   )
 }

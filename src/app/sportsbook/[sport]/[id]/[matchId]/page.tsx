@@ -52,10 +52,10 @@ const OddsBox = ({
     <button
       onClick={onClick}
       disabled={isDisabled}
-      className={`w-[54px] lg:w-[60px] h-[38px] rounded-[4px] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${isEmpty ? 'bg-[#f2f2f2] opacity-60 cursor-not-allowed' : bgColor} ${blink ? 'animate-rate-change' : ''} ${!isDisabled ? 'hover:brightness-95 active:scale-95' : 'cursor-not-allowed'} ${className}`}
+      className={`w-[54px] lg:w-[60px] h-[38px] rounded-[4px] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${bgColor} ${isEmpty ? '  cursor-not-allowed' : ''} ${blink ? 'animate-rate-change' : ''} ${!isDisabled ? 'hover:brightness-95 active:scale-95' : 'cursor-not-allowed'} ${className}`}
     >
-      <span className={`text-[12px] lg:text-[13px] font-black ${isEmpty ? 'text-[#aaa]' : 'text-[#2e2e2e]'} leading-none mb-0.5 tracking-tight`}>{val || '-'}</span>
-      {!isEmpty && <span className="text-[8.5px] lg:text-[9px] text-[#555] font-bold leading-none truncate max-w-full px-0.5">{vol || ''}</span>}
+      <span className={`text-[12px] lg:text-[13px] font-black text-[#2e2e2e] leading-none mb-0.5 tracking-tight`}>{val || '0'}</span>
+      <span className="text-[8.5px] lg:text-[9px] text-[#555] font-bold leading-none truncate max-w-full px-0.5">{vol || '0'}</span>
     </button>
   )
 }

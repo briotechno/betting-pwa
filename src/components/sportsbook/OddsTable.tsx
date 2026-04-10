@@ -113,18 +113,21 @@ function RateButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-[58px] sm:w-[62px] h-[36px] sm:h-[42px] rounded-[0.2rem] flex flex-col items-center justify-center transition-all border border-transparent ${isEmpty
+      className={`w-[58px] sm:w-[62px] h-[36px] sm:h-[42px] rounded-[0.2rem] flex flex-col items-center justify-center transition-all border border-transparent relative overflow-hidden ${isEmpty
           ? 'bg-[#e0e0e0] text-[#999]'
           : isUpcoming
-            ? `${colorClass} text-black/60 opacity-60 cursor-not-allowed`
+            ? `${colorClass} text-black/40 cursor-not-allowed`
             : isSelected
               ? `${selectedColorClass} text-white`
               : `${colorClass} text-black`
-        } ${isRowInactive && !isUpcoming ? 'opacity-40 grayscale pointer-events-none' : ''} ${blink && !isUpcoming ? 'animate-rate-change' : ''
-        }`}
+        } ${isRowInactive && !isUpcoming ? 'opacity-40 grayscale pointer-events-none' : ''} ${blink && !isUpcoming ? 'animate-rate-change' : ''}`}
     >
-      <span className="text-[13px] font-bold leading-none">{value || '-'}</span>
-      {size && <span className="text-[9px] font-medium leading-none mt-1 text-gray-700">{size}</span>}
+      <span className="relative z-0 text-[13px] font-bold leading-none">{value || '-'}</span>
+      {size && <span className="relative z-0 text-[9px] font-medium leading-none mt-1 text-gray-700">{size}</span>}
+      
+      {isUpcoming && (
+        <div className="absolute inset-0 bg-[#212121] opacity-[0.46] z-10"></div>
+      )}
     </button>
   )
 }
