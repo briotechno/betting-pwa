@@ -99,8 +99,8 @@ const MarketTable = ({
       }
 
       if (!hasRunners || marketType === 'FANCY') {
-        const bp = rateData.no1 ?? rateData.no2 ?? rateData.backPrice1 ?? rateData.BackPrice1 ?? ''
-        const lp = rateData.no2 ?? rateData.no1 ?? rateData.layPrice1 ?? rateData.LayPrice1 ?? ''
+        const bp = rateData.no2 ?? rateData.no1 ?? rateData.backPrice1 ?? rateData.BackPrice1 ?? ''
+        const lp = rateData.no1 ?? rateData.no2 ?? rateData.layPrice1 ?? rateData.LayPrice1 ?? ''
         const bs = rateData.valy ?? rateData.valn ?? ''
         const ls = rateData.valn ?? rateData.valy ?? ''
 
@@ -143,7 +143,7 @@ const MarketTable = ({
         };
       }
       return {
-        p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+        p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
         v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
         p2: '', v2: '', p3: '', v3: ''
       }
@@ -277,7 +277,7 @@ const MarketTable = ({
                         <div className="flex justify-end gap-1 lg:gap-2">
                           <div className="relative">
                             <div className="flex gap-0.5 lg:gap-1 transition-all duration-300">
-                              {/* BACK / NO GROUP */}
+                              {/* LEFT GROUP (BACK for ODDS, NO for FANCY) */}
                               <div className={`flex items-center gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : ''}`}>
                                 {(isMatchOdd || isFancyGroup) && (
                                   <>
@@ -294,12 +294,26 @@ const MarketTable = ({
                                     )}
                                   </>
                                 )}
-                                <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} isSuspended={isSuspended} />
+                                <OddsBox
+                                  val={isFancyGroup ? lay.p1 : back.p1}
+                                  vol={isFancyGroup ? lay.v1 : back.v1}
+                                  type={isFancyGroup ? 'lay' : 'back'}
+                                  intensity="high"
+                                  onClick={() => handleAddBet(isFancyGroup ? lay.p1 : back.p1, isFancyGroup ? 'lay' : 'back')}
+                                  isSuspended={isSuspended}
+                                />
                               </div>
 
-                              {/* LAY / YES GROUP */}
+                              {/* RIGHT GROUP (LAY for ODDS, YES for FANCY) */}
                               <div className={`flex items-center gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : ''}`}>
-                                <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} isSuspended={isSuspended} />
+                                <OddsBox
+                                  val={isFancyGroup ? back.p1 : lay.p1}
+                                  vol={isFancyGroup ? back.v1 : lay.v1}
+                                  type={isFancyGroup ? 'back' : 'lay'}
+                                  intensity="high"
+                                  onClick={() => handleAddBet(isFancyGroup ? back.p1 : lay.p1, isFancyGroup ? 'back' : 'lay')}
+                                  isSuspended={isSuspended}
+                                />
                                 {(isMatchOdd || isFancyGroup) && (
                                   <>
                                     {isMatchOdd ? (
