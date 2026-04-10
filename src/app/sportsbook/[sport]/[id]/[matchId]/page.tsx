@@ -276,7 +276,7 @@ const MarketTable = ({
                       <td className="p-1 px-2 relative min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
                           <div className="relative">
-                            <div className={`flex gap-0.5 lg:gap-1 transition-all duration-300 ${isSuspended ? 'opacity-30 grayscale-[0.5]' : 'opacity-100'}`}>
+                            <div className="flex gap-0.5 lg:gap-1 transition-all duration-300">
                               {/* BACK / NO GROUP */}
                               <div className={`flex items-center gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : ''}`}>
                                 {(isMatchOdd || isFancyGroup) && (
@@ -320,9 +320,12 @@ const MarketTable = ({
 
                             {isSuspended && (
                               <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-                                <span className="text-white text-[14px] lg:text-[18px] font-black uppercase tracking-[0.1em] drop-shadow-[0_2px_4px_rgba(0,0,0,1)] text-center">
-                                  {suspensionMsg}
-                                </span>
+                                <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
+                                <div className="relative z-10 bg-[#e0e0e0] px-6 py-[6px] flex items-center justify-center drop-shadow-sm whitespace-nowrap">
+                                  <span className="text-[#0d47a1] text-[13px] font-medium uppercase tracking-wide leading-none">
+                                    {suspensionMsg}
+                                  </span>
+                                </div>
                               </div>
                             )}
                           </div>
