@@ -228,7 +228,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                   )}
 
 
-                  <td className="py-1 pr-2 lg:w-[410px]">
+                  <td className="py-1 pr-2 md:w-[410px]">
 
                     <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                       {[0, 1, 2].map((runnerIdx) => {
@@ -249,7 +249,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                             />
 
                             {/* Lay Box */}
-                            <div className="hidden lg:block">
+                            <div className="hidden md:block">
                               <RateButton
                                 value={odd.lay}
                                 size={odd.laySize}

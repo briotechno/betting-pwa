@@ -189,31 +189,31 @@ const MarketTable = ({
         <div className="flex items-center gap-2">
           {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></span>}
         </div>
-        <div className="flex mr-1 lg:mr-0 items-center justify-end flex-1 gap-1 lg:gap-2 h-full">
+        <div className="flex mr-1 md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
           {/* BACK / NO Group */}
-          <div className={`flex justify-end gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : 'w-[54px] lg:w-[60px]'}`}>
-            {/* Position label at the 3rd cell on desktop for 3-cell wide markets */}
+          <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+            {/* Position label at the 3rd cell on desktop/tablet for 3-cell wide markets */}
             {(isMatchOdd || isFancyGroup) && (
               <>
-                <div className="hidden lg:block w-[60px]" />
-                <div className="hidden lg:block w-[60px]" />
+                <div className="hidden md:block w-[60px]" />
+                <div className="hidden md:block w-[60px]" />
               </>
             )}
-            <div className="w-[54px] lg:w-[60px] flex items-center justify-center">
+            <div className="w-[54px] md:w-[60px] flex items-center justify-center">
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'No' : 'Back'}</span>
             </div>
           </div>
 
           {/* LAY / YES Group */}
-          <div className={`flex justify-start gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : 'w-[54px] lg:w-[60px]'}`}>
-            {/* Position label at the 1st cell on desktop for 3-cell wide markets */}
-            <div className="w-[54px] lg:w-[60px] flex items-center justify-center">
+          <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+            {/* Position label at the 1st cell on desktop/tablet for 3-cell wide markets */}
+            <div className="w-[54px] md:w-[60px] flex items-center justify-center">
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'Yes' : 'Lay'}</span>
             </div>
             {(isMatchOdd || isFancyGroup) && (
               <>
-                <div className="hidden lg:block w-[60px]" />
-                <div className="hidden lg:block w-[60px]" />
+                <div className="hidden md:block w-[60px]" />
+                <div className="hidden md:block w-[60px]" />
               </>
             )}
           </div>
@@ -278,18 +278,18 @@ const MarketTable = ({
                           <div className="relative">
                             <div className="flex gap-0.5 lg:gap-1 transition-all duration-300">
                               {/* LEFT GROUP (BACK for ODDS, NO for FANCY) */}
-                              <div className={`flex items-center gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : ''}`}>
+                              <div className={`flex items-center gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : ''}`}>
                                 {(isMatchOdd || isFancyGroup) && (
                                   <>
                                     {isMatchOdd ? (
                                       <>
-                                        <OddsBox className="hidden lg:flex" val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} isSuspended={isSuspended} />
-                                        <OddsBox className="hidden lg:flex" val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} isSuspended={isSuspended} />
+                                        <OddsBox className="hidden md:flex" val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} isSuspended={isSuspended} />
+                                        <OddsBox className="hidden md:flex" val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} isSuspended={isSuspended} />
                                       </>
                                     ) : (
                                       <>
-                                        <div className="hidden lg:block w-[60px]" />
-                                        <div className="hidden lg:block w-[60px]" />
+                                        <div className="hidden md:block w-[60px]" />
+                                        <div className="hidden md:block w-[60px]" />
                                       </>
                                     )}
                                   </>
@@ -305,7 +305,7 @@ const MarketTable = ({
                               </div>
 
                               {/* RIGHT GROUP (LAY for ODDS, YES for FANCY) */}
-                              <div className={`flex items-center gap-0.5 lg:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] lg:w-[196px]' : ''}`}>
+                              <div className={`flex items-center gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : ''}`}>
                                 <OddsBox
                                   val={isFancyGroup ? back.p1 : lay.p1}
                                   vol={isFancyGroup ? back.v1 : lay.v1}
@@ -318,13 +318,13 @@ const MarketTable = ({
                                   <>
                                     {isMatchOdd ? (
                                       <>
-                                        <OddsBox className="hidden lg:flex" val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} isSuspended={isSuspended} />
-                                        <OddsBox className="hidden lg:flex" val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} isSuspended={isSuspended} />
+                                        <OddsBox className="hidden md:flex" val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} isSuspended={isSuspended} />
+                                        <OddsBox className="hidden md:flex" val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} isSuspended={isSuspended} />
                                       </>
                                     ) : (
                                       <>
-                                        <div className="hidden lg:block w-[60px]" />
-                                        <div className="hidden lg:block w-[60px]" />
+                                        <div className="hidden md:block w-[60px]" />
+                                        <div className="hidden md:block w-[60px]" />
                                       </>
                                     )}
                                   </>
