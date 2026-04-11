@@ -6,7 +6,7 @@ import { ChevronRight, Star, Home, Trophy, Activity, History } from 'lucide-reac
 
 const sports = [
   { id: 'cricket', label: 'Cricket', emoji: '🏏' },
-  { id: 'soccer', label: 'Soccer', emoji: '⚽' },
+  { id: 'football', label: 'Football', emoji: '⚽' },
   { id: 'tennis', label: 'Tennis', emoji: '🎾' },
   { id: 'kabaddi', label: 'Kabaddi', emoji: '🤼' },
   { id: 'horse-racing', label: 'Horse Racing', emoji: '🏇' },

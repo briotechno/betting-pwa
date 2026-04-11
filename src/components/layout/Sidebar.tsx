@@ -16,10 +16,10 @@ const games = [
   },
   {
     id: 1,
-    name: "Soccer",
+    name: "Football",
     image: "https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png",
     count: 53,
-    link: "/sportsbook/Soccer"
+    link: "/sportsbook/Football"
   },
   {
     id: 2,
@@ -37,7 +37,7 @@ const games = [
   },
   {
     id: 7,
-    name: "Casino",
+    name: "Live Casino",
     image: "https://www.fairplay247.vip/_nuxt/img/casino.1716d18.png",
     count: null,
     link: "/markets/live-casino"

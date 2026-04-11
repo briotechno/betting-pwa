@@ -29,7 +29,7 @@ const sportsItems = [
   { name: 'Table-tennis', icon: 'tabletennis.e584580.png' },
   { name: 'Motorcycle-racing', icon: 'motorcycle_racing.502119f.png' },
   { name: 'Cricekt', icon: 'cricket.13c45ec.png' },
-  { name: 'Soccer', icon: 'soccer.edef26e.png' },
+  { name: 'Football', icon: 'soccer.edef26e.png' },
   { name: 'Tennis', icon: 'tennis.61acaee.png' },
   { name: 'Snooker', icon: 'snooker.89e1f8a.png' },
 ]

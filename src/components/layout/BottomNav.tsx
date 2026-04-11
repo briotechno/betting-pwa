@@ -4,17 +4,23 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Trophy, Gamepad2, ClipboardList, Wallet } from 'lucide-react'
 import { useBetSlipStore } from '@/store/betSlipStore'
+import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { useRouter } from 'next/navigation'
 
 const navItems = [
-  { id: 'sports', label: 'Sportsbook', icon: 'https://www.fairplay247.vip/_nuxt/img/sportsbook.5e7a4f5.png', href: '/sportsbook' },
-  { id: 'casino', label: 'Mac88', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/mac88' },
+  { id: 'sports', label: 'Sportsbook', icon: 'https://www.fairplay247.vip/_nuxt/img/sportsbook.5e7a4f5.png', href: '/premium-sportsbook' },
+  { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino' },
   { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' },
   { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },
 ]
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const { selections } = useBetSlipStore()
+  const { isAuthenticated } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
   const [mounted, setMounted] = useState(false)
 
   const isDeepSportsbook = pathname?.startsWith('/sportsbook/') && pathname !== '/sportsbook'
@@ -47,6 +53,14 @@ export default function BottomNav() {
             <React.Fragment key={item.id}>
               <Link
                 href={item.href}
+                onClick={(e) => {
+                  if (!isAuthenticated && (item.id === 'casino' || item.id === 'slots')) {
+                    e.preventDefault();
+                    showSnackbar('Please login to access ' + item.label, 'error');
+                    router.push('/auth/login');
+                    return;
+                  }
+                }}
                 className={`flex flex-col items-center justify-center flex-1 h-full transition-all relative ${isActive ? 'text-white' : 'text-[#ccc]'}`}
               >
                 <div className="flex flex-col items-center">

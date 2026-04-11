@@ -38,7 +38,7 @@ const template = {
   nav: {
     inplay: 'Inplay',
     cricket: 'Cricket',
-    soccer: 'Soccer',
+    football: 'Football',
     tennis: 'Tennis',
     premium: 'Premium Sportbook',
     crash: 'Crash Games',
@@ -102,7 +102,7 @@ export const translations = {
     nav: {
       inplay: 'इनप्ले',
       cricket: 'क्रिकेट',
-      soccer: 'सॉकर',
+      football: 'फ़ुटबॉल',
       tennis: 'टेनिस',
       premium: 'प्रीमियम स्पोर्ट्सबुक',
       crash: 'क्रैश गेम्स',
@@ -162,7 +162,7 @@ export const translations = {
     nav: {
       inplay: 'ইনপ্লে',
       cricket: 'ক্রিকেট',
-      soccer: 'সকার',
+      football: 'ফুটবল',
       tennis: 'টেনিস',
       premium: 'প্রিমিয়াম স্পোর্টসবুক',
       crash: 'ক্র্যাশ গেম',
@@ -222,7 +222,7 @@ export const translations = {
     nav: {
       inplay: 'ઇનપ્લે',
       cricket: 'ક્રિકેટ',
-      soccer: 'સોકર',
+      football: 'ફૂટબોલ',
       tennis: 'ટેનિસ',
       premium: 'પ્રીમિયમ સ્પોર્ટ્સબુક',
       crash: 'ક્રેશ ગેમ્સ',
@@ -282,7 +282,7 @@ export const translations = {
     nav: {
       inplay: 'ಇನ್‌ಪ್ಲೇ',
       cricket: 'ಕ್ರಿಕೆಟ್',
-      soccer: 'ಸಾಕರ್',
+      football: 'ಫುಟ್ಬಾಲ್',
       tennis: 'ಟೆನ್ನಿಸ್',
       premium: 'ಪ್ರೀಮಿಯಂ ಸ್ಪೋರ್ಟ್ಸ್ ಬುಕ್',
       crash: 'ಕ್ರಾಶ್ ಗేಮ್ಸ್',
@@ -342,7 +342,7 @@ export const translations = {
     nav: {
       inplay: 'ഇൻപ്ലേ',
       cricket: 'ക്രിക്കറ്റ്',
-      soccer: 'സോക്കർ',
+      football: 'ഫുട്ബോൾ',
       tennis: 'ടെന്നീസ്',
       premium: 'പ്രീമിയം സ്പോർട്സ്ബുക്ക്',
       crash: 'ക്രാഷ് ഗെയിംസ്',
@@ -402,7 +402,7 @@ export const translations = {
     nav: {
       inplay: 'इनप्ले',
       cricket: 'क्रिकेट',
-      soccer: 'सॉकर',
+      football: 'फुटबॉल',
       tennis: 'टेनिस',
       premium: 'प्रीमियम स्पोर्ट्सबुक',
       crash: 'क्रॅश गेम्स',
@@ -462,7 +462,7 @@ export const translations = {
     nav: {
       inplay: 'இன்பிளே',
       cricket: 'கிரிக்கெட்',
-      soccer: 'சாக்கர்',
+      football: 'கால்பந்து',
       tennis: 'டென்னிஸ்',
       premium: 'பிரீமியம் ஸ்போர்ட்ஸ்புக்',
       crash: 'க்ராஷ் கேம்ஸ்',
@@ -522,7 +522,7 @@ export const translations = {
     nav: {
       inplay: 'ఇన్‌ప్లే',
       cricket: 'క్రికెట్',
-      soccer: 'సాకర్',
+      football: 'ఫుట్‌బాల్',
       tennis: 'టెన్నిస్',
       premium: 'ప్రీమియం స్పోర్ట్స్ బుక్',
       crash: 'క్రాష్ గేమ్స్',

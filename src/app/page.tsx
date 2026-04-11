@@ -76,7 +76,7 @@ export default function HomePage() {
     const fetchMatches = async () => {
       try {
         setIsLoading(true)
-        const res = await marketController.getGameList('Cricket,Football,Tennis,Soccer')
+        const res = await marketController.getGameList('Cricket,Football,Tennis')
 
         let matchData: any[] = []
         if (res && typeof res === 'object') {
@@ -150,7 +150,7 @@ export default function HomePage() {
   const getSportMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
-      football: ['soccer', 'football'],
+      football: ['football'],
       tennis: ['tennis']
     }
 
@@ -306,7 +306,7 @@ export default function HomePage() {
   const getUpcomingMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
-      soccer: ['soccer', 'football'],
+      football: ['football'],
       tennis: ['tennis']
     }
 
@@ -496,7 +496,7 @@ export default function HomePage() {
                     <div className="w-6 h-6 flex items-center justify-center shrink-0">
                       {sportId === 'cricket' ? (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      ) : (sportId === 'football' || sportId === 'soccer') ? (
+                      ) : (sportId === 'football') ? (
                         <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
                       ) : (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
@@ -645,7 +645,7 @@ export default function HomePage() {
                       <div className="w-6 h-6 flex items-center justify-center shrink-0">
                         {sportId === 'cricket' ? (
                           <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
-                        ) : sportId === 'soccer' ? (
+                        ) : sportId === 'football' ? (
                           <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
                         ) : (
                           <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>

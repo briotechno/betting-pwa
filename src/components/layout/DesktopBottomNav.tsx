@@ -20,13 +20,13 @@ export default function DesktopBottomNav() {
     {
       label: 'Sportsbook',
       icon: '/nav/sportsbook_new.png',
-      href: '/sportsbook',
+      href: '/premium-sportsbook',
       isCasino: false
     },
     {
-      label: 'Mac88',
+      label: 'Live Casino',
       icon: '/nav/live-casino.png',
-      href: '/mac88',
+      href: '/markets/live-casino',
       isCasino: false
     },
     {
