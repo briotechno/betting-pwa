@@ -27,6 +27,9 @@ export interface Bet {
   Date: string;
   Side: 'back' | 'lay';
   IsMatched?: string;
+  gid?: string;
+  eventId?: string;
+  matchId?: string;
 }
 
 interface BetSlipState {
