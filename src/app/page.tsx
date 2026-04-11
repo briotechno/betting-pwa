@@ -470,12 +470,12 @@ export default function HomePage() {
 
       <div className="p-2 md:p-4 space-y-4">
         {/* INPLAY Section Header */}
-        {/* <div className="flex items-center gap-2 px-1 mb-2">
-          <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
-            <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[12px]"></i>
+        <div className="flex items-center gap-2 px-1 mb-2">
+          <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
+             <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[11px] lg:text-[13px]"></i>
           </div>
-          <h2 className="text-[15px] font-black text-white uppercase tracking-tight">INPLAY</h2>
-        </div> */}
+          <h2 className="text-[16px] lg:text-[18px] font-black text-white uppercase tracking-tight">INPLAY</h2>
+        </div>
 
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
