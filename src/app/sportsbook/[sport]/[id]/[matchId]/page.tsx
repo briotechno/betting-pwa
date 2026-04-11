@@ -215,8 +215,10 @@ const MarketTable = ({
     marketName.toUpperCase().includes('TIE')
   )
 
-  return (
-    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+    if (!runners || (Array.isArray(runners) ? runners : Object.values(runners)).length === 0) return null;
+
+    return (
+      <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div
         className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -273,11 +275,11 @@ const MarketTable = ({
         </div>
       </div>
 
-      {!isCollapsed && (
+      {(!isCollapsed && (Array.isArray(runners) ? runners : Object.values(runners || {})).length > 0) && (
         <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
           <table className="w-full border-collapse">
             <tbody className="divide-y divide-gray-100">
-              {(Array.isArray(runners) ? runners : Object.values(runners || {})).length > 0 ? (Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
+              {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
                 const mId = isFancyGroup ? (runner.MarketId || runner.marketid || runner.eid) : marketId
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
@@ -408,11 +410,7 @@ const MarketTable = ({
                     )}
                   </React.Fragment>
                 )
-              }) : (
-                <tr className="border-b border-gray-100 last:border-0 text-center py-8">
-                  <td colSpan={2} className="py-8 text-gray-400 text-[11px] font-bold uppercase tracking-widest">No Active Markets</td>
-                </tr>
-              )}
+              })}
             </tbody>
           </table>
         </div>
@@ -664,11 +662,24 @@ export default function GameDetailPage() {
   const allMarkets = useMemo(() => {
     if (!gameData) return []
     const raw = [
-      ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS)).map((m: any) => ({ ...m, category: 'ODDS' })) : []),
-      ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER)).map((m: any) => ({ ...m, category: 'BOOKMAKER' })) : []),
-      ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY)).map((m: any) => ({ ...m, category: 'FANCY' })) : []),
-      ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events)).map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : []),
-      ...(gameData.EXTRA ? (Array.isArray(gameData.EXTRA) ? gameData.EXTRA : Object.values(gameData.EXTRA)).map((m: any) => ({ ...m, category: 'EXTRA' })) : [])
+      ...(gameData.ODDS ? (Array.isArray(gameData.ODDS) ? gameData.ODDS : Object.values(gameData.ODDS))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: 'ODDS' })) : []),
+      ...(gameData.BOOKMAKER ? (Array.isArray(gameData.BOOKMAKER) ? gameData.BOOKMAKER : Object.values(gameData.BOOKMAKER))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: 'BOOKMAKER' })) : []),
+      ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: 'FANCY' })) : []),
+      ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : []),
+      ...(gameData.LINE ? (Array.isArray(gameData.LINE) ? gameData.LINE : Object.values(gameData.LINE))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: 'LINE' })) : []),
+      ...(gameData.EXTRA ? (Array.isArray(gameData.EXTRA) ? gameData.EXTRA : Object.values(gameData.EXTRA))
+        .filter((m: any) => m && m.active !== 'No')
+        .map((m: any) => ({ ...m, category: 'EXTRA' })) : [])
     ]
     return raw.filter((m, i, self) => {
       if (!m) return false;
@@ -731,14 +742,14 @@ export default function GameDetailPage() {
                   return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} />
                 })}
 
-                {/* 3. FANCY Group */}
-                {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
-                  <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} />
-                )}
-
-                {/* 4. LINE Group */}
+                {/* 3. LINE Group */}
                 {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
                   <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={matchId} />
+                )}
+
+                {/* 4. FANCY Group */}
+                {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
+                  <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} />
                 )}
 
                 {/* 4. EXTRA Markets (e.g. Tied Match) */}
