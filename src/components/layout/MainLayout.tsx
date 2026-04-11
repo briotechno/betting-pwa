@@ -30,7 +30,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Header - Now top level, no left space */}
       <Header />
 
-      <div className={`flex w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
+      <div className={`flex w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') || pathname?.startsWith('/favorites') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
         {/* Sidebar - Now correctly contained in flow */}
         {(pathname === '/' || 
           pathname?.startsWith('/sportsbook') || 

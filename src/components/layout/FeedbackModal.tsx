@@ -14,15 +14,15 @@ export default function FeedbackModal() {
   if (!mounted || !feedbackModalOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center md:items-end md:justify-end p-4 md:p-10 pointer-events-none">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity pointer-events-auto"
         onClick={() => setFeedbackModalOpen(false)}
       />
 
       {/* Modal Content */}
-      <div className="relative bg-[#212121] w-full max-w-[340px] rounded-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-[#212121] w-full max-w-[340px] rounded-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 pointer-events-auto">
         <div className="p-6 space-y-6">
           <h2 className="text-[24px] font-bold text-white tracking-tight">Feedback</h2>
           
