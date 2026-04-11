@@ -120,9 +120,9 @@ const MarketTable = ({
           return '';
         }
 
-        // Corrected as per user request (no2 -> YES/BACK, no1 -> NO/LAY)
-        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
-        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
+        // Corrected as per reference site (no1 -> YES/BACK [Smaller], no2 -> NO/LAY [Bigger])
+        let bp = getVal(r, ['no1', 'no2', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = getVal(r, ['no2', 'no1', 'layPrice1', 'LayPrice1', 'rate']);
         let bs = getVal(r, ['valy', 'valn', 'size']);
         let ls = getVal(r, ['valn', 'valy', 'size']);
 
@@ -194,9 +194,9 @@ const MarketTable = ({
         };
       }
 
-      // Default/Fancy Logic: no2 is BACK/YES, no1 is LAY/NO
+      // Default/Fancy Logic: no1 is BACK/YES (Smaller), no2 is LAY/NO (Bigger)
       return {
-        p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+        p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
         v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
         p2: '', v2: '', p3: '', v3: ''
       };
