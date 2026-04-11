@@ -119,8 +119,9 @@ const MarketTable = ({
           return '';
         }
 
-        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
-        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
+        // Swapped as per user request (no1 -> YES, no2 -> NO)
+        let bp = getVal(r, ['no1', 'no2', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = getVal(r, ['no2', 'no1', 'layPrice1', 'LayPrice1', 'rate']);
         let bs = getVal(r, ['valy', 'valn', 'size']);
         let ls = getVal(r, ['valn', 'valy', 'size']);
 
@@ -134,10 +135,17 @@ const MarketTable = ({
           ls = r.ex?.availableToLay?.[0]?.size || r.lay?.[0]?.size;
         }
 
+        // Apply rounding for LINE/FANCY markets as requested
+        const formatP = (v: any) => {
+          if (!v || !isFancyOrLine) return v;
+          const num = parseFloat(v);
+          return isNaN(num) ? v : Math.round(num).toString();
+        };
+
         if (bp || lp) {
           return {
-            back: { p1: bp.toString(), v1: bs.toString(), p2: '', v2: '', p3: '', v3: '' },
-            lay: { p1: lp.toString(), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' },
+            back: { p1: formatP(bp), v1: bs.toString(), p2: '', v2: '', p3: '', v3: '' },
+            lay: { p1: formatP(lp), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' },
             isRunnerSuspended: isRunnerSuspended
           }
         }
