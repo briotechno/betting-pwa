@@ -77,4 +77,14 @@ export const userController = {
   toggleFavourite: async (loginToken: string, eid: string): Promise<ApiResponse> => {
     return await fetchAPI('/favourite', { LoginToken: loginToken, Eid: eid });
   },
+
+  /**
+   * Get account statement (Profit/Loss history)
+   * @param loginToken The encrypted session token
+   * @param sdate Start date (dd-mm-yyyy)
+   * @param edate End date (dd-mm-yyyy)
+   */
+  getAccountStatement: async (loginToken: string, sdate: string, edate: string): Promise<ApiResponse> => {
+    return await fetchAPI('/statement', { LoginToken: loginToken, sdate, edate });
+  },
 };
