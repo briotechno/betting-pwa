@@ -70,8 +70,8 @@ export const walletController = {
    * @param accountId Requested withdrawal bank account ID
    * @param amount The withdrawal amount
    */
-  requestWithdrawal: async (loginToken: string, accountId: string | number, amount: string | number): Promise<ApiResponse> => {
-    return await fetchAPI('/withdraw', { LoginToken: loginToken, Id: accountId, Amount: amount });
+  requestWithdrawal: async (loginToken: string, accountId: string | number, amount: string | number, ip: string): Promise<ApiResponse> => {
+    return await fetchAPI('/withdraw', { LoginToken: loginToken, Id: accountId, Amount: amount, IP: ip });
   },
 
   /**

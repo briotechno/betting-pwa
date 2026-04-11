@@ -32,13 +32,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
       <div className={`flex w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') || pathname?.startsWith('/favorites') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
         {/* Sidebar - Now correctly contained in flow */}
-        {(pathname === '/' || 
-          pathname?.startsWith('/sportsbook') || 
+        {(pathname === '/' ||
+          pathname?.startsWith('/sportsbook') ||
           (pathname?.startsWith('/premium-sportsbook') && !pathname?.includes('rules'))) && (
-          <Suspense fallback={null}>
-            <Sidebar />
-          </Suspense>
-        )}
+            <Suspense fallback={null}>
+              <Sidebar />
+            </Suspense>
+          )}
 
         <div className="flex flex-col min-w-0 flex-auto max-w-full relative">
           {/* Profile Sidebar - slide from right when active */}
@@ -50,7 +50,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               href="https://wa.me/1234567890"
               target="_blank"
               rel="noopener noreferrer"
-              className="fixed bottom-24 left-4 z-[55]"
+              className="fixed bottom-[70px] left-4 z-[55]"
             >
               <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center transition-transform hover:scale-110">
                 <img src="/whatsapp.png" alt="WhatsApp" className="w-[50px] h-[50px] object-cover" />

@@ -26,8 +26,15 @@ export default function WithdrawalHistoryPage() {
         if (!token) return
 
         const response = await walletController.getWithdrawalHistory(token)
-        if (response.error === '0') {
-          setHistory(Array.isArray(response.data) ? response.data : response.list || [])
+        if (response) {
+          let data: any[] = []
+          const raw = response.data || response.list || response
+          if (Array.isArray(raw)) {
+            data = raw
+          } else if (typeof raw === 'object') {
+            data = Object.values(raw).filter(v => v && typeof v === 'object')
+          }
+          setHistory(data)
         }
       } catch (error) {
         console.error('Failed to fetch withdrawal history:', error)
@@ -110,7 +117,7 @@ export default function WithdrawalHistoryPage() {
                      </div>
                   </div>
                   <div className="text-right">
-                     <p className="text-lg font-black text-[#e8612c]">₹ {parseFloat(item.Amount || item.amount).toLocaleString()}</p>
+                     <p className="text-lg font-black text-white">₹ {parseFloat(item.Amount || item.amount).toLocaleString()}</p>
                      <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest">{formatDate(item.date || item.created_at)}</p>
                   </div>
                </div>
@@ -118,12 +125,12 @@ export default function WithdrawalHistoryPage() {
                <div className="flex items-center justify-between pt-3 border-t border-white/5">
                   <div className="flex items-center gap-2">
                      {getStatusIcon(item.status)}
-                     <span className={`text-[11px] font-black uppercase tracking-wider ${getStatusColor(item.status)}`}>
+                     <span className="text-[11px] font-black uppercase tracking-wider text-white">
                         {item.status || 'Pending'}
                      </span>
                   </div>
                   {item.ACno && (
-                    <p className="text-[11px] text-white/30 font-bold">A/C: ****{String(item.ACno).slice(-4)}</p>
+                    <p className="text-[11px] text-white font-bold">A/C: ****{String(item.ACno).slice(-4)}</p>
                   )}
                </div>
             </div>

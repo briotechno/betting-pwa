@@ -21,7 +21,7 @@ export default function WithdrawalPage() {
   const router = useRouter()
   const { show: showSnackbar } = useSnackbarStore()
   const { isAuthenticated } = useAuthStore()
-  
+
   const [amount, setAmount] = useState('')
   const [bannerError, setBannerError] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -38,9 +38,9 @@ export default function WithdrawalPage() {
     }
 
     try {
-      const token = localStorage.getItem('fairbet-auth') ? 
+      const token = localStorage.getItem('fairbet-auth') ?
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
-      
+
       if (!token) return
 
       const [balanceRes, bankRes] = await Promise.all([
@@ -49,8 +49,25 @@ export default function WithdrawalPage() {
       ])
 
       if (balanceRes.error === '0') setBalance(balanceRes as any)
-      if (bankRes.error === '0') {
-        const accounts = Array.isArray(bankRes.data) ? bankRes.data : bankRes.list || []
+
+      // Handle bankRes which might be an object with numeric keys or contain an error field
+      if (bankRes) {
+        let accounts: any[] = []
+        if (Array.isArray(bankRes)) {
+          accounts = bankRes
+        } else if (bankRes.data && Array.isArray(bankRes.data)) {
+          accounts = bankRes.data
+        } else if (typeof bankRes === 'object') {
+          // If it has "error": "0", check for data or items inside
+          const raw = bankRes.data || bankRes.list || bankRes
+          if (Array.isArray(raw)) {
+            accounts = raw
+          } else {
+            // Case where its an object with numeric keys "0", "1" etc
+            accounts = Object.values(raw).filter(v => v && typeof v === 'object' && ((v as any).ACno || (v as any).AcNo))
+          }
+        }
+
         setBankAccounts(accounts)
         if (accounts.length > 0 && !selectedBankId) {
           setSelectedBankId(accounts[0].id || accounts[0].Id)
@@ -71,7 +88,7 @@ export default function WithdrawalPage() {
     if (!window.confirm('Are you sure you want to delete this bank account?')) return
 
     try {
-      const token = localStorage.getItem('fairbet-auth') ? 
+      const token = localStorage.getItem('fairbet-auth') ?
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
       if (!token) return
 
@@ -104,11 +121,15 @@ export default function WithdrawalPage() {
 
     setSubmitting(true)
     try {
-      const token = localStorage.getItem('fairbet-auth') ? 
+      const token = localStorage.getItem('fairbet-auth') ?
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
       if (!token) return
 
-      const response = await walletController.requestWithdrawal(token, selectedBankId, amount)
+      const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null)
+      const ipData = ipRes ? await ipRes.json() : { ip: '1.1.1.1' }
+      const userIp = ipData.ip || '1.1.1.1'
+
+      const response = await walletController.requestWithdrawal(token, selectedBankId, amount, userIp)
       if (response.error === '0') {
         showSnackbar(response.msg || 'Withdrawal request submitted successfully', 'success')
         setAmount('')
@@ -136,30 +157,32 @@ export default function WithdrawalPage() {
       {/* ── Sub Header ── */}
       <div className="flex items-center justify-between px-3 py-3 sticky top-0 z-20 bg-[#222222] border-b border-white/5">
         <div className="flex items-center gap-1">
-            <button onClick={() => router.back()} className="text-[#e8612c] pr-2">
-                <ChevronLeft size={22} strokeWidth={3} />
-            </button>
-            <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Withdrawal</h1>
+          <button onClick={() => router.back()} className="text-[#e8612c] pr-2">
+            <ChevronLeft size={22} strokeWidth={3} />
+          </button>
+          <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Withdrawal</h1>
         </div>
-        <button 
-           onClick={() => router.push('/wallet/withdrawal/history')}
-           className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-[#e8612c] transition-colors bg-white/5 px-3 py-1.5 rounded-full"
-        >
-          <History size={14} />
-          History
-        </button>
+
       </div>
 
-      <div className="max-w-[760px] mx-auto px-4 py-4 space-y-5">
+      <div className="max-w-[760px] mx-auto px-4 py-4 space-y-6">
         {/* ── Promotional Banner ── */}
         <div className="w-full overflow-hidden rounded-xl bg-black/40 border border-white/5 shadow-xl">
           {!bannerError ? (
-            <img
-              src="/withdrawal-banner.png"
-              alt="Instant Withdrawals"
-              className="w-full object-cover max-h-[160px]"
-              onError={() => setBannerError(true)}
-            />
+            <>
+              <img
+                src="/desktop-w.png"
+                alt="Instant Withdrawals"
+                className="hidden sm:block w-full object-cover max-h-[160px]"
+                onError={() => setBannerError(true)}
+              />
+              <img
+                src="/mobile-w.png"
+                alt="Instant Withdrawals"
+                className="block sm:hidden w-full object-cover"
+                onError={() => setBannerError(true)}
+              />
+            </>
           ) : (
             <div className="w-full flex items-center gap-4 px-6 py-6 bg-gradient-to-br from-[#c0390a] to-[#e8612c]">
               <div className="text-4xl">💰</div>
@@ -171,136 +194,122 @@ export default function WithdrawalPage() {
           )}
         </div>
 
-        {/* ── Available Balance ── */}
-        <div className="bg-[#111] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-lg">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#e8612c]/10 flex items-center justify-center">
-                 <span className="text-2xl">👛</span>
-              </div>
-              <div className="space-y-0.5">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Available to Withdraw</p>
-                 <p className="text-2xl font-black text-[#e8612c]">₹ {balance.available_balance.toLocaleString()}</p>
-              </div>
-           </div>
+        {/* ── Category Selector ── */}
+        <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
+          <div className="w-32 h-24 bg-white rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer border-2 border-transparent hover:border-[#e8612c] transition-all">
+            <div className="w-10 h-10 bg-black rounded flex items-center justify-center">
+              <Landmark size={24} className="text-white" />
+            </div>
+            <span className="text-[10px] font-black text-black uppercase text-center leading-tight">Bank Transfers</span>
+          </div>
         </div>
 
-        {/* ── Bank Selection ── */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[13px] font-black uppercase tracking-widest text-white/60">Bank Details</h3>
+        {/* ── Available Balance Pill ── */}
+        <div>
+          <div className="inline-flex items-center gap-2 bg-white rounded-lg px-4 py-2 text-[#111] shadow-lg">
+            <div className="w-6 h-5 bg-[#e8612c] rounded flex items-center justify-center">
+              <svg width="14" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" /><path d="M4 6v12c0 1.1.9 2 2 2h14v-4" /><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" /></svg>
+            </div>
+            <span className="text-[13px] font-black uppercase tracking-tight">Available to Withdraw : <span className="text-[#e8612c]">₹ {balance.available_balance.toLocaleString()}</span></span>
+          </div>
+        </div>
+
+        {/* ── Withdrawal Rules List ── */}
+        <div className="space-y-2 px-2">
+          <ul className="list-disc list-inside space-y-1.5">
+            {WITHDRAWAL_RULES.map((rule, idx) => (
+              <li key={idx} className="text-[11px] text-white font-medium leading-relaxed marker:text-white">
+                {rule}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ── Bank Selection Header ── */}
+        <div className="flex items-center justify-between pt-4">
+          <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Bank Details</h3>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 h-9 px-5 bg-[#e15b24] hover:bg-[#ff7a45] text-white rounded-full text-[11px] font-black transition-all shadow-lg uppercase tracking-widest"
+          >
+            ADD NEW <span className="w-4 h-4 rounded-full bg-white text-[#e15b24] flex items-center justify-center text-[12px]">+</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {bankAccounts.length === 0 ? (
+            <div className="col-span-full bg-[#1a1a1a] border border-dashed border-white/10 rounded-2xl p-8 text-center">
+              <Landmark size={32} className="mx-auto text-white/10 mb-3" />
+              <p className="text-sm text-white/40 font-bold">No saved bank accounts found.</p>
+            </div>
+          ) : (
+            bankAccounts.map((bank: any) => {
+              const id = bank.id || bank.Id
+              const isSelected = selectedBankId === id
+              return (
+                <div
+                  key={id}
+                  onClick={() => setSelectedBankId(id)}
+                  className={`relative p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
+                      ? 'bg-[#e15b24]/10 border-[#e15b24] shadow-xl'
+                      : 'bg-[#1a1a1a] border-white/5 hover:border-white/20'
+                    }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-[#e15b24] text-white' : 'bg-white/5 text-white/40'}`}>
+                      <Landmark size={20} />
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteBank(id); }}
+                      className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <div>
+                    <p className={`text-[13px] font-black uppercase tracking-tight text-white`}>{bank.Bank || 'Bank'}</p>
+                    <p className="text-[11px] text-white font-medium truncate mt-0.5">{bank.ACno?.replace(/.(?=.{4})/g, '*') || '****'}</p>
+                    <p className="text-[10px] text-white font-bold uppercase tracking-widest mt-2 opacity-50">{bank.ACholdername || 'N/A'}</p>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* ── Withdrawal Amount Card ── */}
+        <div className="space-y-4 pt-4">
+          <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Upload Amount</h3>
+          <div className="bg-[#111] border border-white/5 rounded-xl p-6 space-y-6 shadow-2xl">
+            <div className="space-y-2">
+              <label className="text-[13px] font-bold text-white">Amount*</label>
+              <input
+                type="number"
+                placeholder="Enter Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full h-12 bg-white rounded-lg px-4 text-black text-lg font-bold focus:outline-none shadow-inner"
+              />
+            </div>
+
             <button
-               onClick={() => setIsAddModalOpen(true)}
-               className="flex items-center gap-2 h-8 px-4 bg-[#e8612c] hover:bg-[#ff7a45] text-white rounded-full text-[11px] font-black transition-all shadow-lg"
+              disabled={submitting || !selectedBankId}
+              onClick={handleWithdraw}
+              className={`w-full h-12 rounded-lg text-sm font-black uppercase tracking-widest shadow-xl transition-all ${submitting || !selectedBankId
+                  ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                  : 'bg-[#e15b24] hover:bg-[#ff7a45] text-white'
+                }`}
             >
-              ADD NEW <Plus size={14} strokeWidth={4} />
+              {submitting ? <Loader2 className="animate-spin mx-auto" size={24} /> : 'SUBMIT'}
             </button>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {bankAccounts.length === 0 ? (
-              <div className="col-span-full bg-[#111] border border-dashed border-white/10 rounded-2xl p-8 text-center">
-                <Landmark size={32} className="mx-auto text-white/10 mb-3" />
-                <p className="text-sm text-white/40 font-bold">No saved bank accounts found.</p>
-                <p className="text-[11px] text-white/20 mt-1">Add a bank account to start withdrawals.</p>
-              </div>
-            ) : (
-              bankAccounts.map((bank: any) => {
-                const id = bank.id || bank.Id
-                const isSelected = selectedBankId === id
-                return (
-                  <div 
-                    key={id}
-                    onClick={() => setSelectedBankId(id)}
-                    className={`relative group p-4 rounded-2xl border transition-all cursor-pointer ${
-                      isSelected 
-                        ? 'bg-[#e8612c]/5 border-[#e8612c] shadow-[0_0_20px_rgba(232,97,44,0.1)]' 
-                        : 'bg-[#111] border-white/5 hover:border-white/20'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-[#e8612c] text-white' : 'bg-white/5 text-white/40'}`}>
-                          <Landmark size={20} />
-                       </div>
-                       <button 
-                         onClick={(e) => { e.stopPropagation(); handleDeleteBank(id); }}
-                         className="p-2 text-white/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                       >
-                         <Trash2 size={16} />
-                       </button>
-                    </div>
-                    <div>
-                       <p className={`text-[13px] font-black uppercase tracking-tight ${isSelected ? 'text-white' : 'text-white/60'}`}>{bank.Bank || 'Bank'}</p>
-                       <p className="text-[11px] text-white/30 font-medium truncate mt-0.5">{bank.ACno?.replace(/.(?=.{4})/g, '*') || '****'}</p>
-                       <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest mt-2">{bank.ACholdername || 'N/A'}</p>
-                    </div>
-                    {isSelected && (
-                      <div className="absolute top-4 right-4 text-[#e8612c]">
-                         <div className="w-5 h-5 rounded-full bg-[#e8612c] flex items-center justify-center shadow-lg">
-                            <Plus className="rotate-45 text-white" size={14} strokeWidth={4} />
-                         </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })
-            )}
-          </div>
-        </div>
-
-        {/* ── Withdrawal Amount ── */}
-        <div className="space-y-3 pt-2">
-          <h3 className="text-[13px] font-black uppercase tracking-widest text-white/60">Upload Amount</h3>
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-6 space-y-5 shadow-xl">
-             <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30">Amount (INR)</label>
-                <div className="relative">
-                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-black text-[#e8612c]">₹</div>
-                   <input
-                     type="number"
-                     placeholder="0.00"
-                     value={amount}
-                     onChange={(e) => setAmount(e.target.value)}
-                     className="w-full h-14 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-xl font-black text-white focus:outline-none focus:ring-2 focus:ring-[#e8612c] transition-all"
-                   />
-                </div>
-             </div>
-             
-             <Button
-                fullWidth
-                disabled={submitting || !selectedBankId}
-                onClick={handleWithdraw}
-                className="h-14 text-[14px] font-black tracking-[0.2em] shadow-[0_8px_30px_rgb(232,97,44,0.3)]"
-             >
-                {submitting ? <Loader2 className="animate-spin" size={24} /> : 'CONFIRM WITHDRAWAL'}
-             </Button>
-
-             <p className="text-[10px] text-center text-white/30 font-medium">
-                Funds will be processed to the selected account within 30-60 mins.
-             </p>
-          </div>
-        </div>
-
-        {/* ── Withdrawal Rules ── */}
-        <div className="bg-[#111]/50 rounded-2xl p-6 border border-white/5">
-           <div className="flex items-center gap-2 mb-4">
-              <Info size={16} className="text-[#e8612c]" />
-              <h4 className="text-[12px] font-black uppercase tracking-widest text-[#e8612c]">Withdrawal Policy</h4>
-           </div>
-           <ul className="space-y-3">
-             {WITHDRAWAL_RULES.map((rule, idx) => (
-               <li key={idx} className="flex gap-3 items-start group">
-                 <div className="w-1.5 h-1.5 rounded-full bg-[#e8612c] mt-1.5 group-hover:scale-125 transition-transform shrink-0" />
-                 <span className="text-[11px] text-white/50 leading-relaxed font-medium">{rule}</span>
-               </li>
-             ))}
-           </ul>
         </div>
       </div>
 
-      <AddBankModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
-        onSuccess={fetchData} 
+      <AddBankModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchData}
       />
     </div>
   )

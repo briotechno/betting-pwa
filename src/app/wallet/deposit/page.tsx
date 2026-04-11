@@ -257,7 +257,7 @@ export default function DepositPage() {
               <div className="space-y-8">
                  <div className="bg-[#1a1a1a] border border-white/5 rounded-[32px] p-8 shadow-2xl space-y-6">
                     <div className="space-y-3">
-                      <label className="text-[14px] font-black uppercase tracking-wider text-white/40 ml-1">Deposit Amount</label>
+                      <label className="text-[14px] font-black uppercase tracking-wider text-white ml-1">Deposit Amount</label>
                       <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
                           <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-black text-[#e8612c]">₹</span>
@@ -279,7 +279,7 @@ export default function DepositPage() {
                     </div>
                  </div>
 
-                 <div className="bg-[#1a1a1a] border border-red-500/10 rounded-[32px] p-8 space-y-4">
+                 <div className="bg-[#1a1a1a] border border-red-500/20 rounded-[32px] p-8 space-y-4">
                     {[
                       "Deposit money only in the below available accounts to get the fastest credits.",
                       "Deposits made 45 minutes after account removal are valid.",
@@ -288,8 +288,8 @@ export default function DepositPage() {
                       "NEFT receiving time varies from 40 minutes to 2 hours.",
                       "Modification: payment valid for 1 hour after change."
                     ].map((text, i) => (
-                      <div key={i} className="flex gap-4 text-red-500/70">
-                          <span className="font-black text-sm">{i + 1}.</span>
+                      <div key={i} className="flex gap-4 text-white">
+                          <span className="font-black text-sm text-[#e8612c]">{i + 1}.</span>
                           <p className="font-bold text-[13px] italic">{text}</p>
                       </div>
                     ))}
@@ -362,7 +362,7 @@ export default function DepositPage() {
                   {/* Form Card */}
                   <div className="bg-[#1a1a1a] border border-white/5 rounded-[32px] p-6 space-y-6 shadow-xl">
                     <div className="space-y-1.5">
-                       <p className="text-[12px] font-bold text-white/90">Unique Transaction Reference <span className="text-red-500">*</span></p>
+                       <p className="text-[12px] font-bold text-white">Unique Transaction Reference <span className="text-red-500">*</span></p>
                        <input 
                          type="text" 
                          value={utr} 
@@ -373,7 +373,7 @@ export default function DepositPage() {
                     </div>
 
                     <div className="space-y-2">
-                       <p className="text-[12px] font-bold text-white/90">Upload Your Payment Proof <span className="text-red-500 font-medium">[Required]</span></p>
+                       <p className="text-[12px] font-bold text-white">Upload Your Payment Proof <span className="text-red-500 font-medium">[Required]</span></p>
                        <div className="flex items-center gap-3">
                          <button 
                            onClick={() => fileRef.current?.click()} 
@@ -381,7 +381,7 @@ export default function DepositPage() {
                          >
                            Choose file
                          </button>
-                         <span className="text-[12px] text-white/50 truncate max-w-[150px]">
+                         <span className="text-[12px] text-white truncate max-w-[150px]">
                            {screenshotName || 'No file chosen'}
                          </span>
                        </div>
@@ -389,12 +389,12 @@ export default function DepositPage() {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                       <p className="text-[12px] font-bold text-white/90">Amount <span className="text-red-500">*</span></p>
+                       <p className="text-[12px] font-bold text-white">Amount <span className="text-red-500">*</span></p>
                        <input 
                          type="number" 
                          value={amount} 
                          readOnly
-                         className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white/50 focus:outline-none cursor-not-allowed" 
+                         className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white focus:outline-none cursor-not-allowed" 
                        />
                     </div>
 
@@ -406,7 +406,7 @@ export default function DepositPage() {
                          onChange={(e) => setAgreed(e.target.checked)}
                          className="w-5 h-5 rounded bg-white/10 border-white/20 accent-[#4caf50]"
                        />
-                       <label htmlFor="agree-terms" className="text-[11px] font-bold text-white/90 cursor-pointer">
+                       <label htmlFor="agree-terms" className="text-[11px] font-bold text-white cursor-pointer">
                          I have read and agree with the terms of payment and withdrawal policy.
                        </label>
                     </div>
@@ -428,7 +428,7 @@ export default function DepositPage() {
           <div className="xl:col-span-12 2xl:col-span-5 flex flex-col min-h-[855px] animate-in fade-in slide-in-from-right-10 duration-700">
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-hidden shadow-2xl relative">
               {/* Table Header */}
-              <div className="grid grid-cols-5 md:grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white/40">
+              <div className="grid grid-cols-5 md:grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white">
                 <span>TRANS NO/UTR</span>
                 <span className="text-center">AMOUNT</span>
                 <span className="text-center">METHOD</span>
@@ -452,19 +452,19 @@ export default function DepositPage() {
                 ) : (
                   history.map((item, i) => (
                     <div key={i} className={`grid grid-cols-5 md:grid-cols-6 items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                      <span className="text-[10px] text-white/30 break-all pr-2 whitespace-normal leading-relaxed">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
-                      <span className="text-[12px] text-[#e8612c] text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
-                      <span className="text-[10px] text-white/40 text-center uppercase">{item.Method || item.method || '—'}</span>
-                      <span className={`text-[10px] text-center uppercase ${getStatusColor(item.Status || item.status)}`}>
+                      <span className="text-[10px] text-white break-all pr-2 whitespace-normal leading-relaxed">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
+                      <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
+                      <span className="text-[10px] text-white text-center uppercase">{item.Method || item.method || '—'}</span>
+                      <span className="text-[10px] text-center uppercase text-white">
                         {item.Status || item.status || 'Pending'}
                       </span>
-                      <span className="text-[9px] text-white/30 text-center leading-tight">
+                      <span className="text-[9px] text-white text-center leading-tight">
                          {item.Date || item.date ? 
                            (item.Date || item.date).split(' ').join('\n') : 
                            formatDate(item.created_at)
                          }
                       </span>
-                      <span className="text-[9px] text-white/20 text-right italic truncate hidden md:block" title={item.Remarks || item.remarks || item.Reason || item.reason}>
+                      <span className="text-[9px] text-white text-right italic truncate hidden md:block" title={item.Remarks || item.remarks || item.Reason || item.reason}>
                         {item.Remarks || item.remarks || item.Reason || item.reason || '—'}
                       </span>
                     </div>
@@ -485,8 +485,8 @@ function AccountDetailRow({ label, value, onCopy }: { label: string; value: stri
   return (
     <div className="flex items-center justify-between p-3 border-b border-white/5 last:border-0">
       <div className="flex items-center gap-2 overflow-hidden">
-        <span className="text-[10px] font-bold text-white/30 uppercase whitespace-nowrap">{label} :</span>
-        <span className="text-[11px] font-black text-white/80 truncate">{value}</span>
+        <span className="text-[10px] font-bold text-white uppercase whitespace-nowrap">{label} :</span>
+        <span className="text-[11px] font-black text-white truncate">{value}</span>
       </div>
       {onCopy && (
         <button onClick={() => onCopy(value)} className="p-2 text-white/20 hover:text-[#e8612c] flex-shrink-0"><Copy size={16} /></button>
