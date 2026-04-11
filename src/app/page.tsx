@@ -196,10 +196,20 @@ export default function HomePage() {
           const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
                                (m.Team2 || '').includes('TOURNAMENT_WINNER')
 
-          if (startTime > now && !isWinnerMarket) return false
+          if (isWinnerMarket) return true;
+
+          // Logic: Show all matches OF TODAY in Inplay
+          const today = new Date()
+          const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+          const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
           
-          if (!isWinnerMarket && (now.getTime() - startTime.getTime() > 24 * 60 * 60 * 1000)) {
-            return false
+          const isToday = startTime >= startOfToday && startTime <= endOfToday
+          
+          // If it's not today, don't show in Inplay (unless it's currently live, but usually today is the requirement)
+          if (!isToday) {
+             // Exception: If it started very recently (e.g. yesterday late night but still running), maybe keep it?
+             // But following user request: "show all matches of today in inplay"
+             return false
           }
         }
 
@@ -348,8 +358,13 @@ export default function HomePage() {
         }
 
         const startTime = parseDate(startTimeStr)
-        // Only include matches that haven't started yet
-        if (!startTime || startTime <= now) return false
+        if (!startTime) return false
+
+        // Logic: Show from next day matches in upcoming (Tomorrow onwards)
+        const today = new Date()
+        const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
+
+        if (startTime <= endOfToday) return false
 
         return true
       })
