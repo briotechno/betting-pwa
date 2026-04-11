@@ -166,8 +166,8 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
         <table className="w-full text-xs border-separate border-spacing-y-1">
           <tbody>
             {rows.map((row) => {
-              // Use friendly formatting for upcoming matches
-              const displayTime = isUpcoming && row.startTime
+              // Use friendly formatting for both inplay and upcoming matches
+              const displayTime = row.startTime
                 ? formatUpcomingTime(row.startTime)
                 : null
 
@@ -177,22 +177,12 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                   className={`bg-white transition-colors border-b border-gray-100 ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'relative bg-[#777] text-white' : ''
                     }`}
                 >
-                  {/* Start Time Column for upcoming */}
-                  {isUpcoming && row.startTime && displayTime && (
+                  {/* Start Time Column */}
+                  {row.startTime && displayTime && (
                     <td className="py-2 px-1.5 w-[70px] sm:w-[80px] border-r border-gray-100">
                       <div className="flex flex-col text-[8.5px] sm:text-[9px] font-bold text-[#e15b24] leading-tight items-center text-center">
                         <span className="whitespace-nowrap">{displayTime.datePart}</span>
                         <span className="whitespace-nowrap">{displayTime.timePart}</span>
-                      </div>
-                    </td>
-                  )}
-
-                  {/* Start Time Column for inplay (raw) */}
-                  {!isUpcoming && row.startTime && (
-                    <td className="py-2 px-1.5 w-[70px] sm:w-[80px] border-r border-gray-100">
-                      <div className="flex flex-col text-[8.5px] sm:text-[9px] font-bold text-[#e15b24] leading-tight items-center text-center">
-                        <span className="whitespace-nowrap">{row.startTime.split(' ')[0]}</span>
-                        <span className="whitespace-nowrap">{row.startTime.split(' ').slice(1).join(' ')}</span>
                       </div>
                     </td>
                   )}

@@ -294,12 +294,13 @@ export default function HomePage() {
         const team1 = getV(m, ['Team1', 'team1'])
         const team2 = getV(m, ['Team2', 'team2'])
         const name = (team2 === 'TOURNAMENT_WINNER') ? team1 : (team1 && team2 ? `${team1} vs ${team2}` : getV(m, ['Game_name', 'Competition']) || 'Match')
+        const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
 
         return {
           id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
           teamName: name,
           odds: finalOdds,
-          startTime: undefined,
+          startTime: dateTime,
           status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
           competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league',
           isWinner: isWinnerMarket

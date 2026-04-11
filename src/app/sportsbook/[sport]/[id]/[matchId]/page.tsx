@@ -10,6 +10,7 @@ import { bettingController } from '@/controllers/betting/bettingController'
 import BetSlipForm from '@/components/sportsbook/BetSlipForm'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { pusherClient } from '@/utils/pusher'
+import { formatDate } from '@/utils/format'
 
 const OddsBox = ({
   val,
@@ -651,6 +652,16 @@ export default function GameDetailPage() {
     return gameData.GameName || gameData.eventName || (gameData.Team1 ? `${gameData.Team1} V ${gameData.Team2}` : 'Live Match')
   }, [gameData])
 
+  const gameTime = useMemo(() => {
+    if (!gameData) return null
+    const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
+    let str = ''
+    for (const k of timeKeys) {
+      if (gameData[k]) { str = gameData[k]; break; }
+    }
+    return str ? formatDate(str) : null
+  }, [gameData])
+
   const allMarkets = useMemo(() => {
     if (!gameData) return []
     const raw = [
@@ -673,23 +684,30 @@ export default function GameDetailPage() {
         <div className="bg-[#1a1a1a] border-b border-white/5 px-2 lg:px-4 h-12 flex items-center justify-between relative z-20">
           <div className="flex items-center gap-2 lg:gap-4 overflow-hidden">
             <button onClick={() => router.back()} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all flex-shrink-0"><ChevronLeft size={20} /></button>
-            <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">
-              {matchName}
-              <button
-                onClick={handleToggleFav}
-                disabled={favLoading}
-                className={`transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
-              >
-                {favLoading ? (
-                  <Loader2 size={16} className="text-yellow-500 animate-spin" />
-                ) : (
-                  <Star
-                    size={18}
-                    className={`transition-colors ${isFav ? 'text-yellow-500 fill-yellow-500' : 'text-white/40 fill-none'}`}
-                  />
-                )}
-              </button>
-            </h1>
+            <div className="flex flex-col min-w-0">
+              <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">
+                {matchName}
+                <button
+                  onClick={handleToggleFav}
+                  disabled={favLoading}
+                  className={`transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
+                >
+                  {favLoading ? (
+                    <Loader2 size={16} className="text-yellow-500 animate-spin" />
+                  ) : (
+                    <Star
+                      size={18}
+                      className={`transition-colors ${isFav ? 'text-yellow-500 fill-yellow-500' : 'text-white/40 fill-none'}`}
+                    />
+                  )}
+                </button>
+              </h1>
+              {gameTime && (
+                <span className="text-[10px] text-[#f36c21] font-bold uppercase tracking-wider leading-none mt-0.5">
+                  {gameTime}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
