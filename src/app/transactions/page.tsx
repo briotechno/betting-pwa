@@ -212,8 +212,6 @@ export default function TransactionsPage() {
                 <option value="All">All</option>
                 <option value="Deposit">Deposit</option>
                 <option value="Withdraw">Withdraw</option>
-                <option value="Win">Win</option>
-                <option value="Loss">Loss</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" size={14} />
             </div>
@@ -247,7 +245,7 @@ export default function TransactionsPage() {
       </div>
 
       <div className="flex-1 pb-20 overflow-y-auto bg-[#111]">
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-w-[1400px]">
+        <div className="p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-w-[1600px]">
           {loading ? (
              <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30">
                <Loader2 className="w-10 h-10 animate-spin text-[#e8612c] mb-3" />
@@ -258,7 +256,7 @@ export default function TransactionsPage() {
           ) : (
             filteredTransactions.map((tx, idx) => {
               const amount = parseFloat(tx["1"] || 0)
-              const typeKey = (tx["2"] || '').toUpperCase()
+              const typeKey = (tx["2"] || '').toUpperCase().trim()
               const date = tx["0"]
               const description = tx["3"]?.replace(/&nbsp;/g, ' ').replace(/Transcation/g, '').replace(/^\s*\/+\s*/, '') || ''
               const { label } = getCategoryTheme(typeKey, description)
@@ -268,17 +266,17 @@ export default function TransactionsPage() {
               return (
                 <div key={idx} onClick={() => handleTransactionClick(tx)}
                   className="bg-[#1a1a1a] border border-[#e15b24]/30 rounded-lg overflow-hidden cursor-pointer w-full">
-                  <div className="px-3 py-2 flex justify-between items-center bg-[#1a1a1a]">
-                    <div className="flex items-center gap-1.5"><span className="text-[10px] text-gray-400 font-bold">Amount:</span><span className="text-[10px] text-white font-black">{Math.abs(amount).toLocaleString()}</span></div>
-                    <div className="flex items-center gap-1.5"><span className="text-[10px] text-gray-400 font-bold">Status:</span><span className="text-[10px] text-[#4caf50] font-black">Complete</span></div>
+                  <div className="px-2.5 py-1.5 flex justify-between items-center bg-[#1a1a1a]">
+                    <div className="flex items-center gap-1"><span className="text-[9px] text-gray-400 font-bold">Amount:</span><span className="text-[9px] text-white font-black">{Math.abs(amount).toLocaleString()}</span></div>
+                    <div className="flex items-center gap-1"><span className="text-[9px] text-gray-400 font-bold">Status:</span><span className="text-[9px] text-[#4caf50] font-black">Complete</span></div>
                   </div>
                   <div className="h-[1px] bg-white/5 w-full" />
-                  <div className="p-3 grid grid-cols-2 gap-x-3 gap-y-2">
-                    <div><p className="text-[10px] text-white font-black mb-0.5">Type:</p><p className="text-[9px] text-gray-400 font-medium">{label}</p></div>
-                    <div><p className="text-[10px] text-white font-black mb-0.5">Transaction ID:</p><p className="text-[9px] text-gray-400 font-medium">{tx["4"] || 'N/A'}</p></div>
-                    <div><p className="text-[10px] text-white font-black mb-0.5">Request Date:</p><p className="text-[9px] text-gray-400 font-medium">{date}</p></div>
-                    <div><p className="text-[10px] text-white font-black mb-0.5">Approved Date:</p><p className="text-[9px] text-gray-400 font-medium">{date}</p></div>
-                    <div className="col-span-2"><p className="text-[10px] text-white font-black mb-0.5">UTR:</p><p className="text-[9px] text-gray-400 font-medium">{utr}</p></div>
+                  <div className="p-2.5 grid grid-cols-2 gap-x-2 gap-y-1.5">
+                    <div><p className="text-[9px] text-white font-black mb-0">Type:</p><p className="text-[8px] text-gray-400 font-medium truncate">{label}</p></div>
+                    <div><p className="text-[9px] text-white font-black mb-0">Transaction ID:</p><p className="text-[8px] text-gray-400 font-medium truncate">{tx["4"] || 'N/A'}</p></div>
+                    <div><p className="text-[9px] text-white font-black mb-0">Request Date:</p><p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p></div>
+                    <div><p className="text-[9px] text-white font-black mb-0">Approved Date:</p><p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p></div>
+                    <div className="col-span-2"><p className="text-[9px] text-white font-black mb-0">UTR:</p><p className="text-[8px] text-gray-400 font-medium truncate">{utr}</p></div>
                   </div>
                 </div>
               )
