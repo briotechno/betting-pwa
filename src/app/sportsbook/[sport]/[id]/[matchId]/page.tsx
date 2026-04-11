@@ -120,18 +120,18 @@ const MarketTable = ({
           return '';
         }
 
-        // Swapped as per user request (no1 -> YES, no2 -> NO)
-        let bp = getVal(r, ['no1', 'no2', 'backPrice1', 'BackPrice1', 'rate']);
-        let lp = getVal(r, ['no2', 'no1', 'layPrice1', 'LayPrice1', 'rate']);
+        // Corrected as per user request (no2 -> YES/BACK, no1 -> NO/LAY)
+        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
         let bs = getVal(r, ['valy', 'valn', 'size']);
         let ls = getVal(r, ['valn', 'valy', 'size']);
 
         // Check for exchange-style prices if flat ones are missing
-        if (!bp && (r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price)) {
+        if (!bp && Math.abs((parseFloat(r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price) || 0)) > 0) {
           bp = r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price;
           bs = r.ex?.availableToBack?.[0]?.size || r.back?.[0]?.size;
         }
-        if (!lp && (r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price)) {
+        if (!lp && Math.abs((parseFloat(r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price) || 0)) > 0) {
           lp = r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price;
           ls = r.ex?.availableToLay?.[0]?.size || r.lay?.[0]?.size;
         }
