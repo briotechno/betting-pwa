@@ -76,6 +76,76 @@ const games = [
     image: "https://www.fairplay247.vip/_nuxt/img/baseball.d156a0e.png",
     count: null,
     link: "/premium-sportsbook"
+  },
+  {
+    id: 13,
+    name: "Counter Strike",
+    image: "https://www.fairplay247.vip/_nuxt/img/cs.9f42e30.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 14,
+    name: "Rugby",
+    image: "https://www.fairplay247.vip/_nuxt/img/rugby.ff7064a.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 15,
+    name: "Boxing",
+    image: "https://www.fairplay247.vip/_nuxt/img/boxing.22fa7c2.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 16,
+    name: "FIFA",
+    image: "https://www.fairplay247.vip/_nuxt/img/fifa.d5ed003.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 17,
+    name: "Voleyball",
+    image: "https://www.fairplay247.vip/_nuxt/img/voleyball.06a969d.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 18,
+    name: "Dota 2",
+    image: "https://www.fairplay247.vip/_nuxt/img/dota.a84e307.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 19,
+    name: "Virtual",
+    image: "https://www.fairplay247.vip/_nuxt/img/virtual.663631a.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 20,
+    name: "eFighting",
+    image: "https://www.fairplay247.vip/_nuxt/img/efighting.2749af6.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 21,
+    name: "Table Tennis",
+    image: "https://www.fairplay247.vip/_nuxt/img/table-tennis.cd1c2fa.png",
+    count: null,
+    link: "/premium-sportsbook"
+  },
+  {
+    id: 22,
+    name: "Formula 1",
+    image: "https://www.fairplay247.vip/_nuxt/img/formula.1cfa0c6.png",
+    count: null,
+    link: "/premium-sportsbook"
   }
 ];
 
@@ -111,6 +181,7 @@ export default function Sidebar() {
   const [mounted, setMounted] = useState(false)
   const [dynamicLeagues, setDynamicLeagues] = useState<any[]>([])
   const [loadingLeagues, setLoadingLeagues] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Check path levels unconditionally
   const pathParts = pathname?.split('/').filter(Boolean) || []
@@ -208,7 +279,7 @@ export default function Sidebar() {
                 <div className="w-7 h-7 flex items-center justify-center shrink-0">
                   <Home size={20} className="text-white" />
                 </div>
-                <span className="text-[13px] font-bold tracking-wide">Sports</span>
+                <span className="text-[13px] font-medium tracking-wide">Sports</span>
               </Link>
 
               {/* Selected Sport Highlighted */}
@@ -220,7 +291,7 @@ export default function Sidebar() {
                     className="w-full h-full object-contain brightness-0 invert" 
                   />
                 </div>
-                <span className="text-[13px] font-bold tracking-wide uppercase">{currentSport}</span>
+                <span className="text-[13px] font-medium tracking-wide uppercase">{currentSport}</span>
               </div>
 
               {/* Previous Button */}
@@ -231,7 +302,7 @@ export default function Sidebar() {
                 <div className="w-7 h-7 flex items-center justify-center shrink-0">
                   <ChevronLeft size={20} className="text-white" />
                 </div>
-                <span className="text-[13px] font-bold tracking-wide">Previous</span>
+                <span className="text-[13px] font-medium tracking-wide">Previous</span>
               </button>
             </div>
 
@@ -282,7 +353,7 @@ export default function Sidebar() {
             )}
           </div>
         ) : (
-          games.map((game) => {
+          (isExpanded ? games : games.slice(0, 10)).map((game) => {
             const isActive = pathname === game.link
 
             return (
@@ -305,7 +376,7 @@ export default function Sidebar() {
                 </div>
                 {!collapsed && (
                   <>
-                    <span className="flex-1 text-[13px] font-normal tracking-wide truncate">{game.name}</span>
+                    <span className="flex-1 text-[13px] font-medium tracking-wide truncate">{game.name}</span>
                     {game.count && (
                       <span className="bg-[#e8612c] text-white text-[10px] font-bold rounded-full w-[22px] h-[22px] flex items-center justify-center shrink-0 shadow-sm border border-white/10">
                         {game.count}
@@ -316,6 +387,40 @@ export default function Sidebar() {
               </Link>
             )
           })
+        )}
+
+        {/* View More Button */}
+        {!isSportPath && !collapsed && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center gap-4 px-4 h-[52px] border-b border-[#333] text-[#efefef] hover:bg-[#252525] transition-all"
+          >
+            <div className="w-7 h-7 flex items-center justify-center shrink-0 bg-[#e8612c] rounded-full">
+               <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                 </svg>
+               </div>
+            </div>
+            <span className="text-[13px] font-medium tracking-wide">
+              {isExpanded ? 'View less' : 'View more'}
+            </span>
+          </button>
+        )}
+
+        {/* Favourites Section */}
+        {!isSportPath && !collapsed && (
+          <Link href="/favourites" className="flex flex-col group active:scale-95 transition-all">
+            <div className="bg-[#e8612c] h-10 flex items-center justify-center group-hover:bg-[#d85826] transition-colors">
+              <span className="text-white text-[11px] font-bold uppercase tracking-widest">Favourites</span>
+            </div>
+            <div className="py-8 flex flex-col items-center justify-center gap-3 bg-white/0 hover:bg-white/5 transition-colors">
+              <div className="transition-transform group-hover:scale-110">
+                <Star size={32} className="text-[#ffb800] fill-[#ffb800]/20" strokeWidth={1.5} />
+              </div>
+              <span className="text-[#888] text-[13px] font-medium tracking-tight group-hover:text-white transition-all">Add to favorite</span>
+            </div>
+          </Link>
         )}
       </nav>
 

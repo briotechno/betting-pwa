@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText, Loader2, Calendar, Trophy, ArrowRight } from 'lucide-react'
+import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText, Loader2, Calendar, Trophy, ArrowRight, Home } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
@@ -247,6 +247,9 @@ export default function Header() {
           <div className="flex items-center gap-2 ml-auto">
             {mounted && !isAuthenticated && (
               <div className="lg:hidden flex items-center gap-1.5">
+                <Link href="/" className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center active:scale-95 transition-all">
+                  <Home size={14} className="text-white" />
+                </Link>
                 <Link href="/auth/login" className="px-3 py-1.5 text-[10px] font-black rounded-full text-white bg-[#e8612c] uppercase tracking-tighter whitespace-nowrap">
                   {t('common.login')}
                 </Link>
@@ -260,6 +263,9 @@ export default function Header() {
               <>
                 {/* Mobile Authenticated */}
                 <div className="lg:hidden flex items-center gap-1">
+                  <Link href="/" className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center active:scale-95 transition-all mr-1">
+                    <Home size={14} className="text-white" />
+                  </Link>
                   <button
                     className="w-7 h-7 rounded-full bg-[#f26522] flex items-center justify-center shadow-md active:scale-95 transition-all"
                     onClick={() => setSearchModalOpen(!searchModalOpen)}
