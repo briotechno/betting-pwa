@@ -222,8 +222,7 @@ const MarketTable = ({
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <div
-          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
+          className="relative h-full flex items-center pl-2 lg:pl-4 bg-[#e8612c] pr-4 lg:pr-6 z-10 transition-all duration-300"
         >
           <div className="flex items-center gap-2 mt-2">
             <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
