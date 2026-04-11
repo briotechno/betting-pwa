@@ -90,15 +90,35 @@ const MarketTable = ({
     const getPrices = (r: any, type: 'back' | 'lay') => {
       if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
       const data = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
-      const arr = Array.isArray(data) ? data : Object.values(data || {});
+      
+      if (data) {
+        const arr = Array.isArray(data) ? data : Object.values(data || {});
+        return {
+          p1: (arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '')?.toString(),
+          v1: arr[0]?.size || '',
+          p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
+          v2: arr[1]?.size || '',
+          p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
+          v3: arr[2]?.size || '',
+        };
+      }
 
+      // Logic for flat fields (no1, no2, BackPrice1, etc.)
+      const isBookmaker = marketName.toLowerCase().includes('bookmaker')
+      if (isBookmaker) {
+        // Bookmaker: no1 is BACK, no2 is LAY
+        return {
+          p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+          v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
+          p2: '', v2: '', p3: '', v3: ''
+        };
+      }
+
+      // Default/Fancy Logic: no2 is BACK/YES, no1 is LAY/NO
       return {
-        p1: (arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '')?.toString(),
-        v1: arr[0]?.size || '',
-        p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
-        v2: arr[1]?.size || '',
-        p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
-        v3: arr[2]?.size || '',
+        p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+        v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
+        p2: '', v2: '', p3: '', v3: ''
       };
     };
 

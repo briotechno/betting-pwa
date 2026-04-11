@@ -125,9 +125,17 @@ export default function WithdrawalPage() {
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
       if (!token) return
 
-      const ipRes = await fetch('https://api.ipify.org?format=json').catch(() => null)
-      const ipData = ipRes ? await ipRes.json() : { ip: '1.1.1.1' }
-      const userIp = ipData.ip || '1.1.1.1'
+      // Robust IP fetching with multiple fallbacks
+      let userIp = '1.1.1.1'
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json', { timeout: 3000 } as any).catch(() => null)
+        if (ipRes) {
+          const ipData = await ipRes.json()
+          userIp = ipData.ip || '1.1.1.1'
+        }
+      } catch (e) {
+        console.warn('IP fetch failed, using fallback')
+      }
 
       const response = await walletController.requestWithdrawal(token, selectedBankId, amount, userIp)
       if (response.error === '0') {
@@ -266,10 +274,18 @@ export default function WithdrawalPage() {
                       <Trash2 size={16} />
                     </button>
                   </div>
-                  <div>
-                    <p className={`text-[13px] font-black uppercase tracking-tight text-white`}>{bank.Bank || 'Bank'}</p>
-                    <p className="text-[11px] text-white font-medium truncate mt-0.5">{bank.ACno?.replace(/.(?=.{4})/g, '*') || '****'}</p>
-                    <p className="text-[10px] text-white font-bold uppercase tracking-widest mt-2 opacity-50">{bank.ACholdername || 'N/A'}</p>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <p className={`text-[13px] font-black uppercase tracking-tight text-white`}>{bank.Bank || 'Bank'}</p>
+                      <span className="text-[9px] font-black text-[#e15b24] bg-[#e15b24]/10 px-2 py-0.5 rounded italic">{bank.ACname || 'Primary'}</span>
+                    </div>
+                    <p className="text-[11px] text-white font-medium tracking-wider mt-0.5">
+                      {bank.ACno || '****'}
+                    </p>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                      <p className="text-[10px] text-white font-bold tracking-tight opacity-70 truncate max-w-[120px]">{bank.ACholdername || 'N/A'}</p>
+                      <p className="text-[9px] text-[#e15b24] font-black">{bank.Isfc || bank.IFSC || ''}</p>
+                    </div>
                   </div>
                 </div>
               )

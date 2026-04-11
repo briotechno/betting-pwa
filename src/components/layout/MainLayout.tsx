@@ -34,6 +34,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         {/* Sidebar - Now correctly contained in flow */}
         {(pathname === '/' ||
           pathname?.startsWith('/sportsbook') ||
+          pathname?.startsWith('/favorites') ||
           (pathname?.startsWith('/premium-sportsbook') && !pathname?.includes('rules'))) && (
             <Suspense fallback={null}>
               <Sidebar />

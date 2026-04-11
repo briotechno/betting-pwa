@@ -142,11 +142,23 @@ const MarketTable = ({
           v3: (arr[2]?.size || '')?.toString(),
         };
       }
+
+      // Logic for flat fields (no1, no2, BackPrice1, etc.)
+      if (marketType === 'BOOKMAKER') {
+        // Bookmaker: no1 is typically BACK, no2 is Typically LAY
+        return {
+          p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+          v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
+          p2: '', v2: '', p3: '', v3: ''
+        };
+      }
+
+      // Default/Fancy Logic: no2 is BACK/YES, no1 is LAY/NO
       return {
         p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
         v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
         p2: '', v2: '', p3: '', v3: ''
-      }
+      };
     };
     return { back: getPrices(r, 'back'), lay: getPrices(r, 'lay'), isRunnerSuspended: isRunnerSuspended }
   }

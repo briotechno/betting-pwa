@@ -429,12 +429,12 @@ export default function DepositPage() {
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-hidden shadow-2xl relative">
               {/* Table Header */}
               <div className="grid grid-cols-5 md:grid-cols-6 text-[9px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white">
-                <span>TRANS NO/UTR</span>
-                <span className="text-center">AMOUNT</span>
-                <span className="text-center">METHOD</span>
-                <span className="text-center">STATUS</span>
-                <span className="text-center">DATE</span>
-                <span className="text-right hidden md:block">REMARKS</span>
+                <span className="text-white">TRANS NO/UTR</span>
+                <span className="text-center text-white">AMOUNT</span>
+                <span className="text-center text-white">METHOD</span>
+                <span className="text-center text-white">STATUS</span>
+                <span className="text-center text-white">DATE</span>
+                <span className="text-right hidden md:block text-white">REMARKS</span>
               </div>
               
               {/* Table Body */}
