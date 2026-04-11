@@ -83,31 +83,63 @@ const MarketTable = ({
   const { selections, clearAll } = useBetSlipStore()
   const addSelection = useBetSlipStore(state => state.addSelection)
 
-  const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string) => {
-    const mId = (specificMarketId || marketId)?.toString()
-    const rateData = liveRates[mId]
+  const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string, fullMarket?: any) => {
+    const primaryId = (specificMarketId || marketId)?.toString()
+    const altIds = [primaryId, fullMarket?.eid?.toString(), fullMarket?.ekey?.toString()].filter(Boolean)
+    
+    // Find the first available rate data among possible IDs
+    let rateData = null
+    for (const id of altIds) {
+      if (liveRates[id as string]) {
+        rateData = liveRates[id as string]
+        break
+      }
+    }
+    
     let isRunnerSuspended = false
 
     if (rateData) {
       const hasRunners = rateData.runners || rateData.runner || rateData.rates
+      const isFancyOrLine = marketType === 'FANCY' || marketType === 'LINE'
 
-      // For Fancy markets, if prices are null/undefined or missing, it is often suspended
-      if (marketType === 'FANCY' && !hasRunners) {
+      // For Fancy/Line markets, if prices are missing, check if they are in flat fields
+      if (isFancyOrLine && !hasRunners) {
         if (!rateData.no1 && !rateData.no2 && !rateData.rate && rateData.rate !== 0) {
           isRunnerSuspended = true
         }
       }
 
-      if (!hasRunners || marketType === 'FANCY') {
-        const bp = rateData.no2 ?? rateData.no1 ?? rateData.backPrice1 ?? rateData.BackPrice1 ?? ''
-        const lp = rateData.no1 ?? rateData.no2 ?? rateData.layPrice1 ?? rateData.LayPrice1 ?? ''
-        const bs = rateData.valy ?? rateData.valn ?? ''
-        const ls = rateData.valn ?? rateData.valy ?? ''
+      if (!hasRunners || isFancyOrLine) {
+        // Check both nested runner and flat fields
+        const r = (Array.isArray(hasRunners) && hasRunners.length > 0 ? hasRunners[0] : (hasRunners && typeof hasRunners === 'object' ? Object.values(hasRunners)[0] : null)) || rateData;
+        
+        // Extract prices with more flexibility
+        const getVal = (obj: any, keys: string[]) => {
+          for (const k of keys) if (obj[k] !== undefined && obj[k] !== '') return obj[k];
+          return '';
+        }
 
-        return {
-          back: { p1: bp.toString(), v1: bs.toString(), p2: '', v2: '', p3: '', v3: '' },
-          lay: { p1: lp.toString(), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' },
-          isRunnerSuspended: isRunnerSuspended
+        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
+        let bs = getVal(r, ['valy', 'valn', 'size']);
+        let ls = getVal(r, ['valn', 'valy', 'size']);
+
+        // Check for exchange-style prices if flat ones are missing
+        if (!bp && (r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price)) {
+          bp = r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price;
+          bs = r.ex?.availableToBack?.[0]?.size || r.back?.[0]?.size;
+        }
+        if (!lp && (r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price)) {
+          lp = r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price;
+          ls = r.ex?.availableToLay?.[0]?.size || r.lay?.[0]?.size;
+        }
+
+        if (bp || lp) {
+          return {
+            back: { p1: bp.toString(), v1: bs.toString(), p2: '', v2: '', p3: '', v3: '' },
+            lay: { p1: lp.toString(), v1: ls.toString(), p2: '', v2: '', p3: '', v3: '' },
+            isRunnerSuspended: isRunnerSuspended
+          }
         }
       }
     }
@@ -213,7 +245,7 @@ const MarketTable = ({
               </>
             )}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'No' : 'Back'}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'NO' : 'Back'}</span>
             </div>
           </div>
 
@@ -221,7 +253,7 @@ const MarketTable = ({
           <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 1st cell on desktop/tablet for 3-cell wide markets */}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'Yes' : 'Lay'}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'YES' : 'Lay'}</span>
             </div>
             {(isMatchOdd || isFancyGroup) && (
               <>
@@ -242,7 +274,7 @@ const MarketTable = ({
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
                 const rateData = liveRates[mId]
-                const { back, lay, isRunnerSuspended } = getRunnerRates(runnerId, rIdx, mId)
+                const { back, lay, isRunnerSuspended } = getRunnerRates(runnerId, rIdx, mId, runner)
                 const runnerName = isFancyGroup ? (runner.name || runner.RunnerName) : (runner.name || runner.RunnerName || (marketType === 'FANCY' ? 'FANCY ODDS' : `Runner ${rIdx + 1}`))
 
                 const isMarketSuspended = rateData?.status === 'SUSPENDED' ||
@@ -532,40 +564,65 @@ export default function GameDetailPage() {
 
               if (res && typeof res === 'object' && !res.error) {
                 const mid = m.MarketId, ekey = m.ekey, gid = m.gid;
-                let finalData = null
-                const searchKeys = [gid, "0"];
+                let finalData = null;
 
-                for (const sk of searchKeys) {
-                  if (res[sk]) {
-                    if (ekey && res[sk][ekey]) { finalData = res[sk][ekey]; break; }
-                    if (mid && res[sk][mid]) { finalData = res[sk][mid]; break; }
-                  }
-                }
+                // Enhanced recursive function to find market data by ID
+                const findData = (obj: any, currentDepth = 0): any => {
+                  if (!obj || typeof obj !== 'object' || currentDepth > 5) return null;
+                  
+                  // 1. Direct match by key
+                  if (ekey && obj[ekey]) return obj[ekey];
+                  if (mid && obj[mid]) return obj[mid];
+                  
+                  // 2. Check if the object itself is the market we want
+                  const objId = obj.MarketId || obj.marketId || obj.eid || obj.ekey || obj.marketid || obj.id;
+                  if (mid && objId?.toString() === mid?.toString()) return obj;
+                  if (ekey && objId?.toString() === ekey?.toString()) return obj;
 
-                if (!finalData) {
-                  for (const k of Object.keys(res)) {
-                    if (Array.isArray(res[k])) {
-                      // Check for LINE markets in array elements
-                      for (const item of res[k]) {
-                        let parsedItem = item;
-                        if (typeof item === 'string') try { parsedItem = JSON.parse(item) } catch (e) { }
-                        const itemId = parsedItem?.MarketId || parsedItem?.marketId || parsedItem?.eid;
-                        if (mid && itemId?.toString() === mid?.toString()) { finalData = parsedItem; break; }
-                        if (ekey && parsedItem?.ekey?.toString() === ekey?.toString()) { finalData = parsedItem; break; }
+                  // 3. Search children (handle arrays and objects)
+                  const keys = Object.keys(obj);
+                  for (const k of keys) {
+                    let val = obj[k];
+                    if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
+                      try { val = JSON.parse(val) } catch (e) { }
+                    }
+                    
+                    if (typeof val === 'object' && val !== null) {
+                      // Check this object
+                      const subId = val.MarketId || val.marketId || val.eid || val.ekey || val.marketid || val.id;
+                      if (mid && subId?.toString() === mid?.toString()) return val;
+                      if (ekey && subId?.toString() === ekey?.toString()) return val;
+                      
+                      // If it's an array, search its elements
+                      if (Array.isArray(val)) {
+                        for (const item of val) {
+                          let pItem = item;
+                          if (typeof item === 'string') try { pItem = JSON.parse(item) } catch (e) { }
+                          const itemId = pItem?.MarketId || pItem?.marketId || pItem?.eid || pItem?.ekey || pItem?.id;
+                          if (mid && itemId?.toString() === mid?.toString()) return pItem;
+                          if (ekey && itemId?.toString() === ekey?.toString()) return pItem;
+                          
+                          // Recurse into array item if it's an object
+                          if (typeof pItem === 'object' && pItem !== null) {
+                            const found = findData(pItem, currentDepth + 1);
+                            if (found) return found;
+                          }
+                        }
+                      } else {
+                        // Recurse
+                        const found = findData(val, currentDepth + 1);
+                        if (found) return found;
                       }
-                      if (finalData) break;
-                    } else if (typeof res[k] === 'object' && res[k]) {
-                      if (ekey && res[k][ekey]) { finalData = res[k][ekey]; break; }
-                      if (mid && res[k][mid]) { finalData = res[k][mid]; break; }
                     }
                   }
-                }
+                  return null;
+                };
 
-                if (!finalData && (res.no1 || res.no2 || res.rates || res.runners)) finalData = res;
+                finalData = findData(res);
 
                 if (finalData) {
                   if (typeof finalData === 'string') try { finalData = JSON.parse(finalData) } catch (e) { }
-                  oddsMap[mid] = finalData
+                  oddsMap[mid] = finalData;
                 }
               }
             } catch (e) { }
@@ -574,8 +631,6 @@ export default function GameDetailPage() {
         if (isMounted) setLiveOdds(prev => ({ ...prev, ...oddsMap }))
       }
 
-      // Keep polling odds every 1.5s as Pusher event only covers structural refresh (reference)
-      // If the developer later provides a Pusher event for Odds, we can remove this polling too.
       if (isMounted) timeoutId = setTimeout(pollOdds, 1500)
     }
 
