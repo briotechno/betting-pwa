@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { casinoController } from '@/controllers/casino/casinoController'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -29,8 +30,15 @@ export default function LiveCasinoPage() {
     title: '',
     isOpen: false
   })
-  const { user } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
+  const router = useRouter()
   const { show: showSnackbar } = useSnackbarStore()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+    }
+  }, [isAuthenticated, router])
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   useEffect(() => {

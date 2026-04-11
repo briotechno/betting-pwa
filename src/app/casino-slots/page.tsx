@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { casinoController } from '@/controllers/casino/casinoController'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -19,8 +20,16 @@ interface Game {
 }
 
 export default function SlotGamesPage() {
+  const router = useRouter()
+  const { user, isAuthenticated } = useAuthStore()
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+    }
+  }, [isAuthenticated, router])
   const [activeTab, setActiveTab] = useState('lobby')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
@@ -30,7 +39,6 @@ export default function SlotGamesPage() {
     title: '',
     isOpen: false
   })
-  const { user } = useAuthStore()
   const { show: showSnackbar } = useSnackbarStore()
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 

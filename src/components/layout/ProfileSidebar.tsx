@@ -5,6 +5,7 @@ import { X } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useI18nStore } from '@/store/i18nStore'
+import { bettingController } from '@/controllers/betting/bettingController'
 
 const menuItems = [
   { id: 'pnl', label: 'Betting P&L', icon: '/nav/bet_pnl.png', href: '/profit-loss' },
@@ -22,16 +23,40 @@ const menuItems = [
 ]
 
 export default function ProfileSidebar() {
-  const { user, logout } = useAuthStore()
+  const { user, logout, isAuthenticated } = useAuthStore()
   const { profileSidebarOpen, setProfileSidebarOpen, setFeedbackModalOpen } = useLayoutStore()
   const { t } = useI18nStore()
   const [mounted, setMounted] = useState(false)
+  const [openBetsCount, setOpenBetsCount] = useState(0)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (isAuthenticated && user?.loginToken && profileSidebarOpen) {
+      fetchOpenBetsCount()
+    }
+  }, [isAuthenticated, user?.loginToken, profileSidebarOpen])
+
+  const fetchOpenBetsCount = async () => {
+    try {
+      const res = await bettingController.getMyBets(user?.loginToken || '')
+      if (res && typeof res === 'object' && !res.error) {
+        const betArray = Object.values(res).filter(item => typeof item === 'object' && item !== null)
+        setOpenBetsCount(betArray.length)
+      }
+    } catch (err) {
+      console.error('Failed to fetch open bets count:', err)
+    }
+  }
+
   if (!mounted || !user) return null
+
+  // Update menuItems with dynamic count
+  const itemsWithCount = menuItems.map(item => 
+    item.id === 'bets' ? { ...item, count: openBetsCount } : item
+  )
 
   return (
     <>
@@ -115,7 +140,7 @@ export default function ProfileSidebar() {
 
           {/* Navigation Items */}
           <div className="space-y-0 text-white">
-            {menuItems.map((item) => {
+            {itemsWithCount.map((item) => {
               if (item.id === 'feedback') {
                 return (
                   <button
@@ -161,7 +186,7 @@ export default function ProfileSidebar() {
                         <span className="text-[16px] font-bold text-white tracking-tight">
                            {t(`common.${item.id}`) || item.label}
                         </span>
-                        {item.count !== undefined && (
+                        {item.count !== undefined && item.count > 0 && (
                           <span className="bg-[#e15b24] text-white text-[10px] min-w-[20px] h-5 rounded-full flex items-center justify-center font-black px-1.5 ml-auto">
                             {item.count}
                           </span>
@@ -204,3 +229,4 @@ export default function ProfileSidebar() {
     </>
   )
 }
+

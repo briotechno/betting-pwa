@@ -41,8 +41,12 @@ export default function PremiumSportsbookPage() {
   }
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+      return
+    }
     fetchSportsbookUrl()
-  }, [user])
+  }, [isAuthenticated, user])
 
   if (loading) {
     return (

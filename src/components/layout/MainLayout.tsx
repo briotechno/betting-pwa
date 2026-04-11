@@ -32,7 +32,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
       <div className={`flex w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
         {/* Sidebar - Now correctly contained in flow */}
-        {(pathname === '/' || pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook')) && (
+        {(pathname === '/' || 
+          pathname?.startsWith('/sportsbook') || 
+          (pathname?.startsWith('/premium-sportsbook') && !pathname?.includes('rules'))) && (
           <Suspense fallback={null}>
             <Sidebar />
           </Suspense>
