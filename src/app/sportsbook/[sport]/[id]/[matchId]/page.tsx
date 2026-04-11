@@ -163,8 +163,9 @@ const MarketTable = ({
     return { back: getPrices(r, 'back'), lay: getPrices(r, 'lay'), isRunnerSuspended: isRunnerSuspended }
   }
 
-  const isFancyGroup = marketName.toUpperCase() === 'FANCY'
-  const isMatchOdd = marketType !== 'FANCY' && (
+  const isFancyOrLine = marketType === 'FANCY' || marketType === 'LINE' || marketName.toUpperCase() === 'FANCY' || marketName.toUpperCase() === 'LINE MARKET'
+  const isFancyGroup = marketName.toUpperCase() === 'FANCY' || marketName.toUpperCase() === 'LINE MARKET'
+  const isMatchOdd = !isFancyOrLine && (
     marketType === 'ODDS' ||
     marketType === 'BOOKMAKER' ||
     marketType === 'EXTRA' ||
@@ -542,14 +543,20 @@ export default function GameDetailPage() {
                 }
 
                 if (!finalData) {
-                  if (ekey && res[ekey]) finalData = res[ekey];
-                  else if (mid && res[mid]) finalData = res[mid];
-                  else {
-                    for (const k of Object.keys(res)) {
-                      if (typeof res[k] === 'object' && res[k]) {
-                        if (ekey && res[k][ekey]) { finalData = res[k][ekey]; break; }
-                        if (mid && res[k][mid]) { finalData = res[k][mid]; break; }
+                  for (const k of Object.keys(res)) {
+                    if (Array.isArray(res[k])) {
+                      // Check for LINE markets in array elements
+                      for (const item of res[k]) {
+                        let parsedItem = item;
+                        if (typeof item === 'string') try { parsedItem = JSON.parse(item) } catch (e) { }
+                        const itemId = parsedItem?.MarketId || parsedItem?.marketId || parsedItem?.eid;
+                        if (mid && itemId?.toString() === mid?.toString()) { finalData = parsedItem; break; }
+                        if (ekey && parsedItem?.ekey?.toString() === ekey?.toString()) { finalData = parsedItem; break; }
                       }
+                      if (finalData) break;
+                    } else if (typeof res[k] === 'object' && res[k]) {
+                      if (ekey && res[k][ekey]) { finalData = res[k][ekey]; break; }
+                      if (mid && res[k][mid]) { finalData = res[k][mid]; break; }
                     }
                   }
                 }
@@ -647,6 +654,11 @@ export default function GameDetailPage() {
                 {/* 3. FANCY Group */}
                 {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
                   <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} />
+                )}
+
+                {/* 4. LINE Group */}
+                {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
+                  <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={matchId} />
                 )}
 
                 {/* 4. EXTRA Markets (e.g. Tied Match) */}
