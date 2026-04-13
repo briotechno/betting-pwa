@@ -1,0 +1,176 @@
+'use client'
+import React, { useState, useEffect, useRef } from 'react'
+import { Star } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+
+interface Runner {
+  RunnerName: string
+  SelectionId: string
+  SortPriority: string
+  Chart?: string
+  back?: { price?: number; rate?: number; size?: string }[]
+  lay?: { price?: number; rate?: number; size?: string }[]
+  [key: string]: any
+}
+
+interface MultiMarketTableProps {
+  sportName: string
+  competitionName: string
+  marketName: string
+  runners: Runner[]
+  rateData: any // Raw live data from rate API
+  isFavourite?: boolean
+  onToggleFavourite?: () => void
+  onRowClick?: (runner: Runner) => void
+}
+
+const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isSuspended = false, className = "" }: any) => {
+  const bgColor = type === 'back'
+    ? (intensity === 'high' ? 'bg-[#a5d9fe]' : intensity === 'medium' ? 'bg-[#bce4ff]' : 'bg-[#d1eeff]')
+    : (intensity === 'high' ? 'bg-[#f8d0ce]' : intensity === 'medium' ? 'bg-[#fbe3e2]' : 'bg-[#fff0f0]')
+
+  const isEmpty = !val || val === '0' || val === '0.00' || val === '-' || parseFloat(val) === 0
+  const isDisabled = isEmpty || isSuspended
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={isDisabled}
+      className={`w-[54px] lg:w-[62px] h-[38px] rounded-[4px] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent ${bgColor} ${isEmpty ? 'opacity-40 cursor-not-allowed' : ''} ${!isDisabled ? 'hover:brightness-95 active:scale-95' : 'cursor-not-allowed'} ${className}`}
+    >
+      <span className="text-[12px] lg:text-[13px] font-black text-[#2e2e2e] leading-none mb-0.5 tracking-tight">{val || '-'}</span>
+      <span className="text-[8.5px] lg:text-[9px] text-[#555] font-bold leading-none truncate max-w-full px-0.5">{vol || '0'}</span>
+    </button>
+  )
+}
+
+export default function MultiMarketTable({ 
+  sportName, 
+  competitionName, 
+  marketName, 
+  runners, 
+  rateData,
+  isFavourite,
+  onToggleFavourite,
+  onRowClick
+}: MultiMarketTableProps) {
+
+  // PORTED getRunnerRates logic from Match Detail Page
+  const getRunnerRatesForFavorites = (runnerId: any, rIdx: number, runner: any) => {
+    if (!rateData) return { back: { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' }, lay: { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' }, isRunnerSuspended: false }
+
+    let isRunnerSuspended = false
+    const runnersData = rateData.runner || rateData.runners || rateData.rates || []
+    const runnerArr = Array.isArray(runnersData) ? runnersData : Object.values(runnersData)
+
+    let r = runnerArr.find((item: any) =>
+      (item.selectionId?.toString() === runnerId?.toString()) ||
+      (item.SelectionId?.toString() === runnerId?.toString()) ||
+      (item.id?.toString() === runnerId?.toString())
+    )
+    if (!r) r = runnerArr[rIdx]
+
+    if (r && (r.selectionStatus === 'SUSPENDED' || r.status === 'SUSPENDED' || r.selectionStatus === '1' || r.status === '1')) {
+      isRunnerSuspended = true
+    }
+
+    const parsePrices = (r: any, type: 'back' | 'lay') => {
+      if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
+      const exData = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
+
+      if (exData) {
+        const arr = Array.isArray(exData) ? exData : Object.values(exData);
+        return {
+          p1: (arr[0]?.rate || arr[0]?.price || '')?.toString(),
+          v1: (arr[0]?.size || '')?.toString(),
+          p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
+          v2: (arr[1]?.size || '')?.toString(),
+          p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
+          v3: (arr[2]?.size || '')?.toString(),
+        };
+      }
+
+      const p = (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || ''
+      const v = (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || ''
+      return { p1: p, v1: v, p2: '', v2: '', p3: '', v3: '' }
+    }
+
+    return { back: parsePrices(r, 'back'), lay: parsePrices(r, 'lay'), isRunnerSuspended }
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-[#e0e0e0] mb-6 relative overflow-hidden">
+      {/* Compact Minimal Header (Matches User Image) */}
+      <div className="h-10 flex items-center bg-[#e0e0e0] border-b border-gray-300">
+        <div className="flex items-center px-4 gap-3">
+          <span className="text-gray-600 text-[18px] font-medium leading-none mb-1">−</span>
+          <span className="text-[#333] text-[13px] font-bold uppercase tracking-tight">
+            {competitionName}
+          </span>
+          <div className="w-[1px] h-6 bg-gray-400 mx-1" />
+          <Star 
+            size={18} 
+            className={`transition-colors ${isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400 fill-none'}`} 
+            strokeWidth={2.5} 
+            onClick={onToggleFavourite}
+          />
+        </div>
+      </div>
+
+      {/* Runners List - No Column Headers */}
+      <div className="overflow-x-auto lg:overflow-visible text-gray-800">
+        <table className="w-full border-collapse">
+          <tbody className="divide-y divide-gray-100">
+            {runners
+              .sort((a, b) => parseInt(a.SortPriority || '0') - parseInt(b.SortPriority || '0'))
+              .map((runner, idx) => {
+                const { back, lay, isRunnerSuspended } = getRunnerRatesForFavorites(runner.SelectionId || runner.selectionId, idx, runner)
+                
+                const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.active === 'No' || rateData?.ball_run === 'Y'
+                const isSuspended = isMarketSuspended || !!rateData?.Msg || isRunnerSuspended
+
+                return (
+                  <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
+                    <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
+                      <span className="text-[13px] font-bold tracking-tight uppercase cursor-pointer">
+                        {runner.RunnerName || 'Runner'}
+                      </span>
+                    </td>
+                    <td className="p-1 px-2 relative min-w-[200px]">
+                      <div className="flex justify-end gap-1 lg:gap-2 pr-2">
+                        <div className="relative">
+                          <div className="flex gap-1 lg:gap-2">
+                            <div className="flex items-center justify-end gap-1 md:gap-2 w-fit md:w-[196px]">
+                              <OddsBox className="hidden md:flex" val={back.p3} vol={back.v3} type="back" intensity="low" isSuspended={isSuspended} />
+                              <OddsBox className="hidden md:flex" val={back.p2} vol={back.v2} type="back" intensity="medium" isSuspended={isSuspended} />
+                              <OddsBox val={back.p1 || runner.Chart} vol={back.v1} type="back" intensity="high" isSuspended={isSuspended} />
+                            </div>
+                            <div className="flex items-center justify-start gap-1 md:gap-2 w-fit md:w-[196px]">
+                              <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" isSuspended={isSuspended} />
+                              <OddsBox className="hidden md:flex" val={lay.p2} vol={lay.v2} type="lay" intensity="medium" isSuspended={isSuspended} />
+                              <OddsBox className="hidden md:flex" val={lay.p3} vol={lay.v3} type="lay" intensity="low" isSuspended={isSuspended} />
+                            </div>
+                          </div>
+
+                          {isSuspended && (
+                            <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                              <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
+                              <div className="relative z-10 bg-[#e0e0e0] px-4 py-[6px] flex items-center justify-center drop-shadow-sm">
+                                <span className="text-[#0d47a1] text-[13px] font-bold uppercase tracking-wide leading-none">
+                                  {rateData?.ball_run === 'Y' ? 'BALL RUNNING' : (rateData?.Msg || 'SUSPENDED')}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

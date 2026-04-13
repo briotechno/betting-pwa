@@ -4,13 +4,14 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, Star, Loader2, Info } from 'lucide-react'
 import { marketController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
-import MatchCard from '@/components/sportsbook/MatchCard'
+import MultiMarketTable from '@/components/sportsbook/MultiMarketTable'
 import BetContainer from '@/components/sportsbook/BetContainer'
 
 export default function FavoritesPage() {
   const router = useRouter()
   const { user, isAuthenticated } = useAuthStore()
   const [favorites, setFavorites] = useState<any[]>([])
+  const [liveRates, setLiveRates] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,8 +23,22 @@ export default function FavoritesPage() {
 
       try {
         const response = await marketController.getMultiMarketList(user.loginToken)
-        if (response.error === '0') {
-          setFavorites(response.data || response.list || [])
+        if (response) {
+          let dataArray: any[] = []
+          const rawData = response.data || response.list || response.BankList || response
+          
+          if (Array.isArray(rawData)) {
+            dataArray = rawData
+          } else if (typeof rawData === 'object' && rawData !== null) {
+            if (rawData.eid || rawData.Eid || rawData.MarketId) {
+              dataArray = [rawData]
+            } else {
+              dataArray = Object.values(rawData).filter(v => 
+                v && typeof v === 'object' && ((v as any).eid || (v as any).Eid || (v as any).gid || (v as any).Gid || (v as any).MarketId)
+              )
+            }
+          }
+          setFavorites(dataArray)
         }
       } catch (error) {
         console.error('Failed to fetch favorites:', error)
@@ -34,6 +49,65 @@ export default function FavoritesPage() {
 
     fetchFavorites()
   }, [isAuthenticated, user?.loginToken])
+
+  // Polling for live rates
+  useEffect(() => {
+    // Generate a comma-separated string of MarketId/eid for the MarketId parameter
+    const marketIds = favorites
+      .map(f => f.MarketId || f.marketid || f.eid || f.Eid || '')
+      .filter(id => id !== '')
+      .join(',')
+      
+    const ids = favorites
+      .map(f => {
+        // Collect identifying keys, handling both empty strings and undefined
+        const gkey = f.gkey || f.gid || f.Gid || ''
+        const ekey = f.ekey || f.eid || f.Eid || f.MarketId || ''
+        return { gkey, ekey }
+      })
+      .filter(id => id.ekey) // At minimum we need an ekey to poll
+
+    if (ids.length === 0 || !marketIds) return
+
+    let isMounted = true
+    let timeoutId: any
+
+    const pollRates = async () => {
+      try {
+        const res = await marketController.getMultiMarketRate(marketIds, ids)
+        if (res && typeof res === 'object' && isMounted) {
+          // If the response is success (no error field or error is '0')
+          if (res.error === undefined || res.error === '0') {
+             setLiveRates(prev => ({ ...prev, ...res }))
+          }
+        }
+      } catch (err) {
+        console.error('Failed to poll multi-market rates:', err)
+      }
+
+      if (isMounted) {
+        timeoutId = setTimeout(pollRates, 1000)
+      }
+    }
+
+    pollRates()
+    return () => {
+      isMounted = false
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [favorites])
+
+  const handleToggleFav = async (eid: string) => {
+    if (!user?.loginToken) return
+    try {
+      const res = await marketController.toggleFavourite(user.loginToken, eid)
+      if (res.error === '0') {
+        setFavorites(prev => prev.filter(f => (f.eid || f.Eid) !== eid))
+      }
+    } catch (err) {
+      console.error('Failed to untoggle fav:', err)
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-[#121212] lg:gap-4 lg:bg-transparent">
@@ -78,19 +152,64 @@ export default function FavoritesPage() {
                </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {favorites.map((game: any) => (
-                <MatchCard 
-                  key={game.id || game.Eid}
-                  id={game.id || game.Eid}
-                  competition={game.competition || game.Cname}
-                  teamA={game.teamA || game.T1}
-                  teamB={game.teamB || game.T2}
-                  startTime={game.startTime || game.Stime}
-                  sport={game.sport?.toLowerCase() || 'cricket'}
-                  isFavourite={true}
-                />
-              ))}
+            <div className="grid grid-cols-1 gap-2">
+              {favorites.map((market: any) => {
+                const mIds = [
+                  market.MarketId, market.marketid, 
+                  market.eid, market.Eid, market.ekey,
+                  market.gid, market.Gid, market.gkey
+                ].filter(id => !!id)
+
+                // Find rate data by any of its identifiers
+                let marketRate = null
+                for (const id of mIds) {
+                  if (liveRates[id]) {
+                    marketRate = liveRates[id]
+                    break
+                  }
+                }
+                
+                // Final fallback: search all rate values for this market's ID
+                if (!marketRate) {
+                  marketRate = Object.values(liveRates).find((r: any) => 
+                    r && (mIds.includes(r.MarketId) || mIds.includes(r.marketid) || mIds.includes(r.eid) || mIds.includes(r.Eid))
+                  )
+                }
+                
+                // Merge live rates with static market data to preserve internal fields like RunnerName
+                const staticRunners = Array.isArray(market.runners) ? market.runners : Object.values(market.runners || {})
+                const liveRunnersMap = (marketRate as any)?.runners || (marketRate as any)?.runner || {}
+                const liveRunners = Array.isArray(liveRunnersMap) ? liveRunnersMap : Object.values(liveRunnersMap)
+
+                const runnersArray = staticRunners.map((sr: any, idx: number) => {
+                  // Find live data by selectionId or fallback to index
+                  const liveData = liveRunners.find((lr: any) => lr.SelectionId === sr.SelectionId) || liveRunners[idx] || {}
+                  return { ...sr, ...liveData }
+                })
+
+                const matchName = market.name || 
+                                  (market.Team1 && market.Team2 ? `${market.Team1} vs ${market.Team2}` : 
+                                  market.Event_Name || market.Game_Name || 'Main Market')
+
+                return (
+                  <MultiMarketTable 
+                    key={market.eid || market.Eid || market.MarketId}
+                    sportName={market.Event_Type || market.sport || 'Cricket'}
+                    competitionName={matchName}
+                    marketName={market.name || 'Winner'}
+                    rateData={marketRate || {}}
+                    runners={runnersArray as any}
+                    isFavourite={true}
+                    onToggleFavourite={() => handleToggleFav(market.eid || market.Eid || market.MarketId)}
+                    onRowClick={(runner) => {
+                       const sport = (market.Event_Type || market.sport || 'cricket').toLowerCase()
+                       const cid = market.Cid || 'league'
+                       const gid = market.gid || market.Gid
+                       if (gid) router.push(`/sportsbook/${sport}/${cid}/${gid}`)
+                    }}
+                  />
+                )
+              })}
             </div>
           )}
         </div>
@@ -98,7 +217,7 @@ export default function FavoritesPage() {
 
       {/* Bet Container - attached but separate column */}
       {(isAuthenticated || user) && (
-        <div className="hidden lg:block lg:w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
+        <div className="hidden lg:block lg:w-[480px] sticky top-[134px] max-h-[calc(100vh-150px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
           <BetContainer />
         </div>
       )}
