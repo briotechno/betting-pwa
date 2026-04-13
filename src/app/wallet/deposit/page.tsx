@@ -554,8 +554,9 @@ export default function DepositPage() {
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-x-auto overflow-y-hidden shadow-2xl relative custom-scrollbar">
               <div className="flex flex-col min-w-[700px] xl:min-w-full h-full">
                 {/* Table Header */}
-                <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
+                <div className="grid grid-cols-[1.5fr_1.2fr_1fr_1fr_1.5fr_2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
                   <span className="text-white">TRANSACTION NO</span>
+                  <span className="text-center text-white">METHOD</span>
                   <span className="text-center text-white">AMOUNT</span>
                   <span className="text-center text-white">STATUS</span>
                   <span className="text-center text-white">DATE</span>
@@ -579,10 +580,12 @@ export default function DepositPage() {
                       const utr = item.Utr || item.utr || item.RequestId || item.id || '—';
                       const remark = item.Remarks || item.remarks || item.Remark || item.remark || item.Reason || item.reason || '—';
                       const status = (item.Status || item.status || 'Pending').toLowerCase();
+                      const method = item.Method || item.method || '—';
                       
                       return (
-                        <div key={i} className={`grid grid-cols-[1.5fr_1fr_1fr_1.5fr_2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
+                        <div key={i} className={`grid grid-cols-[1.5fr_1.2fr_1fr_1fr_1.5fr_2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
                           <span className="text-[10px] text-white uppercase break-all pr-2">#{utr}</span>
+                          <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
                           <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
                           <div className="text-center">
                             <span className={`text-[10px] font-black uppercase ${
@@ -617,13 +620,17 @@ export default function DepositPage() {
 function AccountDetailRow({ label, value, onCopy }: { label: string; value: string; onCopy?: (v: string) => void }) {
   if (!value) return null
   return (
-    <div className="flex items-center justify-between p-3 border-b border-white/5 last:border-0">
-      <div className="flex items-center gap-2 overflow-hidden">
-        <span className="text-[10px] font-bold text-white uppercase whitespace-nowrap">{label} :</span>
-        <span className="text-[11px] font-black text-white truncate">{value}</span>
+    <div className="flex items-start justify-between p-3 border-b border-white/5 last:border-0 gap-4">
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{label}</span>
+        <span className="text-[12px] font-black text-white break-all leading-tight">
+          {value}
+        </span>
       </div>
       {onCopy && (
-        <button onClick={() => onCopy(value)} className="p-2 text-white/20 hover:text-[#e8612c] flex-shrink-0"><Copy size={16} /></button>
+        <button onClick={() => onCopy(value)} className="p-2 -mr-2 text-white/20 hover:text-[#e8612c] transition-colors flex-shrink-0">
+          <Copy size={16} />
+        </button>
       )}
     </div>
   )
