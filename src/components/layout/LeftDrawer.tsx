@@ -53,7 +53,7 @@ export default function LeftDrawer() {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${leftDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 z-[100] bg-transparent transition-opacity duration-300 ${leftDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         onClick={() => setLeftDrawerOpen(false)}
       />
