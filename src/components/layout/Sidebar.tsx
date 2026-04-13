@@ -266,9 +266,9 @@ export default function Sidebar() {
         transition: 'all ease 300ms'
       }}
     >
-      <nav className="flex-1 overflow-y-auto no-scrollbar">
+      <nav className="overflow-y-auto no-scrollbar">
         {isSportPath && !collapsed ? (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col">
             {/* Nav Parts */}
             <div className="flex flex-col">
               {/* Sports Button */}
@@ -308,7 +308,7 @@ export default function Sidebar() {
 
             {/* Content List */}
             {isEventPath ? (
-              <div className="flex flex-col pt-2 mb-auto">
+              <div className="flex flex-col pt-2">
                 {loadingGames ? (
                   <div className="p-4 flex justify-center">
                     <Loader2 className="animate-spin text-[#e8612c]" size={24} />
@@ -423,13 +423,6 @@ export default function Sidebar() {
           </Link>
         )}
       </nav>
-
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="p-3 text-[#555] hover:text-white flex justify-center transition-colors border-t border-[#333]"
-      >
-        <ChevronLeft size={20} className={collapsed ? 'rotate-180' : ''} />
-      </button>
     </aside>
   )
 }

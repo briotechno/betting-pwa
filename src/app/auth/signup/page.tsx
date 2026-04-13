@@ -65,13 +65,13 @@ export default function SignupPage() {
     if (!hasUpperCase) return "At least one uppercase letter (A-Z)";
     if (!hasLowerCase) return "At least one lowercase letter (a-z)";
     if (!hasSpecialChar) return "At least one special character (!@#$%^&*)";
-    
+
     return "";
   }
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const passErr = validatePassword(formData.password);
     if (passErr) {
       setPasswordError(passErr);
@@ -87,7 +87,7 @@ export default function SignupPage() {
       showSnackbar("Please choose a different username", "error")
       return
     }
-    
+
     setLoading(true)
     try {
       const res = await authController.sendOtp(formData.phone)
@@ -127,7 +127,7 @@ export default function SignupPage() {
           tier: 'Beginner' as const,
           loginToken: response.apitoken
         }
-        
+
         setUser(user)
         setToken(response.apitoken)
         router.push('/')
@@ -165,29 +165,29 @@ export default function SignupPage() {
         }}
       >
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
       </div>
 
-      <div className="w-full max-w-[650px] lg:max-w-[700px] relative z-10 flex flex-col items-center">
+      <div className="w-full max-w-[420px] relative z-10 flex flex-col items-center">
         {/* Top Logo */}
-        <div className="mb-4">
+        <div className="mb-2">
           <Link href="/" className="flex flex-col items-center">
             <img
               src="https://www.fairplay247.vip/_nuxt/img/fairplay-website-logo.09a29c5.png"
               alt="Fairplay Logo"
-              className="h-[4.5rem] object-contain drop-shadow-lg"
+              className="h-[3.5rem] sm:h-[4.5rem] object-contain drop-shadow-lg"
             />
           </Link>
-          <p className="text-[9px] text-center text-white/50 font-black uppercase tracking-[0.25em] mt-1 pr-4">Greater Luck <span className="text-white/40">Greater Wins</span></p>
+          <p className="text-[8px] sm:text-[9px] text-center text-white/50 font-black uppercase tracking-[0.25em] mt-1 pr-4">Greater Luck <span className="text-white/40">Greater Wins</span></p>
         </div>
 
         {/* Signup Container */}
-        <div className="w-full bg-black/60 backdrop-blur-sm border-[1.5px] border-[#e8612c] rounded-md p-6 sm:p-8 shadow-2xl overflow-visible relative group min-h-[400px]">
+        <div className="w-full bg-black/80 backdrop-blur-sm border-[1.5px] border-[#e8612c] rounded-md p-5 sm:p-8 shadow-2xl overflow-visible relative group min-h-[350px]">
           {/* Subtle border glow */}
           <div className="absolute inset-0 pointer-events-none rounded-md group-focus-within:bg-white/5 transition-colors" />
 
           {step === 'register' ? (
-            <form onSubmit={handleRegisterSubmit} className="space-y-6 relative z-10 pt-4">
+            <form onSubmit={handleRegisterSubmit} className="space-y-4 relative z-10 pt-2">
               {/* Username Input */}
               <div className="relative border-b border-white/20 pb-1 group/input focus-within:border-white transition-colors">
                 <div className="flex items-center gap-3">
@@ -326,21 +326,79 @@ export default function SignupPage() {
               </div>
 
               {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading || !formData.legalAgeAccepted}
-                className="w-full h-[46px] bg-[#e8612c] text-white rounded-[4px] text-[13px] font-bold uppercase tracking-[0.15em] hover:bg-[#ff7a45] active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed mt-6 shadow-lg shadow-orange-900/20"
+              {(() => {
+                const passwordsMatch = formData.password === formData.confirmPassword;
+                const passwordValid = validatePassword(formData.password) === "";
+                const isFormEmpty = !formData.username && !formData.phone && !formData.password && !formData.confirmPassword;
+                const isFormComplete = formData.username && formData.phone && formData.password && formData.confirmPassword && formData.legalAgeAccepted;
+                
+                // Show Gray (Image 2) if there are specific errors (mismatch or invalid format)
+                // BUT only if the user has started typing (not empty)
+                const hasError = (!isFormEmpty && (!passwordsMatch || !passwordValid));
+                
+                // User's specific rule: Image 1 when no data or all data. Image 2 when error/mismatch.
+                const showImage1 = isFormEmpty || (isFormComplete && passwordValid && passwordsMatch);
+
+                return (
+                  <button
+                    type="submit"
+                    disabled={loading || (!isFormEmpty && !showImage1)}
+                    className={`w-full h-[52px] rounded-full text-[15px] font-bold uppercase tracking-widest transition-all flex items-center justify-center mt-6 shadow-lg ${
+                      showImage1 
+                        ? 'bg-[#4caf50] text-white hover:brightness-110 shadow-green-900/20' 
+                        : 'bg-white/10 text-white/40 border border-white/5 cursor-not-allowed'
+                    }`}
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      "Register"
+                    )}
+                  </button>
+                );
+              })()}
+
+              {/* Social Divider */}
+              <div className="relative py-2 mt-1">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-transparent px-3 text-[11px] font-normal text-white/50 lowercase tracking-tight">or register with</span>
+                </div>
+              </div>
+
+              {/* Google Button */}
+              <button 
+                type="button"
+                className="w-full h-[44px] bg-white rounded-[6px] flex items-center justify-center gap-3 border-[1.5px] border-[#e8612c] hover:bg-gray-50 transition-colors shadow-lg"
               >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  "Register"
-                )}
+                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                <span className="text-[14px] font-bold text-black">Google</span>
               </button>
 
+              {/* WhatsApp Icon */}
+              <div className="flex justify-start pt-1">
+                <a 
+                  href="https://wa.me/yournumber" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="transition-transform hover:scale-110 active:scale-95"
+                >
+                  <img 
+                    src="/whatsapp.png" 
+                    alt="WhatsApp Support" 
+                    className="w-[38px] h-[38px] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/3670/3670051.png"
+                    }}
+                  />
+                </a>
+              </div>
+
               {/* Login Link */}
-              <p className="text-center text-[13px] text-white/50 font-bold mt-6 pb-2">
-                Already a member? <Link href="/auth/login" className="text-[#e8612c] font-black hover:underline tracking-tight ml-1">Login</Link>
+              <p className="text-center text-[12px] text-white/70 font-normal mt-2 pb-1">
+                Already a member? <Link href="/auth/login" className="text-[#e8612c] font-normal hover:underline tracking-tight ml-1">Login</Link>
               </p>
             </form>
           ) : (

@@ -30,7 +30,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Header - Now top level, no left space */}
       <Header />
 
-      <div className={`flex w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') || pathname?.startsWith('/favorites') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
+      <div className={`flex flex-1 items-start w-full ${pathname?.startsWith('/sportsbook') || pathname?.startsWith('/premium-sportsbook') || pathname?.startsWith('/favorites') ? '  lg:px-20 !mx-auto lg:gap-4' : ''}`}>
         {/* Sidebar - Now correctly contained in flow */}
         {(pathname === '/' ||
           pathname?.startsWith('/sportsbook') ||
@@ -64,10 +64,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <div className="pb-0 lg:pb-0">
               {children}
             </div>
-            <Footer />
           </main>
         </div>
       </div>
+
+      {/* Full Width Footer - Now outside the flex wrapper */}
+      {(pathname === '/' ||
+        pathname?.startsWith('/favorites') ||
+        (pathname?.startsWith('/premium-sportsbook') && !pathname?.includes('rules'))) && (
+        <Footer />
+      )}
     </div>
   )
 }
