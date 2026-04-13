@@ -319,13 +319,38 @@ export default function DepositPage() {
                         .no-scrollbar::-webkit-scrollbar { display: none; }
                         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
                       `}</style>
+                      
+                      {/* 1. Always show WhatsApp First */}
+                      <button 
+                        onClick={() => window.open('https://wa.me/91XXXXXXXXXX', '_blank')} 
+                        className="flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 border-transparent hover:bg-white/5 transition-all text-white"
+                      >
+                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                          <img src="/deposite/wp.png" alt="WhatsApp" className="w-full h-full object-contain" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase text-center max-w-[90px] tracking-tighter">WhatsApp</span>
+                      </button>
+
                       {filteredMethods.map((pm) => {
                         const id = String(pm.Bank_Id || pm.id || pm.Id);
                         const isActive = activeMethodId === id;
+                        
+                        const rawType = (pm.Type || pm.type || 'BANK').toUpperCase();
+                        
+                        // Icon Mapping
+                        let iconPath = '/deposite/bank.png';
+                        if (rawType.includes('GOOGLE') || rawType === 'GPAY') iconPath = '/deposite/googlepay.png';
+                        else if (rawType.includes('PAYTM')) iconPath = '/deposite/paytm.png';
+                        else if (rawType.includes('PHONE')) iconPath = '/deposite/phonepe.png';
+                        else if (rawType === 'UPI') iconPath = '/deposite/Upi.png';
+                        else if (rawType === 'CRYPTO' || rawType === 'USDT') iconPath = '/deposite/usdt.png';
+
                         return (
-                          <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 transition-all ${isActive ? 'bg-white/5 border-[#e8612c]' : 'border-transparent opacity-40 grayscale'}`}>
-                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5"><img src={pm.Image || ''} alt="" className="w-full h-full object-contain" /></div>
-                            <span className="text-[8px] font-black uppercase text-center max-w-[80px] truncate">{pm.Name || pm.bankname || 'BANK'}</span>
+                          <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 transition-all ${isActive ? 'bg-white/5 border-[#e8612c] text-white' : 'border-transparent opacity-50 grayscale text-white'}`}>
+                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                              <img src={iconPath} alt="" className="w-full h-full object-contain" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase text-center max-w-[90px] truncate tracking-tighter">{pm.Name || pm.bankname || rawType}</span>
                           </button>
                         );
                       })}
@@ -337,20 +362,51 @@ export default function DepositPage() {
                   {/* Bank Details Card */}
                   <div className="space-y-6">
                     <div className="bg-[#1a1a1a] border border-white/5 rounded-[32px] overflow-hidden p-6 space-y-1 shadow-xl min-h-[300px] flex flex-col justify-center">
-                       {activeMethod ? (
-                         <div className="space-y-1">
-                           <AccountDetailRow label="Name" value={activeMethod.BankACnme} onCopy={handleCopy} />
-                           <AccountDetailRow label={activeMethod.Type === 'BANK' ? "Account No" : "Number"} value={activeMethod.AcNo} onCopy={handleCopy} />
-                           {activeMethod.Type === 'BANK' && <AccountDetailRow label="IFSC Code" value={activeMethod.Isfc} onCopy={handleCopy} />}
-                           <AccountDetailRow label="Min Amount" value={`₹ ${activeMethod.Min || '200'}`} />
-                           <AccountDetailRow label="Max Amount" value={`₹ ${activeMethod.Max || '1cr'}`} />
-                           {activeMethod.Qr && (
-                             <div className="pt-4 flex justify-center">
-                               <div className="bg-white p-3 rounded-2xl w-44 shadow-lg"><img src={activeMethod.Qr.includes('base64') ? activeMethod.Qr : `data:image/jpeg;base64,${activeMethod.Qr}`} className="w-full" alt="QR" /></div>
-                             </div>
-                           )}
-                         </div>
-                       ) : (
+                        {activeMethod ? (
+                          <div className="space-y-1">
+                            {(() => {
+                              const type = (activeMethod.Type || activeMethod.type || 'BANK').toUpperCase();
+                              
+                              if (type === 'CRYPTO' || type === 'USDT') {
+                                return (
+                                  <>
+                                    <AccountDetailRow label="Wallet Name" value={activeMethod.Name || activeMethod.bankname} onCopy={handleCopy} />
+                                    <AccountDetailRow label="Wallet Address" value={activeMethod.AcNo} onCopy={handleCopy} />
+                                  </>
+                                );
+                              }
+                              
+                              if (type === 'UPI' || type.includes('PAYTM') || type.includes('GOOGLE') || type.includes('PHONE') || type === 'GPAY') {
+                                return (
+                                  <>
+                                    <AccountDetailRow label="Name" value={activeMethod.BankACnme} onCopy={handleCopy} />
+                                    <AccountDetailRow label="UPI ID" value={activeMethod.AcNo} onCopy={handleCopy} />
+                                    <AccountDetailRow label="Min Amount" value={`₹ ${activeMethod.Min || '200'}`} />
+                                    <AccountDetailRow label="Max Amount" value={`₹ ${activeMethod.Max || '1cr'}`} />
+                                  </>
+                                );
+                              }
+
+                              // Default: BANK
+                              return (
+                                <>
+                                  <AccountDetailRow label="Bank Name" value={activeMethod.Name || activeMethod.bankname} onCopy={handleCopy} />
+                                  <AccountDetailRow label="A/C No" value={activeMethod.AcNo} onCopy={handleCopy} />
+                                  <AccountDetailRow label="IFSC Code" value={activeMethod.Isfc} onCopy={handleCopy} />
+                                  <AccountDetailRow label="Account Name" value={activeMethod.BankACnme} onCopy={handleCopy} />
+                                  <AccountDetailRow label="Min Amount" value={`₹ ${activeMethod.Min || '200'}`} />
+                                  <AccountDetailRow label="Max Amount" value={`₹ ${activeMethod.Max || '1cr'}`} />
+                                </>
+                              );
+                            })()}
+                            
+                            {activeMethod.Qr && (
+                              <div className="pt-4 flex justify-center">
+                                <div className="bg-white p-3 rounded-2xl w-44 shadow-lg"><img src={activeMethod.Qr.includes('base64') ? activeMethod.Qr : `data:image/jpeg;base64,${activeMethod.Qr}`} className="w-full" alt="QR" /></div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
                          <div className="text-center space-y-3 opacity-20">
                             <Landmark size={48} className="mx-auto" />
                             <p className="uppercase font-black tracking-widest text-[10px]">Select a Payment Method</p>
@@ -420,52 +476,82 @@ export default function DepositPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Privacy Policy Update */}
+                <div className="bg-[#1a1a1a] border border-red-500/20 rounded-[32px] p-8 space-y-4">
+                   {[
+                     "Deposit money only in the below available accounts to get the fastest credits and avoid possible delays.",
+                     "Deposits made 45 minutes after the account removal from the site are valid & will be added to their wallets.",
+                     "Site is not responsible for money deposited to Old, Inactive or Closed accounts.",
+                     "After deposit, add your UTR and amount to receive balance.",
+                     "NEFT receiving time varies from 40 minutes to 2 hours.",
+                     "In case of account modification: payment valid for 1 hour after changing account details in deposit page."
+                   ].map((text, i) => (
+                     <div key={i} className="flex gap-4">
+                        <span className="flex-shrink-0 font-black text-sm text-[#e8612c]">{i + 1}.</span>
+                        <p className="text-[13px] font-bold text-white italic leading-relaxed">{text}</p>
+                     </div>
+                   ))}
+                </div>
               </div>
             )}
           </div>
 
           {/* ── RIGHT AREA: Transaction History (Persistent & Full Height) ── */}
-          <div className="xl:col-span-12 2xl:col-span-5 flex flex-col min-h-[855px] animate-in fade-in slide-in-from-right-10 duration-700">
-            <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-hidden shadow-2xl relative">
-              {/* Table Header */}
-              <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white">
-                <span className="text-white">TRANSACTION</span>
-                <span className="text-center text-white">AMOUNT</span>
-                <span className="text-center text-white">METHOD</span>
-                <span className="text-center text-white">STATUS</span>
-                <span className="text-center text-white">DATE</span>
-              </div>
-              
-              {/* Table Body */}
-              <div className="flex-1 overflow-y-auto no-scrollbar pb-10 font-bold">
-                {historyLoading ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-white/10">
-                    <Loader2 className="animate-spin" size={40} />
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em]">Syncing...</p>
-                  </div>
-                ) : history.length === 0 ? (
-                  <div className="py-40 text-center">
-                     <AlertCircle size={48} className="mx-auto text-white/5 mb-4" />
-                     <p className="text-white/10 uppercase font-black tracking-widest">No data found!</p>
-                  </div>
-                ) : (
-                  history.map((item, i) => (
-                    <div key={i} className={`grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                      <span className="text-[10px] text-white truncate whitespace-nowrap pr-2 leading-relaxed">#{item.Utr || item.utr || item.RequestId || item.id || 'N/A'}</span>
-                      <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
-                      <span className="text-[10px] text-white text-center uppercase">{item.Method || item.method || '—'}</span>
-                      <span className="text-[10px] text-center uppercase text-white">
-                        {item.Status || item.status || 'Pending'}
-                      </span>
-                      <span className="text-[9px] text-white text-center leading-tight">
-                         {item.Date || item.date ? 
-                           (item.Date || item.date).split(' ').join('\n') : 
-                           formatDate(item.created_at)
-                         }
-                      </span>
+          <div className="xl:col-span-12 2xl:col-span-5 flex flex-col min-h-[855px]">
+            <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-none overflow-x-auto overflow-y-hidden shadow-2xl relative custom-scrollbar">
+              <div className="flex flex-col min-w-[700px] xl:min-w-full h-full">
+                {/* Table Header */}
+                <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
+                  <span className="text-white">TRANSACTION NO</span>
+                  <span className="text-center text-white">AMOUNT</span>
+                  <span className="text-center text-white">STATUS</span>
+                  <span className="text-center text-white">DATE</span>
+                  <span className="text-white pl-4">REASON</span>
+                </div>
+                
+                {/* Table Body */}
+                <div className="flex-1 overflow-y-auto no-scrollbar pb-10 font-bold">
+                  {historyLoading ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-white/10">
+                      <Loader2 className="animate-spin" size={40} />
+                      <p className="text-[11px] font-black uppercase tracking-[0.3em]">Syncing...</p>
                     </div>
-                  ))
-                )}
+                  ) : history.length === 0 ? (
+                    <div className="py-40 text-center">
+                       <AlertCircle size={48} className="mx-auto text-white/5 mb-4" />
+                       <p className="text-white/10 uppercase font-black tracking-widest">No data found!</p>
+                    </div>
+                  ) : (
+                    history.map((item, i) => {
+                      const utr = item.Utr || item.utr || item.RequestId || item.id || '—';
+                      const remark = item.Remarks || item.remarks || item.Remark || item.remark || item.Reason || item.reason || '—';
+                      const status = (item.Status || item.status || 'Pending').toLowerCase();
+                      
+                      return (
+                        <div key={i} className={`grid grid-cols-[1.5fr_1fr_1fr_1.5fr_2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
+                          <span className="text-[10px] text-white uppercase break-all pr-2">#{utr}</span>
+                          <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
+                          <div className="text-center">
+                            <span className={`text-[10px] font-black uppercase ${
+                              status === 'success' ? 'text-green-500' : 
+                              status === 'failed' ? 'text-red-500' : 'text-white/60'
+                            }`}>
+                              {item.Status || item.status || 'Pending'}
+                            </span>
+                          </div>
+                          <span className="text-[9px] text-white text-center leading-tight">
+                             {item.Date || item.date ? 
+                               (item.Date || item.date).split(' ').join('\n') : 
+                               formatDate(item.created_at)
+                             }
+                          </span>
+                          <span className="text-[10px] text-white/60 whitespace-normal break-words pl-4 leading-relaxed">{remark}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
           </div>
