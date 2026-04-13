@@ -25,7 +25,7 @@ export default function DepositPage() {
   const [step, setStep] = useState(1) // 1: Amount, 2: Method selection & details
   const [utr, setUtr] = useState('')
   const [txHash, setTxHash] = useState('')
-  const [amount, setAmount] = useState('500')
+  const [amount, setAmount] = useState('')
   const [screenshot, setScreenshot] = useState<string | null>(null)
   const [screenshotName, setScreenshotName] = useState('')
   const [screenshotMime, setScreenshotMime] = useState('')
