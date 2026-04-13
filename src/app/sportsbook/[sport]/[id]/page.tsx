@@ -56,7 +56,8 @@ const MarketTable = ({
   isWinnerType,
   matchId,
   matchName,
-  eventId
+  eventId,
+  isFavourite: initialFavourite = false
 }: {
   marketName: string,
   runners: any[],
@@ -67,11 +68,35 @@ const MarketTable = ({
   isWinnerType?: boolean,
   matchId: string,
   matchName: string,
-  eventId: string
+  eventId: string,
+  isFavourite?: boolean
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [favourite, setFavourite] = useState(initialFavourite)
+  const [favLoading, setFavLoading] = useState(false)
+  const { user } = useAuthStore()
   const router = useRouter()
   const params = useParams()
+  
+  const handleToggleFav = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!user?.loginToken) {
+      router.push('/auth/login')
+      return
+    }
+    
+    try {
+      setFavLoading(true)
+      const res = await marketController.toggleFavourite(user.loginToken, eventId)
+      if (res && res.error === '0') {
+        setFavourite(!favourite)
+      }
+    } catch (err) {
+      console.error('Fav toggle error:', err)
+    } finally {
+      setFavLoading(false)
+    }
+  }
   const { selections, clearAll } = useBetSlipStore()
   const addSelection = useBetSlipStore(state => state.addSelection)
 
@@ -159,7 +184,20 @@ const MarketTable = ({
 
         {/* Right Side Icons */}
         <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
-          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+          <button 
+            onClick={handleToggleFav}
+            disabled={favLoading}
+            className={`transition-all hover:scale-110 active:scale-95 ${favLoading ? 'opacity-50' : ''}`}
+          >
+            {favLoading ? (
+              <Loader2 size={18} className="text-[#ffd700] animate-spin" />
+            ) : (
+              <Star 
+                size={18} 
+                className={`transition-colors ${favourite ? 'text-[#ffd700] fill-[#ffd700]' : 'text-gray-400 fill-none'} stroke-[2px]`} 
+              />
+            )}
+          </button>
           <div className="hidden lg:flex flex-1 justify-end mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
             {startTime}
           </div>
@@ -484,6 +522,10 @@ export default function CompetitionDetailPage() {
         allMarkets.forEach((m: any) => {
           let runners = m.runner || m.runners || [];
           if (!Array.isArray(runners)) runners = Object.values(runners);
+          
+          // Use the specific eid from the market if available, else match gid
+          const eventIdToUse = m.eid || g.Event_Id || gid.toString();
+
           sections.push({
             id: m.MarketId || m.marketid || m.eid,
             marketName: m.name || m.MarketName || m.marketname || g.Game_Type || 'Match Odds',
@@ -494,26 +536,26 @@ export default function CompetitionDetailPage() {
             isWinnerType: g.Game_Type === 'Winner' || m.name === 'Winner',
             matchId: gid,
             matchName: details.Team1 && details.Team2 ? `${details.Team1} V ${details.Team2}` : (g.Game_name || `${g.Team1} V ${g.Team2}`),
-            eventId: m.eid || g.Event_Id || gid.toString()
+            eventId: eventIdToUse,
+            isFavourite: details.IsFavorite === '1' || details.isFavorite === 'Yes' || details.fav === '1'
           });
         });
       }
 
       if (sections.length === 0) {
-        const baseMarketId = g.MarketId || g.marketid;
-        if (baseMarketId) {
-          sections.push({
-            id: baseMarketId,
-            marketName: g.Game_Type || 'Match Odds',
-            runners: [{ name: g.Team1 || 'Team A', selectionId: 0 }, { name: g.Team2 || 'Team B', selectionId: 1 }],
-            marketId: baseMarketId,
-            isUpcoming,
-            startTime: g.DateTime,
-            matchId: gid,
-            matchName: g.Game_name || `${g.Team1} V ${g.Team2}`,
-            eventId: g.Event_Id || gid.toString()
-          });
-        }
+        // Fallback if no details yet
+        sections.push({
+          id: g.MarketId || g.marketid || 'no-id',
+          marketName: g.Game_Type || 'Match Odds',
+          runners: [{ name: g.Team1 || 'Team A', selectionId: 0 }, { name: g.Team2 || 'Team B', selectionId: 1 }],
+          marketId: g.MarketId || g.marketid || 'no-id',
+          isUpcoming,
+          startTime: g.DateTime,
+          matchId: gid,
+          matchName: g.Game_name || `${g.Team1} V ${g.Team2}`,
+          eventId: g.Event_Id || gid.toString(),
+          isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1'
+        });
       }
       return { gid, name: g.Game_name || `${g.Team1} V ${g.Team2}`, sections };
     });

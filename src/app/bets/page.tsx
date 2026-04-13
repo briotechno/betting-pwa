@@ -42,6 +42,22 @@ export default function OpenBetsPage() {
   const matchedBets = bets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
   const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
+  const handleBetClick = (bet: any) => {
+    const type = (bet.Type || '').toLowerCase();
+    let sport = 'cricket';
+    if (type.includes('football') || type.includes('soccer')) sport = 'football';
+    if (type.includes('tennis')) sport = 'tennis';
+
+    // Prioritize GID as requested by the user/developer
+    const gid = bet.gid || bet.Gid || bet.eventId || bet.matchId;
+    
+    if (gid) {
+      router.push(`/sportsbook/${sport}/all/${gid}`);
+    } else {
+      console.warn('Click ignored: No GID found in bet data.', bet);
+    }
+  }
+
   const renderBetTable = (betList: Bet[]) => (
     <div className="space-y-4 p-2 bg-white">
       {betList.map((bet, idx) => {
@@ -152,14 +168,18 @@ export default function OpenBetsPage() {
                 <div className={`${isUnmatchedOpen ? 'block' : 'hidden'}`}>
                    {unmatchedBets.length > 0 ? (
                      <div className="p-0">
-                       {unmatchedBets.map((bet, idx) => (
-                         <div key={idx} className="bg-[#a5d9fe] p-3 border-b border-black/5 last:border-0 text-black">
-                           <p className="text-[12px] font-bold mb-1">{bet.Game}</p>
-                           <p className="text-[11px] font-medium mb-1">{bet.Type || 'Winner'}</p>
-                           <p className="text-[12px]">BACK {bet.Selection} for {bet.Stake} @ {bet.Rate} to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
-                           <p className="text-[10px] text-gray-600 mt-1">Placed: {bet.Date || 'N/A'}</p>
-                         </div>
-                       ))}
+                        {unmatchedBets.map((bet, idx) => (
+                          <div 
+                            key={idx} 
+                            onClick={() => handleBetClick(bet)}
+                            className="bg-[#a5d9fe] p-3 border-b border-black/5 last:border-0 text-black cursor-pointer hover:bg-[#91cefd] transition-colors"
+                          >
+                            <p className="text-[12px] font-bold mb-1">{bet.Game}</p>
+                            <p className="text-[11px] font-medium mb-1">{bet.Type || 'Winner'}</p>
+                            <p className="text-[12px]">BACK {bet.Selection} for {bet.Stake} @ {bet.Rate} to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
+                            <p className="text-[10px] text-gray-600 mt-1">Placed: {bet.Date || 'N/A'}</p>
+                          </div>
+                        ))}
                      </div>
                    ) : (
                      <div className="p-12 flex flex-col items-center justify-center text-[#e15b24] gap-2">
@@ -185,15 +205,19 @@ export default function OpenBetsPage() {
                 <div className={`${isMatchedOpen ? 'block' : 'hidden'}`}>
                    {matchedBets.length > 0 ? (
                      <div className="p-0">
-                       {matchedBets.map((bet, idx) => (
-                         <div key={idx} className="bg-[#a5d9fe] p-4 border-b border-black/5 last:border-0 text-black">
-                           <p className="text-[12px] font-bold text-[#1a1a1a] mb-1">{bet.Game}</p>
-                           <p className="text-[11px] font-medium text-gray-700 mb-1">{bet.Type || 'Winner'}</p>
-                           <p className="text-[12px] leading-tight">BACK <span className="font-bold">{bet.Selection}</span> for <span className="font-bold">{bet.Stake}</span> @ <span className="font-bold">{bet.Rate}</span> to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
-                           <p className="text-[11px] mt-1">Winner</p>
-                           <p className="text-[10px] text-gray-500 mt-1">Placed: {bet.Date || 'N/A'}</p>
-                         </div>
-                       ))}
+                        {matchedBets.map((bet, idx) => (
+                          <div 
+                            key={idx} 
+                            onClick={() => handleBetClick(bet)}
+                            className="bg-[#a5d9fe] p-4 border-b border-black/5 last:border-0 text-black cursor-pointer hover:bg-[#91cefd] transition-colors"
+                          >
+                            <p className="text-[12px] font-bold text-[#1a1a1a] mb-1">{bet.Game}</p>
+                            <p className="text-[11px] font-medium text-gray-700 mb-1">{bet.Type || 'Winner'}</p>
+                            <p className="text-[12px] leading-tight">BACK <span className="font-bold">{bet.Selection}</span> for <span className="font-bold">{bet.Stake}</span> @ <span className="font-bold">{bet.Rate}</span> to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
+                            <p className="text-[11px] mt-1">Winner</p>
+                            <p className="text-[10px] text-gray-500 mt-1">Placed: {bet.Date || 'N/A'}</p>
+                          </div>
+                        ))}
                      </div>
                    ) : (
                      <div className="p-12 flex flex-col items-center justify-center text-[#e15b24] gap-2">
@@ -212,15 +236,16 @@ export default function OpenBetsPage() {
                   return (
                     <div 
                       key={idx} 
-                      className="bg-white flex items-center justify-between px-4 h-14 border-b border-black/5 last:border-0 group select-none cursor-pointer"
-                      onClick={() => setActiveTab('MY BET')}
+                      className="bg-white flex items-center justify-between px-4 h-14 border-b border-black/5 last:border-0 group select-none cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => handleBetClick(gameData!)}
                     >
                       <span className="text-[13px] font-bold text-[#1a1a1a] uppercase truncate pr-4">{gameName}</span>
                       <button 
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (gameData?.eventId || (gameData as any).Eid) {
-                            await marketController.toggleFavourite(user?.loginToken || '', gameData?.eventId || (gameData as any).Eid);
+                          const eidToUse = (gameData as any).eid || (gameData as any).Eid || gameData?.eventId;
+                          if (eidToUse) {
+                            await marketController.toggleFavourite(user?.loginToken || '', eidToUse);
                           }
                         }}
                         className="text-gray-400 hover:text-[#ffb800] hover:scale-110 transition-all p-2"

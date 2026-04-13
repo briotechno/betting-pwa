@@ -481,7 +481,13 @@ export default function GameDetailPage() {
     }
     try {
       setFavLoading(true)
-      const res = await marketController.toggleFavourite(user.loginToken, matchId)
+      // Extract the eid from the first event in gameData (typically Match Odds)
+      const eidToUse = gameData?.events?.['0']?.eid || 
+                     gameData?.events?.[0]?.eid || 
+                     gameData?.eventId || 
+                     matchId;
+                     
+      const res = await marketController.toggleFavourite(user.loginToken, eidToUse)
       if (res && res.error === '0') {
         setIsFav(prev => !prev)
         showSnackbar(res.msg || (isFav ? 'Removed from favorites' : 'Added to favorites'), 'success')
