@@ -147,318 +147,179 @@ export default function HomePage() {
   }, [matches])
 
   // Helper to map match + rates to OddsTable rows
-  const getSportMatches = (sportId: string) => {
+  const parseDate = (str: string): Date | null => {
+    if (!str) return null
+    const dateVal = str.includes('T') ? str : str.replace(' ', 'T')
+    let d = new Date(dateVal)
+    if (isNaN(d.getTime())) {
+      const parts = str.split(/[-/ :]/)
+      if (parts.length >= 3) {
+        const day = parseInt(parts[0], 10)
+        const month = parseInt(parts[1], 10) - 1
+        const year = parseInt(parts[2], 10)
+        if (day <= 31 && month <= 11) {
+          const hour = parseInt(parts[3] || '0', 10)
+          const minute = parseInt(parts[4] || '0', 10)
+          const second = parseInt(parts[5] || '0', 10)
+          d = new Date(year, month, day, hour, minute, second)
+        }
+      }
+    }
+    return d && !isNaN(d.getTime()) ? d : null
+  }
+
+  const mapMatchData = (m: any) => {
+    const mId = m.MarketId || m.marketid
+    const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
+      (m.Team2 || '').includes('TOURNAMENT_WINNER')
+    const matchOdds = odds[mId]
+    const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
+    const rowOdds: any[] = [null, null, null]
+
+    const getPrices = (data: any) => (Array.isArray(data) ? data : (data ? Object.values(data) : []))
+
+    const extractOdd = (r: any) => {
+      if (!r) return { back: 0, backSize: '', lay: 0, laySize: '' };
+      const backPrices = getPrices(r.back || r.availableToBack || r.ex?.availableToBack);
+      const layPrices = getPrices(r.lay || r.availableToLay || r.ex?.availableToLay);
+      const bestBack = backPrices[0];
+      const bestLay = layPrices[0];
+      return {
+        back: parseFloat(bestBack?.rate || bestBack?.price || r.lastPriceTraded || 0),
+        backSize: bestBack?.size || '',
+        lay: parseFloat(bestLay?.rate || bestLay?.price || 0),
+        laySize: bestLay?.size || '',
+      }
+    }
+
+    const runnerArr = getPrices(rawRunners)
+    if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
+      if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
+      if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
+      if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
+    } else {
+      runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
+    }
+    if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
+      rowOdds[2] = rowOdds[1]; rowOdds[1] = null;
+    }
+
+    const finalOdds = rowOdds.map(o => o || { back: 0, lay: 0, backSize: '', laySize: '' })
+    const getV = (obj: any, keys: string[]) => {
+      for (const k of keys) {
+        if (obj[k] !== undefined) return obj[k]
+        const foundK = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase())
+        if (foundK) return obj[foundK]
+      }
+      return undefined
+    }
+
+    const team1 = getV(m, ['Team1', 'team1'])
+    const team2 = getV(m, ['Team2', 'team2'])
+    const gName = getV(m, ['Game_name', 'GameName', 'ename', 'name', 'Competition'])
+    const name = (team2 === 'TOURNAMENT_WINNER') ? (team1 || gName) : (team1 && team2 ? `${team1} vs ${team2}` : (gName || 'Match'))
+    const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
+
+    return {
+      id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
+      teamName: name,
+      odds: finalOdds,
+      startTime: dateTime,
+      status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
+      competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league',
+      isWinner: isWinnerMarket
+    }
+  }
+
+  const getLiveMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
       football: ['football'],
       tennis: ['tennis']
     }
-
     const terms = searchTerms[sportId] || [sportId]
     const now = new Date()
 
     return matches
       .filter(m => {
-        // 1. Sport check
         const sType = (m.Type || m.sportname || '').toLowerCase()
-        const isCorrectSport = terms.some(term => sType.includes(term))
-        if (!isCorrectSport) return false
+        if (!terms.some(term => sType.includes(term))) return false
 
-        // 2. Time check (Inplay Filter)
-        const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
-        let startTimeStr = ''
-        for (const k of timeKeys) {
-          if (m[k]) { startTimeStr = m[k]; break; }
-        }
+        const startTime = parseDate(m.DateTime || m.dateTime || m.StartTime || m.staredtime || '')
+        if (!startTime) return false
 
-        let startTime: Date | null = null
-        if (startTimeStr) {
-          const dateVal = startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T')
-          startTime = new Date(dateVal)
+        // Live: If startTime is in the past OR starting within next 10 minutes (grace period)
+        const isStarted = startTime.getTime() <= (now.getTime() + 10 * 60 * 1000)
 
-          if (isNaN(startTime.getTime())) {
-            const parts = startTimeStr.split(/[-/ :]/)
-            if (parts.length >= 3) {
-              const day = parseInt(parts[0], 10)
-              const month = parseInt(parts[1], 10) - 1
-              const year = parseInt(parts[2], 10)
-              if (day <= 31 && month <= 11) {
-                const hour = parseInt(parts[3] || '0', 10)
-                const minute = parseInt(parts[4] || '0', 10)
-                const second = parseInt(parts[5] || '0', 10)
-                startTime = new Date(year, month, day, hour, minute, second)
-              }
-            }
-          }
-        }
-
-        if (startTime && !isNaN(startTime.getTime())) {
-          const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
-            (m.Team2 || '').includes('TOURNAMENT_WINNER')
-
-          if (isWinnerMarket) return true;
-
-          // Logic: Show all matches OF TODAY in Inplay
-          const today = new Date()
-          const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-          const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
-
-          const isToday = startTime >= startOfToday && startTime <= endOfToday
-
-          // If it's not today, don't show in Inplay (unless it's currently live, but usually today is the requirement)
-          if (!isToday) {
-            // Exception: If it started very recently (e.g. yesterday late night but still running), maybe keep it?
-            // But following user request: "show all matches of today in inplay"
-            return false
-          }
-        }
-
-        // 3. Activity check
+        // Check activity
         const mId = m.MarketId || m.marketid
         const matchOdds = odds[mId]
-        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
-          (m.Team2 || '').includes('TOURNAMENT_WINNER')
+        if (matchOdds && (matchOdds.status === 'CLOSED' || matchOdds.Status === 'CLOSED')) return false
 
-        if (matchOdds) {
-          const status = (matchOdds.status || matchOdds.Status || '').toUpperCase()
-          if (status === 'CLOSED') return false
-          const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
-          const runnersArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
-          const hasActiveOdds = runnersArr.some((r: any) => {
-            const bp = r.back || r.availableToBack || r.ex?.availableToBack
-            const ap = Array.isArray(bp) ? bp : (bp ? Object.values(bp) : [])
-            return ap.some((b: any) => parseFloat(b?.price || b?.rate || 0) > 0) || parseFloat(r.lastPriceTraded || 0) > 0
-          })
-          if (!hasActiveOdds && !isWinnerMarket) return false
-        } else if (!isLoading && !isWinnerMarket) {
-          return false
-        }
-
-        return true
+        return isStarted
       })
-      .map(m => {
-        const mId = m.MarketId || m.marketid
-        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
-          (m.Team2 || '').includes('TOURNAMENT_WINNER')
-        const matchOdds = odds[mId]
-        const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
-        const rowOdds: any[] = [null, null, null]
+      .map(mapMatchData)
+  }
 
-        const getPrices = (data: any) => {
-          if (!data) return [];
-          return Array.isArray(data) ? data : Object.values(data);
-        };
+  const getTodayUpcomingMatches = (sportId: string) => {
+    const searchTerms: Record<string, string[]> = {
+      cricket: ['cricket'],
+      football: ['football'],
+      tennis: ['tennis']
+    }
+    const terms = searchTerms[sportId] || [sportId]
+    const now = new Date()
 
-        const extractOdd = (r: any) => {
-          if (!r) return { back: 0, backSize: '', lay: 0, laySize: '' };
-          const backPrices = getPrices(r.back || r.availableToBack || r.ex?.availableToBack);
-          const layPrices = getPrices(r.lay || r.availableToLay || r.ex?.availableToLay);
-          const bestBack = backPrices[0];
-          const bestLay = layPrices[0];
-          return {
-            back: parseFloat(bestBack?.rate || bestBack?.price || r.lastPriceTraded || 0),
-            backSize: bestBack?.size || '',
-            lay: parseFloat(bestLay?.rate || bestLay?.price || 0),
-            laySize: bestLay?.size || '',
-          }
-        };
+    return matches
+      .filter(m => {
+        const sType = (m.Type || m.sportname || '').toLowerCase()
+        if (!terms.some(term => sType.includes(term))) return false
 
-        const runnerArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
+        const startTime = parseDate(m.DateTime || m.dateTime || m.StartTime || m.staredtime || '')
+        if (!startTime) return false
 
-        if (isWinnerMarket) {
-          runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
-        } else {
-          if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
-            if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
-            if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
-            if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
-          } else {
-            runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
-          }
-          if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
-            rowOdds[2] = rowOdds[1]; rowOdds[1] = null;
-          }
-        }
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+        
+        const isToday = startTime >= startOfToday && startTime <= endOfToday
+        // Upcoming: Starts more than 10 minutes from now
+        const isUpcoming = startTime.getTime() > (now.getTime() + 10 * 60 * 1000)
 
-        const finalOdds = rowOdds.map(o => o || { back: 0, lay: 0, backSize: '', laySize: '' })
-
-        const getV = (obj: any, keys: string[]) => {
-          for (const k of keys) {
-            if (obj[k] !== undefined) return obj[k]
-            const foundK = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase())
-            if (foundK) return obj[foundK]
-          }
-          return undefined
-        }
-
-        const team1 = getV(m, ['Team1', 'team1'])
-        const team2 = getV(m, ['Team2', 'team2'])
-        const name = (team2 === 'TOURNAMENT_WINNER') ? team1 : (team1 && team2 ? `${team1} vs ${team2}` : getV(m, ['Game_name', 'Competition']) || 'Match')
-        const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
-
-        return {
-          id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
-          teamName: name,
-          odds: finalOdds,
-          startTime: dateTime,
-          status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
-          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league',
-          isWinner: isWinnerMarket
-        }
+        return isToday && isUpcoming
       })
+      .map(mapMatchData)
       .sort((a, b) => {
-        if (a.isWinner && !b.isWinner) return -1
-        if (!a.isWinner && b.isWinner) return 1
-        return 0
+        const ta = parseDate(a.startTime)?.getTime() || 0
+        const tb = parseDate(b.startTime)?.getTime() || 0
+        return ta - tb
       })
   }
 
-  // Helper to get upcoming (future) matches per sport
   const getUpcomingMatches = (sportId: string) => {
     const searchTerms: Record<string, string[]> = {
       cricket: ['cricket'],
       football: ['football'],
       tennis: ['tennis']
     }
-
     const terms = searchTerms[sportId] || [sportId]
     const now = new Date()
-
-    // Parse date helper (shared logic)
-    const parseDate = (str: string): Date | null => {
-      if (!str) return null
-      const dateVal = str.includes('T') ? str : str.replace(' ', 'T')
-      let d = new Date(dateVal)
-      if (isNaN(d.getTime())) {
-        const parts = str.split(/[-/ :]/)
-        if (parts.length >= 3) {
-          const day = parseInt(parts[0], 10)
-          const month = parseInt(parts[1], 10) - 1
-          const year = parseInt(parts[2], 10)
-          if (day <= 31 && month <= 11) {
-            const hour = parseInt(parts[3] || '0', 10)
-            const minute = parseInt(parts[4] || '0', 10)
-            const second = parseInt(parts[5] || '0', 10)
-            d = new Date(year, month, day, hour, minute, second)
-          }
-        }
-      }
-      return d && !isNaN(d.getTime()) ? d : null
-    }
 
     return matches
       .filter(m => {
         const sType = (m.Type || m.sportname || '').toLowerCase()
-        const isCorrectSport = terms.some(term => sType.includes(term))
-        if (!isCorrectSport) return false
+        if (!terms.some(term => sType.includes(term))) return false
 
-        const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
-        let startTimeStr = ''
-        for (const k of timeKeys) {
-          if (m[k]) { startTimeStr = m[k]; break; }
-        }
-
-        const startTime = parseDate(startTimeStr)
+        const startTime = parseDate(m.DateTime || m.dateTime || m.StartTime || '')
         if (!startTime) return false
 
-        // Logic: Show from next day matches in upcoming (Tomorrow onwards)
-        const today = new Date()
-        const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
-
-        if (startTime <= endOfToday) return false
-
-        return true
+        const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+        return startTime > endOfToday
       })
+      .map(mapMatchData)
       .sort((a, b) => {
-        // Sort by start time ascending
-        const timeKeys = ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']
-        const getTime = (m: any) => {
-          let str = ''
-          for (const k of timeKeys) { if (m[k]) { str = m[k]; break; } }
-          const d = parseDate(str)
-          return d ? d.getTime() : Infinity
-        }
-        return getTime(a) - getTime(b)
-      })
-      .map(m => {
-        const mId = m.MarketId || m.marketid
-        const matchOdds = odds[mId]
-
-        const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
-        const rowOdds: any[] = [null, null, null]
-
-        const getPrices = (data: any) => {
-          if (!data) return []
-          return Array.isArray(data) ? data : Object.values(data)
-        }
-
-        const extractOdd = (r: any) => {
-          if (!r) return { back: 0, backSize: '', lay: 0, laySize: '' }
-          const backPrices = getPrices(r.back || r.availableToBack || r.ex?.availableToBack)
-          const layPrices = getPrices(r.lay || r.availableToLay || r.ex?.availableToLay)
-          const bestBack = backPrices[0]
-          const bestLay = layPrices[0]
-          return {
-            back: parseFloat(bestBack?.rate || bestBack?.price || r.lastPriceTraded || 0),
-            backSize: bestBack?.size || '',
-            lay: parseFloat(bestLay?.rate || bestLay?.price || 0),
-            laySize: bestLay?.size || '',
-          }
-        }
-
-        if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
-          if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
-          if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
-          if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
-          if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
-            rowOdds[2] = rowOdds[1]
-            rowOdds[1] = null
-          }
-        } else if (Array.isArray(rawRunners)) {
-          rawRunners.forEach((r, idx) => {
-            if (idx < 3) rowOdds[idx] = extractOdd(r)
-          })
-          if (rawRunners.length === 2) {
-            rowOdds[2] = rowOdds[1]
-            rowOdds[1] = null
-          }
-        }
-
-        const finalOdds = rowOdds.map(o => o || { back: 0, lay: 0, backSize: '', laySize: '' })
-
-        const getV = (obj: any, keys: string[]) => {
-          for (const k of keys) {
-            if (obj[k] !== undefined) return obj[k]
-            const foundK = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase())
-            if (foundK) return obj[foundK]
-          }
-          return undefined
-        }
-
-        const team1 = getV(m, ['Team1', 'team1'])
-        const team2 = getV(m, ['Team2', 'team2'])
-        const gName = getV(m, ['Game_name', 'GameName', 'ename', 'name', 'Competition'])
-        const dateTime = getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime'])
-
-        let name = 'Match'
-        if (team1 && team2) {
-          if (team2 === 'TOURNAMENT_WINNER') {
-            name = team1
-          } else {
-            name = `${team1} vs ${team2}`
-          }
-        } else if (gName) {
-          name = gName
-        }
-
-        return {
-          id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
-          teamName: name,
-          odds: finalOdds,
-          startTime: dateTime,
-          status: '',
-          competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league'
-        }
+        const ta = parseDate(a.startTime)?.getTime() || 0
+        const tb = parseDate(b.startTime)?.getTime() || 0
+        return ta - tb
       })
   }
 
@@ -485,7 +346,7 @@ export default function HomePage() {
       </div>
 
       <div className="p-2 md:p-4 space-y-4">
-        {/* INPLAY Section Header */}
+        {/* INPLAY Section */}
         <div className="flex items-center gap-2 px-1 mb-2">
           <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
             <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[11px] lg:text-[13px]"></i>
@@ -501,18 +362,17 @@ export default function HomePage() {
         ) : (
           quickSports.map((sport) => {
             const sportId = sport.id
-            const sportMatches = getSportMatches(sportId)
-            if (sportMatches.length === 0) return null
+            const liveMatches = getLiveMatches(sportId)
+            if (liveMatches.length === 0) return null
 
             return (
-              <div key={sportId} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
-                {/* Sport Label Header */}
+              <div key={`live-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
                 <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
                   <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
                     <div className="w-6 h-6 flex items-center justify-center shrink-0">
                       {sportId === 'cricket' ? (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
-                      ) : (sportId === 'football') ? (
+                      ) : sportId === 'football' ? (
                         <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
                       ) : (
                         <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
@@ -520,7 +380,6 @@ export default function HomePage() {
                     </div>
                     <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
                   </div>
-
                   <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
                     <div className="flex items-center justify-end pr-2 w-full">
                       <div className="hidden lg:flex gap-1">
@@ -536,14 +395,13 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-
                 <OddsTable
                   matchId={sportId}
                   matchName={`${sportId.toUpperCase()} LIVE`}
                   competition="Main Markets"
                   marketName="Match Odds"
                   columns={['1', 'X', '2']}
-                  rows={sportMatches}
+                  rows={liveMatches}
                   sport={sportId}
                 />
               </div>
@@ -553,7 +411,6 @@ export default function HomePage() {
 
         {/* Live Games Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Live Cards */}
           <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">Live <span className="text-[#e8612c]">Cards</span></h3>
@@ -591,7 +448,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Live Casino */}
           <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">Live <span className="text-[#e8612c]">Casino</span></h3>
@@ -630,32 +486,22 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Premium Banner */}
-        <div className="w-full overflow-hidden shadow-lg border border-white/5 bg-[#111]">
-          <div onClick={handlePremiumClick} className="block relative cursor-pointer group">
-            <img src="/premium.9849a83.gif" alt="Premium Sport" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-          </div>
-        </div>
-
-        {/* UPCOMING Section */}
+        {/* TODAY Section */}
         {!isLoading && (
           <>
             <div className="flex items-center gap-2 px-1 mb-2 mt-4">
-              <div className="w-6 h-6 rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
-                <i className="v-icon notranslate mdi mdi-clock-outline theme--light text-white text-[12px]"></i>
+              <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#fa8b3d] flex items-center justify-center shadow-[0_0_8px_rgba(250,139,61,0.4)]">
+                <i className="v-icon notranslate mdi mdi-calendar-today theme--light text-white text-[11px] lg:text-[13px]"></i>
               </div>
-              <h2 className="text-[15px] font-black text-white uppercase tracking-tight">UPCOMING</h2>
+              <h2 className="text-[16px] lg:text-[18px] font-black text-white uppercase tracking-tight">TODAY</h2>
             </div>
-
             {quickSports.map((sport) => {
               const sportId = sport.id
-              const upcomingMatches = getUpcomingMatches(sportId)
-              if (upcomingMatches.length === 0) return null
+              const todayMatches = getTodayUpcomingMatches(sportId)
+              if (todayMatches.length === 0) return null
 
               return (
-                <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
-                  {/* Sport Label Header */}
+                <div key={`today-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
                   <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
                     <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
                       <div className="w-6 h-6 flex items-center justify-center shrink-0">
@@ -669,7 +515,6 @@ export default function HomePage() {
                       </div>
                       <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
                     </div>
-
                     <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
                       <div className="flex items-center justify-end pr-2 w-full">
                         <div className="hidden lg:flex gap-1">
@@ -685,7 +530,74 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
+                  <OddsTable
+                    matchId={sportId}
+                    matchName={`${sportId.toUpperCase()} TODAY`}
+                    competition="Main Markets"
+                    marketName="Match Odds"
+                    columns={['1', 'X', '2']}
+                    rows={todayMatches}
+                    isUpcoming={true}
+                    sport={sportId}
+                  />
+                </div>
+              )
+            })}
+          </>
+        )}
 
+        {/* Premium Banner (Gift) */}
+        <div className="w-full overflow-hidden shadow-lg border border-white/5 bg-[#111] mt-4">
+          <div onClick={handlePremiumClick} className="block relative cursor-pointer group">
+            <img src="/premium.9849a83.gif" alt="Premium Sport" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+          </div>
+        </div>
+
+        {/* UPCOMING Section */}
+        {!isLoading && (
+          <>
+            <div className="flex items-center gap-2 px-1 mb-2 mt-4">
+              <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#666] flex items-center justify-center shadow-[0_0_8px_rgba(100,100,100,0.4)]">
+                <i className="v-icon notranslate mdi mdi-clock-outline theme--light text-white text-[11px] lg:text-[13px]"></i>
+              </div>
+              <h2 className="text-[16px] lg:text-[18px] font-black text-white uppercase tracking-tight">UPCOMING</h2>
+            </div>
+            {quickSports.map((sport) => {
+              const sportId = sport.id
+              const upcomingMatches = getUpcomingMatches(sportId)
+              if (upcomingMatches.length === 0) return null
+
+              return (
+                <div key={`upcoming-${sportId}`} className="space-y-0 overflow-hidden shadow-2xl lg:shadow-none bg-transparent rounded-b-[16px]">
+                  <div className="flex items-center h-10 lg:h-12 overflow-hidden rounded-t-[4px]">
+                    <div className="bg-[#e8612c] flex items-center px-3 gap-2 flex-1 h-full">
+                      <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                        {sportId === 'cricket' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-cricket theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : sportId === 'football' ? (
+                          <i className="v-icon notranslate icon-color v-icon--left mdi mdi-soccer theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        ) : (
+                          <i className="v-icon notranslate icon-color v-icon--left iconpe iconpe-tennis theme--light text-white" style={{ fontSize: '16px' }}></i>
+                        )}
+                      </div>
+                      <span className="text-[13px] font-black text-white uppercase tracking-wider">{sportId}</span>
+                    </div>
+                    <div className="flex items-center h-full lg:w-[388px]" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #444)' }}>
+                      <div className="flex items-center justify-end pr-2 w-full">
+                        <div className="hidden lg:flex gap-1">
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
+                        </div>
+                        <div className="flex lg:hidden gap-1">
+                          <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
+                          <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
+                          <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <OddsTable
                     matchId={sportId}
                     matchName={`${sportId.toUpperCase()} UPCOMING`}
