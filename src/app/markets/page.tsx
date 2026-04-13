@@ -190,20 +190,20 @@ export default function MarketsPage() {
           <button
             key={cat.id}
             onClick={() => handleMainClick(cat)}
-            className="flex-1 flex flex-col items-center justify-center h-[55px] relative transition-all"
+            className="flex-1 flex flex-row items-center justify-center gap-1.5 h-[55px] relative transition-all"
           >
-            <div className="mb-1">
+            <div className="shrink-0">
               <img
                 src={cat.image}
                 alt={cat.label}
-                className={`w-7 h-7 object-contain transition-all ${activeMain === cat.id ? 'brightness-125' : 'brightness-125'}`}
+                className={`w-6 h-6 object-contain transition-all ${activeMain === cat.id ? 'brightness-125' : 'brightness-125'}`}
               />
             </div>
             <span className={`text-[11px] font-black uppercase tracking-tighter leading-none ${activeMain === cat.id ? 'text-[#e8612c]' : 'text-[#888]'}`}>
               {cat.label}
             </span>
             {activeMain === cat.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#e8612c] z-10" />
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#e8612c] z-10" />
             )}
           </button>
         ))}
@@ -216,13 +216,13 @@ export default function MarketsPage() {
             <button
               key={sport.id}
               onClick={() => setActiveSport(sport.id)}
-              className="flex-1 min-w-[100px] flex flex-col items-center justify-center h-[55px] relative"
+              className="flex-1 min-w-[100px] flex flex-row items-center justify-center gap-1.5 h-[55px] relative"
             >
-              <div className="mb-0.5">
+              <div className="shrink-0">
                 <img
                   src={sport.icon}
                   alt={sport.label}
-                  className={`w-[22px] h-[22px] object-contain transition-all ${activeSport === sport.id ? 'brightness-100' : 'opacity-60 grayscale'}`}
+                  className={`w-[20px] h-[20px] object-contain transition-all ${activeSport === sport.id ? 'brightness-100' : 'opacity-60 grayscale'}`}
                 />
               </div>
               <span className={`text-[11px] font-black uppercase tracking-tight leading-none ${activeSport === sport.id ? 'text-white' : 'text-[#888]'}`}>

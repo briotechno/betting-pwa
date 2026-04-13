@@ -149,101 +149,87 @@ export default function CrashGamesPage() {
   }
 
   return (
-    <div className="bg-[#000] min-h-screen text-white">
-      {/* ── Provider Navigation ── */}
-      <div className="sticky top-20 lg:top-[92px] z-[40]">
-        <div className="flex overflow-x-auto no-scrollbar bg-[#1a1a1a] h-[45px] items-stretch border-b border-white/5 shadow-lg">
-          <button
-            onClick={() => setSelectedProvider(null)}
-            className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${!selectedProvider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            ALL
-          </button>
-          {providerList.map((provider) => (
-            <button
-              key={provider}
-              onClick={() => setSelectedProvider(provider)}
-              className={`px-5 h-full text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-all border-r border-black/20 ${selectedProvider === provider ? 'bg-[#e15b24] text-white shadow-inner' : 'text-gray-400 hover:text-white'
-                }`}
-            >
-              {provider}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-4 pt-6 pb-2">
-        <div className="relative w-full">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search size={18} className="text-white/40" />
+    <div className="bg-[#0b0b0b] min-h-screen text-white font-sans">
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-50 bg-[#0b0b0b] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5">
+        <h1 className="text-[18px] font-bold tracking-tight text-white/90">Crash Games</h1>
+        
+        {/* Search Bar */}
+        <div className="relative w-full sm:max-w-[240px]">
+          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <Search size={14} className="text-white/40" />
           </div>
           <input
             type="text"
-            placeholder="Search game"
+            placeholder="Search games"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 bg-[#1a1a1a] border border-white/10 rounded-full pl-12 pr-4 text-[14px] placeholder:text-white/40 focus:ring-1 focus:ring-[#e15b24]/50 outline-none transition-all"
+            className="w-full h-[36px] bg-[#1a1a1a] border border-white/10 rounded-full pl-9 pr-4 text-[12px] placeholder:text-white/30 focus:border-[#e8612c]/50 outline-none transition-all"
           />
         </div>
       </div>
 
-      <div className="p-3 space-y-8 mt-2">
-        {providersToDisplay.map((provider) => {
-          const gamesInProvider = (groupedGamesByProvider[provider] || []).filter(game =>
-            game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            game.provider.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-
-          if (gamesInProvider.length === 0) return null;
-
-          return (
-            <div key={provider} className="w-full">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h2 className="text-[14px] font-black text-white tracking-tight leading-none uppercase">{provider}</h2>
-                <button className="bg-[#4caf50] text-[#fff] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                  See All
-                </button>
-              </div>
-
-              <div className="flex overflow-x-auto no-scrollbar gap-2 px-0.5 pb-2">
-                {gamesInProvider.map((game: Game) => (
-                  <div
-                    key={game.game_code}
-                    onClick={() => handleGameClick(game)}
-                    className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[8px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
-                  >
-                    <img
-                      // src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
-                      src={`/drmicon/${game.image}`}
-                      alt={game.name}
-                      className="w-full h-full object-cover rounded-[8px]"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=128&font-size=0.33`
-                      }}
-                    />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2.5 flex flex-col justify-end h-[60%] pointer-events-none">
-                      <span className="text-[8px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-lg mb-1">
-                        {game.name}
-                      </span>
-                      <span className="text-[7px] font-extrabold text-white/40 uppercase text-center tracking-tighter">
-                        {game.provider}
-                      </span>
-                    </div>
+      {/* ── Game Grid ── */}
+      <div className="p-2 sm:p-4">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-40 gap-3">
+            <Loader2 className="w-8 h-8 text-[#e8612c] animate-spin" />
+            <p className="text-[10px] uppercase font-bold tracking-widest text-white/20">Loading games...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1.5 sm:gap-2">
+            {games
+              .filter(game => game.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map((game: Game) => (
+                <div
+                  key={game.game_code}
+                  onClick={() => handleGameClick(game)}
+                  className="relative aspect-square group active:scale-95 transition-all overflow-hidden rounded-[4px] border border-[#e8612c] bg-[#1a1a1a] cursor-pointer shadow-lg"
+                >
+                  <img
+                    src={`/drmicon/${game.image}`}
+                    alt={game.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=200&font-size=0.1`
+                    }}
+                  />
+                  
+                  {/* Subtle Label Overlay if image doesn't have text */}
+                  <div className="absolute inset-x-0 bottom-0 bg-black/60 pt-4 pb-1 px-1 flex flex-col items-center justify-center pointer-events-none transform translate-y-full group-hover:translate-y-0 transition-transform">
+                    <span className="text-[7px] font-black text-white uppercase text-center line-clamp-1">
+                      {game.name}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                </div>
+              ))}
+          </div>
+        )}
 
-        {providersToDisplay.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 opacity-40">
-            <p className="text-[14px] font-bold">No providers found</p>
+        {!loading && games.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-32 opacity-30">
+            <p className="text-[14px] font-bold">No Crash Games found</p>
           </div>
         )}
       </div>
+
+      {/* WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/31612345678" // Example number
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-20 left-4 z-50 transition-transform hover:scale-110 active:scale-90"
+      >
+        <img
+          src="/whatsapp.png"
+          alt="WhatsApp Support"
+          className="w-12 h-12 drop-shadow-2xl"
+          onError={(e) => {
+            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/3670/3670051.png"
+          }}
+        />
+      </a>
 
       <div className="h-24" />
 
