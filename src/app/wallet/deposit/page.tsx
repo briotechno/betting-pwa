@@ -24,6 +24,7 @@ export default function DepositPage() {
   
   const [step, setStep] = useState(1) // 1: Amount, 2: Method selection & details
   const [utr, setUtr] = useState('')
+  const [txHash, setTxHash] = useState('')
   const [amount, setAmount] = useState('500')
   const [screenshot, setScreenshot] = useState<string | null>(null)
   const [screenshotName, setScreenshotName] = useState('')
@@ -160,10 +161,18 @@ export default function DepositPage() {
       return
     }
 
+    const isCrypto = activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO';
+
     if (!utr.trim()) {
-      showSnackbar('Please enter valid UTR/Reference ID', 'error')
+      showSnackbar(isCrypto ? 'Please enter USDT Reference No' : 'Please enter valid UTR/Reference ID', 'error')
       return
     }
+
+    if (isCrypto && !txHash.trim()) {
+      showSnackbar('Please enter TX Hash', 'error')
+      return
+    }
+
     if (!agreed) {
       showSnackbar('Please agree to the terms', 'error')
       return
@@ -182,7 +191,7 @@ export default function DepositPage() {
       const response = await walletController.requestDeposit({
         LoginToken: token,
         Amount: amount,
-        Utr: utr,
+        Utr: isCrypto ? `${utr} | Hash: ${txHash}` : utr,
         BankId: activeMethodId,
         Mime_type: screenshotMime,
         Screenshot: screenshot || ''
@@ -191,6 +200,7 @@ export default function DepositPage() {
       if (response.error === '0') {
         showSnackbar(response.msg || 'Deposit request submitted successfully', 'success')
         setUtr('')
+        setTxHash('')
         setScreenshot(null)
         setScreenshotName('')
         setAgreed(false)
@@ -268,6 +278,13 @@ export default function DepositPage() {
                             onChange={(e) => setAmount(e.target.value)}
                             className="w-full h-16 bg-black/20 border-2 border-white/10 rounded-2xl pl-12 pr-5 text-2xl font-black text-white focus:outline-none focus:border-[#e8612c]"
                           />
+                          {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && activeMethod.BuyPrice && (
+                             <div className="absolute -bottom-6 left-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider italic text-white/40">
+                               <span>Rate: {activeMethod.BuyPrice}</span>
+                               <span className="text-white/20">|</span>
+                               <span>Total: <span className="text-[#e8612c]">₹{(parseFloat(amount) * parseFloat(activeMethod.BuyPrice)).toLocaleString()}</span></span>
+                             </div>
+                          )}
                         </div>
                         <button 
                           onClick={() => parseFloat(amount) > 0 ? setStep(2) : showSnackbar('Please enter valid amount', 'error')}
@@ -328,32 +345,38 @@ export default function DepositPage() {
                         <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
                           <img src="/deposite/wp.png" alt="WhatsApp" className="w-full h-full object-contain" />
                         </div>
-                        <span className="text-[10px] font-black uppercase text-center max-w-[90px] tracking-tighter">WhatsApp</span>
+                        <span className="text-[10px] font-black uppercase text-center max-w-[90px] tracking-tighter">WhatsApp Deposit</span>
                       </button>
 
-                      {filteredMethods.map((pm) => {
-                        const id = String(pm.Bank_Id || pm.id || pm.Id);
-                        const isActive = activeMethodId === id;
-                        
-                        const rawType = (pm.Type || pm.type || 'BANK').toUpperCase();
-                        
-                        // Icon Mapping
-                        let iconPath = '/deposite/bank.png';
-                        if (rawType.includes('GOOGLE') || rawType === 'GPAY') iconPath = '/deposite/googlepay.png';
-                        else if (rawType.includes('PAYTM')) iconPath = '/deposite/paytm.png';
-                        else if (rawType.includes('PHONE')) iconPath = '/deposite/phonepe.png';
-                        else if (rawType === 'UPI') iconPath = '/deposite/Upi.png';
-                        else if (rawType === 'CRYPTO' || rawType === 'USDT') iconPath = '/deposite/usdt.png';
+                      {(() => {
+                        const typeCounters: Record<string, number> = {};
+                        return filteredMethods.map((pm) => {
+                          const id = String(pm.Bank_Id || pm.id || pm.Id);
+                          const isActive = activeMethodId === id;
+                          
+                          const rawType = (pm.Type || pm.type || 'BANK').toUpperCase();
+                          const baseType = rawType === 'BANK' ? 'Bank' : (rawType === 'CRYPTO' ? (pm.Name || 'USDT') : rawType);
+                          typeCounters[baseType] = (typeCounters[baseType] || 0) + 1;
+                          const displayName = `${baseType} - ${typeCounters[baseType]}`;
+                          
+                          // Icon Mapping
+                          let iconPath = '/deposite/bank.png';
+                          if (rawType.includes('GOOGLE') || rawType === 'GPAY') iconPath = '/deposite/googlepay.png';
+                          else if (rawType.includes('PAYTM')) iconPath = '/deposite/paytm.png';
+                          else if (rawType.includes('PHONE')) iconPath = '/deposite/phonepe.png';
+                          else if (rawType === 'UPI') iconPath = '/deposite/Upi.png';
+                          else if (rawType === 'CRYPTO' || rawType === 'USDT') iconPath = '/deposite/usdt.png';
 
-                        return (
-                          <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 transition-all ${isActive ? 'bg-white/5 border-[#e8612c] text-white' : 'border-transparent opacity-50 grayscale text-white'}`}>
-                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
-                              <img src={iconPath} alt="" className="w-full h-full object-contain" />
-                            </div>
-                            <span className="text-[10px] font-black uppercase text-center max-w-[90px] truncate tracking-tighter">{pm.Name || pm.bankname || rawType}</span>
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 transition-all ${isActive ? 'bg-white/5 border-[#e8612c] text-white' : 'border-transparent opacity-50 grayscale text-white'}`}>
+                              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                                <img src={iconPath} alt="" className="w-full h-full object-contain" />
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-center max-w-[90px] truncate tracking-tighter">{displayName}</span>
+                            </button>
+                          );
+                        });
+                      })()}
                     </div>
                   )}
                 </div>
@@ -371,7 +394,9 @@ export default function DepositPage() {
                                 return (
                                   <>
                                     <AccountDetailRow label="Wallet Name" value={activeMethod.Name || activeMethod.bankname} onCopy={handleCopy} />
-                                    <AccountDetailRow label="Wallet Address" value={activeMethod.AcNo} onCopy={handleCopy} />
+                                    <AccountDetailRow label="Wallet Address" value={activeMethod.Id || activeMethod.id} onCopy={handleCopy} />
+                                    <AccountDetailRow label="Min Amount" value={`₹ ${activeMethod.Min || '100'}`} />
+                                    <AccountDetailRow label="Max Amount" value={`₹ ${activeMethod.Max || '10000'}`} />
                                   </>
                                 );
                               }
@@ -380,7 +405,7 @@ export default function DepositPage() {
                                 return (
                                   <>
                                     <AccountDetailRow label="Name" value={activeMethod.BankACnme} onCopy={handleCopy} />
-                                    <AccountDetailRow label="UPI ID" value={activeMethod.AcNo} onCopy={handleCopy} />
+                                    <AccountDetailRow label="UPI ID" value={activeMethod.Id || activeMethod.id || activeMethod.AcNo} onCopy={handleCopy} />
                                     <AccountDetailRow label="Min Amount" value={`₹ ${activeMethod.Min || '200'}`} />
                                     <AccountDetailRow label="Max Amount" value={`₹ ${activeMethod.Max || '1cr'}`} />
                                   </>
@@ -417,16 +442,33 @@ export default function DepositPage() {
 
                   {/* Form Card */}
                   <div className="bg-[#1a1a1a] border border-white/5 rounded-[32px] p-6 space-y-6 shadow-xl">
+                    {/* UTR / Reference No */}
                     <div className="space-y-1.5">
-                       <p className="text-[12px] font-bold text-white">Unique Transaction Reference <span className="text-red-500">*</span></p>
+                       <p className="text-[12px] font-bold text-white">
+                         {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? 'USDT Reference No' : 'Unique Transaction Reference'} <span className="text-red-500">*</span>
+                       </p>
                        <input 
                          type="text" 
                          value={utr} 
                          onChange={(e) => setUtr(e.target.value)} 
-                         placeholder="6 to 12 Digit UTR Number" 
+                         placeholder={activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? '10 Digit USDT Reference No' : '6 to 12 Digit UTR Number'} 
                          className="w-full h-12 bg-white/5 border border-white/10 rounded-lg px-4 text-sm font-medium focus:outline-none focus:border-white/20 transition-colors" 
                        />
                     </div>
+
+                    {/* TX Hash for Crypto Only */}
+                    {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && (
+                      <div className="space-y-1.5">
+                         <p className="text-[12px] font-bold text-white">TX Hash <span className="text-red-500">*</span></p>
+                         <input 
+                           type="text" 
+                           value={txHash} 
+                           onChange={(e) => setTxHash(e.target.value)} 
+                           placeholder="Paste transaction hash" 
+                           className="w-full h-12 bg-white/5 border border-white/10 rounded-lg px-4 text-sm font-medium focus:outline-none focus:border-white/20 transition-colors" 
+                         />
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                        <p className="text-[12px] font-bold text-white">Upload Your Payment Proof <span className="text-red-500 font-medium">[Required]</span></p>
@@ -445,13 +487,23 @@ export default function DepositPage() {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                       <p className="text-[12px] font-bold text-white">Amount <span className="text-red-500">*</span></p>
+                       <p className="text-[12px] font-bold text-white">
+                         {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? 'Amount (USDT)' : 'Amount'} <span className="text-red-500">*</span>
+                       </p>
                        <input 
                          type="number" 
                          value={amount} 
                          readOnly
                          className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white focus:outline-none cursor-not-allowed" 
                        />
+                       {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && activeMethod.BuyPrice && (
+                         <div className="px-2 pt-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-wider italic">
+                           <span className="text-white/40">Rate Conversion:</span>
+                           <span className="text-white/60">
+                             {amount} × {activeMethod.BuyPrice} = <span className="text-[#e8612c]">₹{(parseFloat(amount) * parseFloat(activeMethod.BuyPrice)).toLocaleString()}</span>
+                           </span>
+                         </div>
+                       )}
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">

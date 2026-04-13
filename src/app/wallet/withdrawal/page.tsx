@@ -259,12 +259,12 @@ export default function WithdrawalPage() {
                   key={id}
                   onClick={() => setSelectedBankId(id)}
                   className={`relative p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
-                      ? 'bg-[#e15b24]/10 border-[#e15b24] shadow-xl'
+                      ? 'bg-[#3d3d3d] border-white/40 shadow-xl'
                       : 'bg-[#1a1a1a] border-white/5 hover:border-white/20'
                     }`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-[#e15b24] text-white' : 'bg-white/5 text-white/40'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'}`}>
                       <Landmark size={20} />
                     </div>
                     <button
@@ -277,14 +277,14 @@ export default function WithdrawalPage() {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between">
                       <p className={`text-[13px] font-black uppercase tracking-tight text-white`}>{bank.Bank || 'Bank'}</p>
-                      <span className="text-[9px] font-black text-[#e15b24] bg-[#e15b24]/10 px-2 py-0.5 rounded italic">{bank.ACname || 'Primary'}</span>
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded italic ${isSelected ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>{bank.ACname || 'Primary'}</span>
                     </div>
                     <p className="text-[11px] text-white font-medium tracking-wider mt-0.5">
                       {bank.ACno || '****'}
                     </p>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
                       <p className="text-[10px] text-white font-bold tracking-tight opacity-70 truncate max-w-[120px]">{bank.ACholdername || 'N/A'}</p>
-                      <p className="text-[9px] text-[#e15b24] font-black">{bank.Isfc || bank.IFSC || ''}</p>
+                      <p className={`text-[9px] font-black ${isSelected ? 'text-white' : 'text-white/40'}`}>{bank.Isfc || bank.IFSC || ''}</p>
                     </div>
                   </div>
                 </div>
