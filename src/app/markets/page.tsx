@@ -7,9 +7,9 @@ import OddsTable from '@/components/sportsbook/OddsTable'
 import { useSnackbarStore } from '@/store/snackbarStore'
 
 const mainCategories = [
-  { id: 'sportsbook', label: 'Sportsbook', iconClass: 'iconpe-sportsbook', link: '/sportsbook' },
-  { id: 'live-casino', label: 'Live Casino', iconClass: 'iconpe-live-casino', link: '/markets/live-casino' },
-  { id: 'live-cards', label: 'Live Cards', iconClass: 'iconpe-live-cards', link: '/markets/live-cards' },
+  { id: 'sportsbook', label: 'Sportsbook', image: '/sportsbook-nav.png', link: '/sportsbook' },
+  { id: 'live-casino', label: 'Live Casino', image: '/casino-nav.png', link: '/markets/live-casino' },
+  { id: 'live-cards', label: 'Live Cards', image: '/cards-nav.png', link: '/markets/live-cards' },
 ]
 
 const sportsSubCategories = [
@@ -154,9 +154,9 @@ export default function MarketsPage() {
 
         return {
           id: getV(m, ['gid', 'Gid', 'Event_Id', 'eid']) || mId,
-          teamName: getV(m, ['Team1', 'team1']) && getV(m, ['Team2', 'team2']) 
-                    ? `${getV(m, ['Team1', 'team1'])} vs ${getV(m, ['Team2', 'team2'])}` 
-                    : getV(m, ['Game_name', 'Competition']) || 'Match',
+          teamName: getV(m, ['Team1', 'team1']) && getV(m, ['Team2', 'team2'])
+            ? `${getV(m, ['Team1', 'team1'])} vs ${getV(m, ['Team2', 'team2'])}`
+            : getV(m, ['Game_name', 'Competition']) || 'Match',
           odds: finalOdds,
           startTime: getV(m, ['DateTime', 'dateTime', 'Datetime', 'staredtime', 'StartTime']),
           status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
@@ -192,10 +192,11 @@ export default function MarketsPage() {
             onClick={() => handleMainClick(cat)}
             className="flex-1 flex flex-col items-center justify-center h-[55px] relative transition-all"
           >
-            <div className="mb-0.5">
-              <i 
-                className={`v-icon notranslate icon-color v-icon--left iconpe ${cat.iconClass} theme--dark ${activeMain === cat.id ? 'primary--text' : 'text-white/60 opacity-60'}`} 
-                style={{ fontSize: '18px' }} 
+            <div className="mb-1">
+              <img
+                src={cat.image}
+                alt={cat.label}
+                className={`w-7 h-7 object-contain transition-all ${activeMain === cat.id ? 'brightness-125' : 'brightness-125'}`}
               />
             </div>
             <span className={`text-[11px] font-black uppercase tracking-tighter leading-none ${activeMain === cat.id ? 'text-[#e8612c]' : 'text-[#888]'}`}>
@@ -244,21 +245,21 @@ export default function MarketsPage() {
           </div>
         ) : (
           <div className="p-1">
-             <div className="flex items-center gap-2 px-2 py-3 bg-[#111]">
-               <div className="w-4 h-4 rounded-full bg-[#e8612c] border-2 border-white/10" />
-               <span className="text-[12px] font-black uppercase tracking-wider text-white">{activeSport} Matches</span>
-             </div>
-             <div className="space-y-0.5 rounded-[12px] overflow-hidden">
-               <OddsTable
-                 matchId={activeSport}
-                 matchName={`${activeSport.toUpperCase()}`}
-                 competition="Markets"
-                 marketName="Match Odds"
-                 columns={['1', 'X', '2']}
-                 rows={getSportMatches(activeSport)}
-                 sport={activeSport}
-               />
-             </div>
+            <div className="flex items-center gap-2 px-2 py-3 bg-[#111]">
+              <div className="w-4 h-4 rounded-full bg-[#e8612c] border-2 border-white/10" />
+              <span className="text-[12px] font-black uppercase tracking-wider text-white">{activeSport} Matches</span>
+            </div>
+            <div className="space-y-0.5 rounded-[12px] overflow-hidden">
+              <OddsTable
+                matchId={activeSport}
+                matchName={`${activeSport.toUpperCase()}`}
+                competition="Markets"
+                marketName="Match Odds"
+                columns={['1', 'X', '2']}
+                rows={getSportMatches(activeSport)}
+                sport={activeSport}
+              />
+            </div>
           </div>
         )}
 
