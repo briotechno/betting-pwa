@@ -43,51 +43,50 @@ const commissionData = [
 
 export default function AffiliatePartnerPage() {
   return (
-    <div className="min-h-screen bg-[#121212]">
+    <div className="min-h-screen bg-[#111]">
       {/* Page Header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a1a] border-b border-white/10 sticky top-0 z-10">
-        <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-          <ChevronLeft size={22} />
+        <Link href="/" className="text-[#e15b24] hover:text-white transition-colors">
+          <ChevronLeft size={24} />
         </Link>
-        <h1 className="text-white text-[15px] font-bold tracking-wide">Affiliate Partner</h1>
+        <h1 className="text-white text-[15px] font-bold tracking-wide uppercase">Affiliate Partner</h1>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-10 pb-16">
+      <div className="max-w-[1600px] mx-auto px-[30px] py-10 pb-16">
         {/* Hero Text */}
-        <h1 className="text-white text-[26px] md:text-[32px] font-bold text-center mb-3">
-          Come win with us, partner!
-        </h1>
-        <p className="text-gray-300 text-[15px] md:text-[17px] text-center mb-8">
-          Make your passion your paycheck with a little help from FairPlay!
-        </p>
-
-        {/* Divider */}
-        <div className="border-t border-white/10 mb-10" />
+        <div className="mb-12">
+          <h1 className="text-white text-[28px] md:text-[36px] font-bold text-center mb-3">
+            Come win with us, partner!
+          </h1>
+          <p className="text-gray-400 text-[15px] md:text-[18px] text-center max-w-2xl mx-auto">
+            Make your passion your paycheck with a little help from FairPlay!
+          </p>
+        </div>
 
         {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="bg-[#1e1e1e]  rounded-lg p-5 flex gap-4 items-start"
-              style={{ minHeight: '145px' }}
+              className="bg-[#1e1e1e] p-6 flex gap-6 items-start border border-white/5"
+              style={{ minHeight: '140px' }}
             >
               {/* Orange Avatar */}
-              <div className="w-12 h-12 rounded-full bg-[#e8612c] flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(232,97,44,0.4)]">
+              <div className="w-14 h-14 rounded-full bg-[#e8612c] flex items-center justify-center shrink-0">
                 <img
                   src={feature.icon}
                   alt={feature.title}
-                  className="w-7 h-7 object-contain"
+                  className="w-8 h-8 object-contain"
                   onError={(e) => { e.currentTarget.style.display = 'none' }}
                 />
               </div>
 
               {/* Text */}
-              <div className="flex-1">
-                <h3 className="text-white text-[16px] font-bold capitalize mb-2 leading-snug">
+              <div className="flex-1 pt-1">
+                <h3 className="text-white text-[18px] font-bold mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-400 text-[13px] leading-relaxed font-light">
+                <p className="text-gray-400 text-[15px] leading-relaxed text-justify">
                   {feature.desc}
                 </p>
               </div>
@@ -96,27 +95,26 @@ export default function AffiliatePartnerPage() {
         </div>
 
         {/* Commission Table */}
-        <div className="bg-[#1e1e1e] rounded-lg overflow-hidden ">
-          <table className="w-full">
+        <div className="overflow-hidden border border-white/5 mb-6">
+          <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#252525] border-b border-white/10">
-                <th className="px-5 py-3.5 text-left text-[12px] font-black text-gray-300 uppercase tracking-wider">%</th>
-                <th className="px-5 py-3.5 text-left text-[12px] font-black text-gray-300 uppercase tracking-wider">Deposits</th>
-                <th className="px-5 py-3.5 text-left text-[12px] font-black text-gray-300 uppercase tracking-wider">Min Active User</th>
-                <th className="px-5 py-3.5 text-left text-[12px] font-black text-gray-300 uppercase tracking-wider">New Users</th>
+              <tr className="bg-[#1a1a1a] border-b border-white/5">
+                <th className="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">%</th>
+                <th className="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">Deposits</th>
+                <th className="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">Min Active User</th>
+                <th className="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest">New Users</th>
               </tr>
             </thead>
             <tbody>
               {commissionData.map((row, idx) => (
                 <tr
                   key={row.percent}
-                  className={`border-b border-white/5 last:border-0 transition-colors hover:bg-white/[0.03] ${idx % 2 === 1 ? 'bg-[#252525]/40' : ''
-                    }`}
+                  className={`${idx % 2 === 0 ? 'bg-[#333]' : 'bg-[#1a1a1a]'}`}
                 >
-                  <td className="px-5 py-4 text-white text-[14px] font-semibold">{row.percent}</td>
-                  <td className="px-5 py-4 text-gray-300 text-[14px]">{row.deposits}</td>
-                  <td className="px-5 py-4 text-gray-300 text-[14px]">{row.minActiveUser}</td>
-                  <td className="px-5 py-4 text-gray-300 text-[14px]">{row.newUsers}</td>
+                  <td className="px-6 py-4 text-white text-[15px] font-medium">{row.percent}</td>
+                  <td className="px-6 py-4 text-gray-200 text-[15px]">{row.deposits}</td>
+                  <td className="px-6 py-4 text-gray-200 text-[15px]">{row.minActiveUser}</td>
+                  <td className="px-6 py-4 text-gray-200 text-[15px]">{row.newUsers}</td>
                 </tr>
               ))}
             </tbody>
@@ -124,7 +122,7 @@ export default function AffiliatePartnerPage() {
         </div>
 
         {/* Note */}
-        <p className="text-[#e8612c] text-[13px] font-semibold mt-4">
+        <p className="text-[#e8612c] text-[15px] font-bold mt-4">
           Note* :- Settlement 1st week of next month
         </p>
       </div>

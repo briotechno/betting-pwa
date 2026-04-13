@@ -16,7 +16,7 @@ export default function RulesRegulationsPage() {
         <h1 className="text-[17px] font-bold">Rules And Regulations</h1>
       </div>
 
-      <div className="max-w-[1400px] mx-auto p-4 md:px-10 lg:px-20 space-y-6">
+      <div className="max-w-[1600px] mx-auto p-4 md:px-10 lg:px-20 space-y-6">
         {/* Note Alert */}
         <div className="bg-[#ff5252] rounded-md p-4 flex gap-4">
           <AlertTriangle size={24} color="white" className="shrink-0 mt-1" />
@@ -47,15 +47,15 @@ export default function RulesRegulationsPage() {
             
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white">Use and interpretation</h4>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 These Rules and Regulations (" <b className="text-white italic">Rules</b>") are part of the Site's
                 terms and conditions.
               </p>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The Rules apply to all bets placed on this online betting platform
                 ("<b className="text-white">Site</b>"). The Rules consist of the following:
               </p>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-1">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-1">
                 <li>This INTRODUCTION section (Part A);</li>
                 <li>The GENERAL RULES (set out in Part B below); and</li>
                 <li>
@@ -63,13 +63,13 @@ export default function RulesRegulationsPage() {
                   to certain sports).
                 </li>
               </ul>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The General Rules apply to all bets unless stated otherwise in the
                 Specific Sports Rules. If there is any inconsistency between the
                 Specific Sports Rules and the General Rules, the Specific Sports
                 Rules shall prevail.
               </p>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The rules governing how markets are offered, managed and/or settled
                 are not the same for every market on each product. In certain
                 circumstances, a bet that is settled as a winner on one product may
@@ -84,7 +84,7 @@ export default function RulesRegulationsPage() {
 
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white pt-2">Customer responsibility</h4>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-3">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>
                   Customers should make themselves aware of all of the Rules
                   affecting any market on which they wish to place a bet.
@@ -105,7 +105,7 @@ export default function RulesRegulationsPage() {
             
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white">Matters beyond the Site's reasonable control and malfunctions</h4>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The Site is not liable for any loss or damage you may suffer because
                 of any: act of God; power cut; trade or labour dispute; act, failure
                 or omission of any government or authority; obstruction or failure
@@ -114,13 +114,13 @@ export default function RulesRegulationsPage() {
                 event, the Site reserves the right to cancel or suspend access to
                 the Site without incurring any liability.
               </p>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The Site is not liable for the failure of any equipment or software
                 howsoever caused, wherever located or administered, or whether under
                 its direct control or not, that may prevent the operation of the
                 Site.
               </p>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 In the event of a technological failure or error which is apparent
                 to the customer, the customer is obliged to notify the Site of such
                 failure/error immediately. If the customer continues to place a bet
@@ -128,7 +128,7 @@ export default function RulesRegulationsPage() {
                 minimise any potential loss. In the absence of such action, the Site
                 reserves the right to void a bet.
               </p>
-              <p className="text-[14px] text-gray-300 leading-relaxed">
+              <p className="text-[15px] text-gray-300 leading-relaxed">
                 The Site reserves the right in its absolute discretion to restrict
                 access to the Site, or withhold funds or void any bets outstanding
                 to a customer’s account in its absolute discretion in the event of a
@@ -143,7 +143,7 @@ export default function RulesRegulationsPage() {
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white pt-2">Managing markets In-Play</h4>
               <h5 className="text-[14px] font-bold text-gray-100">General</h5>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-3">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>
                   For everything other than horseracing and greyhound racing, if a
                   market is not scheduled to be turned in-play but the Site fails to
@@ -167,13 +167,13 @@ export default function RulesRegulationsPage() {
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white">Cricket</h4>
               <h5 className="text-[14px] font-bold text-gray-100 underline">General</h5>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-3">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>If a ball is not bowled during a competition, series or match then all bets will be void except for those on any market that has been unconditionally determined.</li>
                 <li>If a match is shortened by weather, all bets will be settled according to the official result (including Duckworth Lewis method).</li>
               </ul>
 
               <h5 className="text-[14px] font-bold text-gray-100 underline pt-2">Sessions/Innings/Player Runs</h5>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-3">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>All session/innings/player runs are based on Haar-Jeet odds format.</li>
                 <li>In any session market, in the event a session is not completed in full because a team is all out or declared, all bets will remain valid and the market will be settled at the innings score.</li>
                 <li>Lambi Paari: In 20-20 match entire twenty overs should be bowled; in case of rain or any delay if even one over is deducted the bets will be cancelled. In One Day match entire 50 overs should be bowled.</li>
@@ -182,7 +182,7 @@ export default function RulesRegulationsPage() {
 
             <div className="space-y-4">
               <h4 className="text-[15px] font-black text-white pt-4">Soccer</h4>
-              <ul className="list-disc pl-6 text-[14px] text-gray-300 space-y-3">
+              <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>If the Site does not suspend a market on time for the occurrence of a Material Event, the Site reserves the right to void bets unfairly matched after the Material Event has occurred.</li>
                 <li>Match odds bets apply to the full duration of play according to the match officials, plus any stoppage time. They do not include any result given after Extra Time or Penalties.</li>
                 <li>Definition of "Material Event": For the purpose of these Rules, a "Material Event" shall mean a goal being scored, a penalty being awarded or a player being sent off.</li>

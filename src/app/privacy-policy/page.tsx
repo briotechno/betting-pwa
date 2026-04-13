@@ -168,17 +168,17 @@ export default function PrivacyPolicyPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 py-6 pb-16">
+      <div className="max-w-[1600px] mx-auto px-4 py-6 pb-16">
         <div className="columns-1 md:columns-2 gap-8">
           {sections.map((section) => (
             <div key={section.id} className="break-inside-avoid mb-8">
-              <h2 className="text-white text-[15px] font-bold capitalize mb-3">
+              <h2 className="text-white text-[18px] font-bold capitalize mb-3">
                 {section.title}
               </h2>
 
               {/* Regular content paragraphs */}
               {'content' in section && section.content?.map((para, i) => (
-                <p key={i} className="text-gray-300 text-[13px] leading-relaxed mb-3 last:mb-0 text-justify">
+                <p key={i} className="text-gray-300 text-[15px] leading-relaxed mb-3 last:mb-0 text-justify">
                   {para}
                 </p>
               ))}
@@ -186,9 +186,9 @@ export default function PrivacyPolicyPage() {
               {/* Subsections (used by 1.12 Cookies) */}
               {'subsections' in section && section.subsections?.map((sub, si) => (
                 <div key={si} className="mb-4">
-                  <p className="text-white text-[13px] font-bold mb-2">{sub.title}</p>
+                  <p className="text-white text-[15px] font-bold mb-2">{sub.title}</p>
                   {sub.content.map((para, pi) => (
-                    <p key={pi} className="text-gray-300 text-[13px] leading-relaxed mb-2 last:mb-0 text-justify">
+                    <p key={pi} className="text-gray-300 text-[15px] leading-relaxed mb-2 last:mb-0 text-justify">
                       {para}
                     </p>
                   ))}

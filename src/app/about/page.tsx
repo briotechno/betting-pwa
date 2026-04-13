@@ -40,11 +40,11 @@ export default function AboutPage() {
         <h1 className="text-white text-[15px] font-bold tracking-wide uppercase">About Us</h1>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+      <div className="max-w-[1600px] mx-auto px-4 py-8 pb-32">
         {/* About Us Section */}
         <section className="mb-12">
-          <h2 className="text-white text-[24px] font-bold mb-6 text-center uppercase tracking-tight">About Us</h2>
-          <div className="space-y-4 text-gray-300 text-[14px] leading-relaxed text-justify">
+          <h2 className="text-white text-[24px] font-bold mb-6 text-center tracking-tight">About Us</h2>
+          <div className="space-y-4 text-gray-300 text-[15px] leading-relaxed text-justify">
             <p>
               Welcome to fairplay- the world’s biggest betting exchange. A one stop shop for all sports betting and leisure gambling needs. The live casino is one of a kind complete with a spectacular range of games such as{' '}
               <Link href="/markets/live-casino/Baccarat" className="text-[#e15b24] hover:underline">Baccarat</Link>,{' '}
@@ -73,7 +73,7 @@ export default function AboutPage() {
         {/* Why Fairplay Section */}
         <section className="mb-20">
           <h2 className="text-white text-[24px] font-bold mb-6 text-center uppercase tracking-tight">WHY FAIRPLAY</h2>
-          <div className="space-y-4 text-gray-300 text-[14px] leading-relaxed text-justify">
+          <div className="space-y-4 text-gray-300 text-[15px] leading-relaxed text-justify">
             <p>
               Sportsbetting is slowly and steadily finding its respectful place in the Indian market. A concept that dates back a couple of decades, legalization has been a gray area up until now. With times changing, fairplay is set to revolutionize sports betting in the Indian market. Backed by legitimate licences, fairplay is a leisure gambler’s paradise.
             </p>

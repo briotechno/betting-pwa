@@ -177,13 +177,13 @@ const sections: Section[] = [
 
 function renderContent(item: string | { type: 'ol' | 'ul'; startType?: string; items: string[] }, idx: number) {
   if (typeof item === 'string') {
-    return <p key={idx} className="text-gray-300 text-[13px] leading-relaxed mb-3 last:mb-0 text-justify">{item}</p>
+    return <p key={idx} className="text-gray-300 text-[15px] leading-relaxed mb-3 last:mb-0 text-justify">{item}</p>
   }
   if (item.type === 'ol') {
     return (
       <ol key={idx} className="list-decimal pl-5 mb-3 space-y-1">
         {item.items.map((li, i) => (
-          <li key={i} className="text-gray-300 text-[13px] leading-relaxed text-justify">{li}</li>
+          <li key={i} className="text-gray-300 text-[15px] leading-relaxed text-justify">{li}</li>
         ))}
       </ol>
     )
@@ -191,7 +191,7 @@ function renderContent(item: string | { type: 'ol' | 'ul'; startType?: string; i
   return (
     <ul key={idx} className="list-disc pl-5 mb-3 space-y-1">
       {item.items.map((li, i) => (
-        <li key={i} className="text-gray-300 text-[13px] leading-relaxed text-justify">{li}</li>
+        <li key={i} className="text-gray-300 text-[15px] leading-relaxed text-justify">{li}</li>
       ))}
     </ul>
   )
@@ -209,11 +209,11 @@ export default function TermsAndConditionsPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6 pb-16">
+      <div className="max-w-[1600px] mx-auto px-4 py-6 pb-16">
         {sections.map((section) => (
           <div key={section.id} className="mb-8">
             {/* Section Heading */}
-            <h2 className="text-white text-[15px] font-bold capitalize mb-3">{section.title}</h2>
+            <h2 className="text-white text-[18px] font-bold capitalize mb-3">{section.title}</h2>
 
             {/* Flat content paragraphs */}
             {'content' in section && section.content?.map((item, i) => renderContent(item as string | { type: 'ol' | 'ul'; items: string[] }, i))}
@@ -221,7 +221,7 @@ export default function TermsAndConditionsPage() {
             {/* Subsections (e.g. VI Finances with A,B,C) */}
             {'subsections' in section && section.subsections?.map((sub, si) => (
               <div key={si} className="mb-4 pl-1">
-                <h3 className="text-white text-[14px] font-bold capitalize mb-2">{sub.title}</h3>
+                <h3 className="text-white text-[16px] font-bold capitalize mb-2">{sub.title}</h3>
                 {sub.content.map((item, ci) => renderContent(item as string | { type: 'ol' | 'ul'; items: string[] }, ci))}
               </div>
             ))}

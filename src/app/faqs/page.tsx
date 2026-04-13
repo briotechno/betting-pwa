@@ -22,7 +22,7 @@ const categories: Category[] = [
       {
         q: 'Q1. How do I register?',
         a: (
-          <ul className="list-disc pl-5 space-y-1 text-gray-300 text-[13px]">
+          <ul className="list-disc pl-5 space-y-1 text-gray-300 text-[15px] text-justify">
             <li>Click on "Join Now"</li>
             <li>Fill out the form</li>
             <li>Enter the verification code you receive</li>
@@ -116,21 +116,18 @@ export default function FAQsPage() {
       </div>
 
       {/* Category Accordions */}
-      <div className="max-w-3xl mx-auto px-4 py-6 pb-16 space-y-4">
+      <div className="max-w-5xl pl-[30px] pr-4 py-6 pb-16 space-y-4">
         {categories.map((category) => {
           const isCatOpen = openCategory === category.id
 
           return (
-            <div key={category.id} className="bg-[#1a1a1a] rounded-sm overflow-hidden">
-
+            <div key={category.id} className="overflow-hidden">
               {/* Category Header */}
               <button
                 onClick={() => toggleCategory(category.id)}
-                className={`w-full flex items-center justify-between px-4 py-4 text-left transition-colors ${
-                  isCatOpen ? 'bg-[#1a1a1a]' : 'bg-[#1a1a1a]'
-                }`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors border border-white/10 rounded-md bg-[#1a1a1a]`}
               >
-                <span className={`text-[15px] font-bold ${isCatOpen ? 'text-[#e8612c]' : 'text-white'}`}>
+                <span className={`text-[16px] font-bold ${isCatOpen ? 'text-[#e8612c]' : 'text-white'}`}>
                   {category.title}
                 </span>
                 <span className="text-gray-400">
@@ -140,22 +137,20 @@ export default function FAQsPage() {
 
               {/* Category Content — list of sub-questions */}
               {isCatOpen && (
-                <div className="border-t border-white/5">
+                <div className="mt-2 space-y-1">
                   {category.faqs.map((faq, qi) => {
                     const qKey = `${category.id}-${qi}`
                     const isQOpen = openQuestion === qKey
 
                     return (
-                      <div key={qKey} className="border-b border-white/5 last:border-0">
+                      <div key={qKey} className="flex flex-col">
                         {/* Question Row */}
                         <button
                           onClick={() => toggleQuestion(qKey)}
-                          className={`w-full flex items-center justify-between px-4 py-3.5 text-left transition-colors group ${
-                            isQOpen ? 'bg-[#111]' : 'hover:bg-white/[0.03]'
-                          }`}
+                          className={`w-full flex items-center justify-between px-0 py-3 text-left transition-colors group bg-transparent border-b border-white/5 last:border-0`}
                         >
-                          <span className={`text-[13px] font-semibold leading-snug flex-1 pr-4 ${
-                            isQOpen ? 'text-white' : 'text-gray-200'
+                          <span className={`text-[15px] font-medium leading-snug flex-1 pr-4 ${
+                            isQOpen ? 'text-white font-bold' : 'text-gray-200'
                           }`}>
                             {faq.q}
                           </span>
@@ -169,9 +164,9 @@ export default function FAQsPage() {
                           </div>
                         </button>
 
-                        {/* Answer */}
+                        {/* Answer - Boxed with Orange Border as per reference */}
                         {isQOpen && faq.a && (
-                          <div className="px-6 pb-4 pt-2 bg-[#111] border-t border-white/5">
+                          <div className="mt-2 mb-4 p-5 rounded-lg border border-[#e8612c]/40 bg-white/[0.02]">
                             {faq.a}
                           </div>
                         )}
