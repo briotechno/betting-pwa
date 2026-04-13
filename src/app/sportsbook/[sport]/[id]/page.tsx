@@ -537,15 +537,19 @@ export default function CompetitionDetailPage() {
           </div>
         </div>
 
-        <div className="flex bg-[#111] border-b border-white/5 h-12 relative z-20">
+        <div className="flex justify-center bg-[#1a1a1a] border-b border-white/5 h-10 px-4 gap-12 box-border relative z-20">
           {subTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveSubTab(tab)}
-              className={`flex-1 h-full text-[12px] font-black uppercase tracking-widest relative transition-colors ${activeSubTab === tab ? 'text-[#f36c21]' : 'text-gray-500 hover:text-gray-300'}`}
+              className="h-full relative group flex items-center"
             >
-              {tab}
-              {activeSubTab === tab && <div className="absolute bottom-0 left-[30%] right-[30%] h-[3px] bg-[#f36c21] rounded-t-full shadow-[0_-4px_10px_rgba(243,108,33,0.5)]" />}
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab 
+                ? 'text-[#f36c21] border-[#f36c21]' 
+                : 'text-gray-400 border-transparent hover:text-white'
+              }`}>
+                {tab}
+              </span>
             </button>
           ))}
         </div>

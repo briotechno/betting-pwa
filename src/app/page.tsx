@@ -280,7 +280,7 @@ export default function HomePage() {
 
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
         const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
-        
+
         const isToday = startTime >= startOfToday && startTime <= endOfToday
         // Upcoming: Starts more than 10 minutes from now
         const isUpcoming = startTime.getTime() > (now.getTime() + 10 * 60 * 1000)

@@ -199,17 +199,19 @@ export default function SportsbookPage() {
         </div>
 
         {/* Sub tabs nav */}
-        <div className="flex bg-[#1a1a1a] border-b border-white/5 h-10">
+        <div className="flex justify-center bg-[#1a1a1a] border-b border-white/5 h-10 px-4 gap-4 box-border">
           {subTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveSubTab(tab)}
-              className={`flex-1 h-full text-[11px] font-black uppercase tracking-tight relative ${activeSubTab === tab ? 'text-[#e8612c]' : 'text-gray-400'}`}
+              className="h-full relative group flex items-center"
             >
-              {tab}
-              {activeSubTab === tab && (
-                <div className="absolute bottom-0 left-[15%] right-[15%] h-[2px] bg-[#e8612c]" />
-              )}
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab 
+                ? 'text-[#f36c21] border-[#f36c21]' 
+                : 'text-gray-400 border-transparent hover:text-white'
+              }`}>
+                {tab}
+              </span>
             </button>
           ))}
         </div>

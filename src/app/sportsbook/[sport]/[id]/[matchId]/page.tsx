@@ -723,19 +723,29 @@ export default function GameDetailPage() {
           </div>
         </div>
         <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
-          <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 relative z-20 justify-start">
+          <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 h-10 px-4 gap-4 relative z-20 justify-start">
             <button
               onClick={() => setActiveTab('MARKETS')}
-              className={`px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'MARKETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/60'}`}
+              className="h-full relative group flex items-center"
             >
-              MARKETS
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'MARKETS' 
+                ? 'text-[#f36c21] border-[#f36c21]' 
+                : 'text-white/60 border-transparent hover:text-white'
+              }`}>
+                MARKETS
+              </span>
             </button>
             {user && (
               <button
                 onClick={() => setActiveTab('OPEN_BETS')}
-                className={`px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/60'}`}
+                className="h-full relative group flex items-center"
               >
-                OPEN BETS {bets.length > 0 && `(${bets.length})`}
+                <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'OPEN_BETS' 
+                  ? 'text-[#f36c21] border-[#f36c21]' 
+                  : 'text-white/60 border-transparent hover:text-white'
+                }`}>
+                  OPEN BETS {bets.length > 0 && <span className="ml-1 text-[10px] opacity-80">({bets.length})</span>}
+                </span>
               </button>
             )}
           </div>
