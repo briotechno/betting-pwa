@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useAuthStore } from '@/store/authStore'
@@ -10,9 +10,54 @@ import Sidebar from './Sidebar'
 import { Suspense } from 'react'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const { sidebarCollapsed } = useLayoutStore()
+  const { 
+    sidebarCollapsed, 
+    leftDrawerOpen, 
+    profileSidebarOpen, 
+    searchModalOpen, 
+    moreMenuOpen,
+    auraCasinoOpen,
+    feedbackModalOpen 
+  } = useLayoutStore()
   const { isAuthenticated } = useAuthStore()
   const pathname = usePathname()
+
+  // Global Scroll Lock
+  useEffect(() => {
+    const isAnyOverlayOpen = 
+      leftDrawerOpen || 
+      profileSidebarOpen || 
+      searchModalOpen || 
+      moreMenuOpen || 
+      auraCasinoOpen || 
+      feedbackModalOpen
+
+    const body = document.body
+    const html = document.documentElement
+
+    if (isAnyOverlayOpen) {
+      // Aggressive lock for mobile and desktop
+      body.style.setProperty('overflow', 'hidden', 'important')
+      html.style.setProperty('overflow', 'hidden', 'important')
+      body.style.height = '100%'
+      html.style.height = '100%'
+      body.style.touchAction = 'none'
+    } else {
+      body.style.removeProperty('overflow')
+      html.style.removeProperty('overflow')
+      body.style.height = ''
+      html.style.height = ''
+      body.style.touchAction = ''
+    }
+
+    return () => {
+      body.style.removeProperty('overflow')
+      html.style.removeProperty('overflow')
+      body.style.height = ''
+      html.style.height = ''
+      body.style.touchAction = ''
+    }
+  }, [leftDrawerOpen, profileSidebarOpen, searchModalOpen, moreMenuOpen, auraCasinoOpen, feedbackModalOpen])
 
   // If we are on an auth page, don't show the header and remove the sidebar offset/padding
   const isAuthPage = pathname?.startsWith('/auth')
