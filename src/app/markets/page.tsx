@@ -7,9 +7,9 @@ import OddsTable from '@/components/sportsbook/OddsTable'
 import { useSnackbarStore } from '@/store/snackbarStore'
 
 const mainCategories = [
-  { id: 'sportsbook', label: 'Sportsbook', image: '/sportsbook-nav.png', link: '/sportsbook' },
-  { id: 'live-casino', label: 'Live Casino', image: '/casino-nav.png', link: '/markets/live-casino' },
-  { id: 'live-cards', label: 'Live Cards', image: '/cards-nav.png', link: '/markets/live-cards' },
+  { id: 'sportsbook', label: 'SPORTS', image: '/sportsbook-nav.png', link: '/sportsbook' },
+  { id: 'live-casino', label: 'LIVECASINO', image: '/casino-nav.png', link: '/markets/live-casino' },
+  { id: 'live-cards', label: 'LIVECARDS', image: '/cards-nav.png', link: '/markets/live-cards' },
 ]
 
 const sportsSubCategories = [
