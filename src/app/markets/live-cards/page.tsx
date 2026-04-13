@@ -20,7 +20,6 @@ export default function LiveCardsPage() {
   const router = useRouter()
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
   const [overlayGame, setOverlayGame] = useState<{ url: string | null; title: string; isOpen: boolean }>({
     url: null,
     title: '',
@@ -37,17 +36,18 @@ export default function LiveCardsPage() {
         const rawGames = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : []);
 
         if (rawGames.length > 0) {
-          // Filter for card games or specific providers that offer cards if known.
-          // For now, let's filter by Category if available, or just show all if no specific filter was given.
-          // many card games have 'Table' or 'Cards' or 'Indian' categories.
-          const cardKeywords = ['card', 'teen patti', 'poker', 'andar bahar', 'hi-low', 'hi low', 'baccarat', 'dragon tiger']
+          const cardKeywords = ['card', 'teen patti', 'poker', 'andar bahar', 'hi-low', 'hi low', 'baccarat', 'dragon tiger', 'matka', '32 card']
           const cardGames = rawGames.filter((game: Game) => 
             (game.Category?.toLowerCase().includes('card')) || 
-            (game.name?.toLowerCase().split(' ').some(word => cardKeywords.includes(word.toLowerCase()))) ||
+            (game.name?.toLowerCase().includes('3 patti')) ||
+            (game.name?.toLowerCase().includes('poker')) ||
+            (game.name?.toLowerCase().includes('andar bahar')) ||
+            (game.name?.toLowerCase().includes('dragon tiger')) ||
+            (game.name?.toLowerCase().includes('32 card')) ||
+            (game.name?.toLowerCase().includes('matka')) ||
             (game.Category?.toLowerCase().includes('table'))
           )
 
-          // Deduplicate
           const uniqueGames = cardGames.reduce((acc: Game[], current: Game) => {
             if (!acc.find(item => item.game_code === current.game_code)) {
               acc.push(current);
@@ -66,10 +66,6 @@ export default function LiveCardsPage() {
 
     fetchGames()
   }, [showSnackbar])
-
-  const filteredGames = games.filter(game =>
-    game.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleGameClick = async (game: Game) => {
     if (!isAuthenticated) {
@@ -100,72 +96,107 @@ export default function LiveCardsPage() {
 
   if (loading) {
     return (
-      <div className="bg-[#000] min-h-screen flex items-center justify-center">
+      <div className="bg-[#111] min-h-screen flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-[#e8612c] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="bg-[#000] min-h-screen text-white pb-20">
-      <div className="sticky top-16 lg:top-[76px] z-[40] bg-[#1a1a1a] px-4 py-4 border-b border-white/5">
-        <div className="flex items-center gap-3 mb-4">
-          <button onClick={() => router.back()} className="text-[#e8612c]">
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-xl font-black uppercase text-[#e15b24] tracking-tight">Live Cards</h1>
-          <div className="ml-auto text-[10px] font-bold text-white/40 uppercase bg-white/5 px-2 py-1 rounded">
-            {games.length} Games
-          </div>
-        </div>
-        
-        <div className="relative w-full">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search size={18} className="text-white/40" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search card games..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 bg-black border border-white/10 rounded-full pl-12 pr-4 text-[14px] placeholder:text-white/40 focus:ring-1 focus:ring-[#e15b24]/50 outline-none transition-all"
-          />
-        </div>
+    <div className="bg-[#111] min-h-screen text-white pb-20">
+      {/* Top Bar Navigation */}
+      <div className="sticky top-16 lg:top-[76px] z-[40] bg-[#1a1a1a] px-3 py-2 border-b border-white/5 flex items-center">
+        <button onClick={() => router.back()} className="text-[#f36c21] p-1">
+          <ChevronLeft size={20} />
+        </button>
+        <h1 className="text-[13px] font-bold text-white/90">Live Card</h1>
       </div>
 
-      <div className="p-4">
-        {filteredGames.length > 0 ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-            {filteredGames.map((game: Game) => (
+      <div className="px-4 py-6 md:px-8">
+        {/* Header Content */}
+        <div className="max-w-[1400px] mb-8">
+          <h2 className="text-[20px] md:text-[24px] font-black text-white leading-tight mb-2">
+            Rummy makes people richer. Play online and win real cash.
+          </h2>
+          <p className="text-[10px] md:text-[11px] text-gray-400 leading-normal text-justify">
+            fairplay invites you to discover thrilling online poker tournaments and games. Here, you can play games like 3 patti online, Indian card games, poker, etc. online using secured deposits. Play and benefit from instant withdrawals and advanced software. Things like 'play rummy win cash' is an everyday situation for this platform where you can awaken the champion inside you. Also, those who enjoy online 3 patti real money can rejoice as we also offer a beginners guide on poker rules, 3 patti rules, etc. and hand rankings to make it simple to play poker online. Our endeavour in offering players a platform to win prizes is what drives our efforts. Learn all moves low to high using our comprehensive guide. To play and win, sign up to Fairplay now!
+          </p>
+        </div>
+
+        {/* Game Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4">
+          {games.map((game: Game) => {
+            const isLiveLabel = game.name.toLowerCase().includes('3 patti') || game.name.toLowerCase().includes('andar bahar') || game.name.toLowerCase().includes('32 card') || game.name.toLowerCase().includes('dragon tiger')
+            const displayName = game.name.replace(/Live/gi, '').trim()
+
+            return (
               <div
                 key={game.game_code}
                 onClick={() => handleGameClick(game)}
-                className="relative group active:scale-95 transition-transform overflow-hidden rounded-[12px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl aspect-[3/4.2]"
+                className="relative group cursor-pointer aspect-[1/1.1] overflow-hidden bg-[#000]"
               >
-                <img
-                  src={`/drmicon/${game.image}`}
-                  alt={game.name}
-                  className="w-full h-full object-cover rounded-[12px]"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=128&font-size=0.33`
-                  }}
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 flex flex-col justify-end h-[60%] pointer-events-none">
-                  <span className="text-[9px] font-black text-white leading-tight uppercase line-clamp-2 text-center drop-shadow-lg mb-0.5">
-                    {game.name}
-                  </span>
-                  <span className="text-[7px] font-extrabold text-[#e15b24] uppercase text-center tracking-tighter">
-                    {game.provider}
-                  </span>
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-110">
+                  <img
+                    src={`/drmicon/${game.image}`}
+                    alt={game.name}
+                    className="w-full h-full object-cover opacity-80"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=256&font-size=0.25`
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                 </div>
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
+                  {/* Gold Hexagon Icon Placeholder */}
+                  <div className="mb-2 relative w-10 h-10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-[#c5a059]">
+                      <path 
+                        d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <div className="relative z-10 text-[#c5a059]">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <circle cx="15.5" cy="8.5" r="1.5"/>
+                        <circle cx="15.5" cy="15.5" r="1.5"/>
+                        <circle cx="8.5" cy="15.5" r="1.5"/>
+                        <circle cx="12" cy="12" r="1.5"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Game Title */}
+                  <div className="flex flex-col items-center">
+                    <h3 className="text-[13px] md:text-[15px] font-bold text-white uppercase tracking-tight leading-tight">
+                      {displayName}
+                    </h3>
+                    {isLiveLabel && (
+                      <span className="text-[#ff0000] text-[12px] md:text-[14px] font-black italic mt-[-2px]">
+                        Live
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Hover Border Effect */}
+                <div className="absolute inset-0 border border-white/0 group-hover:border-[#c5a059]/40 transition-colors pointer-events-none" />
               </div>
-            ))}
-          </div>
-        ) : (
+            )
+          })}
+        </div>
+
+        {games.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center py-20 opacity-40">
-            <Search size={48} className="mb-4 text-white/20" />
-            <p className="text-[14px] font-bold">No card games found</p>
+            <p className="text-[14px] font-bold tracking-widest uppercase">No card games available</p>
           </div>
         )}
       </div>

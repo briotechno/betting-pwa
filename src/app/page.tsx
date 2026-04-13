@@ -193,8 +193,8 @@ export default function HomePage() {
         }
 
         if (startTime && !isNaN(startTime.getTime())) {
-          const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
-                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
+          const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
+            (m.Team2 || '').includes('TOURNAMENT_WINNER')
 
           if (isWinnerMarket) return true;
 
@@ -202,22 +202,22 @@ export default function HomePage() {
           const today = new Date()
           const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
           const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
-          
+
           const isToday = startTime >= startOfToday && startTime <= endOfToday
-          
+
           // If it's not today, don't show in Inplay (unless it's currently live, but usually today is the requirement)
           if (!isToday) {
-             // Exception: If it started very recently (e.g. yesterday late night but still running), maybe keep it?
-             // But following user request: "show all matches of today in inplay"
-             return false
+            // Exception: If it started very recently (e.g. yesterday late night but still running), maybe keep it?
+            // But following user request: "show all matches of today in inplay"
+            return false
           }
         }
 
         // 3. Activity check
         const mId = m.MarketId || m.marketid
         const matchOdds = odds[mId]
-        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
-                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
+        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
+          (m.Team2 || '').includes('TOURNAMENT_WINNER')
 
         if (matchOdds) {
           const status = (matchOdds.status || matchOdds.Status || '').toUpperCase()
@@ -238,8 +238,8 @@ export default function HomePage() {
       })
       .map(m => {
         const mId = m.MarketId || m.marketid
-        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' || 
-                               (m.Team2 || '').includes('TOURNAMENT_WINNER')
+        const isWinnerMarket = (m.Game_Type || m.GameType || '').toLowerCase() === 'winner' ||
+          (m.Team2 || '').includes('TOURNAMENT_WINNER')
         const matchOdds = odds[mId]
         const rawRunners = matchOdds?.runner || matchOdds?.runners || {}
         const rowOdds: any[] = [null, null, null]
@@ -264,19 +264,19 @@ export default function HomePage() {
         };
 
         const runnerArr = Array.isArray(rawRunners) ? rawRunners : Object.values(rawRunners)
-        
+
         if (isWinnerMarket) {
           runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
         } else {
           if (typeof rawRunners === 'object' && !Array.isArray(rawRunners)) {
-             if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
-             if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
-             if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
+            if (rawRunners["0"]) rowOdds[0] = extractOdd(rawRunners["0"])
+            if (rawRunners["1"]) rowOdds[1] = extractOdd(rawRunners["1"])
+            if (rawRunners["2"]) rowOdds[2] = extractOdd(rawRunners["2"])
           } else {
-             runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
+            runnerArr.forEach((r, idx) => { if (idx < 3) rowOdds[idx] = extractOdd(r) })
           }
           if (rowOdds[0] && rowOdds[1] && !rowOdds[2]) {
-             rowOdds[2] = rowOdds[1]; rowOdds[1] = null;
+            rowOdds[2] = rowOdds[1]; rowOdds[1] = null;
           }
         }
 
@@ -488,7 +488,7 @@ export default function HomePage() {
         {/* INPLAY Section Header */}
         <div className="flex items-center gap-2 px-1 mb-2">
           <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">
-             <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[11px] lg:text-[13px]"></i>
+            <i className="v-icon notranslate mdi mdi-access-point theme--light text-white text-[11px] lg:text-[13px]"></i>
           </div>
           <h2 className="text-[16px] lg:text-[18px] font-black text-white uppercase tracking-tight">INPLAY</h2>
         </div>
@@ -557,7 +557,7 @@ export default function HomePage() {
           <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">Live <span className="text-[#e8612c]">Cards</span></h3>
-              <Link href="/live-cards" className="text-[10px] text-[#e8612c] font-black tracking-wider absolute right-2">More ...</Link>
+              <Link href="/markets/live-cards" className="text-[10px] text-[#e8612c] font-black tracking-wider absolute right-2">More ...</Link>
             </div>
             <div className="grid grid-cols-3 gap-3 px-1">
               {[

@@ -246,7 +246,7 @@ const MarketTable = ({
         </div>
         <div className="flex mr-1 md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
           {/* BACK / NO Group */}
-          <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+          <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 3rd cell on desktop/tablet for 3-cell wide markets */}
             {(isMatchOdd || isFancyGroup) && (
               <>
@@ -260,7 +260,7 @@ const MarketTable = ({
           </div>
 
           {/* LAY / YES Group */}
-          <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+          <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 1st cell on desktop/tablet for 3-cell wide markets */}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'YES' : 'Lay'}</span>
@@ -333,7 +333,7 @@ const MarketTable = ({
                           <div className="relative">
                             <div className="flex gap-0.5 lg:gap-1 transition-all duration-300">
                               {/* LEFT GROUP (BACK for ODDS, NO for FANCY) */}
-                              <div className={`flex items-center gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : ''}`}>
+                              <div className={`flex items-center justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : ''}`}>
                                 {(isMatchOdd || isFancyGroup) && (
                                   <>
                                     {isMatchOdd ? (
@@ -360,7 +360,7 @@ const MarketTable = ({
                               </div>
 
                               {/* RIGHT GROUP (LAY for ODDS, YES for FANCY) */}
-                              <div className={`flex items-center gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[110px] md:w-[196px]' : ''}`}>
+                              <div className={`flex items-center justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : ''}`}>
                                 <OddsBox
                                   val={isFancyGroup ? back.p1 : lay.p1}
                                   vol={isFancyGroup ? back.v1 : lay.v1}
@@ -692,15 +692,17 @@ export default function GameDetailPage() {
     <div className="flex-1 min-h-screen bg-[#111] flex flex-col lg:flex-row lg:gap-4 lg:bg-transparent">
       <div className="flex-1 flex flex-col min-w-0 bg-[#111] rounded-lg overflow-hidden">
         <div className="bg-[#1a1a1a] border-b border-white/5 px-2 lg:px-4 h-12 flex items-center justify-between relative z-20">
-          <div className="flex items-center gap-2 lg:gap-4 overflow-hidden">
+          <div className="flex items-center gap-2 lg:gap-4 overflow-hidden flex-1 min-w-0">
             <button onClick={() => router.back()} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all flex-shrink-0"><ChevronLeft size={20} /></button>
-            <div className="flex flex-col min-w-0">
-              <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate flex items-center gap-2">
-                {matchName}
+            <div className="flex flex-col min-w-0 flex-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <h1 className="text-white text-[12px] lg:text-[14px] font-black uppercase tracking-wider truncate">
+                  {matchName}
+                </h1>
                 <button
                   onClick={handleToggleFav}
                   disabled={favLoading}
-                  className={`transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
+                  className={`flex-shrink-0 transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
                 >
                   {favLoading ? (
                     <Loader2 size={16} className="text-yellow-500 animate-spin" />
@@ -711,9 +713,9 @@ export default function GameDetailPage() {
                     />
                   )}
                 </button>
-              </h1>
+              </div>
               {gameTime && (
-                <span className="text-[10px] text-[#f36c21] font-bold uppercase tracking-wider leading-none mt-0.5">
+                <span className="text-[10px] text-[#f36c21] font-bold uppercase tracking-wider leading-none mt-0.5 truncate">
                   {gameTime}
                 </span>
               )}
@@ -721,9 +723,21 @@ export default function GameDetailPage() {
           </div>
         </div>
         <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
-          <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 relative z-20">
-            <button onClick={() => setActiveTab('MARKETS')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'MARKETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}>Markets</button>
-            <button onClick={() => setActiveTab('OPEN_BETS')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/40'}`}>Open Bets {bets.length > 0 && `(${bets.length})`}</button>
+          <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 relative z-20 justify-start">
+            <button
+              onClick={() => setActiveTab('MARKETS')}
+              className={`px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'MARKETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/60'}`}
+            >
+              MARKETS
+            </button>
+            {user && (
+              <button
+                onClick={() => setActiveTab('OPEN_BETS')}
+                className={`px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#f36c21] border-b-2 border-[#f36c21]' : 'text-white/60'}`}
+              >
+                OPEN BETS {bets.length > 0 && `(${bets.length})`}
+              </button>
+            )}
           </div>
           <div className="p-3 lg:p-0">
             {activeTab === 'MARKETS' ? (
