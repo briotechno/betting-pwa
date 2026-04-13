@@ -90,11 +90,11 @@ export default function LeftDrawer() {
               <img src="/nav/logo.png" alt="Fairplay" className="w-full h-auto object-contain" />
             </div>
             <Link
-              href="/auth/register"
+              href="/auth/signup"
               onClick={() => setLeftDrawerOpen(false)}
               className="w-auto p-2 h-10 bg-[#e15b24] text-normal text-white flex items-center justify-center rounded-[4px] text-[14px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-md"
             >
-              {t('common.signup')}
+              REGISTER
             </Link>
           </div>
         )}
