@@ -14,6 +14,81 @@ const GAME_OPTIONS = [
   'Racing'
 ]
 
+const MarketCalendar = ({ 
+  tempStartDate, 
+  setTempStartDate, 
+  tempEndDate, 
+  setTempEndDate, 
+  onClose, 
+  onConfirm 
+}: any) => {
+  const [viewDate, setViewDate] = useState(new Date(tempEndDate || new Date()))
+  const [isSelectingEnd, setIsSelectingEnd] = useState(false)
+  
+  const daysInMonth = (month: number, year: number) => new Date(year, month + 1, 0).getDate()
+  const firstDayOfMonth = (month: number, year: number) => new Date(year, month, 1).getDay()
+  
+  const month = viewDate.getMonth()
+  const year = viewDate.getFullYear()
+  const days = daysInMonth(month, year)
+  const firstDay = firstDayOfMonth(month, year)
+  const monthName = viewDate.toLocaleString('en-US', { month: 'long' })
+  
+  const calendarDays = []
+  for (let i = 0; i < firstDay; i++) calendarDays.push(null)
+  for (let i = 1; i <= days; i++) calendarDays.push(i)
+
+  const handleDateClick = (clickedDate: Date) => {
+    const d = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), clickedDate.getDate())
+    if (!isSelectingEnd) {
+      setTempStartDate(d)
+      setTempEndDate(d)
+      setIsSelectingEnd(true)
+    } else {
+      if (d < tempStartDate) {
+        setTempStartDate(d)
+      } else {
+        setTempEndDate(d)
+        setIsSelectingEnd(false)
+      }
+    }
+  }
+
+  return (
+    <div className="absolute top-[42px] left-0 md:left-auto md:right-0 z-[100] w-[320px] shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <button onClick={() => setViewDate(new Date(year, month - 1, 1))}><ChevronLeft size={18} className="text-gray-400" /></button>
+          <h3 className="text-[14px] font-bold text-gray-700">{monthName} {year}</h3>
+          <button onClick={() => setViewDate(new Date(year, month + 1, 1))}><ChevronRight size={18} className="text-gray-400" /></button>
+        </div>
+        <div className="grid grid-cols-7 px-4 pt-4 text-center">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <span key={d} className="text-[11px] text-gray-400 font-bold pb-2">{d}</span>)}
+        </div>
+        <div className="grid grid-cols-7 px-4 pb-6 text-center gap-y-1">
+          {calendarDays.map((day, idx) => {
+            if (day === null) return <div key={`empty-${idx}`} />
+            const d = new Date(year, month, day)
+            const isStart = d.getTime() === tempStartDate.getTime()
+            const isEnd = d.getTime() === tempEndDate.getTime()
+            const inRange = d > tempStartDate && d < tempEndDate
+            return (
+              <button key={day} onClick={() => handleDateClick(d)}
+                className={`relative flex items-center justify-center h-8 w-8 text-[12px] rounded-full transition-all
+                  ${isStart || isEnd ? 'bg-[#e15b24] text-white font-bold' : inRange ? 'bg-[#e15b24]/10 text-[#e15b24]' : 'text-gray-600 hover:bg-gray-100'}
+                `}>{day}</button>
+            )
+          })}
+        </div>
+        <div className="flex justify-end gap-6 px-6 py-4 border-t border-gray-100 bg-gray-50">
+          <button onClick={onClose} className="text-gray-400 text-[12px] font-bold">CANCEL</button>
+          <button onClick={onConfirm} className="text-[#e15b24] text-[12px] font-bold">OK</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ProfitLossPage() {
   const router = useRouter()
   const { user, isAuthenticated } = useAuthStore()
@@ -57,7 +132,6 @@ export default function ProfitLossPage() {
         formatAPIDate(endDate)
       )
       if (res && typeof res === 'object' && !res.error) {
-        // Transform the dictionary response into an array if needed
         const dataArray = Object.values(res).filter(item => typeof item === 'object' && item !== null)
         setResults(dataArray)
       } else {
@@ -72,110 +146,17 @@ export default function ProfitLossPage() {
 
   useEffect(() => {
     fetchPL()
-  }, [])
+  }, [startDate, endDate])
 
-  // Simple Calendar Component
-  const MarketCalendar = () => {
-    const [viewDate, setViewDate] = useState(new Date(tempEndDate))
-    
-    // Calendar logic
-    const daysInMonth = (month: number, year: number) => new Date(year, month + 1, 0).getDate()
-    const firstDayOfMonth = (month: number, year: number) => new Date(year, month, 1).getDay()
-    
-    const month = viewDate.getMonth()
-    const year = viewDate.getFullYear()
-    const days = daysInMonth(month, year)
-    const firstDay = firstDayOfMonth(month, year)
-    
-    const monthName = viewDate.toLocaleString('en-US', { month: 'long' })
-    
-    const calendarDays = []
-    for (let i = 0; i < firstDay; i++) {
-      calendarDays.push(null)
-    }
-    for (let i = 1; i <= days; i++) {
-      calendarDays.push(i)
-    }
+  const filteredResults = results.filter(item => {
+    if (selectedGame === 'All') return true
+    const name = (item.GameName || '').toLowerCase()
+    const game = selectedGame.toLowerCase()
+    return name.includes(game)
+  })
 
-    return (
-      <div className="absolute top-[42px] left-0 md:left-auto md:right-0 z-[100] w-[320px] shadow-2xl">
-        <div className="bg-white rounded-lg overflow-hidden border border-gray-100">
-          {/* Calendar Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <button onClick={() => setViewDate(new Date(year, month - 1, 1))}>
-              <ChevronLeft size={20} className="text-gray-400" />
-            </button>
-            <h3 className="text-[16px] font-bold text-gray-700">{monthName} {year}</h3>
-            <button onClick={() => setViewDate(new Date(year, month + 1, 1))}>
-              <ChevronRight size={20} className="text-gray-400" />
-            </button>
-          </div>
-          
-          {/* Week Days */}
-          <div className="grid grid-cols-7 px-4 pt-4 text-center">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-              <span key={d} className="text-[12px] text-gray-400 font-medium pb-2">{d}</span>
-            ))}
-          </div>
-          
-          {/* Days Grid */}
-          <div className="grid grid-cols-7 px-4 pb-6 text-center gap-y-1">
-            {calendarDays.map((day, idx) => {
-              if (day === null) return <div key={`empty-${idx}`} />
-              
-              const isSelected = (
-                (tempStartDate.getDate() === day && tempStartDate.getMonth() === month && tempStartDate.getFullYear() === year) ||
-                (tempEndDate.getDate() === day && tempEndDate.getMonth() === month && tempEndDate.getFullYear() === year)
-              )
-              
-              // Simplistic range highlight (all dates between start and end)
-              const currentDate = new Date(year, month, day)
-              const isInRange = currentDate >= tempStartDate && currentDate <= tempEndDate
-
-              return (
-                <button 
-                  key={day}
-                  onClick={() => {
-                    // Primitive range selection logic
-                    if (currentDate < tempStartDate) {
-                      setTempStartDate(currentDate)
-                    } else {
-                      setTempEndDate(currentDate)
-                    }
-                  }}
-                  className={`relative flex items-center justify-center h-9 w-9 text-[13px] rounded-full transition-all
-                    ${isSelected ? 'bg-[#e15b24] text-white font-bold' : isInRange ? 'bg-[#e15b24]/20 text-gray-700' : 'text-gray-600 hover:bg-gray-100'}
-                  `}
-                >
-                  {day}
-                </button>
-              )
-            })}
-          </div>
-          
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-6 px-6 py-4 border-t border-gray-100">
-            <button 
-              onClick={() => setIsCalendarOpen(false)}
-              className="text-[#e15b24] text-[13px] font-bold tracking-wider"
-            >
-              CANCEL
-            </button>
-            <button 
-              onClick={() => {
-                setStartDate(tempStartDate)
-                setEndDate(tempEndDate)
-                setIsCalendarOpen(false)
-              }}
-              className="text-[#e15b24] text-[13px] font-bold tracking-wider"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const totalPL = results.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
+  const currentTotal = filteredResults.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
 
   return (
     <div className="bg-[#181818] min-h-screen text-white pb-20 font-sans">
@@ -186,16 +167,14 @@ export default function ProfitLossPage() {
         </button>
         <div className="flex items-center gap-2">
            <h1 className="text-[15px] font-bold text-white">Profit & Loss</h1>
-           <span className="text-[12px] text-gray-500 font-bold ml-2">Total P&L : 0</span>
+           <span className="text-[12px] text-gray-500 font-bold ml-2">Total P&L : <span className={totalPL >= 0 ? 'text-[#4caf50]' : 'text-[#f44336]'}>{totalPL.toLocaleString()}</span></span>
         </div>
       </div>
 
       <div className="p-4 w-full flex flex-col items-center">
         <div className="w-full max-w-[1000px] px-2 md:px-10">
-          {/* Filters and Search Row */}
           <div className="flex flex-col lg:flex-row items-center gap-4 mb-4 w-full">
             <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
-                {/* Games Dropdown */}
                 <div className="relative w-full md:w-[220px]">
                   <div 
                     onClick={() => setIsGameDropdownOpen(!isGameDropdownOpen)}
@@ -209,14 +188,8 @@ export default function ProfitLossPage() {
                   {isGameDropdownOpen && (
                     <div className="absolute top-[42px] left-0 right-0 bg-[#222] border border-white/10 rounded-lg overflow-hidden z-[60] shadow-2xl">
                       {GAME_OPTIONS.map((opt) => (
-                        <div 
-                          key={opt}
-                          onClick={() => {
-                            setSelectedGame(opt)
-                            setIsGameDropdownOpen(false)
-                          }}
-                          className={`px-4 py-3 text-[13px] hover:bg-[#282828] cursor-pointer transition-colors ${selectedGame === opt ? 'bg-[#4a2618] text-[#e8612c] font-bold' : 'text-gray-300'}`}
-                        >
+                        <div key={opt} onClick={() => { setSelectedGame(opt); setIsGameDropdownOpen(false); }}
+                          className={`px-4 py-3 text-[13px] hover:bg-[#282828] cursor-pointer transition-colors ${selectedGame === opt ? 'bg-[#4a2618] text-[#e8612c] font-bold' : 'text-gray-300'}`}>
                           {opt}
                         </div>
                       ))}
@@ -224,74 +197,71 @@ export default function ProfitLossPage() {
                   )}
                 </div>
 
-                {/* Select Dates */}
-                <div 
-                  onClick={() => setIsCalendarOpen(true)}
-                  className="relative w-full md:w-[260px] cursor-pointer"
-                >
+                <div onClick={() => setIsCalendarOpen(true)} className="relative w-full md:w-[260px] cursor-pointer">
                   <div className="w-full bg-[#111] border border-white/20 rounded-full h-10 flex items-center justify-between px-4 relative">
                     <label className="absolute -top-2 left-4 px-1 bg-[#181818] text-[9px] text-[#e8612c] font-bold z-10">Select Dates</label>
                     <span className="text-[11px] font-semibold text-white">
                       {formatDateLabel(startDate)} - {formatDateLabel(endDate)}
                     </span>
                   </div>
-                  {isCalendarOpen && <MarketCalendar />}
+                  {isCalendarOpen && (
+                    <MarketCalendar 
+                      tempStartDate={tempStartDate}
+                      setTempStartDate={setTempStartDate}
+                      tempEndDate={tempEndDate}
+                      setTempEndDate={setTempEndDate}
+                      onClose={() => setIsCalendarOpen(false)}
+                      onConfirm={() => {
+                        setStartDate(tempStartDate)
+                        setEndDate(tempEndDate)
+                        setIsCalendarOpen(false)
+                      }}
+                    />
+                  )}
                 </div>
             </div>
 
-            {/* Search Button */}
-            <button 
-              onClick={fetchPL}
-              className="bg-[#e15b24] text-white rounded-full h-10 px-12 flex-initial flex items-center justify-center font-bold text-[13px] uppercase tracking-widest transition-all active:scale-[0.98] min-w-[170px]"
-            >
+            <button onClick={fetchPL} className="bg-[#e15b24] text-white rounded-full h-10 px-12 flex-initial flex items-center justify-center font-bold text-[13px] uppercase tracking-widest transition-all active:scale-[0.98] min-w-[170px]">
                 SEARCH
             </button>
           </div>
 
-          {/* Results Badge */}
           <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-[#e15b24] bg-black gap-1.5 mb-6">
             <span className="text-[12px] font-bold text-white tracking-tight">{selectedGame} :</span>
-            <span className="text-[12px] font-bold text-[#4caf50]">72.50</span>
+            <span className={`text-[12px] font-bold ${currentTotal >= 0 ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
+              {currentTotal.toLocaleString()}
+            </span>
           </div>
 
-        {/* Results List */}
         <div className="space-y-4">
            {loading ? (
              <div className="flex justify-center py-20">
                 <div className="w-8 h-8 border-2 border-[#e8612c] border-t-transparent rounded-full animate-spin" />
              </div>
-           ) : results.length > 0 ? (
-             results.map((item, idx) => {
-               const isPositive = parseFloat(item[4] || 0) >= 0
+           ) : filteredResults.length > 0 ? (
+             filteredResults.map((item: any, idx) => {
+               const amount = parseFloat(item.amount || 0)
+               const isPositive = amount >= 0
                return (
                  <div key={idx} className="overflow-hidden rounded-lg bg-white border border-white/10 shadow-lg">
-                   {/* Date Header */}
                    <div className="bg-[#e15b24] px-4 py-2 flex items-center justify-between">
-                      <span className="text-white text-[12px] font-medium">{item.date || item[0] || 'April 10th 2026'}</span>
+                      <span className="text-white text-[12px] font-medium">{item.DateTime}</span>
                       <ChevronUp size={16} className="text-white" />
                    </div>
-                   
-                   {/* Card Body */}
                    <div className="px-4 py-3 text-black bg-white flex justify-between items-start">
                       <div className="flex flex-col gap-0.5">
-                         <span className="text-[11px] font-bold text-black">Sportsbook</span>
-                         <a href="#" className="text-[11px] font-medium text-[#007bff] hover:underline">
-                            {item.market || item[3] || 'Rajasthan Royals v RC Bengaluru - To Win The Toss'}
-                         </a>
-                         <p className="text-[11px] text-black">Settled Date: {item.settled_date || item[1] || '10/04/2026, 8:02:14 pm'}</p>
+                         <span className="text-[11px] font-bold text-black uppercase tracking-tight opacity-50">Game Activity</span>
+                         <h4 className="text-[12px] font-bold text-[#007bff]">{item.GameName}</h4>
+                         <p className="text-[11px] text-gray-500">Timestamp: {item.DateTime}</p>
                       </div>
-                      
                       <div className="flex flex-col items-end gap-1 min-w-[100px]">
                          <div className="flex items-center gap-1">
-                            <span className="text-[11px] text-black">Comm:</span>
-                            <span className="text-[11px] text-black font-bold">0</span>
-                         </div>
-                         <div className="flex items-center gap-1">
-                            <span className="text-[11px] text-black">Net Win:</span>
-                            <span className={`text-[11px] font-bold ${isPositive ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
-                               {item.win || item[2] || '98'}
+                            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Net Win:</span>
+                            <span className={`text-[12px] font-black ${isPositive ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
+                               {isPositive ? '+' : ''}{amount.toLocaleString()}
                             </span>
                          </div>
+                         <span className="text-[8px] font-black uppercase tracking-widest text-gray-300">Settled</span>
                       </div>
                    </div>
                  </div>
@@ -307,9 +277,6 @@ export default function ProfitLossPage() {
         </div>
       </div>
 
-
-      
-      {/* Click outside to close dropdowns */}
       {isGameDropdownOpen && <div className="fixed inset-0 z-50" onClick={() => setIsGameDropdownOpen(false)} />}
       {isCalendarOpen && <div className="fixed inset-0 z-50" onClick={() => setIsCalendarOpen(false)} />}
     </div>

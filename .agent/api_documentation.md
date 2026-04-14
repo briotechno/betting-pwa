@@ -331,6 +331,26 @@ This document serves as the high-fidelity specification for the Betting Platform
 - **Request:** `{"LoginToken":"...", "sdate":"01-02-2026", "edate":"13-02-2026"}`
 - **Response:** `{"0": {"0": "Date", "1": 9345.38, "2": "O", "3": "Opening Balance"}, "1": {"0": "Date", "1": 36, "2": "DR", "3": "...", "4": "12456"}, ...}`
 
+### 56. User Profit & Loss ✅
+**POST** `/pl`
+- **Description:** Get game-wise Profit & Loss history.
+- **Request:** `{"LoginToken":"...", "sdate":"01-04-2026", "edate":"15-04-2026"}`
+- **Response:**
+  ```json
+  {
+    "0": {
+      "DateTime": "2026-04-01 00:00:36",
+      "GameName": "DreamCasino",
+      "amount": "-2200.24"
+    },
+    "1": {
+      "DateTime": "2026-04-01 19:12:49",
+      "GameName": "To Win The Toss(Lucknow Super Giants Vs Delhi Capitals)",
+      "amount": "3038.00"
+    }
+  }
+  ```
+
 ### 29. Account Statement Bet List ✅
 **POST** `/statementbet`
 - **Request:** `{" Eid ":"12456"}` (⚠️ Note space in property name ` Eid `)

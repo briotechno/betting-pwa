@@ -79,12 +79,12 @@ export const userController = {
   },
 
   /**
-   * Get account statement (Profit/Loss history)
+   * Get user Profit & Loss (P&L history)
    * @param loginToken The encrypted session token
    * @param sdate Start date (dd-mm-yyyy)
    * @param edate End date (dd-mm-yyyy)
    */
   getAccountStatement: async (loginToken: string, sdate: string, edate: string): Promise<ApiResponse> => {
-    return await fetchAPI('/statement', { LoginToken: loginToken, sdate, edate });
+    return await fetchAPI('/pl', { LoginToken: loginToken, sdate, edate });
   },
 };
