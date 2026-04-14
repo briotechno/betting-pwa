@@ -1,9 +1,11 @@
 'use client'
-import React, { useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import { Star } from 'lucide-react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { Star, Loader2 } from 'lucide-react'
 import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
+import { marketController } from '@/controllers/market/marketController'
+import { useAuthStore } from '@/store/authStore'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
@@ -11,102 +13,118 @@ const sportsList = [
   { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
-const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
+const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void, isUpcoming?: boolean }) => {
+  const [blink, setBlink] = useState(false)
+  const prevValue = React.useRef(val)
 
-const matches = [
-  {
-    id: 1,
-    teamA: 'Border',
-    teamB: 'Mpumalanga Rhinos',
-    startTime: 'Today At 1:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '1.59', backVol: '156', back2: '1.64', backVol2: '178', back3: '2.12', backVol3: '105', lay: '2.18', layVol: '22,690', lay2: '2.20', layVol2: '149', lay3: '2.28', layVol3: '110' },
-      { back: '1.79', backVol: '139', back2: '1.84', backVol2: '26,961', back3: '1.85', backVol3: '100', lay: '1.90', layVol: '118', lay2: '2.58', layVol2: '114', lay3: '2.70', layVol3: '93' },
-    ]
-  },
-  {
-    id: 2,
-    teamA: 'Kwazulu Natal Inland',
-    teamB: 'Lions',
-    startTime: 'Today At 1:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '3.05', backVol: '978', back2: '3.10', backVol2: '170', back3: '3.15', backVol3: '61', lay: '3.60', layVol: '147', lay2: '3.65', layVol2: '156', lay3: '3.95', layVol3: '121' },
-      { back: '1.34', backVol: '357', back2: '1.38', backVol2: '412', back3: '1.39', backVol3: '379', lay: '1.46', layVol: '130', lay2: '1.47', layVol2: '357', lay3: '1.48', layVol3: '614' },
-    ]
-  },
-  {
-    id: 3,
-    teamA: 'Warriors',
-    teamB: 'Titans',
-    startTime: 'Today At 4:30 PM',
-    isUpcoming: true,
-    odds: [
-      { back: '1.67', backVol: '1,003', back2: '1.68', backVol2: '340', back3: '1.69', backVol3: '74', lay: '1.72', layVol: '2,399', lay2: '1.73', layVol2: '353', lay3: '1.79', layVol3: '495' },
-      { back: '2.26', backVol: '2,055', back2: '2.28', backVol2: '388', back3: '2.38', backVol3: '1,990', lay: '2.48', layVol: '281', lay2: '2.50', layVol2: '902', lay3: '2.52', layVol3: '2,362' },
-    ]
-  }
-]
+  useEffect(() => {
+    if (prevValue.current !== val && val !== '0' && val !== '0.00' && val !== '-' && parseFloat(val) > 0) {
+      setBlink(true)
+      const timer = setTimeout(() => setBlink(false), 300)
+      prevValue.current = val
+      return () => clearTimeout(timer)
+    }
+    prevValue.current = val
+  }, [val])
 
-const OddsBox = ({ val, vol, type, intensity = 'high' }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high' }) => {
   const bgColor = type === 'back'
     ? (intensity === 'high' ? 'bg-[#a5d9fe]' : intensity === 'medium' ? 'bg-[#bce4ff]' : 'bg-[#d1eeff]')
     : (intensity === 'high' ? 'bg-[#f8d0ce]' : intensity === 'medium' ? 'bg-[#fbe3e2]' : 'bg-[#fff0f0]')
 
+  const isEmpty = !val || val === '0' || val === '0.00' || val === '-' || parseFloat(val) === 0
+
   return (
-    <button className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-black/5 ${bgColor} hover:brightness-95 active:scale-95`}>
-      <span className="text-[12px] lg:text-[12px] font-black text-[#2e2e2e] leading-none mb-0.5">{val || '-'}</span>
-      <span className="text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>
+    <button
+      onClick={onClick}
+      disabled={isUpcoming}
+      className={`w-[65px] lg:w-[60px] h-[40px] rounded-[0.4rem] flex flex-col items-center justify-center transition-all shadow-sm border border-transparent relative overflow-hidden ${isEmpty && !isUpcoming ? 'bg-[#e0e0e0] opacity-70' : bgColor} ${blink && !isUpcoming ? 'animate-rate-change' : ''} hover:brightness-95 active:scale-95`}
+    >
+      <span className={`relative z-0 text-[12px] lg:text-[12px] font-black ${isEmpty ? 'text-[#999]' : 'text-[#2e2e2e]'} leading-none mb-0.5`}>{val || '-'}</span>
+      {!isEmpty && <span className="relative z-0 text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>}
+      
+      {isUpcoming && (
+        <div className="absolute inset-0 bg-[#212121] opacity-[0.46] z-10"></div>
+      )}
     </button>
   )
 }
 
 const MatchTable = ({ match }: { match: any }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const router = useRouter()
+  const { isAuthenticated } = useAuthStore()
+
+  const navigateToMatch = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/sportsbook/Cricket/${match.competitionId || 'league'}/${match.matchId}`)
+  }
+
+  const handleOddsClick = () => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+      return
+    }
+    router.push(`/sportsbook/Cricket/${match.competitionId || 'league'}/${match.matchId}`)
+  }
 
   return (
-    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-3 relative">
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-5 relative group">
       {/* Live Badge - Overlapping Corner */}
-      <div className="absolute -top-[10px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md transform transition-transform duration-200 cursor-default flex items-center gap-1 border border-[#238a3a]">
-        LIVE
-      </div>
+      {!match.isUpcoming ? (
+        <div
+          onClick={navigateToMatch}
+          className="absolute -top-[12px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
+        >
+          LIVE
+        </div>
+      ) : (
+        <div
+          onClick={navigateToMatch}
+          className="absolute -top-[12px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
+        >
+          UPCOMING
+        </div>
+      )}
 
       {/* Header */}
-      <div
-        className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {/* Left Side - Orange with slanted edge */}
-        <div className="relative h-full flex-[4] flex flex-col justify-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 97% 100%, 0% 100%)' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-white text-[16px] lg:text-[18px] font-medium leading-none mb-1">
-              {isCollapsed ? '+' : '−'}
+      <div className="h-10 lg:h-12 flex items-center relative select-none bg-[#e0e0e0] overflow-hidden">
+        {/* Toggle Button Column */}
+        <div
+          className="w-10 lg:w-12 h-full flex items-center justify-center bg-[#e8612c] text-white cursor-pointer hover:bg-[#d85826] transition-colors z-20"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <span className="text-[18px] lg:text-[20px] font-medium leading-none mb-1">
+            {isCollapsed ? '+' : '−'}
+          </span>
+        </div>
+
+        {/* Match Name - Main Clickable Area */}
+        <div
+          onClick={navigateToMatch}
+          className="flex-[4] h-full flex items-center pl-2 lg:pl-4 bg-gradient-to-r from-[#e8612c] to-[#e8612c] cursor-pointer hover:to-[#f1713d] transition-all relative z-10"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 97% 100%, 0% 100%)' }}
+        >
+          <div className="flex flex-col justify-center py-1">
+            <span className="text-white text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.02em] group-hover:pl-1 transition-all leading-[1.1]">
+              {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
             </span>
-            <div className="flex flex-col justify-center py-1">
-              <span className="text-white text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.02em] leading-[1.1]">
-                {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
-              </span>
-              <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
-                {match.startTime}
-              </span>
-            </div>
+            <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
+              {match.startTime}
+            </span>
           </div>
         </div>
 
-        {/* Right Side - Gray with icons */}
-        <div className="flex-initial min-w-[60px] h-full flex items-center justify-start pl-2 gap-3 z-0">
+        {/* Right Side - Icons */}
+        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-10px] pl-6 flex-initial min-w-[60px]">
           <div className="w-4 h-4 hidden md:flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
           <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
-        </div>
-
-        {/* Time - Desktop Only */}
-        <div className="hidden lg:flex mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
-          {match.startTime}
+          <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
+            {match.startTime}
+          </div>
         </div>
       </div>
 
@@ -117,7 +135,7 @@ const MatchTable = ({ match }: { match: any }) => {
             <tbody>
               {/* Team Rows */}
               {[match.teamA, match.teamB].map((team, tIdx) => (
-                <tr key={team} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
+                <tr key={team + tIdx} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
                   <td className="py-2 px-3 lg:px-4 min-w-[140px] max-w-[200px]">
                     <div className="flex flex-col">
                       <span className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] tracking-[0.02em] uppercase leading-tight">
@@ -132,20 +150,18 @@ const MatchTable = ({ match }: { match: any }) => {
                     <div className="flex justify-end gap-1">
                       {/* Odds columns - Responsive */}
                       <div className="flex gap-1 py-1">
-                        {/* Mobile: Only show 2 columns; Desktop: Show all 6 */}
-
                         {/* Back Columns */}
                         <div className="hidden lg:flex gap-1">
-                          <OddsBox val={(match.odds[tIdx] as any).back3 || ''} vol={(match.odds[tIdx] as any).backVol3 || ''} type="back" intensity="low" />
-                          <OddsBox val={(match.odds[tIdx] as any).back2 || ''} vol={(match.odds[tIdx] as any).backVol2 || ''} type="back" intensity="medium" />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back3} vol={match.odds[tIdx].backVol3} type="back" intensity="low" isUpcoming={match.isUpcoming} />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back2} vol={match.odds[tIdx].backVol2} type="back" intensity="medium" isUpcoming={match.isUpcoming} />
                         </div>
-                        <OddsBox val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" />
+                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].back} vol={match.odds[tIdx].backVol} type="back" intensity="high" isUpcoming={match.isUpcoming} />
 
                         {/* Lay Columns */}
-                        <OddsBox val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" />
+                        <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay} vol={match.odds[tIdx].layVol} type="lay" intensity="high" isUpcoming={match.isUpcoming} />
                         <div className="hidden lg:flex gap-1">
-                          <OddsBox val={(match.odds[tIdx] as any).lay2 || ''} vol={(match.odds[tIdx] as any).layVol2 || ''} type="lay" intensity="medium" />
-                          <OddsBox val={(match.odds[tIdx] as any).lay3 || ''} vol={(match.odds[tIdx] as any).layVol3 || ''} type="lay" intensity="low" />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay2} vol={match.odds[tIdx].layVol2} type="lay" intensity="medium" isUpcoming={match.isUpcoming} />
+                          <OddsBox onClick={handleOddsClick} val={match.odds[tIdx].lay3} vol={match.odds[tIdx].layVol3} type="lay" intensity="low" isUpcoming={match.isUpcoming} />
                         </div>
                       </div>
                     </div>
@@ -160,18 +176,175 @@ const MatchTable = ({ match }: { match: any }) => {
   )
 }
 
-import { useAuthStore } from '@/store/authStore'
-
 export default function SportsbookPage() {
   const { user } = useAuthStore()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  // Find active sport based on URL path or default to Cricket on /sportsbook
-  const activeSport = sportsList.find(s =>
-    pathname.includes(s.id)
-  )?.id || 'Cricket'
+  const [competitions, setCompetitions] = useState<any[]>([])
+  const [loadingLeagues, setLoadingLeagues] = useState(false)
+  const [games, setGames] = useState<any[]>([])
+  const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
+  const [isLoading, setIsLoading] = useState(true)
+
+  const activeSport = 'Cricket'
+
+  // Fetch Leagues
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLeagues = async () => {
+      try {
+        setLoadingLeagues(true)
+        const res = await marketController.getCompetitionList(activeSport)
+        if (isMounted) {
+          if (Array.isArray(res)) setCompetitions(res)
+          else if (res && typeof res === 'object' && !res.error) setCompetitions(Object.values(res))
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (isMounted) setLoadingLeagues(false)
+      }
+    }
+    fetchLeagues()
+    return () => { isMounted = false }
+  }, [activeSport])
+
+  // Fetch Gamelist
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      try {
+        setIsLoading(true);
+        const gameRes = await marketController.getGameList(activeSport);
+
+        if (isMounted) {
+          let matchData: any[] = [];
+          if (gameRes && typeof gameRes === 'object' && !gameRes.error) {
+            matchData = Object.values(gameRes).filter(v => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Event_Id || v.gid));
+          } else if (Array.isArray(gameRes)) {
+            matchData = gameRes;
+          }
+          setGames(matchData);
+        }
+      } catch (e) {
+        console.error("Error fetching data:", e);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+    return () => { isMounted = false; };
+  }, [activeSport]);
+
+  // Poll Live Odds
+  useEffect(() => {
+    if (games.length === 0) return;
+    const marketIds = games.map(g => g.MarketId || g.marketid).filter(Boolean).join(',');
+    if (!marketIds) return;
+
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const poll = async () => {
+      try {
+        const res = await marketController.getLiveRates(marketIds);
+        if (isMounted && res && typeof res === 'object' && !res.error) {
+          if (Array.isArray(res)) {
+            const oddsMap: Record<string, any> = {};
+            res.forEach(item => { if (item.MarketId || item.marketid) oddsMap[item.MarketId || item.marketid] = item; });
+            setLiveOdds(prev => ({ ...prev, ...oddsMap }));
+          } else {
+            setLiveOdds(prev => ({ ...prev, ...res }));
+          }
+        }
+      } catch (e) {
+        console.error("Poll Error:", e)
+      }
+
+      if (isMounted) {
+        timeoutId = setTimeout(poll, 200);
+      }
+    };
+
+    poll();
+    return () => {
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [games]);
+
+  const processedMatches = useMemo(() => {
+    return games.map((g, index) => {
+      const mId = g.MarketId || g.marketid;
+      const oddsData = liveOdds[mId];
+      const runners = oddsData?.runner || oddsData?.runners || [];
+      const runnerArr = Array.isArray(runners) ? runners : Object.values(runners);
+
+      const getPrices = (r: any, type: 'back' | 'lay') => {
+        if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
+        const data = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
+        const arr = Array.isArray(data) ? data : Object.values(data || {});
+        const rate1 = arr[0]?.rate || arr[0]?.price || (type === 'back' ? r.lastPriceTraded : '') || '';
+
+        return {
+          p1: rate1 ? rate1.toString() : '',
+          v1: arr[0]?.size || '',
+          p2: (arr[1]?.rate || arr[1]?.price || '')?.toString(),
+          v2: arr[1]?.size || '',
+          p3: (arr[2]?.rate || arr[2]?.price || '')?.toString(),
+          v3: arr[2]?.size || '',
+        };
+      };
+
+      const teamAOdds = runnerArr[0];
+      const teamBOdds = runnerArr[1];
+
+      const backA = getPrices(teamAOdds, 'back');
+      const layA = getPrices(teamAOdds, 'lay');
+      const backB = getPrices(teamBOdds, 'back');
+      const layB = getPrices(teamBOdds, 'lay');
+
+      let isUpcoming = false;
+      const now = new Date();
+      if (g.DateTime) {
+        let startTimeStr = g.DateTime;
+        let d = new Date(startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T'));
+        if (isNaN(d.getTime())) {
+          const parts = startTimeStr.split(/[-/ :]/);
+          if (parts.length >= 3) {
+            d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+          }
+        }
+        if (d && !isNaN(d.getTime()) && d > now) {
+          isUpcoming = true;
+        }
+      }
+
+      return {
+        id: g.Event_Id || g.gid || index,
+        teamA: g.Team1 || g.Game_name?.split(' Vs ')[0] || 'Team A',
+        teamB: g.Team2 || g.Game_name?.split(' Vs ')[1] || 'Team B',
+        startTime: g.DateTime || 'Live',
+        isUpcoming: isUpcoming,
+        matchId: g.gid || g.Event_Id,
+        competitionId: g.CompetitionCode || g.cid || 'all',
+        odds: [
+          {
+            back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,
+            lay: layA.p1, layVol: layA.v1, lay2: layA.p2, layVol2: layA.v2, lay3: layA.p3, layVol3: layA.v3
+          },
+          {
+            back: backB.p1, backVol: backB.v1, back2: backB.p2, backVol2: backB.v2, back3: backB.p3, backVol3: backB.v3,
+            lay: layB.p1, layVol: layB.v1, lay2: layB.p2, layVol2: layB.v2, lay3: layB.p3, layVol3: layB.v3
+          }
+        ]
+      }
+    })
+  }, [games, liveOdds]);
 
   return (
     <div className="flex min-h-screen bg-[#1a1a1a] lg:gap-4 lg:bg-transparent">
@@ -210,7 +383,7 @@ export default function SportsbookPage() {
 
         {/* Sub tabs nav */}
         <div className="flex justify-center bg-[#1a1a1a] border-b border-white/5 h-10 px-4 gap-4 box-border">
-          {subTabs.map((tab) => (
+          {['LIVE & UPCOMING', 'LEAGUES', 'RESULTS'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveSubTab(tab)}
@@ -226,11 +399,49 @@ export default function SportsbookPage() {
           ))}
         </div>
 
-        {/* Match List */}
-        <div className="p-2 space-y-4">
-          {matches.map((match) => (
-            <MatchTable key={match.id} match={match} />
-          ))}
+        {/* Main Content Area based on Tab */}
+        <div className="p-2 space-y-3">
+          {activeSubTab === 'LEAGUES' ? (
+            <div className="flex flex-col gap-1">
+              {loadingLeagues ? (
+                <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
+                  <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Loading Leagues...</p>
+                </div>
+              ) : competitions.length > 0 ? (
+                competitions.map((comp: any) => (
+                  <button
+                    key={comp.CompetitionCode || comp.Competition}
+                    onClick={() => {
+                      router.push(`/sportsbook/${activeSport}/${comp.CompetitionCode}`);
+                    }}
+                    className="w-full text-left px-4 py-3 bg-[#222] text-[13px] text-gray-300 hover:text-white cursor-pointer hover:bg-[#333] transition-colors border-l-2 border-transparent hover:border-[#e8612c] rounded-md font-bold mb-1"
+                  >
+                    {comp.Competition}
+                  </button>
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Leagues Found</div>
+              )}
+            </div>
+          ) : activeSubTab === 'RESULTS' ? (
+            <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Results Available</div>
+          ) : (
+            <>
+              {isLoading && games.length === 0 ? (
+                <div className="py-20 flex flex-col items-center justify-center text-white/20 gap-3">
+                  <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Loading Live Data...</p>
+                </div>
+              ) : processedMatches.length > 0 ? (
+                processedMatches.map((match) => (
+                  <MatchTable key={match.id} match={match} />
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Matches Found</div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
