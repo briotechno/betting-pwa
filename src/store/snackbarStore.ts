@@ -15,8 +15,8 @@ export const useSnackbarStore = create<SnackbarState>((set) => ({
   isOpen: false,
   message: '',
   color: 'success',
-  timeout: 5000,
-  show: (message, color = 'success', timeout = 5000) => {
+  timeout: 2000,
+  show: (message, color = 'success', timeout = 2000) => {
     if (timeoutId) clearTimeout(timeoutId)
     set({ isOpen: true, message, color, timeout })
     if (timeout > 0) {
