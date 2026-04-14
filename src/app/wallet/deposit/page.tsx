@@ -315,8 +315,9 @@ export default function DepositPage() {
             ) : (
               /* Step 2 Content */
               <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                {/* Bank Selector */}
-                <div className="bg-[#111]/80 border border-white/5 rounded-[32px] p-6 shadow-2xl">
+                {/* Bank Selector - Clean Grid Layout */}
+                <div className="space-y-4">
+                  <label className="text-[14px] font-black uppercase tracking-wider text-white ml-1">Select Payment Method</label>
                   {methodsLoading ? (
                     <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
                       {Array(4).fill(0).map((_, i) => <div key={i} className="min-w-[100px] h-24 rounded-2xl bg-white/5 animate-pulse" />)}
@@ -331,7 +332,7 @@ export default function DepositPage() {
                       NO BANKS AVAILABLE FOR ₹{parseFloat(amount).toLocaleString()}
                     </div>
                   ) : (
-                    <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 md:flex gap-2 md:gap-4 md:overflow-x-auto no-scrollbar pb-2">
                       <style jsx>{`
                         .no-scrollbar::-webkit-scrollbar { display: none; }
                         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -340,12 +341,12 @@ export default function DepositPage() {
                       {/* 1. Always show WhatsApp First */}
                       <button
                         onClick={() => window.open('https://wa.me/91XXXXXXXXXX', '_blank')}
-                        className="flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 border-transparent hover:bg-white/5 transition-all text-white"
+                        className="flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 border-transparent hover:bg-white/5 transition-all text-white"
                       >
-                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
                           <img src="/deposite/wp.png" alt="WhatsApp" className="w-full h-full object-contain" />
                         </div>
-                        <span className="text-[10px] font-black uppercase text-center max-w-[90px] tracking-tighter">WhatsApp Deposit</span>
+                        <span className="text-[9.5px] font-bold uppercase text-center leading-tight tracking-tighter mt-1">WhatsApp Deposit</span>
                       </button>
 
                       {(() => {
@@ -368,11 +369,11 @@ export default function DepositPage() {
                           else if (rawType === 'CRYPTO' || rawType === 'USDT') iconPath = '/deposite/usdt.png';
 
                           return (
-                            <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-2 p-3 min-w-[110px] rounded-2xl border-2 transition-all ${isActive ? 'bg-white/5 border-[#e8612c] text-white' : 'border-transparent opacity-50 grayscale text-white'}`}>
-                              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
+                            <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 transition-all ${isActive ? 'bg-white/10 border-[#e8612c] text-white shadow-lg' : 'border-transparent opacity-50 grayscale hover:opacity-100 text-white'}`}>
+                              <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
                                 <img src={iconPath} alt="" className="w-full h-full object-contain" />
                               </div>
-                              <span className="text-[10px] font-black uppercase text-center max-w-[90px] truncate tracking-tighter">{displayName}</span>
+                              <span className="text-[9.5px] font-bold uppercase text-center leading-tight truncate w-full px-1 tracking-tighter mt-1">{displayName}</span>
                             </button>
                           );
                         });
@@ -589,7 +590,7 @@ export default function DepositPage() {
                           <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
                           <div className="text-center">
                             <span className={`text-[10px] font-black uppercase ${status === 'success' ? 'text-green-500' :
-                                status === 'failed' ? 'text-red-500' : 'text-white/60'
+                              status === 'failed' ? 'text-red-500' : 'text-white/60'
                               }`}>
                               {item.Status || item.status || 'Pending'}
                             </span>
