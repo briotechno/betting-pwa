@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronRight, ChevronLeft, History, X, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -28,6 +29,7 @@ const quickSports = [
 import PopupModal from '@/components/common/PopupModal'
 
 export default function HomePage() {
+  const router = useRouter()
   const [currentBanner, setCurrentBanner] = useState(0)
   const [banners, setBanners] = useState<any[]>([])
   const { t } = useI18nStore()
@@ -45,6 +47,7 @@ export default function HomePage() {
   const handlePremiumClick = async () => {
     if (!user) {
       showSnackbar('Please login to access the premium sportsbook', 'error')
+      router.push('/auth/login')
       return
     }
     setShowPremium(true)
