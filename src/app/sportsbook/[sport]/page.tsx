@@ -65,22 +65,27 @@ const MatchTable = ({ match }: { match: any }) => {
         {/* Match Name - Main Clickable Area */}
         <div
           onClick={navigateToMatch}
-          className="flex-1 h-full flex items-center pl-2 lg:pl-4 bg-gradient-to-r from-[#e8612c] to-[#e8612c] cursor-pointer hover:to-[#f1713d] transition-all relative z-10"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)' }}
+          className="flex-[4] h-full flex items-center pl-2 lg:pl-4 bg-gradient-to-r from-[#e8612c] to-[#e8612c] cursor-pointer hover:to-[#f1713d] transition-all relative z-10"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 97% 100%, 0% 100%)' }}
         >
-          <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight group-hover:pl-1 transition-all">
-            {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
-          </span>
+          <div className="flex flex-col justify-center py-1">
+            <span className="text-white text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.02em] group-hover:pl-1 transition-all leading-[1.1]">
+              {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
+            </span>
+            <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
+              {match.startTime}
+            </span>
+          </div>
         </div>
 
         {/* Right Side - Icons */}
-        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-20px] pl-8 flex-1">
-          <div className="w-4 h-4 flex items-center justify-center">
+        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-10px] pl-6 flex-initial min-w-[60px]">
+          <div className="w-4 h-4 hidden md:flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+          <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
           <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
             {match.startTime}
           </div>
@@ -95,10 +100,15 @@ const MatchTable = ({ match }: { match: any }) => {
               {/* Team Rows */}
               {[match.teamA, match.teamB].map((team, tIdx) => (
                 <tr key={team} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
-                  <td className="py-3 px-3 lg:px-4 min-w-[140px]">
-                    <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight whitespace-nowrap">
-                      {toTitleCase(team)}
-                    </span>
+                  <td className="py-2 px-3 lg:px-4 min-w-[140px] max-w-[200px]">
+                    <div className="flex flex-col">
+                      <span className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] tracking-[0.02em] uppercase leading-tight">
+                        {(team || '').replace(/_/g, ' ')}
+                      </span>
+                      <span className="text-[8px] lg:text-[9px] text-[#777] font-medium uppercase italic mt-0.5">
+                        {match.startTime}
+                      </span>
+                    </div>
                   </td>
                   <td className="p-1 px-2">
                     <div className="flex justify-end gap-1">

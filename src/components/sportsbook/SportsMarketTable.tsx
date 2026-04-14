@@ -80,16 +80,14 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 )}
               </button>
 
-              <div className="flex flex-col justify-center">
-                <span className="text-[11px] font-black leading-tight tracking-tight">
-                  {toTitleCase(match.title)}
+              <div className="flex flex-col justify-center px-1 py-1">
+                <span className="text-[10px] lg:text-[11px] font-black leading-[1.1] tracking-[0.02em] uppercase">
+                  {(match.title || '').replace(/_/g, ' ')}
                 </span>
 
-                {match.status === 'UPCOMING' && (
-                  <span className="text-[9px] opacity-80 font-bold">
-                    {match.startTime}
-                  </span>
-                )}
+                <span className="text-[8px] lg:text-[9px] opacity-80 font-bold italic">
+                  {match.startTime}
+                </span>
               </div>
 
               {/* Decorative Diagonal Cut */}
@@ -102,7 +100,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}
               />
 
-              <div className="ml-auto pr-8 flex items-center gap-2">
+              <div className="ml-auto pr-8 hidden md:flex items-center gap-2">
                 <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[10px] border-l-[#58a049]" />
               </div>
             </div>
@@ -115,17 +113,18 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                 <tbody>
                   {match.teams.map((team, tIdx) => (
                     <tr key={team.teamName} className="bg-white">
-                      <td className="p-3 py-3 w-[15%] min-w-[100px] border-r border-gray-100">
-                        <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
+                      <td className="p-3 py-3 w-[25%] lg:w-[20%] border-r border-gray-100">
+                        <div className="flex flex-col justify-center min-w-0 w-full">
                           {team.teamName.includes(' vs ') ? (
                             <>
-                              <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[0])}</div>
-                              <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName.split(' vs ')[1])}</div>
+                              <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[0] || '').replace(/_/g, ' ')}</div>
+                              <div className="text-[0.6rem] font-bold text-[#777] leading-none mb-0.5">VS</div>
+                              <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[1] || '').replace(/_/g, ' ')}</div>
                             </>
                           ) : (
-                            <div className="text-[10px] md:text-[11px] font-bold text-[#333] leading-[1.4] truncate w-full">{toTitleCase(team.teamName)}</div>
+                            <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName || '').replace(/_/g, ' ')}</div>
                           )}
-
+                          <div className="text-[8px] lg:text-[9px] text-[#777] font-medium mt-0.5 uppercase italic">{match.startTime}</div>
                         </div>
                       </td>
 

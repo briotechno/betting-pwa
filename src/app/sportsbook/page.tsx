@@ -78,25 +78,30 @@ const MatchTable = ({ match }: { match: any }) => {
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {/* Left Side - Orange with slanted edge */}
-        <div className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-white text-[18px] lg:text-[20px] font-medium leading-none mb-1">
+        <div className="relative h-full flex-[4] flex flex-col justify-center pl-2 lg:pl-3 bg-[#e8612c] pr-10 lg:pr-12 z-10 transition-all duration-300" style={{ clipPath: 'polygon(0 0, 100% 0, 97% 100%, 0% 100%)' }}>
+          <div className="flex items-center gap-2">
+            <span className="text-white text-[16px] lg:text-[18px] font-medium leading-none mb-1">
               {isCollapsed ? '+' : '−'}
             </span>
-            <span className="text-white text-[12px] lg:text-[14px] font-bold whitespace-nowrap uppercase tracking-tight">
-              {toTitleCase(match.teamA)} V {toTitleCase(match.teamB)}
-            </span>
+            <div className="flex flex-col justify-center py-1">
+              <span className="text-white text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.02em] leading-[1.1]">
+                {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
+              </span>
+              <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
+                {match.startTime}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Right Side - Gray with icons */}
-        <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
-          <div className="w-4 h-4 flex items-center justify-center">
+        <div className="flex-initial min-w-[60px] h-full flex items-center justify-start pl-2 gap-3 z-0">
+          <div className="w-4 h-4 hidden md:flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
+          <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
         </div>
 
         {/* Time - Desktop Only */}
@@ -113,10 +118,15 @@ const MatchTable = ({ match }: { match: any }) => {
               {/* Team Rows */}
               {[match.teamA, match.teamB].map((team, tIdx) => (
                 <tr key={team} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
-                  <td className="py-3 px-3 lg:px-4 min-w-[140px]">
-                    <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight whitespace-nowrap">
-                      {toTitleCase(team)}
-                    </span>
+                  <td className="py-2 px-3 lg:px-4 min-w-[140px] max-w-[200px]">
+                    <div className="flex flex-col">
+                      <span className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] tracking-[0.02em] uppercase leading-tight">
+                        {(team || '').replace(/_/g, ' ')}
+                      </span>
+                      <span className="text-[8px] lg:text-[9px] text-[#777] font-medium uppercase italic mt-0.5">
+                        {match.startTime}
+                      </span>
+                    </div>
                   </td>
                   <td className="p-1 px-2">
                     <div className="flex justify-end gap-1">
