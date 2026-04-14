@@ -430,17 +430,19 @@ export default function HomePage() {
                   <Link
                     key={game.name}
                     href={`/live-cards/${game.name.toLowerCase().replace(/\s+/g, '')}`}
-                    className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
+                    className="relative flex items-center h-[32px] md:h-[45px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group pl-3 pr-2 overflow-hidden"
                     style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
                       : { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box', boxShadow: '#f37415 0px -1px 5px 2px' }
                     }
                   >
-                    <div className="absolute inset-0 flex items-center justify-center px-8 md:px-12">
-                      <span className="text-[8px] md:text-[11px] font-bold text-white uppercase tracking-tighter truncate">{game.name}</span>
+                    <div className="flex-1 flex items-center min-w-0 h-full">
+                      <span className="text-[7.5px] md:text-[10px] font-black text-white uppercase tracking-tighter leading-none text-left truncate">
+                        {game.name}
+                      </span>
                     </div>
-                    <div className="absolute right-2 md:right-4 w-[16px] md:w-[26px] h-full flex items-center justify-center shrink-0">
-                      <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-full h-auto object-contain transition-transform" />
+                    <div className="w-[14px] md:w-[22px] flex items-center justify-center shrink-0 ml-1">
+                      <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-full h-auto object-contain" />
                     </div>
                   </Link>
                 )
@@ -467,17 +469,19 @@ export default function HomePage() {
                   <Link
                     key={game.name}
                     href={`/markets/live-casino/${game.name.toLowerCase().replace(/\s+/g, '')}`}
-                    className="relative flex items-center h-[35px] md:h-[50px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group overflow-hidden"
+                    className="relative flex items-center h-[32px] md:h-[45px] min-w-[64px] rounded-full border-2 border-transparent transition-transform active:scale-95 group pl-3 pr-1.5 overflow-hidden"
                     style={isPurple
                       ? { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #1904e5, #fab2ff) border-box', boxShadow: '#8154f1 0px -1px 5px 2px' }
                       : { background: 'linear-gradient(#130c2d, #130c2d) padding-box, linear-gradient(to left, #f37415, #ff0000) border-box', boxShadow: '#f37415 0px -1px 5px 2px' }
                     }
                   >
-                    <div className="absolute inset-0 flex items-center justify-center px-8 md:px-12">
-                      <span className="text-[8px] md:text-[11px] font-bold text-white uppercase tracking-tighter truncate">{game.name}</span>
+                    <div className="flex-1 flex items-center min-w-0 h-full">
+                      <span className="text-[7.5px] md:text-[10px] font-black text-white uppercase tracking-tighter leading-none text-left truncate">
+                        {game.name}
+                      </span>
                     </div>
-                    <div className="absolute right-2 md:right-4 w-[16px] md:w-[26px] h-full flex items-center justify-center shrink-0">
-                      <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-full h-auto object-contain transition-transform" />
+                    <div className="w-[14px] md:w-[22px] flex items-center justify-center shrink-0 ml-1">
+                      <img src={`/casino-icons/${game.iconPath}`} alt={game.name} className="w-full h-auto object-contain" />
                     </div>
                   </Link>
                 )
