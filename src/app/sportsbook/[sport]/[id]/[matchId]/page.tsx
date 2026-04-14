@@ -87,7 +87,7 @@ const MarketTable = ({
   const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string, fullMarket?: any) => {
     const primaryId = (specificMarketId || marketId)?.toString()
     const altIds = [primaryId, fullMarket?.eid?.toString(), fullMarket?.ekey?.toString()].filter(Boolean)
-    
+
     // Find the first available rate data among possible IDs
     let rateData = null
     for (const id of altIds) {
@@ -96,7 +96,7 @@ const MarketTable = ({
         break
       }
     }
-    
+
     let isRunnerSuspended = false
 
     if (rateData) {
@@ -113,7 +113,7 @@ const MarketTable = ({
       if (!hasRunners || isFancyOrLine) {
         // Check both nested runner and flat fields
         const r = (Array.isArray(hasRunners) && hasRunners.length > 0 ? hasRunners[0] : (hasRunners && typeof hasRunners === 'object' ? Object.values(hasRunners)[0] : null)) || rateData;
-        
+
         // Extract prices with more flexibility
         const getVal = (obj: any, keys: string[]) => {
           for (const k of keys) if (obj[k] !== undefined && obj[k] !== '') return obj[k];
@@ -215,10 +215,10 @@ const MarketTable = ({
     marketName.toUpperCase().includes('TIE')
   )
 
-    if (!runners || (Array.isArray(runners) ? runners : Object.values(runners)).length === 0) return null;
+  if (!runners || (Array.isArray(runners) ? runners : Object.values(runners)).length === 0) return null;
 
-    return (
-      <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+  return (
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div
         className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]"
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -244,7 +244,7 @@ const MarketTable = ({
         <div className="flex items-center gap-2">
           {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></span>}
         </div>
-        <div className="flex mr-1 md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
+        <div className="flex md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
           {/* BACK / NO Group */}
           <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 3rd cell on desktop/tablet for 3-cell wide markets */}
@@ -255,7 +255,7 @@ const MarketTable = ({
               </>
             )}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'NO' : 'Back'}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">{isFancyGroup ? 'NO' : 'Back'}</span>
             </div>
           </div>
 
@@ -263,7 +263,7 @@ const MarketTable = ({
           <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 1st cell on desktop/tablet for 3-cell wide markets */}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{isFancyGroup ? 'YES' : 'Lay'}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">{isFancyGroup ? 'YES' : 'Lay'}</span>
             </div>
             {(isMatchOdd || isFancyGroup) && (
               <>
@@ -331,7 +331,7 @@ const MarketTable = ({
                       <td className="p-1 px-2 relative min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
                           <div className="relative">
-                            <div className="flex gap-0.5 lg:gap-1 transition-all duration-300">
+                            <div className="flex gap-1 lg:gap-1 transition-all duration-300">
                               {/* LEFT GROUP (BACK for ODDS, NO for FANCY) */}
                               <div className={`flex items-center justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : ''}`}>
                                 {(isMatchOdd || isFancyGroup) && (
@@ -482,11 +482,11 @@ export default function GameDetailPage() {
     try {
       setFavLoading(true)
       // Extract the eid from the first event in gameData (typically Match Odds)
-      const eidToUse = gameData?.events?.['0']?.eid || 
-                     gameData?.events?.[0]?.eid || 
-                     gameData?.eventId || 
-                     matchId;
-                     
+      const eidToUse = gameData?.events?.['0']?.eid ||
+        gameData?.events?.[0]?.eid ||
+        gameData?.eventId ||
+        matchId;
+
       const res = await marketController.toggleFavourite(user.loginToken, eidToUse)
       if (res && res.error === '0') {
         setIsFav(prev => !prev)
@@ -581,11 +581,11 @@ export default function GameDetailPage() {
                 // Enhanced recursive function to find market data by ID
                 const findData = (obj: any, currentDepth = 0): any => {
                   if (!obj || typeof obj !== 'object' || currentDepth > 5) return null;
-                  
+
                   // 1. Direct match by key
                   if (ekey && obj[ekey]) return obj[ekey];
                   if (mid && obj[mid]) return obj[mid];
-                  
+
                   // 2. Check if the object itself is the market we want
                   const objId = obj.MarketId || obj.marketId || obj.eid || obj.ekey || obj.marketid || obj.id;
                   if (mid && objId?.toString() === mid?.toString()) return obj;
@@ -598,13 +598,13 @@ export default function GameDetailPage() {
                     if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
                       try { val = JSON.parse(val) } catch (e) { }
                     }
-                    
+
                     if (typeof val === 'object' && val !== null) {
                       // Check this object
                       const subId = val.MarketId || val.marketId || val.eid || val.ekey || val.marketid || val.id;
                       if (mid && subId?.toString() === mid?.toString()) return val;
                       if (ekey && subId?.toString() === ekey?.toString()) return val;
-                      
+
                       // If it's an array, search its elements
                       if (Array.isArray(val)) {
                         for (const item of val) {
@@ -613,7 +613,7 @@ export default function GameDetailPage() {
                           const itemId = pItem?.MarketId || pItem?.marketId || pItem?.eid || pItem?.ekey || pItem?.id;
                           if (mid && itemId?.toString() === mid?.toString()) return pItem;
                           if (ekey && itemId?.toString() === ekey?.toString()) return pItem;
-                          
+
                           // Recurse into array item if it's an object
                           if (typeof pItem === 'object' && pItem !== null) {
                             const found = findData(pItem, currentDepth + 1);
@@ -734,10 +734,10 @@ export default function GameDetailPage() {
               onClick={() => setActiveTab('MARKETS')}
               className="h-full relative group flex items-center"
             >
-              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'MARKETS' 
-                ? 'text-[#f36c21] border-[#f36c21]' 
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'MARKETS'
+                ? 'text-[#f36c21] border-[#f36c21]'
                 : 'text-white/60 border-transparent hover:text-white'
-              }`}>
+                }`}>
                 MARKETS
               </span>
             </button>
@@ -746,10 +746,10 @@ export default function GameDetailPage() {
                 onClick={() => setActiveTab('OPEN_BETS')}
                 className="h-full relative group flex items-center"
               >
-                <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'OPEN_BETS' 
-                  ? 'text-[#f36c21] border-[#f36c21]' 
+                <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-all border-b-2 ${activeTab === 'OPEN_BETS'
+                  ? 'text-[#f36c21] border-[#f36c21]'
                   : 'text-white/60 border-transparent hover:text-white'
-                }`}>
+                  }`}>
                   OPEN BETS {bets.length > 0 && <span className="ml-1 text-[10px] opacity-80">({bets.length})</span>}
                 </span>
               </button>
