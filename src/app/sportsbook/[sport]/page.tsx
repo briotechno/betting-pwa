@@ -181,7 +181,7 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { 
 
 import { useAuthStore } from '@/store/authStore'
 
-export default function SportDetailPage() {
+function SportDetailContent() {
   const { user } = useAuthStore()
   const params = useParams()
   const router = useRouter()
@@ -472,3 +472,16 @@ export default function SportDetailPage() {
     </div>
   )
 }
+
+export default function SportDetailPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[#1a1a1a]">
+        <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+      </div>
+    }>
+      <SportDetailContent />
+    </React.Suspense>
+  )
+}
+

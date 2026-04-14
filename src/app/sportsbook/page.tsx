@@ -176,7 +176,7 @@ const MatchTable = ({ match }: { match: any }) => {
   )
 }
 
-export default function SportsbookPage() {
+function SportsbookContent() {
   const { user } = useAuthStore()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
   const router = useRouter()
@@ -454,3 +454,16 @@ export default function SportsbookPage() {
     </div>
   )
 }
+
+export default function SportsbookPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[#1a1a1a]">
+        <Loader2 size={40} className="animate-spin text-[#e8612c]" />
+      </div>
+    }>
+      <SportsbookContent />
+    </React.Suspense>
+  )
+}
+
