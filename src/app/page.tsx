@@ -382,12 +382,12 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center h-full flex-1" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #1a1a1a)' }}>
                     <div className="flex items-center justify-end pr-2 w-full">
-                      <div className="hidden lg:flex gap-1">
-                        <div className="w-[124px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">1</span></div>
-                        <div className="w-[124px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">X</span></div>
-                        <div className="w-[124px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">2</span></div>
+                      <div className="hidden md:flex gap-1.5">
+                        <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">1</span></div>
+                        <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">X</span></div>
+                        <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">2</span></div>
                       </div>
-                      <div className="flex lg:hidden gap-1">
+                      <div className="flex md:hidden gap-1">
                         <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
                         <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
                         <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
@@ -521,12 +521,12 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center h-full flex-1" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #1a1a1a)' }}>
                       <div className="flex items-center justify-end pr-2 w-full">
-                        <div className="hidden lg:flex gap-1">
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
+                        <div className="hidden md:flex gap-1.5">
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">1</span></div>
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">2</span></div>
                         </div>
-                        <div className="flex lg:hidden gap-1">
+                        <div className="flex md:hidden gap-1">
                           <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
                           <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
                           <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
@@ -589,12 +589,12 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center h-full flex-1" style={{ backgroundImage: 'linear-gradient(to right, #000 50%, #1a1a1a)' }}>
                       <div className="flex items-center justify-end pr-2 w-full">
-                        <div className="hidden lg:flex gap-1">
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">1</span></div>
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">X</span></div>
-                          <div className="w-[124px] flex justify-center items-center"><span className="text-[10px] font-black text-white">2</span></div>
+                        <div className="hidden md:flex gap-1.5">
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">1</span></div>
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">X</span></div>
+                          <div className="w-[130px] flex justify-center items-center shrink-0"><span className="text-[10px] font-black text-white">2</span></div>
                         </div>
-                        <div className="flex lg:hidden gap-1">
+                        <div className="flex md:hidden gap-1">
                           <div className="w-[59px] flex justify-center"><span className="text-[11px] font-black text-white">1</span></div>
                           <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">X</span></div>
                           <div className="w-[59px] flex justify-center border-l border-white/10"><span className="text-[11px] font-black text-white">2</span></div>
