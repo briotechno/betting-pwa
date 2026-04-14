@@ -1,10 +1,39 @@
 'use client'
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Plus, Minus } from 'lucide-react'
+import { ChevronLeft, Plus, Minus, Loader2 } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+import { userController } from '@/controllers/user/userController'
+import { useEffect, useState } from 'react'
 
 export default function WalletPage() {
-  const router = useRouter()
+  const { user, updateBalance } = useAuthStore()
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!user?.loginToken) return
+      try {
+        setLoading(true)
+        const res = await userController.getBalance(user.loginToken)
+        if (res && typeof res === 'object' && !res.error) {
+          // Assuming API returns { balance: number, exposure: number, available_balance: number }
+          // The spec usually returns keys like Balance, Exposure
+          updateBalance(
+            res.Balance || res.balance || 0,
+            res.Exposure || res.exposure || 0,
+            res.AvailableBalance || res.available_balance || 0
+          )
+        }
+      } catch (err) {
+        console.error('Failed to fetch balance:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBalance()
+  }, [user?.loginToken, updateBalance])
 
   return (
     <div className="bg-[#181818] min-h-screen text-white pb-20 relative font-sans">
@@ -14,12 +43,15 @@ export default function WalletPage() {
           <ChevronLeft size={22} className="stroke-[3]" />
         </button>
         <h1 className="text-[15px] font-bold text-white">Wallet</h1>
+        {loading && <Loader2 size={14} className="ml-auto animate-spin text-white/40" />}
       </div>
 
       <div className="max-w-[600px] mx-auto w-full">
         <div className="pt-6 pb-4 space-y-6">
           <div className="text-center">
-            <h2 className="text-[15px] font-bold text-white tracking-wide">Hi, Chiragraval9699@Gmail</h2>
+            <h2 className="text-[15px] font-bold text-white tracking-wide uppercase">
+              Hi, {user?.username || user?.email?.split('@')[0] || 'Guest'}
+            </h2>
           </div>
 
           {/* Wallet Balance Card */}
@@ -28,11 +60,11 @@ export default function WalletPage() {
               <div className="space-y-4">
                 <div className="space-y-0.5">
                   <p className="text-[11px] font-bold text-white">Wallet Amount</p>
-                  <p className="text-[20px] font-medium text-[#4caf50] tracking-wider">₹ 0</p>
+                  <p className="text-[20px] font-medium text-[#4caf50] tracking-wider">₹ {user?.balance?.toLocaleString() || '0'}</p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[11px] font-bold text-white">Net Exposure</p>
-                  <p className="text-[20px] font-medium text-[#f44336] tracking-wider">0</p>
+                  <p className="text-[20px] font-medium text-[#f44336] tracking-wider">{user?.exposure?.toLocaleString() || '0'}</p>
                 </div>
               </div>
 
