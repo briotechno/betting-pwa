@@ -7,6 +7,7 @@ import { userController } from '@/controllers/user/userController'
 import { useEffect, useState } from 'react'
 
 export default function WalletPage() {
+  const router = useRouter()
   const { user, updateBalance } = useAuthStore()
   const [loading, setLoading] = useState(false)
 
