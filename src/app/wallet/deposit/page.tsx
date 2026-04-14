@@ -585,7 +585,7 @@ export default function DepositPage() {
 
                       return (
                         <div key={i} className={`grid grid-cols-[1.5fr_1.2fr_1fr_1fr_1.5fr_2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                          <span className="text-[10px] text-white uppercase break-all pr-2">#{utr}</span>
+                          <span className="text-[10px] text-white uppercase break-all pr-2">{utr}</span>
                           <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
                           <span className="text-[12px] text-white text-center">₹{parseFloat(item.Amount || item.amount || 0).toLocaleString()}</span>
                           <div className="text-center">
