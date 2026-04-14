@@ -459,6 +459,18 @@ This document serves as the high-fidelity specification for the Betting Platform
   }
   ```
 
+### 57. Home Page Banners ✅
+**POST** `/homebanners`
+- **Description:** Get list of images for the home page slider.
+- **Request:** `{"Type":"Web"}`
+- **Response:**
+  ```json
+  [
+      { "image": "https://.../16.webp" },
+      { "image": "https://.../17.webp" }
+  ]
+  ```
+
 ---
 
 ## 🧠 Developer Key Notes

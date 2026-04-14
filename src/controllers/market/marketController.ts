@@ -107,4 +107,12 @@ export const marketController = {
   toggleFavourite: async (loginToken: string, eid: string): Promise<ApiResponse> => {
     return await fetchAPI('/favourite', { LoginToken: loginToken, Eid: eid });
   },
+
+  /**
+   * Get home page marketing banners
+   * @param type Banner type (usually 'Web')
+   */
+  getHomeBanners: async (type: string = 'Web'): Promise<ApiResponse> => {
+    return await fetchAPI('/homebanners', { Type: type });
+  },
 };

@@ -13,11 +13,10 @@ import OddsTable from '@/components/sportsbook/OddsTable'
 import { useI18nStore } from '@/store/i18nStore'
 import { formatDate } from '@/utils/format'
 
-// Banners
-const banners = [
-  { id: 1, image: '/banner1.png', link: '/promotions' },
-  { id: 2, image: '/banner2.png', link: '/profile/refer' },
-  { id: 3, image: '/banner3.png', link: '/sports/cricket' },
+// Fallback Banners if API fails
+const FALLBACK_BANNERS = [
+  { id: 1, image: '/banner1.png', link: '#' },
+  { id: 2, image: '/banner2.png', link: '#' },
 ]
 
 const quickSports = [
@@ -30,6 +29,7 @@ import PopupModal from '@/components/common/PopupModal'
 
 export default function HomePage() {
   const [currentBanner, setCurrentBanner] = useState(0)
+  const [banners, setBanners] = useState<any[]>([])
   const { t } = useI18nStore()
   const { user } = useAuthStore()
   const { show: showSnackbar } = useSnackbarStore()
@@ -65,10 +65,31 @@ export default function HomePage() {
 
   // Banner Auto-slide
   useEffect(() => {
+    if (banners.length === 0) return
     bannerTimer.current = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length)
     }, 4000)
     return () => { if (bannerTimer.current) clearInterval(bannerTimer.current) }
+  }, [banners.length])
+
+  // Fetch Banners
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await marketController.getHomeBanners('Web')
+        if (Array.isArray(res)) {
+          setBanners(res)
+        } else if (res && typeof res === 'object') {
+          const bannerArr = Object.values(res).filter(b => typeof b === 'object' && b !== null && b.image)
+          setBanners(bannerArr.length > 0 ? bannerArr : FALLBACK_BANNERS)
+        } else {
+          setBanners(FALLBACK_BANNERS)
+        }
+      } catch (err) {
+        setBanners(FALLBACK_BANNERS)
+      }
+    }
+    fetchBanners()
   }, [])
 
   // 1. Fetch Match List
@@ -328,22 +349,23 @@ export default function HomePage() {
       <PopupModal />
 
       {/* Banner Carousel */}
-      <div className="relative overflow-hidden bg-[#0a0a0a]">
-        <div
-          className="flex transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateX(-${currentBanner * 100}%)` }}
-        >
-          {banners.map((banner) => (
-            <Link
-              key={banner.id}
-              href={banner.link}
-              className="min-w-full relative block h-[100px] md:h-auto md:aspect-[3/1] lg:aspect-[3.5/1] overflow-hidden"
-            >
-              <img src={banner.image} alt="Promotion" className="w-full h-full object-cover object-center" />
-            </Link>
-          ))}
+      {banners.length > 0 && (
+        <div className="relative overflow-hidden bg-[#0a0a0a]">
+          <div
+            className="flex transition-transform duration-700 ease-in-out"
+            style={{ transform: `translateX(-${currentBanner * 100}%)` }}
+          >
+            {banners.map((banner, idx) => (
+              <div
+                key={idx}
+                className="min-w-full relative block h-auto aspect-[3/1] md:aspect-[3/1] lg:aspect-[3.5/1] overflow-hidden bg-black"
+              >
+                <img src={banner.image} alt="Promotion" className="w-full h-full object-fill" />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="p-2 md:p-4 space-y-4 pb-32">
         {/* INPLAY Section */}
