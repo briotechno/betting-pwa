@@ -55,16 +55,19 @@ export default function TransactionsPage() {
     const isCredit = typeKey === 'D' || typeKey === 'CR' || typeKey === 'O'
     const isDebit = typeKey === 'W' || typeKey === 'DR'
     
+    // 1. Tab Level Filter
+    if (activeTab === 'DEPOSIT' && !isCredit) return false
+    if (activeTab === 'WITHDRAW' && !isDebit) return false
+
+    // 2. Dropdown Sort Filter
     if (transactionFilter !== 'All') {
       const isActualDeposit = typeKey === 'D' || (typeKey === 'CR' && (description.includes('deposit') || description.includes('topup')))
       const isActualWithdraw = typeKey === 'W' || (typeKey === 'DR' && (description.includes('withdraw') || description.includes('payout')))
       if (transactionFilter === 'Deposit' && !isActualDeposit) return false
       if (transactionFilter === 'Withdraw' && !isActualWithdraw) return false
-    } else {
-      if (activeTab === 'DEPOSIT' && !isCredit) return false
-      if (activeTab === 'WITHDRAW' && !isDebit) return false
     }
 
+    // 3. Status Filter
     if (statusFilter !== 'All' && statusFilter === 'Pending') return false
     return true
   })
@@ -84,6 +87,13 @@ export default function TransactionsPage() {
 
   const [isFromCalendarOpen, setIsFromCalendarOpen] = useState(false)
   const [isToCalendarOpen, setIsToCalendarOpen] = useState(false)
+
+  const formatDateLocal = (date: Date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
 
   const ThemedCalendarModal = ({ value, onChange, onClose }: any) => {
     const [viewDate, setViewDate] = useState(new Date(value))
@@ -146,7 +156,7 @@ export default function TransactionsPage() {
               <div className="w-full bg-[#111] border border-white/20 rounded-full h-10 flex items-center px-4 text-white text-[12px]">{fromDate}</div>
               <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" size={14} />
             </div>
-            {isFromCalendarOpen && <ThemedCalendarModal value={new Date(fromDate)} onChange={(date: Date) => setFromDate(date.toISOString().split('T')[0])} onClose={() => setIsFromCalendarOpen(false)} />}
+            {isFromCalendarOpen && <ThemedCalendarModal value={new Date(fromDate)} onChange={(date: Date) => setFromDate(formatDateLocal(date))} onClose={() => setIsFromCalendarOpen(false)} />}
           </div>
           <div className="flex-1 space-y-1.5">
             <label className="text-[10px] font-bold text-[#666] pl-1">To:</label>
@@ -154,7 +164,7 @@ export default function TransactionsPage() {
               <div className="w-full bg-[#111] border border-white/20 rounded-full h-10 flex items-center px-4 text-white text-[12px]">{toDate}</div>
               <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" size={14} />
             </div>
-            {isToCalendarOpen && <ThemedCalendarModal value={new Date(toDate)} onChange={(date: Date) => setToDate(date.toISOString().split('T')[0])} onClose={() => setIsToCalendarOpen(false)} />}
+            {isToCalendarOpen && <ThemedCalendarModal value={new Date(toDate)} onChange={(date: Date) => setToDate(formatDateLocal(date))} onClose={() => setIsToCalendarOpen(false)} />}
           </div>
           <div className="flex-1 space-y-1.5">
             <label className="text-[10px] font-bold text-[#666] pl-1">Sort by Transaction:</label>
