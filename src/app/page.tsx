@@ -345,7 +345,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="p-2 md:p-4 space-y-4">
+      <div className="p-2 md:p-4 space-y-4 pb-32">
         {/* INPLAY Section */}
         <div className="flex items-center gap-2 px-1 mb-2">
           <div className="w-[18px] h-[18px] lg:w-[22px] lg:h-[22px] rounded-full bg-[#e8612c] flex items-center justify-center shadow-[0_0_8px_rgba(232,97,44,0.4)]">

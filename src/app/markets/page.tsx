@@ -244,7 +244,7 @@ export default function MarketsPage() {
             <p className="text-[10px] uppercase font-black tracking-widest text-white/20">Loading Markets...</p>
           </div>
         ) : (
-          <div className="p-1">
+          <div className="p-1 pb-32">
             <div className="flex items-center gap-2 px-2 py-3 bg-[#111]">
               <div className="w-4 h-4 rounded-full bg-[#e8612c] border-2 border-white/10" />
               <span className="text-[12px] font-black uppercase tracking-wider text-white">{activeSport} Matches</span>
