@@ -124,7 +124,6 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                           ) : (
                             <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName || '').replace(/_/g, ' ')}</div>
                           )}
-                          <div className="text-[8px] lg:text-[9px] text-[#777] font-medium mt-0.5 uppercase italic">{match.startTime}</div>
                         </div>
                       </td>
 

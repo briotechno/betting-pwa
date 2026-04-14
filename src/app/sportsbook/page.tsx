@@ -141,9 +141,6 @@ const MatchTable = ({ match }: { match: any }) => {
                       <span className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] tracking-[0.02em] uppercase leading-tight">
                         {(team || '').replace(/_/g, ' ')}
                       </span>
-                      <span className="text-[8px] lg:text-[9px] text-[#777] font-medium uppercase italic mt-0.5">
-                        {match.startTime}
-                      </span>
                     </div>
                   </td>
                   <td className="p-1 px-2">
