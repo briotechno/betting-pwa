@@ -182,6 +182,79 @@ export default function Sidebar() {
   const [dynamicLeagues, setDynamicLeagues] = useState<any[]>([])
   const [loadingLeagues, setLoadingLeagues] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [sportCounts, setSportCounts] = useState<Record<string, number>>({})
+
+  // Fetch Sport Counts
+  useEffect(() => {
+    let isMounted = true
+    const fetchCounts = async () => {
+      try {
+        const sportsToFetch = games.map(g => g.name).join(',')
+        const res = await marketController.getGameList(sportsToFetch)
+        if (!isMounted) return
+
+        let matchData: any[] = []
+        if (res && typeof res === 'object') {
+          matchData = Object.values(res).filter((v: any) => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Gid || v.gid))
+        } else if (Array.isArray(res)) {
+          matchData = res
+        }
+
+        const counts: Record<string, number> = {}
+        const now = new Date()
+
+        matchData.forEach(m => {
+          // Determine if it's bettable (Live or Upcoming)
+          const status = (m.Status || m.status || 'OPEN').toUpperCase()
+          if (status === 'CLOSED' || status === 'INACTIVE') return
+
+          // Basic time check - usually we want anything that is happening now or in the future
+          let isUpcoming = false
+          const startTimeStr = m.DateTime || m.startTime
+          if (startTimeStr) {
+            let d = new Date(startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T'))
+            // Fallback for DD-MM-YYYY
+            if (isNaN(d.getTime())) {
+              const parts = startTimeStr.split(/[-/ :]/)
+              if (parts.length >= 3) {
+                d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'))
+              }
+            }
+            if (d && !isNaN(d.getTime()) && d > now) {
+              isUpcoming = true
+            }
+          }
+
+          const type = (m.Type || m.sportname || '').toLowerCase()
+          // Dynamically match against all sports in our games list
+          games.forEach(g => {
+            const gameNameLower = g.name.toLowerCase()
+            let isMatch = type.includes(gameNameLower) || gameNameLower.includes(type)
+            
+            // Special cases
+            if (!isMatch) {
+              if (gameNameLower === 'football' && type === 'soccer') isMatch = true
+              if (gameNameLower === 'soccer' && type === 'football') isMatch = true
+            }
+
+            if (isMatch) {
+              counts[g.name] = (counts[g.name] || 0) + 1
+            }
+          })
+        })
+        setSportCounts(counts)
+      } catch (err) {
+        console.error('Failed to fetch sidebar counts:', err)
+      }
+    }
+
+    fetchCounts()
+    const interval = setInterval(fetchCounts, 60000) // Update every minute
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [])
 
   // Check path levels unconditionally
   const pathParts = pathname?.split('/').filter(Boolean) || []
@@ -377,9 +450,9 @@ export default function Sidebar() {
                 {!collapsed && (
                   <>
                     <span className="flex-1 text-[13px] font-medium tracking-wide truncate">{game.name}</span>
-                    {game.count && (
+                    {(sportCounts[game.name] || game.count) && (
                       <span className="bg-[#e8612c] text-white text-[10px] font-bold rounded-full w-[22px] h-[22px] flex items-center justify-center shrink-0 shadow-sm border border-white/10">
-                        {game.count}
+                        {sportCounts[game.name] || game.count}
                       </span>
                     )}
                   </>

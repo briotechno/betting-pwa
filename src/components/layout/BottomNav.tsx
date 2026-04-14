@@ -9,7 +9,7 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 import { useRouter } from 'next/navigation'
 
 const navItems = [
-  { id: 'sports', label: 'Sportsbook', icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png', href: '/sportsbook' },
+  { id: 'sports', label: 'Premium Sportbook', icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png', href: '/premium-sportsbook' },
   { id: 'casino', label: 'Live Casino', icon: 'https://www.fairplay247.vip/_nuxt/img/live-casino.761f895.png', href: '/markets/live-casino' },
   { id: 'slots', label: 'Slot Games', icon: 'https://www.fairplay247.vip/_nuxt/img/slot-games.ccf3217.png', href: '/casino-slots' },
   { id: 'crash', label: 'Crash Games', icon: 'https://www.fairplay247.vip/_nuxt/img/crash_games.a192ffd.png', href: '/crash-games' },

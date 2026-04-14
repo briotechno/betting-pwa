@@ -65,6 +65,36 @@ export default function Header() {
 
   const currentLang = languages.find(l => l.code === language) || languages[0]
 
+  // Dynamic Sport Counts for Badge
+  const [totalSportCount, setTotalSportCount] = useState(0)
+
+  const fetchTotalCounts = async () => {
+    try {
+      const res = await marketController.getGameList('Cricket,Football,Tennis')
+      let matchData: any[] = []
+      if (res && typeof res === 'object') {
+        matchData = Object.values(res).filter((v: any) => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Gid || v.gid))
+      } else if (Array.isArray(res)) {
+        matchData = res
+      }
+
+      const now = new Date()
+      const filtered = matchData.filter(m => {
+        const status = (m.Status || m.status || 'OPEN').toUpperCase()
+        return status !== 'CLOSED' && status !== 'INACTIVE'
+      })
+      setTotalSportCount(filtered.length)
+    } catch (err) {
+      console.error('Header count fetch failed:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchTotalCounts()
+    const interval = setInterval(fetchTotalCounts, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
   const refreshBalance = async () => {
     if (!isAuthenticated || !user?.loginToken) return
     try {
@@ -495,9 +525,16 @@ export default function Header() {
 
           <Link
             href="/sportsbook"
-            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group ${pathname === '/sportsbook' ? 'opacity-100 scale-105' : 'opacity-60'}`}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 transition-all active:scale-95 group relative ${pathname === '/sportsbook' ? 'opacity-100 scale-105' : 'opacity-60'}`}
           >
-            <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
+            <div className="relative">
+              <img src="/nav/sportsbook.png" alt="Sportsbook" className="w-7 h-7 object-contain" />
+              {totalSportCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-[#e8612c] text-white text-[8px] font-black rounded-full min-w-[14px] h-3.5 flex items-center justify-center border border-black px-0.5 shadow-sm">
+                  {totalSportCount}
+                </span>
+              )}
+            </div>
             <span className="text-[10px] font-bold text-white uppercase tracking-tight">SportsBook</span>
           </Link>
 

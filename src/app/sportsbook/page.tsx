@@ -191,6 +191,8 @@ function SportsbookContent() {
 
   const activeSport = 'Cricket'
 
+  const [sportCounts, setSportCounts] = useState<Record<string, number>>({})
+
   // Fetch Leagues
   useEffect(() => {
     let isMounted = true;
@@ -211,6 +213,55 @@ function SportsbookContent() {
     fetchLeagues()
     return () => { isMounted = false }
   }, [activeSport])
+
+  // Fetch Sport Counts for Mobile Nav
+  useEffect(() => {
+    let isMounted = true
+    const fetchCounts = async () => {
+      try {
+        const res = await marketController.getGameList('Cricket,Football,Tennis')
+        if (!isMounted) return
+
+        let matchData: any[] = []
+        if (res && typeof res === 'object') {
+          matchData = Object.values(res).filter((v: any) => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Gid || v.gid))
+        } else if (Array.isArray(res)) {
+          matchData = res
+        }
+
+        const counts: Record<string, number> = {}
+        const now = new Date()
+
+        matchData.forEach(m => {
+          const status = (m.Status || m.status || 'OPEN').toUpperCase()
+          if (status === 'CLOSED' || status === 'INACTIVE') return
+
+          const type = (m.Type || m.sportname || '').toLowerCase()
+          const sportKeys = ['Cricket', 'Football', 'Tennis']
+          
+          sportKeys.forEach(key => {
+            const kLower = key.toLowerCase()
+            let isMatch = type.includes(kLower) || kLower.includes(type)
+            if (!isMatch) {
+              if (kLower === 'football' && type === 'soccer') isMatch = true
+              if (kLower === 'soccer' && type === 'football') isMatch = true
+            }
+            if (isMatch) counts[key] = (counts[key] || 0) + 1
+          })
+        })
+        setSportCounts(counts)
+      } catch (err) {
+        console.error('Failed to fetch sidebar counts:', err)
+      }
+    }
+
+    fetchCounts()
+    const interval = setInterval(fetchCounts, 60000)
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [])
 
   // Fetch Gamelist
   useEffect(() => {
@@ -369,7 +420,7 @@ function SportsbookContent() {
                 <div className="relative mb-1">
                   <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
                   <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
-                    {sport.count}
+                    {sportCounts[sport.name] || sport.count}
                   </div>
                 </div>
                 <span className={`text-[10px] font-black uppercase tracking-tight ${activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'

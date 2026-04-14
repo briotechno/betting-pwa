@@ -617,7 +617,7 @@ export default function HomePage() {
         {/* App Download Banner */}
         <div className="flex flex-col items-center text-center overflow-hidden relative">
           <img src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png" alt="Download App PC" className="hidden lg:block w-full h-[276px] object-cover" />
-          <img src="./download-app-banner.png" alt="Download App Mobile" className="lg:hidden w-full h-auto object-contain" />
+          <img src="./download-app-banner_cleanup.png" alt="Download App Mobile" className="lg:hidden w-full h-auto object-contain" />
         </div>
       </div>
 

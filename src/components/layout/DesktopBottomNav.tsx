@@ -18,9 +18,9 @@ export default function DesktopBottomNav() {
 
   const navItems = [
     {
-      label: 'Sportsbook',
+      label: 'Premium Sportbook',
       icon: 'https://www.fairplay247.vip/_nuxt/img/premium-notebook.cfec1a1.png',
-      href: '/sportsbook',
+      href: '/premium-sportsbook',
       isCasino: false
     },
     {
