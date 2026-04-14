@@ -344,7 +344,7 @@ export default function SignupPage() {
                   <button
                     type="submit"
                     disabled={loading || (!isFormEmpty && !showImage1)}
-                    className={`w-full h-[52px] rounded-full text-[15px] font-bold uppercase tracking-widest transition-all flex items-center justify-center mt-6 shadow-lg ${
+                    className={`w-full h-[52px] rounded-full text-[15px] font-bold uppercase tracking-widest transition-all flex items-center justify-center mt-4 shadow-lg ${
                       showImage1 
                         ? 'bg-[#4caf50] text-white hover:brightness-110 shadow-green-900/20' 
                         : 'bg-white/10 text-white/40 border border-white/5 cursor-not-allowed'
@@ -378,29 +378,30 @@ export default function SignupPage() {
                 <span className="text-[14px] font-bold text-black">Google</span>
               </button>
 
-              {/* WhatsApp Icon */}
-              <div className="flex justify-start pt-1">
+              {/* WhatsApp & Login Link - Combined for space optimization */}
+              <div className="flex items-center w-full mt-3">
                 <a 
                   href="https://wa.me/yournumber" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="transition-transform hover:scale-110 active:scale-95"
+                  className="transition-transform hover:scale-110 active:scale-95 shrink-0"
                 >
                   <img 
                     src="/whatsapp.png" 
                     alt="WhatsApp Support" 
-                    className="w-[38px] h-[38px] object-contain"
+                    className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/3670/3670051.png"
                     }}
                   />
                 </a>
+                
+                <div className="flex-1 flex justify-center pr-[34px] sm:pr-[38px]">
+                  <p className="text-[12px] text-white/70 font-normal">
+                    Already a member? <Link href="/auth/login" className="text-[#e8612c] font-normal hover:underline ml-1">Login</Link>
+                  </p>
+                </div>
               </div>
-
-              {/* Login Link */}
-              <p className="text-center text-[12px] text-white/70 font-normal mt-2 pb-1">
-                Already a member? <Link href="/auth/login" className="text-[#e8612c] font-normal hover:underline tracking-tight ml-1">Login</Link>
-              </p>
             </form>
           ) : (
             <form onSubmit={handleOtpConfirm} className="space-y-8 relative z-10 pt-10 px-4 md:px-10">
