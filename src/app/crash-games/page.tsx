@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { casinoController } from '@/controllers/casino/casinoController'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -19,6 +20,7 @@ interface Game {
 }
 
 export default function CrashGamesPage() {
+  const router = useRouter()
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('lobby')
@@ -116,7 +118,7 @@ export default function CrashGamesPage() {
 
   const handleGameClick = async (game: Game) => {
     if (!user) {
-      showSnackbar('Please login to play', 'error')
+      router.push('/auth/login')
       return
     }
 
