@@ -26,12 +26,20 @@ export default function BetContainer() {
     removeSelection,
     clearAll,
     confirmBeforePlace,
-    toggleConfirmBeforePlace
+    toggleConfirmBeforePlace,
+    quickStakes,
+    fetchQuickStakes
   } = useBetSlipStore()
   const snackbar = useSnackbarStore()
-
   // Requirement: Hide for unlogged users
   if (!user) return null
+
+  // Fetch quick stakes on mount
+  useEffect(() => {
+    if (user?.loginToken) {
+      fetchQuickStakes(user.loginToken)
+    }
+  }, [user?.loginToken])
 
   useEffect(() => {
     if (activeTab === 'OPEN_BETS' && user?.loginToken) {
@@ -60,8 +68,6 @@ export default function BetContainer() {
       setLoading(false)
     }
   }
-
-  const quickStakes = [100, 500, 1000, 5000, 10000, 25000]
 
   const placeBets = async () => {
     if (selections.length === 0) return

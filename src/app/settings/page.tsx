@@ -5,11 +5,13 @@ import { ChevronLeft, Loader2 } from 'lucide-react'
 import { userController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
+import { useBetSlipStore } from '@/store/betSlipStore'
 
 export default function SettingsPage() {
   const router = useRouter()
   const { user, isAuthenticated } = useAuthStore()
   const { show: showSnackbar } = useSnackbarStore()
+  const { setQuickStakes } = useBetSlipStore()
   
   const [isEditing, setIsEditing] = useState(false)
   const [stakes, setStakes] = useState<{ label: string, value: string }[]>([
@@ -30,15 +32,25 @@ export default function SettingsPage() {
       setFetching(true)
       try {
         const response = await userController.getStakeButtons(user.loginToken)
-        if (response.error === '0' && response.Btnname && response.Btnval) {
-          const fetchedStakes = response.Btnname.map((name: string, i: number) => ({
-            label: name,
-            value: response.Btnval[i] || '0'
-          }))
-          // Ensure we have 6 stakes
-          const finalStakes = [...fetchedStakes]
-          while (finalStakes.length < 6) finalStakes.push({ label: `S${finalStakes.length + 1}`, value: '0' })
-          setStakes(finalStakes.slice(0, 6))
+        if (response && typeof response === 'object' && !response.error) {
+          const fetchedStakes: { label: string, value: string }[] = []
+          
+          for (let i = 1; i <= 6; i++) {
+            const item = response[i.toString()] || response[i]
+            if (item) {
+              fetchedStakes.push({
+                label: item.Btnname || `S${i}`,
+                value: item.Btnval || '0'
+              })
+            }
+          }
+
+          if (fetchedStakes.length > 0) {
+            // Ensure we have 6 stakes
+            const finalStakes = [...fetchedStakes]
+            while (finalStakes.length < 6) finalStakes.push({ label: `S${finalStakes.length + 1}`, value: '0' })
+            setStakes(finalStakes.slice(0, 6))
+          }
         }
       } catch (error) {
         console.error('Failed to fetch stakes:', error)
@@ -68,6 +80,9 @@ export default function SettingsPage() {
       if (response.error === '0') {
         showSnackbar('Settings saved successfully', 'success')
         setIsEditing(false)
+        // Update global store
+        const newQuickStakes = stakes.map(s => parseInt(s.value)).filter(v => !isNaN(v))
+        setQuickStakes(newQuickStakes)
       } else {
         showSnackbar(response.msg || 'Failed to save settings', 'error')
       }

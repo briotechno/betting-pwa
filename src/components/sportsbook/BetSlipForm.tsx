@@ -22,13 +22,20 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
     confirmBeforePlace,
     toggleConfirmBeforePlace,
     clearAll,
-    updateOdds
+    updateOdds,
+    quickStakes,
+    fetchQuickStakes
   } = useBetSlipStore()
   const snackbar = useSnackbarStore()
   
   const [loading, setLoading] = useState(false)
   const stake = stakes[selection.id] || 0
-  const quickStakes = [100, 500, 1000, 5000, 10000, 25000]
+
+  React.useEffect(() => {
+    if (user?.loginToken && quickStakes.length <= 6 && quickStakes[0] === 100 && quickStakes[1] === 500) {
+       fetchQuickStakes(user.loginToken)
+    }
+  }, [user?.loginToken])
 
   const placeBet = async () => {
     if (!user || !user.loginToken) {

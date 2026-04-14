@@ -39,7 +39,10 @@ interface BetSlipState {
   confirmBeforePlace: boolean
   autoAcceptOdds: boolean
   myBets: Bet[]
+  quickStakes: number[]
   setMyBets: (bets: Bet[]) => void
+  setQuickStakes: (stakes: number[]) => void
+  fetchQuickStakes: (loginToken: string) => Promise<void>
   openSlip: () => void
   closeSlip: () => void
   toggleSlip: () => void
@@ -60,9 +63,36 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
   confirmBeforePlace: true,
   autoAcceptOdds: false,
   myBets: [],
+  quickStakes: [100, 500, 1000, 5000, 10000, 25000],
 
   setMyBets: (bets) => set({ myBets: bets }),
+  setQuickStakes: (stakes) => set({ quickStakes: stakes }),
 
+  fetchQuickStakes: async (loginToken) => {
+    try {
+      const { userController } = await import('@/controllers/user/userController')
+      const res = await userController.getStakeButtons(loginToken)
+      
+      // Handle the object-based response format: {"1": {"Btnname": "S1", "Btnval": "1008"}, ...}
+      if (res && (typeof res === 'object')) {
+        const stakeValues: number[] = []
+        // Iterate through expected keys 1-6
+        for (let i = 1; i <= 6; i++) {
+          const item = res[i.toString()] || res[i]
+          if (item && item.Btnval) {
+            const val = parseInt(item.Btnval)
+            if (!isNaN(val)) stakeValues.push(val)
+          }
+        }
+
+        if (stakeValues.length > 0) {
+          set({ quickStakes: stakeValues })
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch quick stakes:', err)
+    }
+  },
 
   openSlip: () => set({ isOpen: true }),
   closeSlip: () => set({ isOpen: false }),
