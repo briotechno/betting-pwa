@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 const features = [
   {
@@ -126,6 +127,7 @@ export default function AffiliatePartnerPage() {
           Note* :- Settlement 1st week of next month
         </p>
       </div>
+      <Footer />
     </div>
   )
 }

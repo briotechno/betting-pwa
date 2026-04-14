@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 type Section = {
   id: string
@@ -228,6 +229,7 @@ export default function TermsAndConditionsPage() {
           </div>
         ))}
       </div>
+      <Footer />
     </div>
   )
 }

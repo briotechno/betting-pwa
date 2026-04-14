@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Plus, Minus, ChevronDown } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 type FAQ = {
   q: string
@@ -179,6 +180,7 @@ export default function FAQsPage() {
           )
         })}
       </div>
+      <Footer />
     </div>
   )
 }

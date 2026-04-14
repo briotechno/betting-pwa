@@ -2,6 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 const sections = [
   {
@@ -198,6 +199,7 @@ export default function PrivacyPolicyPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

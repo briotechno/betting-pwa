@@ -263,17 +263,7 @@ export default function MarketsPage() {
           </div>
         )}
 
-        {/* WhatsApp Floating Button */}
-        <a
-          href="https://wa.me/..."
-          className="fixed bottom-24 right-4 z-50 transition-transform active:scale-90"
-        >
-          <img
-            src="/whatsapp.png"
-            alt="WhatsApp"
-            className="w-12 h-12 drop-shadow-2xl"
-          />
-        </a>
+
       </div>
     </div>
   )

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { Gift, ChevronRight, Loader2, Info, CheckCircle2, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Footer from '@/components/layout/Footer'
 import { userController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -104,7 +105,7 @@ export default function OffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] pb-20">
+    <div className="min-h-screen bg-[#121212]">
       {/* Sub Header */}
       <div className="flex items-center px-4 py-3 bg-[#222222] border-b border-white/5 sticky top-0 z-10 transition-all">
         <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
@@ -255,6 +256,7 @@ export default function OffersPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }

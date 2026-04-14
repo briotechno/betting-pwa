@@ -2,6 +2,7 @@
 import React, { useRef } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 const gameProviders = [
   "https://www.fairplay247.vip/_nuxt/img/sportsradar1.f17a5b4.png",
@@ -40,7 +41,7 @@ export default function AboutPage() {
         <h1 className="text-white text-[15px] font-bold tracking-wide uppercase">About Us</h1>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-4 py-8 pb-32">
+      <div className="max-w-[1600px] mx-auto px-4 py-8">
         {/* About Us Section */}
         <section className="mb-12">
           <h2 className="text-white text-[24px] font-bold mb-6 text-center tracking-tight">About Us</h2>
@@ -161,6 +162,7 @@ export default function AboutPage() {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   )
 }

@@ -98,10 +98,14 @@ export default function ProfileSidebar() {
               <span className="text-white/60">Wallet Amount</span>
               <span className="text-[#4caf50] font-bold text-[15px] tabular-nums">₹{user.balance?.toLocaleString() ?? '0'}</span>
             </div>
-            <div className="flex justify-between items-center text-[13px]">
+            <Link 
+              href="/bets" 
+              onClick={() => setProfileSidebarOpen(false)}
+              className="flex justify-between items-center text-[13px] hover:bg-white/5 p-1 rounded transition-colors"
+            >
               <span className="text-white/60">Main Wallet Exposure</span>
               <span className="text-[#f44336] font-bold text-[15px]">{(user.exposure ?? 0).toLocaleString()}</span>
-            </div>
+            </Link>
             <div className="flex justify-between items-center text-[13px]">
               <span className="text-white/60">Main Wallet Balance</span>
               <span className="text-white font-bold text-[15px]">₹{(user.availableBalance ?? 0).toLocaleString()}</span>

@@ -2,6 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import Footer from '@/components/layout/Footer'
 
 export default function LoyaltyPage() {
   // Auto-slide logic
@@ -22,7 +23,7 @@ export default function LoyaltyPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#111] pb-20">
+    <div className="min-h-screen bg-[#111]">
       {/* Page Header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a1a] border-b border-white/10 sticky top-0 z-10">
         <Link href="/" className="text-[#e15b24] hover:text-white transition-colors">
@@ -187,6 +188,7 @@ export default function LoyaltyPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
