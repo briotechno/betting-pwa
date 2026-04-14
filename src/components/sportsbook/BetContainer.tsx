@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChevronDown, Loader2, X, Plus, Minus } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
@@ -8,6 +9,7 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 
 export default function BetContainer() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('BETSLIP')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
@@ -281,7 +283,12 @@ export default function BetContainer() {
 
                       <div className="flex justify-between items-center mb-3">
                          <span className="text-[11px] text-gray-600 font-bold">or Choose You Stake Size</span>
-                         <button className="text-[11px] font-black text-[#f36c21] uppercase hover:underline">Edit Stakes</button>
+                         <button 
+                           onClick={() => router.push('/settings')}
+                           className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
+                         >
+                           Edit Stakes
+                         </button>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 mb-4">

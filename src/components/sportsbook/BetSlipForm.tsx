@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { X, Plus, Minus, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
@@ -13,6 +14,7 @@ interface BetSlipFormProps {
 }
 
 export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
+  const router = useRouter()
   const { user } = useAuthStore()
   const { 
     stakes, 
@@ -189,7 +191,12 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
         <div className="space-y-3">
            <div className="flex justify-between items-center">
               <p className="text-[11px] font-bold text-gray-600">or Choose You Stake Size</p>
-              <button className="text-[11px] font-black text-[#f36c21] uppercase hover:underline">Edit Stakes</button>
+              <button 
+                onClick={() => router.push('/settings')}
+                className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
+              >
+                Edit Stakes
+              </button>
            </div>
            <div className="grid grid-cols-3 gap-2">
              {quickStakes.map(s => (
