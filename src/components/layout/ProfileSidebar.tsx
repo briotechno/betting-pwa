@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useI18nStore } from '@/store/i18nStore'
 import { bettingController } from '@/controllers/betting/bettingController'
+import { userController } from '@/controllers/user/userController'
 
 const menuItems = [
   { id: 'pnl', label: 'Betting P&L', icon: '/nav/bet_pnl.png', href: '/profit-loss' },
@@ -51,10 +52,26 @@ export default function ProfileSidebar() {
     }
   }
 
+  const handleWhatsAppClick = async () => {
+    if (user?.loginToken) {
+      try {
+        const res = await userController.getWhatsAppLink(user.loginToken)
+        if (res && res.error === '0' && res.Link) {
+          window.open(res.Link, '_blank')
+          return
+        }
+      } catch (err) {
+        console.error('WhatsApp redirect failed:', err)
+      }
+    }
+    // Fallback if not logged in or API fails
+    window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+  }
+
   if (!mounted || !user) return null
 
   // Update menuItems with dynamic count
-  const itemsWithCount = menuItems.map(item => 
+  const itemsWithCount = menuItems.map(item =>
     item.id === 'bets' ? { ...item, count: openBetsCount } : item
   )
 
@@ -98,8 +115,8 @@ export default function ProfileSidebar() {
               <span className="text-white/60">Wallet Amount</span>
               <span className="text-[#4caf50] font-bold text-[15px] tabular-nums">₹{user.balance?.toLocaleString() ?? '0'}</span>
             </div>
-            <Link 
-              href="/bets" 
+            <Link
+              href="/bets"
               onClick={() => setProfileSidebarOpen(false)}
               className="flex justify-between items-center text-[13px] hover:bg-white/5 p-1 rounded transition-colors"
             >
@@ -188,7 +205,7 @@ export default function ProfileSidebar() {
                       />
                       <div className="flex flex-1 justify-between items-center ml-4 pr-3">
                         <span className="text-[16px] font-bold text-white tracking-tight">
-                           {t(`common.${item.id}`) || item.label}
+                          {t(`common.${item.id}`) || item.label}
                         </span>
                         {item.count !== undefined && item.count > 0 && (
                           <span className="bg-[#e15b24] text-white text-[10px] min-w-[20px] h-5 rounded-full flex items-center justify-center font-black px-1.5 ml-auto">
@@ -206,11 +223,14 @@ export default function ProfileSidebar() {
           {/* Social / Connect */}
           <div className="mt-6 bg-[#424242] py-8 px-6 flex flex-col items-center gap-5">
             <span className="text-[16px] font-black text-white">Connect with us on</span>
-            <button className="w-[90%] h-12 border border-white rounded-full flex items-center justify-center gap-3 active:scale-95 transition-all bg-transparent">
-              <img 
-                src="/nav/whatsapp_now.png" 
-                alt="Whatsapp" 
-                className="w-7 h-7 object-contain" 
+            <button
+              onClick={handleWhatsAppClick}
+              className="w-[90%] h-12 border border-white rounded-full flex items-center justify-center gap-3 active:scale-95 transition-all bg-transparent"
+            >
+              <img
+                src="/nav/whatsapp_now.png"
+                alt="Whatsapp"
+                className="w-7 h-7 object-contain"
               />
               <span className="text-[15px] font-black text-white uppercase tracking-wider">WHATSAPP</span>
             </button>

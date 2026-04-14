@@ -447,6 +447,18 @@ This document serves as the high-fidelity specification for the Betting Platform
 - **Request Body identical to Detail.**
 - **Success:** `{"error":"0", "msg":"Offers get Successfully."}`
 
+### 55. Whatsapp Link ✅
+**POST** `/wplink`
+- **Description:** Get the official dynamic WhatsApp redirect link.
+- **Request:** `{"LoginToken":"..."}`
+- **Response:**
+  ```json
+  {
+      "error": "0",
+      "Link": "https://go.wa.link/tigerexch247"
+  }
+  ```
+
 ---
 
 ## 🧠 Developer Key Notes

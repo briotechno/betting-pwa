@@ -87,4 +87,12 @@ export const userController = {
   getAccountStatement: async (loginToken: string, sdate: string, edate: string): Promise<ApiResponse> => {
     return await fetchAPI('/pl', { LoginToken: loginToken, sdate, edate });
   },
+
+  /**
+   * Get dynamic WhatsApp support link
+   * @param loginToken session token
+   */
+  getWhatsAppLink: async (loginToken: string): Promise<ApiResponse> => {
+    return await fetchAPI('/wplink', { LoginToken: loginToken });
+  },
 };

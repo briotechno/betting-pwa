@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useAuthStore } from '@/store/authStore'
+import { userController } from '@/controllers/user/userController'
 import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
 import Footer from './Footer'
@@ -10,26 +11,42 @@ import Sidebar from './Sidebar'
 import { Suspense } from 'react'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const { 
-    sidebarCollapsed, 
-    leftDrawerOpen, 
-    profileSidebarOpen, 
-    searchModalOpen, 
+  const {
+    sidebarCollapsed,
+    leftDrawerOpen,
+    profileSidebarOpen,
+    searchModalOpen,
     moreMenuOpen,
     auraCasinoOpen,
-    feedbackModalOpen 
+    feedbackModalOpen
   } = useLayoutStore()
-  const { isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
   const pathname = usePathname()
+
+  const handleWhatsAppClick = async () => {
+    if (user?.loginToken) {
+      try {
+        const res = await userController.getWhatsAppLink(user.loginToken)
+        if (res && res.error === '0' && res.Link) {
+          window.open(res.Link, '_blank')
+          return
+        }
+      } catch (err) {
+        console.error('WhatsApp redirect failed:', err)
+      }
+    }
+    // Fallback if not logged in or API fails
+    window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+  }
 
   // Global Scroll Lock
   useEffect(() => {
-    const isAnyOverlayOpen = 
-      leftDrawerOpen || 
-      profileSidebarOpen || 
-      searchModalOpen || 
-      moreMenuOpen || 
-      auraCasinoOpen || 
+    const isAnyOverlayOpen =
+      leftDrawerOpen ||
+      profileSidebarOpen ||
+      searchModalOpen ||
+      moreMenuOpen ||
+      auraCasinoOpen ||
       feedbackModalOpen
 
     const body = document.body
@@ -92,16 +109,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
           {/* Floating WhatsApp Icon */}
           {!isAuthPage && (
-            <a
-              href="https://wa.me/1234567890"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="fixed bottom-[70px] left-4 z-[55]"
+            <button
+              onClick={handleWhatsAppClick}
+              className="fixed bottom-[70px] left-4 z-[55] w-[50px] h-[50px] rounded-full flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
             >
-              <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center transition-transform hover:scale-110">
-                <img src="/whatsapp.png" alt="WhatsApp" className="w-[50px] h-[50px] object-cover" />
-              </div>
-            </a>
+              <img src="/whatsapp.png" alt="WhatsApp" className="w-full h-full object-cover" />
+            </button>
           )}
 
           {/* Main page content */}
@@ -117,8 +130,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {(pathname === '/' ||
         pathname?.startsWith('/favorites') ||
         (pathname?.startsWith('/premium-sportsbook') && !pathname?.includes('rules'))) && (
-        <Footer />
-      )}
+          <Footer />
+        )}
     </div>
   )
 }
