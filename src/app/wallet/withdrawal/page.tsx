@@ -263,7 +263,7 @@ export default function WithdrawalPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {bankAccounts.length === 0 ? (
                 <div className="col-span-full bg-[#1a1a1a] border border-dashed border-white/10 rounded-2xl p-8 text-center">
                   <Landmark size={32} className="mx-auto text-white/10 mb-3" />
@@ -277,33 +277,33 @@ export default function WithdrawalPage() {
                     <div
                       key={id}
                       onClick={() => setSelectedBankId(id)}
-                      className={`relative p-4 rounded-2xl border transition-all cursor-pointer ${isSelected
+                      className={`relative p-3 rounded-2xl border transition-all cursor-pointer ${isSelected
                           ? 'bg-[#3d3d3d] border-white/40 shadow-xl'
                           : 'bg-[#1a1a1a] border-white/5 hover:border-white/20'
                         }`}
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'}`}>
-                          <Landmark size={20} />
+                      <div className="flex items-start justify-between mb-2">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'}`}>
+                          <Landmark size={16} />
                         </div>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDeleteBank(id); }}
-                          className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                          className="p-1 text-white/20 hover:text-red-500 transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-0.5">
                         <div className="flex items-center justify-between">
-                          <p className={`text-[13px] font-black uppercase tracking-tight text-white`}>{bank.Bank || 'Bank'}</p>
-                          <span className={`text-[9px] font-black px-2 py-0.5 rounded italic ${isSelected ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>{bank.ACname || 'Primary'}</span>
+                          <p className={`text-[11px] font-black uppercase tracking-tight text-white truncate mr-1`}>{bank.Bank || 'Bank'}</p>
+                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded italic shrink-0 ${isSelected ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>{bank.ACname || 'Primary'}</span>
                         </div>
-                        <p className="text-[11px] text-white font-medium tracking-wider mt-0.5">
+                        <p className="text-[10px] text-white font-medium tracking-wider">
                           {bank.ACno || '****'}
                         </p>
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                          <p className="text-[10px] text-white font-bold tracking-tight opacity-70 truncate max-w-[120px]">{bank.ACholdername || 'N/A'}</p>
-                          <p className={`text-[9px] font-black ${isSelected ? 'text-white' : 'text-white/40'}`}>{bank.Isfc || bank.IFSC || ''}</p>
+                        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-white/5">
+                          <p className="text-[9px] text-white font-bold tracking-tight opacity-70 truncate max-w-[80px]">{bank.ACholdername || 'N/A'}</p>
+                          <p className={`text-[8px] font-black shrink-0 ${isSelected ? 'text-white' : 'text-white/40'}`}>{bank.Isfc || bank.IFSC || ''}</p>
                         </div>
                       </div>
                     </div>
@@ -346,11 +346,12 @@ export default function WithdrawalPage() {
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-xl overflow-x-auto 2xl:overflow-x-hidden shadow-2xl relative custom-scrollbar pb-10">
               <div className="flex flex-col h-full">
                 {/* Table Header */}
-                <div className="grid grid-cols-[1.2fr_1fr_1fr_1.5fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
+                <div className="grid grid-cols-[1fr_0.8fr_0.8fr_1fr_1.2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
                   <span className="text-center text-white">METHOD</span>
                   <span className="text-center text-white">AMOUNT</span>
                   <span className="text-center text-white">STATUS</span>
                   <span className="text-center text-white whitespace-nowrap">DATE & TIME</span>
+                  <span className="text-white pl-4">REASON</span>
                 </div>
 
                 {/* Table Body */}
@@ -374,7 +375,7 @@ export default function WithdrawalPage() {
                       const remarks = item.Remarks || item.remarks || item.Remark || '—';
 
                       return (
-                        <div key={i} className={`grid grid-cols-[1.2fr_1fr_1fr_1.5fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
+                        <div key={i} className={`grid grid-cols-[1fr_0.8fr_0.8fr_1fr_1.2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
                           <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
                           <span className="text-[12px] text-white text-center">₹{parseFloat(amount).toLocaleString()}</span>
                           <div className="text-center">
@@ -388,6 +389,7 @@ export default function WithdrawalPage() {
                           <span className="text-[9px] text-white text-center leading-tight whitespace-pre-line">
                             {date.includes(' ') ? date.split(' ').join('\n') : date}
                           </span>
+                          <span className="text-[10px] text-white/60 whitespace-normal break-words pl-4 leading-relaxed">{remarks}</span>
                         </div>
                       );
                     })
