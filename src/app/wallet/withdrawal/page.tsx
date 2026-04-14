@@ -351,7 +351,7 @@ export default function WithdrawalPage() {
                   <span className="text-center text-white">STATUS</span>
                   <span className="text-center text-white whitespace-nowrap">DATE & TIME</span>
                   <span className="text-center text-white">METHOD</span>
-                  <span className="text-white pl-4">REASON</span>
+                  <span className="text-white pl-4">DETAILS</span>
                 </div>
 
                 {/* Table Body */}
