@@ -346,11 +346,11 @@ export default function WithdrawalPage() {
             <div className="flex-1 flex flex-col bg-[#111] border border-white/10 rounded-xl overflow-x-auto 2xl:overflow-x-hidden shadow-2xl relative custom-scrollbar pb-10">
               <div className="flex flex-col h-full">
                 {/* Table Header */}
-                <div className="grid grid-cols-[1fr_0.8fr_0.8fr_1fr_1.2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
-                  <span className="text-center text-white">METHOD</span>
+                <div className="grid grid-cols-[0.8fr_0.8fr_1fr_1fr_1.2fr] text-[8px] font-black uppercase tracking-wider py-6 px-4 bg-black border-b border-white/5 text-white sticky top-0 z-10">
                   <span className="text-center text-white">AMOUNT</span>
                   <span className="text-center text-white">STATUS</span>
                   <span className="text-center text-white whitespace-nowrap">DATE & TIME</span>
+                  <span className="text-center text-white">METHOD</span>
                   <span className="text-white pl-4">REASON</span>
                 </div>
 
@@ -375,8 +375,7 @@ export default function WithdrawalPage() {
                       const remarks = item.Remarks || item.remarks || item.Remark || '—';
 
                       return (
-                        <div key={i} className={`grid grid-cols-[1fr_0.8fr_0.8fr_1fr_1.2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
-                          <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
+                        <div key={i} className={`grid grid-cols-[0.8fr_0.8fr_1fr_1fr_1.2fr] items-center py-5 px-4 border-b border-white/5 transition-all hover:bg-white/[0.03] ${i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.01]'}`}>
                           <span className="text-[12px] text-white text-center">₹{parseFloat(amount).toLocaleString()}</span>
                           <div className="text-center">
                             <span className={`text-[10px] font-black uppercase ${
@@ -389,6 +388,7 @@ export default function WithdrawalPage() {
                           <span className="text-[9px] text-white text-center leading-tight whitespace-pre-line">
                             {date.includes(' ') ? date.split(' ').join('\n') : date}
                           </span>
+                          <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
                           <span className="text-[10px] text-white/60 whitespace-normal break-words pl-4 leading-relaxed">{remarks}</span>
                         </div>
                       );
