@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, Menu, FileText, Loader2, Calendar, Trophy, ArrowRight, Home } from 'lucide-react'
+import { Search, ChevronDown, Globe, Wallet, User, X, LogOut, Eye, EyeOff, Menu, FileText, Loader2, Calendar, Trophy, ArrowRight, Home } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useLayoutStore } from '@/store/layoutStore'
@@ -435,22 +435,26 @@ export default function Header() {
                           type="text"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
-                          placeholder={`0 ${t('common.login')}`}
+                          placeholder={`${t('common.login')}`}
                           className="bg-transparent outline-none text-white text-[13px] font-bold placeholder:text-white/70"
                         />
                       </div>
 
                       {/* Password */}
-                      <div className="flex items-center w-[160px] border-b border-white pb-0.5">
+                      <div className="relative w-[160px] border-b border-white pb-0.5 flex items-center">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Password"
-                          className="flex-1 bg-transparent outline-none text-white text-[13px] font-bold placeholder:text-white/70"
+                          className="w-full bg-transparent outline-none text-white text-[13px] font-bold placeholder:text-white/70 pr-8"
                         />
-                        <button onClick={() => setShowPassword(!showPassword)} className="text-white/80 hover:text-white">
-                          <Eye size={18} />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-0 text-white/80 hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
 
