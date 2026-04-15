@@ -155,7 +155,7 @@ export default function CrashGamesPage() {
       {/* ── Header ── */}
       <div className="sticky top-0 z-50 bg-[#0b0b0b] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5">
         <h1 className="text-[18px] font-bold tracking-tight text-white/90">Crash Games</h1>
-        
+
         {/* Search Bar */}
         <div className="relative w-full sm:max-w-[240px]">
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -197,7 +197,7 @@ export default function CrashGamesPage() {
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.name)}&background=1a1a1a&color=fff&size=200&font-size=0.1`
                     }}
                   />
-                  
+
                   {/* Subtle Label Overlay if image doesn't have text */}
                   <div className="absolute inset-x-0 bottom-0 bg-black/60 pt-4 pb-1 px-1 flex flex-col items-center justify-center pointer-events-none transform translate-y-full group-hover:translate-y-0 transition-transform">
                     <span className="text-[7px] font-black text-white uppercase text-center line-clamp-1">
@@ -216,22 +216,7 @@ export default function CrashGamesPage() {
         )}
       </div>
 
-      {/* WhatsApp Floating Button */}
-      <a
-        href="https://wa.me/31612345678" // Example number
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-20 left-4 z-50 transition-transform hover:scale-110 active:scale-90"
-      >
-        <img
-          src="/whatsapp.png"
-          alt="WhatsApp Support"
-          className="w-12 h-12 drop-shadow-2xl"
-          onError={(e) => {
-            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/3670/3670051.png"
-          }}
-        />
-      </a>
+
 
       <div className="h-24" />
 
