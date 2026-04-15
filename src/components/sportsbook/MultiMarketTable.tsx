@@ -90,7 +90,8 @@ export default function MultiMarketTable({
         };
       }
 
-      const p = (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || ''
+      // Corrected: no1 is typically NO (Smaller), no2 is typically YES (Bigger)
+      const p = (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || ''
       const v = (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || ''
       return { p1: p, v1: v, p2: '', v2: '', p3: '', v3: '' }
     }
@@ -126,8 +127,35 @@ export default function MultiMarketTable({
               .map((runner, idx) => {
                 const { back, lay, isRunnerSuspended } = getRunnerRatesForFavorites(runner.SelectionId || runner.selectionId, idx, runner)
                 
-                const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.active === 'No' || rateData?.ball_run === 'Y'
-                const isSuspended = isMarketSuspended || !!rateData?.Msg || isRunnerSuspended
+                const isFancy = marketName.toUpperCase() === 'FANCY' || marketName.toUpperCase() === 'LINE MARKET'
+                const isBookmaker = marketName.toUpperCase() === 'BOOKMAKER'
+                
+                let isMarketSuspended = false
+                let suspensionMsg = 'SUSPENDED'
+
+                if (isFancy) {
+                  if (rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.status === 'SUSPENDED') {
+                    isMarketSuspended = true
+                    suspensionMsg = 'SUSPENDED'
+                  } else {
+                    const n1 = parseFloat(rateData?.no1 || '0')
+                    const n2 = parseFloat(rateData?.no2 || '0')
+                    if (n1 === 0 && n2 === 0 && (rateData?.no1 !== undefined || rateData?.no2 !== undefined)) {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    } else if (rateData?.ball_run === 'Y' || rateData?.status1 === '1' || rateData?.status1 === '2') {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    }
+                  }
+                } else if (isBookmaker) {
+                  isMarketSuspended = rateData?.suspended === 'Y' || rateData?.ball_run === 'Y' || rateData?.status === 'SUSPENDED'
+                } else {
+                  isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.suspended === 'Y' || rateData?.active === 'No'
+                }
+
+                const isSuspended = isMarketSuspended || isRunnerSuspended || !!rateData?.Msg
+                const displayMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 return (
                   <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
@@ -157,7 +185,7 @@ export default function MultiMarketTable({
                               <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
                               <div className="relative z-10 bg-[#e0e0e0] px-4 py-[6px] flex items-center justify-center drop-shadow-sm">
                                 <span className="text-[#0d47a1] text-[13px] font-bold uppercase tracking-wide leading-none">
-                                  {rateData?.ball_run === 'Y' ? 'BALL RUNNING' : (rateData?.Msg || 'SUSPENDED')}
+                                {displayMsg}
                                 </span>
                               </div>
                             </div>

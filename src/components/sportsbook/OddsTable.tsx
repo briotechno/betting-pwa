@@ -207,7 +207,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
                   {/* INPLAY table: show LIVE icon */}
                   {showLiveBadge && (
-                    <td className="py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
+                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
                       <div className="relative flex items-center justify-center group">
                         <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
                         <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
@@ -219,7 +219,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
                   {/* TODAY table only: show IN-PLAY icon */}
                   {showInPlayBadge && (
-                    <td className="py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
+                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
                       <div className="relative flex items-center justify-center group">
                         <Play size={12} fill="#28a745" className="text-[#28a745]" />
                         <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">

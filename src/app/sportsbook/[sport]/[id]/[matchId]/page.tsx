@@ -124,9 +124,12 @@ const MarketTable = ({
       const hasRunners = rateData.runners || rateData.runner || rateData.rates
       const isFancyOrLine = marketType === 'FANCY' || marketType === 'LINE'
 
-      // For Fancy/Line markets, if prices are missing, check if they are in flat fields
+      // Point 2: Fancy Logic - if no1/no2 are missing/zero, it's potentially Ball Running
       if (isFancyOrLine && !hasRunners) {
-        if (!rateData.no1 && !rateData.no2 && !rateData.rate && rateData.rate !== 0) {
+        const n1 = parseFloat(rateData.no1 || '0')
+        const n2 = parseFloat(rateData.no2 || '0')
+        if (n1 === 0 && n2 === 0 && !rateData.rate) {
+          // We'll handle the "BALL RUNNING" vs "SUSPENDED" message in the UI loop based on priority
           isRunnerSuspended = true
         }
       }
@@ -141,9 +144,9 @@ const MarketTable = ({
           return '';
         }
 
-        // Corrected as per reference site (no1 -> YES/BACK [Smaller], no2 -> NO/LAY [Bigger])
-        let bp = getVal(r, ['no1', 'no2', 'backPrice1', 'BackPrice1', 'rate']);
-        let lp = getVal(r, ['no2', 'no1', 'layPrice1', 'LayPrice1', 'rate']);
+        // Corrected as per reference site: no1 is typically NO/LAY, no2 is typically YES/BACK
+        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
         let bs = getVal(r, ['valy', 'valn', 'size']);
         let ls = getVal(r, ['valn', 'valy', 'size']);
 
@@ -184,9 +187,14 @@ const MarketTable = ({
     )
     if (!r) r = runnerArr[rIdx]
 
-    // Check runner-level suspension status
-    if (r && (r.selectionStatus === 'SUSPENDED' || r.status === 'SUSPENDED' || r.selectionStatus === '1' || r.status === '1')) {
-      isRunnerSuspended = true
+    // Point 3: Bookmaker selectionStatus check
+    if (r) {
+      if (marketType === 'BOOKMAKER') {
+        const s = (r.selectionStatus || r.selectionstatus || '').toUpperCase()
+        if (s !== 'ACTIVE' && s !== 'OPEN') isRunnerSuspended = true
+      } else if (r.selectionStatus === 'SUSPENDED' || r.status === 'SUSPENDED' || r.selectionStatus === '1' || r.status === '1') {
+        isRunnerSuspended = true
+      }
     }
 
     const getPrices = (r: any, type: 'back' | 'lay') => {
@@ -215,9 +223,9 @@ const MarketTable = ({
         };
       }
 
-      // Default/Fancy Logic: no1 is BACK/YES (Smaller), no2 is LAY/NO (Bigger)
+      // Default/Fancy Logic: no1 is typically NO (Smaller), no2 is typically YES (Bigger)
       return {
-        p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
+        p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
         v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
         p2: '', v2: '', p3: '', v3: ''
       };
@@ -307,16 +315,44 @@ const MarketTable = ({
                 const rateData = liveRates[mId]
                 const { back, lay, isRunnerSuspended } = getRunnerRates(runnerId, rIdx, mId, runner)
                 const runnerName = isFancyGroup ? (runner.name || runner.RunnerName) : (runner.name || runner.RunnerName || (marketType === 'FANCY' ? 'FANCY ODDS' : `Runner ${rIdx + 1}`))
+                const isFancy = marketType === 'FANCY' || isFancyGroup
+                const isLine = marketType === 'LINE'
+                const isBookmaker = marketType === 'BOOKMAKER'
 
-                const isMarketSuspended = rateData?.status === 'SUSPENDED' ||
-                  rateData?.suspended === 'Y' ||
-                  rateData?.suspended === '1' ||
-                  rateData?.active === 'No' ||
-                  rateData?.status1 === '1' ||
-                  rateData?.ball_run === 'Y' ||
-                  rateData?.status1 === '2'
+                let isMarketSuspended = false
+                let suspensionMsg = 'SUSPENDED'
 
-                const isSuspended = isMarketSuspended || !!rateData?.Msg || isRunnerSuspended
+                if (isLine) {
+                  // Point 1: Line Market Logic
+                  isMarketSuspended = rateData?.status === 'SUSPENDED'
+                } else if (isFancy) {
+                  // Point 2: Fancy Market Logic
+                  // Priority 1: Suspended field
+                  if (rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.status === 'SUSPENDED') {
+                    isMarketSuspended = true
+                    suspensionMsg = 'SUSPENDED'
+                  } 
+                  // Priority 2: no1 and no2 zero check
+                  else {
+                    const n1 = parseFloat(rateData?.no1 || '0')
+                    const n2 = parseFloat(rateData?.no2 || '0')
+                    if (n1 === 0 && n2 === 0 && (rateData?.no1 !== undefined || rateData?.no2 !== undefined)) {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    } else if (rateData?.ball_run === 'Y' || rateData?.status1 === '1' || rateData?.status1 === '2') {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    }
+                  }
+                } else if (isBookmaker) {
+                  // Point 3: Bookmaker Logic
+                  isMarketSuspended = rateData?.suspended === 'Y' || rateData?.ball_run === 'Y' || rateData?.status === 'SUSPENDED'
+                } else {
+                  // Default ODDS/Other
+                  isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.suspended === 'Y' || rateData?.active === 'No'
+                }
+
+                const isSuspended = isMarketSuspended || isRunnerSuspended || (!!rateData?.Msg && rateData?.Msg !== '')
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
@@ -337,7 +373,7 @@ const MarketTable = ({
                   })
                 }
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
-                const suspensionMsg = rateData?.ball_run === 'Y' ? 'BALL RUNNING' : (rateData?.Msg || 'SUSPENDED')
+                suspensionMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 const chartVal = runner.Chart !== undefined && runner.Chart !== null ? parseFloat(runner.Chart) : null
                 const hasChart = chartVal !== null && !isNaN(chartVal) && chartVal !== 0
