@@ -86,10 +86,10 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           case 'FANCY':
             res = await bettingController.placeFancyBet({
               ...common,
-              Eid: selection.marketId, // Use MarketId as Eid
-              No: selection.odds, // Value/Rate
-              Yes: selection.odds, // Value/Rate
-              Rate: 100, // Fixed price for fancy often 100/100
+              Eid: selection.marketId, 
+              No: selection.noVal || 100,
+              Yes: selection.yesVal || 100,
+              Rate: selection.odds, // The actual rate clicked (e.g. 294)
               Type: betTypeChar
             })
             break

@@ -16,6 +16,8 @@ export interface BetSelection {
   marketType: string
   marketIndex: number
   runnersCount?: number
+  noVal?: number
+  yesVal?: number
 }
 
 export interface Bet {

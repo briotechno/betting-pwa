@@ -369,7 +369,9 @@ const MarketTable = ({
                     betType: side,
                     marketType: isFancyGroup ? 'FANCY' : (marketType || 'ODDS'),
                     marketIndex: rIdx,
-                    runnersCount: runners.length || 1
+                    runnersCount: (Array.isArray(runners) ? runners.length : Object.keys(runners || {}).length),
+                    noVal: parseFloat(lay.v1 || '100'),
+                    yesVal: parseFloat(back.v1 || '100')
                   })
                 }
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))

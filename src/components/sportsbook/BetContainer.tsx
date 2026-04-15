@@ -14,7 +14,6 @@ export default function BetContainer() {
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [countdown, setCountdown] = useState(0)
 
   const { user } = useAuthStore()
   const {
@@ -87,20 +86,6 @@ export default function BetContainer() {
       return
     }
 
-    // Professional Bet Delay Countdown (3 seconds)
-    let currentCountdown = 3;
-    setCountdown(currentCountdown);
-    const timer = setInterval(() => {
-      currentCountdown--;
-      setCountdown(currentCountdown);
-      if (currentCountdown <= 0) {
-        clearInterval(timer);
-      }
-    }, 1000);
-
-    // Wait for the countdown
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
     try {
       let res;
       // Normalizing the API parameters: 
@@ -142,9 +127,9 @@ export default function BetContainer() {
             res = await bettingController.placeFancyBet({
               ...common,
               Eid: selection.marketId,
-              No: selection.odds,
-              Yes: selection.odds,
-              Rate: 100,
+              No: selection.noVal || 100,
+              Yes: selection.yesVal || 100,
+              Rate: selection.odds, // The actual rate clicked (e.g. 294)
               Type: betTypeChar
             })
             break
@@ -231,14 +216,11 @@ export default function BetContainer() {
               {selections.map((sel) => {
                 return (
                   <div key={sel.id} className="relative bg-white rounded-[2px] p-4 border border-[#a5d9fe] shadow-sm animate-in fade-in slide-in-from-right duration-300 overflow-hidden">
-                    {/* Bet Placing Loading Overlay */}
+                    // Bet Placing Loading Overlay
                     {loading && (
-                      <div className="absolute inset-0 z-50 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center animate-in fade-in duration-300">
-                        <span className="text-[15px] font-medium text-gray-800 mb-1">Your bet will be placed in...</span>
-                        <div className="flex flex-col items-center">
-                          <span className="text-[20px] font-black text-gray-900 leading-none">{countdown}</span>
-                          <div className="w-4 h-4 mt-1 border-t-2 border-black rounded-full animate-spin"></div>
-                        </div>
+                      <div className="absolute inset-0 z-50 bg-white/60 backdrop-blur-[1px] flex flex-col items-center justify-center animate-in fade-in duration-200">
+                        <Loader2 className="animate-spin text-[#f36c21]" size={30} />
+                        <span className="text-[13px] font-bold text-gray-800 mt-2 uppercase tracking-tighter">Placing Bet...</span>
                       </div>
                     )}
 
