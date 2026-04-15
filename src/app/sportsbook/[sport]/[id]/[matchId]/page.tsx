@@ -307,7 +307,7 @@ const MarketTable = ({
       {(!isCollapsed && (Array.isArray(runners) ? runners : Object.values(runners || {})).length > 0) && (
         <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
           <table className="w-full border-collapse">
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-black/30">
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
                 const mId = isFancyGroup ? (runner.MarketId || runner.marketid || runner.eid) : marketId
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
@@ -382,7 +382,7 @@ const MarketTable = ({
 
                 return (
                   <React.Fragment key={mId + '-' + runnerId}>
-                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col">
                           <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase">
@@ -882,7 +882,7 @@ export default function GameDetailPage() {
                             <div key={idx} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-1">
                               <div className="flex flex-col"><span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span><span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection} {bet.Side === 'lay' && '(LAY)'}</span></div>
                               <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
-                                <thead className="bg-gray-50/50"><tr className="border-b border-gray-100"><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Stake</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Profit/Liability</th></tr></thead>
+                                <thead className="bg-gray-50/50"><tr className="border-b border-black/30"><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Stake</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Profit/Liability</th></tr></thead>
                                 <tbody><tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}><td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td><td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td><td className="py-2.5 px-3 text-[13px] font-black text-right">{(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}</td></tr></tbody>
                               </table>
                             </div>

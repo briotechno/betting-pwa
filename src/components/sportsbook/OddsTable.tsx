@@ -175,13 +175,13 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
 
               return (
                 <tr
-                  key={row.teamName}
-                  className={`bg-white transition-colors border-b border-gray-100 ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'relative bg-[#777] text-white' : ''
+                  key={row.id || row.teamName}
+                  className={`bg-white transition-colors border-b border-black/30 ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'relative bg-[#777] text-white' : ''
                     }`}
                 >
                   {/* Start Time Column */}
                   {row.startTime && displayTime && (
-                    <td className="py-2 px-1.5 w-[70px] sm:w-[80px] border-r border-gray-100">
+                    <td className="py-2 px-1.5 w-[70px] sm:w-[80px] border-r border-black/30">
                       <div className="flex flex-col text-[8.5px] sm:text-[9px] font-bold text-[#e15b24] leading-tight items-center text-center">
                         <span className="whitespace-nowrap">{displayTime.datePart}</span>
                         <span className="whitespace-nowrap">{displayTime.timePart}</span>

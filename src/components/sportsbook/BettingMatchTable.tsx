@@ -134,7 +134,7 @@ const BettingMatchTable = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[600px]">
           <thead className="bg-[#f0f2f5]">
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-black/30">
               <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider w-[150px]">Date & Time</th>
               <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider">Match</th>
               <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider text-center w-[100px]">1</th>
@@ -142,7 +142,7 @@ const BettingMatchTable = () => {
               <th className="py-3 px-4 text-[12px] font-black uppercase text-gray-500 tracking-wider text-center w-[100px]">2</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-black/30">
             {matches.map((match) => (
               <tr key={match.Event_Id || match.MarketId} className="hover:bg-gray-50 transition-colors">
                 <td className="py-4 px-4">

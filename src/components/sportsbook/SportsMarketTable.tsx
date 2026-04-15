@@ -112,8 +112,8 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
               <table className="w-full border-separate border-spacing-0">
                 <tbody>
                   {match.teams.map((team, tIdx) => (
-                    <tr key={team.teamName} className="bg-white">
-                      <td className="p-3 py-3 w-[25%] lg:w-[20%] border-r border-gray-100">
+                    <tr key={team.teamName} className={`bg-white ${tIdx === 0 ? 'border-b border-black/30' : ''}`}>
+                      <td className="p-3 py-3 w-[25%] lg:w-[20%] border-r border-black/30">
                         <div className="flex flex-col justify-center min-w-0 w-full">
                           {team.teamName.includes(' vs ') ? (
                             <>
@@ -131,7 +131,7 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                         <div className="flex items-center justify-end">
                           {/* We only show 3 market columns: 1, X, 2 */}
                           {[0, 1, 2].map((idx) => (
-                            <div key={idx} className="flex items-center justify-center gap-[2px] w-20 md:w-[122px] border-r last:border-r-0 border-gray-100">
+                            <div key={idx} className="flex items-center justify-center gap-[2px] w-20 md:w-[122px] border-r last:border-r-0 border-black/30">
                               {/* Back Odds */}
                               <button
                                 onClick={() => handleOddsClick(match)}

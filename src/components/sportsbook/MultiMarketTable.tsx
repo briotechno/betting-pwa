@@ -102,7 +102,7 @@ export default function MultiMarketTable({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-[#e0e0e0] mb-6 relative overflow-hidden">
       {/* Compact Minimal Header (Matches User Image) */}
-      <div className="h-10 flex items-center bg-[#e0e0e0] border-b border-gray-300">
+      <div className="h-10 flex items-center bg-[#e0e0e0] border-b border-black/40">
         <div className="flex items-center px-4 gap-3">
           <span className="text-gray-600 text-[18px] font-medium leading-none mb-1">−</span>
           <span className="text-[#333] text-[13px] font-bold uppercase tracking-tight">
@@ -121,7 +121,7 @@ export default function MultiMarketTable({
       {/* Runners List - No Column Headers */}
       <div className="overflow-x-auto lg:overflow-visible text-gray-800">
         <table className="w-full border-collapse">
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-black/30">
             {runners
               .sort((a, b) => parseInt(a.SortPriority || '0') - parseInt(b.SortPriority || '0'))
               .map((runner, idx) => {
@@ -158,7 +158,7 @@ export default function MultiMarketTable({
                 const displayMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 return (
-                  <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
+                  <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                     <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
                       <span className="text-[13px] font-bold tracking-tight uppercase cursor-pointer">
                         {runner.RunnerName || 'Runner'}

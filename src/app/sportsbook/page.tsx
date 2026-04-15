@@ -135,7 +135,7 @@ const MatchTable = ({ match }: { match: any }) => {
             <tbody>
               {/* Team Rows */}
               {[match.teamA, match.teamB].map((team, tIdx) => (
-                <tr key={team + tIdx} className={tIdx === 0 ? "border-b border-gray-100" : ""}>
+                <tr key={team + tIdx} className={tIdx === 0 ? "border-b border-black/30" : ""}>
                   <td className="py-2 px-3 lg:px-4 min-w-[140px] max-w-[200px]">
                     <div className="flex flex-col">
                       <span className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] tracking-[0.02em] uppercase leading-tight">
