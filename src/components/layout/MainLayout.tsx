@@ -1,8 +1,9 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 import { userController } from '@/controllers/user/userController'
 import Header from './Header'
 import ProfileSidebar from './ProfileSidebar'
@@ -20,7 +21,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     auraCasinoOpen,
     feedbackModalOpen
   } = useLayoutStore()
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, updateBalance, logout } = useAuthStore()
+  const { show: showSnackbar } = useSnackbarStore()
   const pathname = usePathname()
 
   const handleWhatsAppClick = async () => {
@@ -38,6 +40,48 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     // Fallback if not logged in or API fails
     window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
   }
+
+  // Session Watchdog: Poll balance every 7s, force logout on error "2"
+  useEffect(() => {
+    if (!isAuthenticated || !user?.loginToken) return
+
+    let isMounted = true
+    let timeoutId: NodeJS.Timeout
+
+    const checkSession = async () => {
+      try {
+        const res = await userController.getBalance(user.loginToken!)
+        if (!isMounted) return
+
+        if (res?.error === '2') {
+          // Session invalidated — another login or token changed
+          logout()
+          showSnackbar('Session expired. Please login again.', 'error')
+          return
+        }
+
+        // Update balance if valid
+        if (res?.error === '0' && res?.balance !== undefined) {
+          updateBalance(
+            parseFloat(res.balance) || 0,
+            parseFloat(res.exposure) || 0,
+            parseFloat(res.availablebalance ?? res.availableBalance) || 0
+          )
+        }
+      } catch (_) {
+        // Network error — skip silently, don't logout
+      }
+
+      if (isMounted) timeoutId = setTimeout(checkSession, 7000)
+    }
+
+    timeoutId = setTimeout(checkSession, 7000) // start after 7s delay
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
+  }, [isAuthenticated, user?.loginToken, logout, updateBalance])
 
   // Global Scroll Lock
   useEffect(() => {
