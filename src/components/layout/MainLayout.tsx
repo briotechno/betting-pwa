@@ -56,7 +56,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         if (res?.error === '2') {
           // Session invalidated — another login or token changed
           logout()
-          showSnackbar('Session expired. Please login again.', 'error')
+          showSnackbar(' Please login again.', 'error')
           return
         }
 

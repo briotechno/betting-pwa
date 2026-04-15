@@ -183,7 +183,7 @@ export default function DepositPage() {
       const token = localStorage.getItem('fairbet-auth') ?
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
       if (!token) {
-        showSnackbar('Session expired. Please login again.', 'error')
+        showSnackbar(' Please login again.', 'error')
         router.push('/login')
         return
       }
