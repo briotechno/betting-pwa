@@ -643,6 +643,24 @@ export default function HomePage() {
           </>
         )}
 
+        {/* Live Cards & Live Casino GIF Banners */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
+          <Link href="/markets/live-cards" className="overflow-hidden rounded-[10px] border border-white/10 shadow-lg block">
+            <img
+              src="/live-cards-banner2.dc9c351.gif"
+              alt="Live Cards"
+              className="w-full h-auto object-cover transition-transform duration-300 hover:scale-[1.02]"
+            />
+          </Link>
+          <Link href="/markets/live-casino" className="overflow-hidden rounded-[10px] border border-white/10 shadow-lg block">
+            <img
+              src="/live-casino-banner2.2033ef6.gif"
+              alt="Live Casino"
+              className="w-full h-auto object-cover transition-transform duration-300 hover:scale-[1.02]"
+            />
+          </Link>
+        </div>
+
         {/* App Download Banner */}
         <div className="flex flex-col items-center text-center overflow-hidden relative">
           <img src="https://www.fairplay247.vip/_nuxt/img/download-apk-pc.87223d1.png" alt="Download App PC" className="hidden lg:block w-full h-[276px] object-cover" />
