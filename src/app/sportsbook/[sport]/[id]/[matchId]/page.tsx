@@ -318,6 +318,9 @@ const MarketTable = ({
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
                 const suspensionMsg = rateData?.ball_run === 'Y' ? 'BALL RUNNING' : (rateData?.Msg || 'SUSPENDED')
 
+                const chartVal = runner.Chart !== undefined && runner.Chart !== null ? parseFloat(runner.Chart) : null
+                const hasChart = chartVal !== null && !isNaN(chartVal) && chartVal !== 0
+
                 return (
                   <React.Fragment key={mId + '-' + runnerId}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-gray-100 last:border-0">
@@ -326,6 +329,11 @@ const MarketTable = ({
                           <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase">
                             {runnerName}
                           </span>
+                          {hasChart && (
+                            <span className={`text-[11px] font-bold leading-none mt-1 ${chartVal! < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                              {chartVal! < 0 ? chartVal!.toFixed(0) : `(${chartVal!.toFixed(2)})`}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="p-1 px-2 relative min-w-[200px]">
