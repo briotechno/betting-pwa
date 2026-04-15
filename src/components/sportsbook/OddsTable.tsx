@@ -31,6 +31,8 @@ interface OddsTableProps {
   columns: string[]
   rows: OddsTableRow[]
   isUpcoming?: boolean
+  showLiveBadge?: boolean
+  showInPlayBadge?: boolean
   sport?: string
 }
 
@@ -132,7 +134,7 @@ function RateButton({
   )
 }
 
-export default function OddsTable({ matchId, matchName, competition, marketName, columns, rows, isUpcoming, sport }: OddsTableProps) {
+export default function OddsTable({ matchId, matchName, competition, marketName, columns, rows, isUpcoming, showLiveBadge, showInPlayBadge, sport }: OddsTableProps) {
   const { addSelection, selections } = useBetSlipStore()
   const { isAuthenticated } = useAuthStore()
   const router = useRouter()
@@ -203,16 +205,26 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </div>
                   </td>
 
-                  {/* Status Icons - Hidden for upcoming */}
-                  {!row.startTime && !isUpcoming && (
-                    <td className="py-2 px-2 w-[40px] lg:w-auto lg:px-20 transition-all">
-                      <div className="flex items-center justify-center lg:justify-around gap-2">
-                        <Play size={10} fill={row.status === 'SUSPENDED' ? 'white' : '#28a745'} className={row.status === 'SUSPENDED' ? 'text-white' : 'text-[#28a745]'} />
-                        {row.status === 'SUSPENDED' ? (
-                          <i className="v-icon notranslate mdi mdi-lock theme--light text-white" style={{ fontSize: '14px' }}></i>
-                        ) : (
-                          <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745] opacity-80" style={{ fontSize: '14px' }}></i>
-                        )}
+                  {/* INPLAY table: show LIVE icon */}
+                  {showLiveBadge && (
+                    <td className="py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
+                      <div className="relative flex items-center justify-center group">
+                        <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
+                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                          Live Match
+                        </span>
+                      </div>
+                    </td>
+                  )}
+
+                  {/* TODAY table only: show IN-PLAY icon */}
+                  {showInPlayBadge && (
+                    <td className="py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
+                      <div className="relative flex items-center justify-center group">
+                        <Play size={12} fill="#28a745" className="text-[#28a745]" />
+                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                          In-Play Soon
+                        </span>
                       </div>
                     </td>
                   )}

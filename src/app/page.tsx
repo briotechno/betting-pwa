@@ -427,6 +427,7 @@ export default function HomePage() {
                   marketName="Match Odds"
                   columns={['1', 'X', '2']}
                   rows={liveMatches}
+                  showLiveBadge={true}
                   sport={sportId}
                 />
               </div>
@@ -567,6 +568,7 @@ export default function HomePage() {
                     columns={['1', 'X', '2']}
                     rows={todayMatches}
                     isUpcoming={true}
+                    showInPlayBadge={true}
                     sport={sportId}
                   />
                 </div>
