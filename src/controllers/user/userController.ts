@@ -50,7 +50,7 @@ export const userController = {
    */
   claimOffer: async (loginToken: string, offerId: string): Promise<ApiResponse> => {
     // Note: URL identical to offersdetail in spec
-    return await fetchAPI('/offersdetail', { LoginToken: loginToken, OfferId: offerId });
+    return await fetchAPI('/claimoffers', { LoginToken: loginToken, OfferId: offerId });
   },
 
   /**
