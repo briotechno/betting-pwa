@@ -83,6 +83,27 @@ const MarketTable = ({
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
   const addSelection = useBetSlipStore(state => state.addSelection)
+  const betslipRowRef = useRef<HTMLTableRowElement | null>(null)
+
+  // Mobile-only: auto-scroll the betslip form into view when it opens
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 1024) return
+    if (selections.length === 0 || !betslipRowRef.current) return
+
+    const el = betslipRowRef.current
+    const rect = el.getBoundingClientRect()
+    const viewportHeight = window.innerHeight
+    const HEADER_OFFSET = 60 // fixed header height approx
+
+    // Only scroll if the element bottom is below the visible area
+    if (rect.bottom > viewportHeight) {
+      const scrollAmount = rect.bottom - viewportHeight + 16 // 16px breathing room
+      window.scrollBy({ top: scrollAmount, behavior: 'smooth' })
+    } else if (rect.top < HEADER_OFFSET) {
+      // Edge case: element is above the header after scroll
+      window.scrollBy({ top: rect.top - HEADER_OFFSET - 8, behavior: 'smooth' })
+    }
+  }, [selections])
 
   const getRunnerRates = (runnerId: string | number, rIdx: number, specificMarketId?: string, fullMarket?: any) => {
     const primaryId = (specificMarketId || marketId)?.toString()
@@ -410,7 +431,10 @@ const MarketTable = ({
                       </td>
                     </tr>
                     {isSelectedOnMobile && selections[0] && (
-                      <tr className="lg:hidden animate-in slide-in-from-top-4 duration-300">
+                      <tr
+                        ref={betslipRowRef}
+                        className="lg:hidden animate-in slide-in-from-top-4 duration-300"
+                      >
                         <td colSpan={2} className="p-2 pt-0 bg-white">
                           <BetSlipForm selection={selections[0]} onClose={clearAll} />
                         </td>
