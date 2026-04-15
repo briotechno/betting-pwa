@@ -64,8 +64,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         if (res?.error === '0' && res?.balance !== undefined) {
           updateBalance(
             parseFloat(res.balance) || 0,
-            parseFloat(res.exposure) || 0,
-            parseFloat(res.availablebalance ?? res.availableBalance) || 0
+            parseFloat(res.exposure) || 0
           )
         }
       } catch (_) {

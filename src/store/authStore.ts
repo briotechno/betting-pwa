@@ -46,7 +46,8 @@ export const useAuthStore = create<AuthState>()(
             ...state.user, 
             balance, 
             exposure: exposure !== undefined ? exposure : (state.user.exposure || 0),
-            availableBalance: availableBalance !== undefined ? availableBalance : (state.user.availableBalance || 0)
+            // Override availableBalance with custom logic: balance - exposure
+            availableBalance: balance - (exposure !== undefined ? exposure : (state.user.exposure || 0))
           } : null,
         })),
     }),
