@@ -59,6 +59,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
   }
 
   const handleExecutePlacement = async () => {
+    if (!user || !user.loginToken) return;
     setLoading(true)
     setIsConfirmModalOpen(false)
     try {

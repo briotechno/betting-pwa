@@ -181,7 +181,13 @@ export default function OpenBetsPage() {
                             <p className="text-[11px] font-medium mb-1">{bet.Type || 'Winner'}</p>
                             <p className="text-[12px] uppercase leading-tight">
                               <span className="font-bold">{bet.Side}</span> {bet.Selection} for {bet.Stake} @ {bet.Rate} {
-                                bet.Side === 'back' ? `to win ${profit}` : `liability ${(parseFloat(bet.Stake) * (parseFloat(bet.Rate)/100 || 1)).toFixed(0)}`
+                                bet.Side === 'back' 
+                                  ? `to win ${parseFloat(bet.Rate) > 10 
+                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
+                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}` 
+                                  : `liability ${parseFloat(bet.Rate) > 10 
+                                      ? (parseFloat(bet.Stake) * (parseFloat(bet.Rate) / 100)).toFixed(0) 
+                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}`
                               } .
                             </p>
                             <p className="text-[10px] text-gray-600 mt-1">Placed: {bet.Date || 'N/A'}</p>

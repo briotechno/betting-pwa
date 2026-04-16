@@ -604,6 +604,7 @@ export default function GameDetailPage() {
     if (!matchId) return
 
     // 🔌 Setup Pusher Real-time Listener
+    if (!pusherClient) return
     const channel = pusherClient.subscribe('eventrefersh')
 
     channel.bind('my-event', (msg: any) => {
@@ -615,7 +616,7 @@ export default function GameDetailPage() {
     })
 
     return () => {
-      pusherClient.unsubscribe('eventrefersh')
+      pusherClient?.unsubscribe('eventrefersh')
     }
   }, [matchId, fetchGameData])
 
