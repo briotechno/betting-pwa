@@ -228,8 +228,32 @@ const MarketTable = ({
 
                 const rateData = liveRates[marketId]
 
-                // Deep suspension check for the specific runner/selection
-                const isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No' || rateData?.suspended === 'Y'
+                const isFancy = marketName.toLowerCase().includes('fancy') || marketName.toLowerCase().includes('line')
+                const isBookmaker = marketName.toLowerCase().includes('bookmaker')
+                
+                let isMarketSuspended = false
+                let suspensionMsg = 'SUSPENDED'
+
+                if (isFancy) {
+                  if (rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.status === 'SUSPENDED') {
+                    isMarketSuspended = true
+                    suspensionMsg = 'SUSPENDED'
+                  } else {
+                    const n1 = parseFloat(rateData?.no1 || '0')
+                    const n2 = parseFloat(rateData?.no2 || '0')
+                    if (n1 === 0 && n2 === 0 && (rateData?.no1 !== undefined || rateData?.no2 !== undefined)) {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    } else if (rateData?.ball_run === 'Y' || rateData?.status1 === '1' || rateData?.status1 === '2') {
+                      isMarketSuspended = true
+                      suspensionMsg = 'BALL RUNNING'
+                    }
+                  }
+                } else if (isBookmaker) {
+                  isMarketSuspended = rateData?.suspended === 'Y' || rateData?.ball_run === 'Y' || rateData?.status === 'SUSPENDED'
+                } else {
+                  isMarketSuspended = rateData?.status === 'SUSPENDED' || rateData?.Msg?.toLowerCase().includes('suspend') || rateData?.active === 'No' || rateData?.suspended === 'Y'
+                }
 
                 let isSelectionSuspended = false
                 if (rateData?.runners) {
@@ -240,23 +264,24 @@ const MarketTable = ({
                   if (r?.selectionStatus === 'SUSPENDED') isSelectionSuspended = true
                 }
 
-                const isSuspended = isMarketSuspended || isSelectionSuspended
+                const isSuspended = isMarketSuspended || isSelectionSuspended || !!rateData?.Msg
+                const displayMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
 
                   addSelection({
                     id: `${marketId}-${runnerId}-${side}`,
-                    matchId: matchId.toString(), // The game/match id (gid/eid)
-                    marketId: marketId.toString(), // The pool id
-                    eventId: eventId.toString(),   // Essential for API common params
+                    matchId: matchId.toString(),
+                    marketId: marketId.toString(),
+                    eventId: eventId.toString(),
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: marketName,
                     selectionName: runnerName,
                     odds: parseFloat(odds),
                     betType: side,
-                    marketType: (marketName.toLowerCase().includes('bookmaker') ? 'BOOKMAKER' : (marketName.toLowerCase().includes('fancy') ? 'FANCY' : 'ODDS')),
+                    marketType: (isBookmaker ? 'BOOKMAKER' : (isFancy ? 'FANCY' : 'ODDS')),
                     marketIndex: rIdx,
                     runnersCount: runners.length
                   })
@@ -266,13 +291,12 @@ const MarketTable = ({
 
                 return (
                   <React.Fragment key={runnerId}>
-                    <tr className="hover:bg-gray-50/50 transition-colors group relative">
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col">
                           <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
                             {runnerName}
                           </span>
-                          {/* Display Chart value if available (e.g., from gamedata/gamedatalogin) */}
                           {runner.Chart !== null && runner.Chart !== undefined && (
                             <span className="text-[10px] font-bold text-[#f26522] mt-0.5 animate-in fade-in slide-in-from-left-1 duration-300">
                               {runner.Chart || '0'}
@@ -280,32 +304,39 @@ const MarketTable = ({
                           )}
                         </div>
                       </td>
-                      <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
+                      <td className="p-1 px-2 relative min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
-                          <div className="flex gap-1 py-1">
-                            <div className="hidden lg:flex gap-1">
-                              <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
-                              <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
+                          <div className="relative">
+                            <div className="flex gap-1 py-1">
+                              <div className="flex gap-1 py-1">
+                                <div className="hidden lg:flex gap-1">
+                                  <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
+                                  <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
+                                </div>
+                                <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
+                              </div>
+                              <div className="flex gap-1 py-1">
+                                <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
+                                <div className="hidden lg:flex gap-1">
+                                  <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
+                                  <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
+                                </div>
+                              </div>
                             </div>
-                            <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
-                          </div>
-                          <div className="flex gap-1 py-1">
-                            <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
-                            <div className="hidden lg:flex gap-1">
-                              <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
-                              <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
-                            </div>
+
+                            {/* Standardized Suspension Overlay */}
+                            {isSuspended && (
+                              <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                                <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
+                                <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[150px] py-[6px] flex items-center justify-center drop-shadow-sm whitespace-nowrap">
+                                  <span className="text-[#0d47a1] text-[11px] lg:text-[13px] font-black uppercase tracking-wide leading-none truncate">
+                                    {displayMsg}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-
-                        {/* Market Suspended Overlay */}
-                        {isSuspended && (
-                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-auto">
-                            <div className="bg-[#555] px-4 py-1.5 rounded-[4px] shadow-lg transform -skew-x-12 ring-2 ring-white/20">
-                              <span className="text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] transform skew-x-12 block">SUSPENDED</span>
-                            </div>
-                          </div>
-                        )}
                       </td>
                     </tr>
 

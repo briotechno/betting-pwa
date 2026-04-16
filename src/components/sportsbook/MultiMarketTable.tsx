@@ -183,9 +183,9 @@ export default function MultiMarketTable({
                           {isSuspended && (
                             <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
                               <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
-                              <div className="relative z-10 bg-[#e0e0e0] px-4 py-[6px] flex items-center justify-center drop-shadow-sm">
-                                <span className="text-[#0d47a1] text-[13px] font-bold uppercase tracking-wide leading-none">
-                                {displayMsg}
+                              <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[150px] py-[6px] flex items-center justify-center drop-shadow-sm">
+                                <span className="text-[#0d47a1] text-[12px] lg:text-[13px] font-black uppercase tracking-wide leading-none">
+                                 {displayMsg}
                                 </span>
                               </div>
                             </div>
