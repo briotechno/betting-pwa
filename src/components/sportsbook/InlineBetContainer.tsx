@@ -12,16 +12,20 @@ interface InlineBetContainerProps {
     type: 'back' | 'lay'
     onCancel: () => void
     onPlaceBet: (stake: number) => void
+    min?: number
+    max?: number
 }
 
-export default function InlineBetContainer({ 
-    selection, 
-    matchName, 
+export default function InlineBetContainer({
+    selection,
+    matchName,
     marketName = 'bookmaker',
-    odds: initialOdds, 
-    type, 
-    onCancel, 
-    onPlaceBet 
+    odds: initialOdds,
+    type,
+    onCancel,
+    onPlaceBet,
+    min = 100,
+    max = 25000
 }: InlineBetContainerProps) {
     const [odds, setOdds] = useState(initialOdds)
     const [stake, setStake] = useState('')
@@ -50,10 +54,10 @@ export default function InlineBetContainer({
                 <div className="relative">
                     <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] text-gray-400 font-bold z-10 leading-none">Odds</label>
                     <div className="flex items-center h-10 border border-gray-300 rounded-[2px] px-2">
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             readOnly
-                            value={odds} 
+                            value={odds}
                             className="flex-1 w-full text-center font-bold text-[15px] outline-none bg-transparent text-gray-800"
                         />
                     </div>
@@ -63,8 +67,8 @@ export default function InlineBetContainer({
                 <div className="relative">
                     <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] text-[#f36c21] font-bold z-10 leading-none">Stake</label>
                     <div className="flex flex-col">
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             value={stake}
                             placeholder="0"
                             onChange={(e) => setStake(e.target.value)}
@@ -82,8 +86,8 @@ export default function InlineBetContainer({
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     {stakes.map((s) => (
-                        <button 
-                            key={s} 
+                        <button
+                            key={s}
                             onClick={() => handleStakeClick(s)}
                             className="h-10 bg-[#f36c21] text-white rounded-[2px] text-[13px] font-black shadow-sm active:scale-95 transition-transform"
                         >
@@ -95,37 +99,37 @@ export default function InlineBetContainer({
 
             {/* Actions */}
             <div className="grid grid-cols-[1fr_1.5fr] gap-2">
-                <button 
+                <button
                     onClick={onCancel}
                     className="h-10 border border-black text-gray-600 rounded-[2px] text-[13px] font-black uppercase active:bg-gray-50 transition-colors"
                 >
                     CANCEL
                 </button>
-                <button 
+                <button
                     disabled={!stake}
                     onClick={() => onPlaceBet(parseInt(stake))}
-                    className={`h-10 rounded-[2px] text-[13px] font-black uppercase transition-all shadow-sm ${
-                        !stake ? 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed' : 'bg-[#f36c21] text-white active:brightness-110'
-                    }`}
+                    className={`h-10 rounded-[2px] text-[13px] font-black uppercase transition-all shadow-sm ${!stake ? 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed' : 'bg-[#f36c21] text-white active:brightness-110'
+                        }`}
                 >
                     PLACE BET
                 </button>
             </div>
 
             {/* Min/Max Info Block */}
-            <div className="flex items-start gap-2">
+            {/* Footer Info */}
+            <div className="flex items-start gap-2 pt-1">
                 <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
                     <span className="text-[11px] font-black italic">i</span>
                 </div>
                 <p className="text-[11px] font-black text-[#f36c21] leading-tight">
-                    Min Bet: 100 Max Bet: 50000 Max Winning: 250000
+                    Min Bet: {min || 100} Max Bet: {max || 25000}
                 </p>
             </div>
 
             {/* Toggle */}
             <div className="flex items-center justify-between border-t border-gray-100 pt-3">
                 <span className="text-[13px] font-bold text-gray-600">Confirm bets before placing</span>
-                <button 
+                <button
                     onClick={() => setConfirmBeforePlace(!confirmBeforePlace)}
                     className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
                 >

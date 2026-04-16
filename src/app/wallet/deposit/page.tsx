@@ -107,17 +107,29 @@ export default function DepositPage() {
 
   const filteredMethods = useMemo(() => {
     const amt = parseFloat(amount) || 0
-    return depositMethods.filter(m => {
+    const filtered = depositMethods.filter(m => {
       const min = parseFloat(m.Min || m.min_deposit || 0)
       const max = parseFloat(m.Max || m.max_deposit || 100000000)
       return amt >= min && amt <= max
     })
+    
+    // Sort: Banks first, then others
+    return [...filtered].sort((a, b) => {
+      const aType = (a.Type || a.type || '').toUpperCase();
+      const bType = (b.Type || b.type || '').toUpperCase();
+      if (aType === 'BANK' && bType !== 'BANK') return -1;
+      if (aType !== 'BANK' && bType === 'BANK') return 1;
+      return 0;
+    });
   }, [amount, depositMethods])
 
   useEffect(() => {
     if (filteredMethods.length > 0) {
-      if (!filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId)) {
-        setActiveMethodId(String(filteredMethods[0].Bank_Id || filteredMethods[0].Id || filteredMethods[0].id))
+      const currentSelected = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
+      if (!currentSelected) {
+        // Find first method that is 'BANK' type, otherwise the first available
+        const defaultMethod = filteredMethods.find(m => (m.Type || m.type || 'BANK').toUpperCase() === 'BANK') || filteredMethods[0];
+        setActiveMethodId(String(defaultMethod.Bank_Id || defaultMethod.Id || defaultMethod.id));
       }
     } else {
       setActiveMethodId(null)

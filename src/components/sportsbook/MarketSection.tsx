@@ -15,6 +15,8 @@ export interface Runner {
   back: [OddValue, OddValue, OddValue]
   lay: [OddValue, OddValue, OddValue]
   suspended?: boolean
+  min?: number
+  max?: number
 }
 
 interface MarketSelection {
@@ -136,6 +138,8 @@ export default function MarketSection({
                   matchName={matchName}
                   odds={activeSelection.price}
                   type={activeSelection.type}
+                  min={runner.min}
+                  max={runner.max}
                   onCancel={() => setActiveSelection(null)}
                   onPlaceBet={(stake) => {
                     console.log('Place bet:', { runner: runner.name, stake, odds: activeSelection.price })

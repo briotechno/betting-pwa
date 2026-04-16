@@ -17,9 +17,9 @@ interface BetSlipFormProps {
 export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
   const router = useRouter()
   const { user } = useAuthStore()
-  const { 
-    stakes, 
-    setStake, 
+  const {
+    stakes,
+    setStake,
     confirmBeforePlace,
     toggleConfirmBeforePlace,
     clearAll,
@@ -28,21 +28,21 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
     fetchQuickStakes
   } = useBetSlipStore()
   const snackbar = useSnackbarStore()
-  
+
   const [loading, setLoading] = useState(false)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const stake = stakes[selection.id] || 0
 
   React.useEffect(() => {
     if (user?.loginToken && quickStakes.length <= 6 && quickStakes[0] === 100 && quickStakes[1] === 500) {
-       fetchQuickStakes(user.loginToken)
+      fetchQuickStakes(user.loginToken)
     }
   }, [user?.loginToken])
 
   const placeBet = async () => {
     if (!user || !user.loginToken) {
-       snackbar.show("Please login to place a bet", "error")
-       return
+      snackbar.show("Please login to place a bet", "error")
+      return
     }
 
     if (!stake || stake <= 0) {
@@ -69,18 +69,18 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
         Eid: selection.eventId,
         Amount: stake,
         Rate: selection.odds,
-        IP: '127.0.0.1' 
+        IP: '127.0.0.1'
       }
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
       const isWinner = selection.marketName.toLowerCase().includes('winner')
       const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
       const teamLetter = teamMap[selection.marketIndex] || 'A'
-      
+
       // Default mapping: Back -> B, Lay -> L
       // For Fancy/Line: Yes (Back) -> L, No (Lay) -> B (per developer request)
       const isFancyMarket = mType === 'FANCY' || mType === 'LINE'
-      const betTypeChar = isFancyMarket 
+      const betTypeChar = isFancyMarket
         ? (selection.betType === 'back' ? 'L' : 'B')
         : (selection.betType === 'back' ? 'B' : 'L')
 
@@ -98,7 +98,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             res = await bettingController.placeBookmakerBet({
               ...common,
               Eid: selection.marketId, // Use MarketId as Eid per [ekey for rates]
-              Team: teamLetter, 
+              Team: teamLetter,
               Type: betTypeChar
             })
             break
@@ -106,7 +106,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           case 'FANCY':
             res = await bettingController.placeFancyBet({
               ...common,
-              Eid: selection.marketId, 
+              Eid: selection.marketId,
               No: selection.noVal || 100,
               Yes: selection.yesVal || 100,
               Rate: selection.odds, // The actual rate clicked (e.g. 294)
@@ -135,16 +135,16 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
 
           default: // ODDS
             if (runnersCount === 3) {
-              res = await bettingController.place3TeamOddBet({ 
-                ...common, 
-                Team: teamLetter as 'A' | 'B' | 'C', 
-                Type: betTypeChar 
+              res = await bettingController.place3TeamOddBet({
+                ...common,
+                Team: teamLetter as 'A' | 'B' | 'C',
+                Type: betTypeChar
               })
             } else {
-              res = await bettingController.place2TeamOddBet({ 
-                ...common, 
-                Team: teamLetter as 'A' | 'B', 
-                Type: betTypeChar 
+              res = await bettingController.place2TeamOddBet({
+                ...common,
+                Team: teamLetter as 'A' | 'B',
+                Type: betTypeChar
               })
             }
             break
@@ -152,10 +152,10 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       }
 
       if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
-         snackbar.show("Bet placed successfully!", "success")
-         clearAll()
+        snackbar.show("Bet placed successfully!", "success")
+        clearAll()
       } else {
-         snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
+        snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }
     } catch (err) {
       console.error(err)
@@ -179,19 +179,19 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           <div className="relative">
             <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10 leading-none">Odds</label>
             <div className="flex items-center h-10 border border-gray-300 rounded-[2px] overflow-hidden bg-white">
-              <button 
+              <button
                 onClick={() => updateOdds(selection.id, -1)}
                 className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
                 <Minus size={14} strokeWidth={3} />
               </button>
-              <input 
-                type="number" 
-                value={selection.odds} 
+              <input
+                type="number"
+                value={selection.odds}
                 readOnly
-                className="w-full text-center text-[15px] font-bold focus:outline-none text-gray-900 bg-transparent" 
+                className="w-full text-center text-[15px] font-bold focus:outline-none text-gray-900 bg-transparent"
               />
-              <button 
+              <button
                 onClick={() => updateOdds(selection.id, 1)}
                 className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
@@ -201,86 +201,85 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           </div>
 
           <div className="relative">
-             <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-[#f36c21] z-10 leading-none">Stake</label>
-             <div className="h-10 border border-[#f36c21] rounded-[2px] overflow-hidden bg-white">
-                <input 
-                  type="number" 
-                  placeholder="0"
-                  value={stake || ''}
-                  onChange={(e) => setStake(selection.id, parseFloat(e.target.value) || 0)}
-                  className="w-full h-full text-center text-[15px] font-bold focus:outline-none placeholder:opacity-30 text-gray-900 bg-transparent" 
-                />
-             </div>
+            <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-[#f36c21] z-10 leading-none">Stake</label>
+            <div className="h-10 border border-[#f36c21] rounded-[2px] overflow-hidden bg-white">
+              <input
+                type="number"
+                placeholder="0"
+                value={stake || ''}
+                onChange={(e) => setStake(selection.id, parseFloat(e.target.value) || 0)}
+                className="w-full h-full text-center text-[15px] font-bold focus:outline-none placeholder:opacity-30 text-gray-900 bg-transparent"
+              />
+            </div>
           </div>
         </div>
 
         {/* Quick Stakes Grid */}
         <div className="space-y-3">
-           <div className="flex justify-between items-center">
-              <p className="text-[11px] font-bold text-gray-600">or Choose You Stake Size</p>
-              <button 
-                onClick={() => router.push('/settings')}
-                className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
+          <div className="flex justify-between items-center">
+            <p className="text-[11px] font-bold text-gray-600">or Choose You Stake Size</p>
+            <button
+              onClick={() => router.push('/settings')}
+              className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
+            >
+              Edit Stakes
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {quickStakes.map(s => (
+              <button
+                key={s}
+                onClick={() => setStake(selection.id, (stake || 0) + s)}
+                className="py-2.5 text-[13px] font-black rounded-[2px] bg-[#f36c21] text-white hover:brightness-110 active:scale-[0.97] transition-all shadow-sm"
               >
-                Edit Stakes
+                +{s.toLocaleString()}
               </button>
-           </div>
-           <div className="grid grid-cols-3 gap-2">
-             {quickStakes.map(s => (
-               <button 
-                 key={s} 
-                 onClick={() => setStake(selection.id, (stake || 0) + s)}
-                 className="py-2.5 text-[13px] font-black rounded-[2px] bg-[#f36c21] text-white hover:brightness-110 active:scale-[0.97] transition-all shadow-sm"
-               >
-                 +{s.toLocaleString()}
-               </button>
-             ))}
-           </div>
+            ))}
+          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="grid grid-cols-[1fr_1.5fr] gap-2">
-           <button 
-             onClick={onClose}
-             className="py-2.5 text-[13px] font-black text-gray-500 uppercase border border-black rounded-[2px] hover:bg-gray-50 transition-colors"
-           >
-             Cancel
-           </button>
-           <button 
-             onClick={placeBet}
-             disabled={loading || stake === 0}
-             className={`py-2.5 text-[13px] font-black uppercase rounded-[2px] transition-all shadow-sm ${
-               stake > 0 
-               ? 'bg-[#f36c21] text-white active:brightness-110' 
-               : 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed'
-             }`}
-           >
-             {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Place Bet'}
-           </button>
+          <button
+            onClick={onClose}
+            className="py-2.5 text-[13px] font-black text-gray-500 uppercase border border-black rounded-[2px] hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={placeBet}
+            disabled={loading || stake === 0}
+            className={`py-2.5 text-[13px] font-black uppercase rounded-[2px] transition-all shadow-sm ${stake > 0
+                ? 'bg-[#f36c21] text-white active:brightness-110'
+                : 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed'
+              }`}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Place Bet'}
+          </button>
         </div>
 
         {/* Footer Info */}
         <div className="flex items-start gap-2 pt-1">
-            <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                <span className="text-[11px] font-black italic">i</span>
-            </div>
-            <p className="text-[11px] font-black text-[#f36c21] leading-tight">
-                Min Bet: {selection.min || 100} Max Bet: {selection.max || 25000} Max Winning: testing
-            </p>
+          <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+            <span className="text-[11px] font-black italic">i</span>
+          </div>
+          <p className="text-[11px] font-black text-[#f36c21] leading-tight">
+            Min Bet: {selection.min || 100} Max Bet: {selection.max || 25000}
+          </p>
         </div>
 
         {/* Toggle */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-            <span className="text-[13px] font-bold text-gray-600 uppercase opacity-80">Confirm bets before placing</span>
-            <button 
-                onClick={toggleConfirmBeforePlace}
-                className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
-            >
-                <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
-            </button>
+          <span className="text-[13px] font-bold text-gray-600 uppercase opacity-80">Confirm bets before placing</span>
+          <button
+            onClick={toggleConfirmBeforePlace}
+            className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
+          >
+            <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
+          </button>
         </div>
       </div>
-      <BetConfirmationModal 
+      <BetConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleExecutePlacement}
