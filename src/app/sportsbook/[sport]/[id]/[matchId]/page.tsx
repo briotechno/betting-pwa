@@ -270,7 +270,17 @@ const MarketTable = ({
             </span>
           </div>
         </div>
-        <div className="flex-1 h-full flex items-center justify-end pr-4 gap-3 z-0">
+        <div className="flex-1 h-full flex items-center justify-center">
+          {(min !== undefined && max !== undefined) && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] lg:text-[12px] font-black text-black/40 uppercase tracking-widest">Min:</span>
+              <span className="text-[10px] lg:text-[12px] font-black text-black mr-3">{min}</span>
+              <span className="text-[10px] lg:text-[12px] font-black text-black/40 uppercase tracking-widest">Max:</span>
+              <span className="text-[10px] lg:text-[12px] font-black text-black">{max}</span>
+            </div>
+          )}
+        </div>
+        <div className="h-full flex items-center pr-4 gap-3 z-0">
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
         </div>
       </div>
