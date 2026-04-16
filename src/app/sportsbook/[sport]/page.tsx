@@ -406,6 +406,19 @@ function SportDetailContent() {
           }
         ]
       }
+    }).sort((a, b) => {
+      const parseDate = (str: string) => {
+        if (!str || str === 'Live') return new Date(0);
+        let d = new Date(str.includes('T') ? str : str.replace(' ', 'T'));
+        if (isNaN(d.getTime())) {
+          const parts = str.split(/[-/ :]/);
+          if (parts.length >= 3) {
+            d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+          }
+        }
+        return d;
+      };
+      return parseDate(a.startTime).getTime() - parseDate(b.startTime).getTime();
     })
   }, [games, liveOdds]);
 

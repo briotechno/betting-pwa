@@ -283,6 +283,11 @@ export default function HomePage() {
         return isStarted
       })
       .map(mapMatchData)
+      .sort((a, b) => {
+        const ta = parseDate(a.startTime)?.getTime() || 0
+        const tb = parseDate(b.startTime)?.getTime() || 0
+        return ta - tb
+      })
   }
 
   const getTodayUpcomingMatches = (sportId: string) => {

@@ -38,7 +38,22 @@ export default function FavoritesPage() {
               )
             }
           }
-          setFavorites(dataArray)
+          setFavorites(dataArray.sort((a, b) => {
+            const parseDate = (str: string) => {
+              if (!str || str === 'Live') return new Date(0);
+              let d = new Date(str.includes('T') ? str : str.replace(' ', 'T'));
+              if (isNaN(d.getTime())) {
+                const parts = str.split(/[-/ :]/);
+                if (parts.length >= 3) {
+                  d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+                }
+              }
+              return d;
+            };
+            const timeA = parseDate(a.DateTime || a.startTime || a.StartTime || '').getTime();
+            const timeB = parseDate(b.DateTime || b.startTime || b.StartTime || '').getTime();
+            return timeA - timeB;
+          }))
         }
       } catch (error) {
         console.error('Failed to fetch favorites:', error)
