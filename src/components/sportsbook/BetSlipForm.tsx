@@ -7,6 +7,7 @@ import { bettingController } from '@/controllers/betting/bettingController'
 import { useBetSlipStore, BetSelection } from '@/store/betSlipStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
+import BetConfirmationModal from './BetConfirmationModal'
 
 interface BetSlipFormProps {
   selection: BetSelection;
@@ -29,6 +30,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
   const snackbar = useSnackbarStore()
   
   const [loading, setLoading] = useState(false)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const stake = stakes[selection.id] || 0
 
   React.useEffect(() => {
@@ -48,7 +50,17 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       return
     }
 
+    if (confirmBeforePlace) {
+      setIsConfirmModalOpen(true)
+      return
+    }
+
+    await handleExecutePlacement()
+  }
+
+  const handleExecutePlacement = async () => {
     setLoading(true)
+    setIsConfirmModalOpen(false)
     try {
       let res;
       const common = {
@@ -260,6 +272,16 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             </button>
         </div>
       </div>
+      <BetConfirmationModal 
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleExecutePlacement}
+        selectionName={selection.selectionName}
+        odds={selection.odds}
+        stake={stake}
+        betType={selection.betType}
+        marketType={selection.marketType}
+      />
     </div>
   )
 }

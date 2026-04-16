@@ -7,6 +7,7 @@ import { bettingController } from '@/controllers/betting/bettingController'
 import { useBetSlipStore, BetSelection, Bet } from '@/store/betSlipStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
+import BetConfirmationModal from './BetConfirmationModal'
 
 export default function BetContainer({ matchId }: { matchId?: string }) {
   const router = useRouter()
@@ -14,6 +15,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
 
   const { user } = useAuthStore()
   const {
@@ -86,14 +88,26 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       return
     }
 
+    if (confirmBeforePlace) {
+      setLoading(false)
+      setIsConfirmModalOpen(true)
+      return
+    }
+
+    await handleExecutePlacement()
+  }
+
+  const handleExecutePlacement = async () => {
+    const selection = selections[0]
+    const stake = stakes[selection.id]
+    setLoading(true)
+    setIsConfirmModalOpen(false)
+
     try {
       let res;
-      // Normalizing the API parameters: 
-      // - Eid is the event/match identifier
-      // - selectionId is the specific choice (e.g. runner)
       const common = {
-        LoginToken: user.loginToken,
-        Eid: selection.eventId, // The identifier from the match/game
+        LoginToken: user?.loginToken || '',
+        Eid: selection.eventId, 
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1'
@@ -470,7 +484,39 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
           </div>
         )}
       </div>
+      <HiddenModals 
+        isOpen={isConfirmModalOpen} 
+        onClose={() => setIsConfirmModalOpen(false)} 
+        onConfirm={handleExecutePlacement}
+        selection={selections[0] ? { ...selections[0], stake: stakes[selections[0].id] } : null}
+      />
     </div>
+  )
+}
+
+function HiddenModals({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  selection 
+}: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  onConfirm: () => void, 
+  selection: any 
+}) {
+  if (!selection) return null
+  return (
+    <BetConfirmationModal 
+      isOpen={isOpen}
+      onClose={onClose}
+      onConfirm={onConfirm}
+      selectionName={selection.selectionName}
+      odds={selection.odds}
+      stake={selection.stake || 0}
+      betType={selection.betType}
+      marketType={selection.marketType}
+    />
   )
 }
 
