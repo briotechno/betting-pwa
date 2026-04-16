@@ -8,9 +8,9 @@ import { marketController } from '@/controllers/market/marketController'
 import { useAuthStore } from '@/store/authStore'
 
 const sportsList = [
-  { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Football', name: 'Football', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: 'Football', name: 'Football', icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: 'Tennis', name: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
 const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void, isUpcoming?: boolean }) => {
@@ -41,7 +41,7 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { 
     >
       <span className={`relative z-0 text-[12px] lg:text-[12px] font-black ${isEmpty ? 'text-[#999]' : 'text-[#2e2e2e]'} leading-none mb-0.5`}>{val || '-'}</span>
       {!isEmpty && <span className="relative z-0 text-[8.5px] lg:text-[9px] text-[#4a4a4a] font-bold leading-none">{vol || ''}</span>}
-      
+
       {isUpcoming && (
         <div className="absolute inset-0 bg-[#212121] opacity-[0.46] z-10"></div>
       )}
@@ -235,7 +235,7 @@ function SportsbookContent() {
 
           const type = (m.Type || m.sportname || '').toLowerCase()
           const sportKeys = ['Cricket', 'Football', 'Tennis']
-          
+
           sportKeys.forEach(key => {
             const kLower = key.toLowerCase()
             let isMatch = type.includes(kLower) || kLower.includes(type)
@@ -416,9 +416,11 @@ function SportsbookContent() {
               >
                 <div className="relative mb-1">
                   <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
-                  <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
-                    {sportCounts[sport.name] || sport.count}
-                  </div>
+                  {sportCounts[sport.name] !== undefined && (
+                    <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
+                      {sportCounts[sport.name]}
+                    </div>
+                  )}
                 </div>
                 <span className={`text-[10px] font-black uppercase tracking-tight ${activeSport === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
                   }`}>
@@ -437,10 +439,10 @@ function SportsbookContent() {
               onClick={() => setActiveSubTab(tab)}
               className="h-full relative group flex items-center"
             >
-              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab 
-                ? 'text-[#f36c21] border-[#f36c21]' 
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab
+                ? 'text-[#f36c21] border-[#f36c21]'
                 : 'text-gray-400 border-transparent hover:text-white'
-              }`}>
+                }`}>
                 {tab}
               </span>
             </button>

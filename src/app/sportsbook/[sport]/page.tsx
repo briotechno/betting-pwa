@@ -7,9 +7,9 @@ import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 
 const sportsList = [
-  { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Football', name: 'Football', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
+  { id: 'Football', name: 'Football', icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: 'Tennis', name: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
 const MatchTable = ({ match }: { match: any }) => {
@@ -184,6 +184,7 @@ function SportDetailContent() {
   const router = useRouter()
   const pathname = usePathname()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
+  const [sportCounts, setSportCounts] = useState<Record<string, number>>({})
 
   const subTabs = ['LIVE & UPCOMING', 'LEAGUES', 'RESULTS']
 
@@ -201,6 +202,53 @@ function SportDetailContent() {
   const [games, setGames] = useState<any[]>([])
   const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
   const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch Sport Counts for Mobile Nav
+  useEffect(() => {
+    let isMounted = true
+    const fetchCounts = async () => {
+      try {
+        const res = await marketController.getGameList('Cricket,Football,Tennis')
+        if (!isMounted) return
+
+        let matchData: any[] = []
+        if (res && typeof res === 'object') {
+          matchData = Object.values(res).filter((v: any) => typeof v === 'object' && v !== null && (v.MarketId || v.marketid || v.Gid || v.gid))
+        } else if (Array.isArray(res)) {
+          matchData = res
+        }
+
+        const counts: Record<string, number> = {}
+        matchData.forEach(m => {
+          const status = (m.Status || m.status || 'OPEN').toUpperCase()
+          if (status === 'CLOSED' || status === 'INACTIVE') return
+
+          const type = (m.Type || m.sportname || '').toLowerCase()
+          const sportKeys = ['Cricket', 'Football', 'Tennis']
+          
+          sportKeys.forEach(key => {
+            const kLower = key.toLowerCase()
+            let isMatch = type.includes(kLower) || kLower.includes(type)
+            if (!isMatch) {
+              if (kLower === 'football' && type === 'soccer') isMatch = true
+              if (kLower === 'soccer' && type === 'football') isMatch = true
+            }
+            if (isMatch) counts[key] = (counts[key] || 0) + 1
+          })
+        })
+        setSportCounts(counts)
+      } catch (err) {
+        console.error('Failed to fetch sidebar counts:', err)
+      }
+    }
+
+    fetchCounts()
+    const interval = setInterval(fetchCounts, 60000)
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [])
 
   // 0. Fetch Leagues 
   useEffect(() => {
@@ -383,9 +431,11 @@ function SportDetailContent() {
               >
                 <div className="relative mb-1">
                   <img src={sport.icon} alt={sport.name} className="w-8 h-8 object-contain" />
-                  <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
-                    {sport.count}
-                  </div>
+                  {sportCounts[sport.name] !== undefined && (
+                    <div className="absolute -top-1 -right-4 bg-[#e8612c] text-white text-[10px] font-black rounded-full min-w-[20px] h-5 flex items-center justify-center border border-[#1a1a1a] px-1 shadow-sm z-10">
+                      {sportCounts[sport.name]}
+                    </div>
+                  )}
                 </div>
                 <span className={`text-[10px] font-black uppercase tracking-tight ${activeSportId === sport.id ? 'text-white' : 'text-gray-400 opacity-80'
                   }`}>
