@@ -8,9 +8,9 @@ import { useBetSlipStore, BetSelection, Bet } from '@/store/betSlipStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 
-export default function BetContainer() {
+export default function BetContainer({ matchId }: { matchId?: string }) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('BETSLIP')
+  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>(matchId ? 'OPEN_BETS' : 'BETSLIP')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -51,7 +51,7 @@ export default function BetContainer() {
     if (selections.length > 0) {
       setActiveTab('BETSLIP')
     }
-  }, [selections.length])
+  }, [selections])
 
   const fetchBets = async () => {
     try {
@@ -175,6 +175,7 @@ export default function BetContainer() {
         snackbar.show("Bet placed successfully!", "success")
         clearAll()
         fetchBets() // Refresh open bets
+        if (matchId) setActiveTab('OPEN_BETS')
       } else {
         snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }
@@ -186,8 +187,17 @@ export default function BetContainer() {
     }
   }
 
-  const matchedBets = bets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
-  const unmatchedBets = bets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
+  const filteredBets = matchId 
+    ? bets.filter((b: Bet) => 
+        b.gid === matchId || 
+        b.matchId === matchId || 
+        b.eventId === matchId ||
+        b.eventId === matchId.toString()
+      ) 
+    : bets
+
+  const matchedBets = filteredBets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
+  const unmatchedBets = filteredBets.filter((b: Bet) => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1')
 
   return (
     <div className="w-full bg-[#121212] border-l border-[#333] lg:border-none min-h-screen lg:min-h-0 relative self-start">

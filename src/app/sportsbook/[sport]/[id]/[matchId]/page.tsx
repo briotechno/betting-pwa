@@ -927,7 +927,7 @@ export default function GameDetailPage() {
       </div>
       {user && (
         <div className="hidden lg:block w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
-          <BetContainer />
+          <BetContainer matchId={matchId} />
         </div>
       )}
     </div>
