@@ -245,7 +245,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
                 <span className="text-[11px] font-black italic">i</span>
             </div>
             <p className="text-[11px] font-black text-[#f36c21] leading-tight">
-                Min Bet: 100 Max Bet: 25000 Max Winning: 250000
+                Min Bet: {selection.min || 100} Max Bet: {selection.max || 25000} Max Winning: testing
             </p>
         </div>
 

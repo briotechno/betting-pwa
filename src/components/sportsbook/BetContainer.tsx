@@ -235,18 +235,18 @@ export default function BetContainer() {
                         <div className="relative">
                           <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10">Odds</label>
                           <div className="flex items-center border border-gray-300 rounded-[2px] overflow-hidden h-[42px]">
-                            <button 
+                            <button
                               className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
                             >
                               <Minus size={14} strokeWidth={3} />
                             </button>
-                            <input 
-                              type="text" 
-                              readOnly 
-                              value={sel.odds} 
-                              className="w-full text-center text-[15px] font-bold text-gray-800 bg-transparent outline-none" 
+                            <input
+                              type="text"
+                              readOnly
+                              value={sel.odds}
+                              className="w-full text-center text-[15px] font-bold text-gray-800 bg-transparent outline-none"
                             />
-                            <button 
+                            <button
                               className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
                             >
                               <Plus size={14} strokeWidth={3} />
@@ -258,9 +258,9 @@ export default function BetContainer() {
                         <div className="relative">
                           <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-[#f36c21] z-10">Stake</label>
                           <div className="h-[42px]">
-                            <input 
-                              type="number" 
-                              value={stakes[sel.id] || ''} 
+                            <input
+                              type="number"
+                              value={stakes[sel.id] || ''}
                               onChange={(e) => setStake(sel.id, parseFloat(e.target.value) || 0)}
                               placeholder="0"
                               className="w-full h-full border border-[#f36c21] rounded-[2px] text-[15px] font-bold text-gray-800 outline-none px-3"
@@ -270,13 +270,13 @@ export default function BetContainer() {
                       </div>
 
                       <div className="flex justify-between items-center mb-3">
-                         <span className="text-[11px] text-gray-600 font-bold">or Choose You Stake Size</span>
-                         <button 
-                           onClick={() => router.push('/settings')}
-                           className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
-                         >
-                           Edit Stakes
-                         </button>
+                        <span className="text-[11px] text-gray-600 font-bold">or Choose You Stake Size</span>
+                        <button
+                          onClick={() => router.push('/settings')}
+                          className="text-[11px] font-black text-[#f36c21] uppercase hover:underline"
+                        >
+                          Edit Stakes
+                        </button>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -301,33 +301,33 @@ export default function BetContainer() {
                         <button
                           onClick={placeBets}
                           disabled={loading || !stakes[sel.id]}
-                          className={`py-2.5 rounded-[2px] text-[13px] font-black uppercase shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                            stakes[sel.id] ? 'bg-[#f36c21] text-white' : 'bg-[#e0e0e0] text-gray-400'
-                          }`}
+                          className={`py-2.5 rounded-[2px] text-[13px] font-black uppercase shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${stakes[sel.id] ? 'bg-[#f36c21] text-white' : 'bg-[#e0e0e0] text-gray-400'
+                            }`}
                         >
                           Place Bet
                         </button>
                       </div>
 
                       {/* Footer Info */}
-                      <div className="flex items-start gap-2 mb-6">
-                         <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                            <span className="text-[11px] font-black italic">i</span>
-                         </div>
-                         <p className="text-[11px] font-black text-[#f36c21] leading-[1.3]">
-                            Min Bet: 100 Max Bet: 25000 Max Winning: 250000
-                         </p>
+                      <div className="flex items-center gap-2">
+                        <div className="bg-[#f36c21] rounded-full w-5 h-5 flex items-center justify-center text-white flex-shrink-0">
+                          <span className="text-[11px] font-black italic leading-none">i</span>
+                        </div>
+
+                        <p className="text-[11px] font-black text-[#f36c21] leading-none">
+                          Min Bet: {sel.min || 100} Max Bet: {sel.max || 25000}
+                        </p>
                       </div>
 
                       {/* Footer Toggle */}
                       <div className="flex items-center justify-between py-2 border-t border-gray-100">
-                         <span className="text-[13px] text-gray-600 font-bold">Confirm bets before placing</span>
-                         <button 
-                           onClick={toggleConfirmBeforePlace}
-                           className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
-                         >
-                            <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
-                         </button>
+                        <span className="text-[13px] text-gray-600 font-bold">Confirm bets before placing</span>
+                        <button
+                          onClick={toggleConfirmBeforePlace}
+                          className={`w-[44px] h-[24px] rounded-full transition-colors relative flex items-center px-[3px] ${confirmBeforePlace ? 'bg-[#f36c21]' : 'bg-[#e0e0e0]'}`}
+                        >
+                          <div className={`w-[18px] h-[18px] bg-white rounded-full transition-transform ${confirmBeforePlace ? 'translate-x-5' : ''} shadow-sm`} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -348,7 +348,7 @@ export default function BetContainer() {
           <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
             {/* UNMATCHED BETS SECTION */}
             <div className="rounded-[12px] overflow-hidden border border-[#f36c21] bg-[#111]">
-              <div 
+              <div
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setUnmatchedOpen(!unmatchedOpen)}
               >
@@ -356,7 +356,7 @@ export default function BetContainer() {
                   Unmatched Bets
                 </span>
                 <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                   <ChevronDown size={16} className={`text-white transition-transform duration-300 ${unmatchedOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={16} className={`text-white transition-transform duration-300 ${unmatchedOpen ? 'rotate-180' : ''}`} />
                 </div>
               </div>
 
@@ -365,26 +365,26 @@ export default function BetContainer() {
                   {unmatchedBets.length > 0 ? (
                     unmatchedBets.map((bet, idx) => (
                       <div key={idx} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-0">
-                         <div className="flex flex-col">
-                            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
-                            <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
-                          </div>
-                          <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
-                            <thead className="bg-gray-50/50">
-                              <tr className="border-b border-gray-100">
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest">Odds</th>
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">Stake</th>
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Profit/Liability</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
-                                <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
-                                <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
-                                <td className="py-2.5 px-3 text-[13px] font-black text-right">0</td>
-                              </tr>
-                            </tbody>
-                          </table>
+                        <div className="flex flex-col">
+                          <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
+                          <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
+                        </div>
+                        <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
+                          <thead className="bg-gray-50/50">
+                            <tr className="border-b border-gray-100">
+                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest">Odds</th>
+                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">Stake</th>
+                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Profit/Liability</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
+                              <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
+                              <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
+                              <td className="py-2.5 px-3 text-[13px] font-black text-right">0</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     ))
                   ) : (
@@ -398,7 +398,7 @@ export default function BetContainer() {
 
             {/* MATCHED BETS SECTION */}
             <div className="rounded-[12px] overflow-hidden border border-[#f36c21] bg-[#111]">
-              <div 
+              <div
                 className="flex items-center justify-between px-4 py-3 cursor-pointer group"
                 onClick={() => setMatchedOpen(!matchedOpen)}
               >
@@ -406,7 +406,7 @@ export default function BetContainer() {
                   Matched Bets
                 </span>
                 <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                   <ChevronDown size={16} className={`text-white transition-transform duration-300 ${matchedOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={16} className={`text-white transition-transform duration-300 ${matchedOpen ? 'rotate-180' : ''}`} />
                 </div>
               </div>
 
@@ -414,10 +414,10 @@ export default function BetContainer() {
                 <div className="px-4 pb-4 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
                   {/* Average Odds UI */}
                   <div className="flex items-center gap-2 pb-1 opacity-80 pt-1">
-                     <div className="w-3.5 h-3.5 border border-[#f36c21] rounded-sm bg-[#f36c21] flex items-center justify-center">
-                        <div className="w-2 h-1 border-l-2 border-b-2 border-white transform -rotate-45 -mt-0.5"></div>
-                     </div>
-                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Average Odds</span>
+                    <div className="w-3.5 h-3.5 border border-[#f36c21] rounded-sm bg-[#f36c21] flex items-center justify-center">
+                      <div className="w-2 h-1 border-l-2 border-b-2 border-white transform -rotate-45 -mt-0.5"></div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Average Odds</span>
                   </div>
 
                   {matchedBets.length > 0 ? (

@@ -69,7 +69,10 @@ const MarketTable = ({
   matchName,
   marketType,
   marketIndex = 0,
-  eventId
+  eventId,
+  min,
+  max,
+  msg
 }: {
   marketName: string,
   runners: any[],
@@ -78,7 +81,10 @@ const MarketTable = ({
   matchName: string,
   marketType: string,
   marketIndex: number,
-  eventId: string
+  eventId: string,
+  min?: any,
+  max?: any,
+  msg?: string
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
@@ -319,6 +325,10 @@ const MarketTable = ({
                 const isLine = marketType === 'LINE'
                 const isBookmaker = marketType === 'BOOKMAKER'
 
+                const rowMin = (isFancyGroup || isLine) ? (runner.min || runner.Min) : min
+                const rowMax = (isFancyGroup || isLine) ? (runner.max || runner.Max) : max
+                const rowMsg = (isFancyGroup || isLine) ? (runner.Msg || runner.msg) : msg
+
                 let isMarketSuspended = false
                 let suspensionMsg = 'SUSPENDED'
 
@@ -358,6 +368,8 @@ const MarketTable = ({
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
                   addSelection({
                     id: `${mId}-${runnerId}-${side}`,
+                    min: rowMin ? parseFloat(rowMin) : undefined,
+                    max: rowMax ? parseFloat(rowMax) : undefined,
                     matchId: eventId.toString(),
                     marketId: mId.toString(),
                     eventId: eventId.toString(),
@@ -468,6 +480,23 @@ const MarketTable = ({
                         </div>
                       </td>
                     </tr>
+                    {/* Message Row */}
+                    {rowMsg && rowMsg !== '' && (
+                      <tr className="bg-gray-50/30">
+                        <td colSpan={2} className="py-1.5 px-3 lg:px-4">
+                          <div className="flex items-center gap-2 overflow-hidden h-5">
+                             <div className="w-1.5 h-1.5 rounded-full bg-[#f36c21] flex-shrink-0 z-10 shadow-sm" />
+                             <div className="relative flex-1 overflow-hidden pointer-events-none">
+                               <div className="whitespace-nowrap animate-ticker">
+                                 <span className="text-[10px] lg:text-[11px] font-bold text-gray-500 italic uppercase tracking-wider">
+                                   {rowMsg}
+                                 </span>
+                               </div>
+                             </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     {isSelectedOnMobile && selections[0] && (
                       <tr
                         ref={betslipRowRef}
@@ -832,14 +861,14 @@ export default function GameDetailPage() {
                 {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
                 })}
 
                 {/* 2. BOOKMAKER Markets */}
                 {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
                 })}
 
                 {/* 3. LINE Group */}
@@ -856,14 +885,14 @@ export default function GameDetailPage() {
                 {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
                 })}
 
                 {/* 5. Others */}
                 {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA'].includes(m.category)).map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
                 })}
               </div>
             ) : (

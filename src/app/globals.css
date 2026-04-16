@@ -273,3 +273,15 @@ input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* ===== TICKER ANIMATION ===== */
+@keyframes ticker-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-ticker {
+  display: inline-block;
+  animation: ticker-scroll 10s linear infinite;
+  padding-left: 20px;
+}

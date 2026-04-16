@@ -2,6 +2,8 @@ import { create } from 'zustand'
 
 export interface BetSelection {
   id: string
+  min?: number
+  max?: number
   matchId: string
   matchName: string
   marketName: string
