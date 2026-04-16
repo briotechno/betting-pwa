@@ -61,7 +61,10 @@ export default function OpenBetsPage() {
   const renderBetTable = (betList: Bet[]) => (
     <div className="space-y-4 p-2 bg-white">
       {betList.map((bet, idx) => {
-        const profit = (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0);
+        const isBack = bet.Side === 'back';
+        const profit = isBack 
+          ? (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)
+          : parseFloat(bet.Stake).toFixed(2);
         return (
           <div key={`${bet.Game}-${idx}`} className="space-y-1.5 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
             <div className="flex flex-col mb-1">
@@ -172,11 +175,15 @@ export default function OpenBetsPage() {
                           <div 
                             key={idx} 
                             onClick={() => handleBetClick(bet)}
-                            className="bg-[#a5d9fe] p-3 border-b border-black/5 last:border-0 text-black cursor-pointer hover:bg-[#91cefd] transition-colors"
+                            className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} p-3 border-b border-black/5 last:border-0 text-black cursor-pointer hover:opacity-90 transition-opacity`}
                           >
                             <p className="text-[12px] font-bold mb-1">{bet.Game}</p>
                             <p className="text-[11px] font-medium mb-1">{bet.Type || 'Winner'}</p>
-                            <p className="text-[12px]">BACK {bet.Selection} for {bet.Stake} @ {bet.Rate} to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
+                            <p className="text-[12px] uppercase leading-tight">
+                              <span className="font-bold">{bet.Side}</span> {bet.Selection} for {bet.Stake} @ {bet.Rate} {
+                                bet.Side === 'back' ? `to win ${profit}` : `liability ${(parseFloat(bet.Stake) * (parseFloat(bet.Rate)/100 || 1)).toFixed(0)}`
+                              } .
+                            </p>
                             <p className="text-[10px] text-gray-600 mt-1">Placed: {bet.Date || 'N/A'}</p>
                           </div>
                         ))}
@@ -209,11 +216,21 @@ export default function OpenBetsPage() {
                           <div 
                             key={idx} 
                             onClick={() => handleBetClick(bet)}
-                            className="bg-[#a5d9fe] p-4 border-b border-black/5 last:border-0 text-black cursor-pointer hover:bg-[#91cefd] transition-colors"
+                            className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} p-4 border-b border-black/5 last:border-0 text-black cursor-pointer hover:opacity-90 transition-opacity`}
                           >
                             <p className="text-[12px] font-bold text-[#1a1a1a] mb-1">{bet.Game}</p>
                             <p className="text-[11px] font-medium text-gray-700 mb-1">{bet.Type || 'Winner'}</p>
-                            <p className="text-[12px] leading-tight">BACK <span className="font-bold">{bet.Selection}</span> for <span className="font-bold">{bet.Stake}</span> @ <span className="font-bold">{bet.Rate}</span> to win {(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(2)}.</p>
+                            <p className="text-[12px] leading-tight uppercase">
+                              <span className="font-bold">{bet.Side}</span> <span className="font-bold">{bet.Selection}</span> for <span className="font-bold">{bet.Stake}</span> @ <span className="font-bold">{bet.Rate}</span> {
+                                bet.Side === 'back' 
+                                  ? `to win ${parseFloat(bet.Rate) > 10 
+                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
+                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}` 
+                                  : `liability ${parseFloat(bet.Rate) > 10 
+                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
+                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}`
+                              } .
+                            </p>
                             <p className="text-[11px] mt-1">Winner</p>
                             <p className="text-[10px] text-gray-500 mt-1">Placed: {bet.Date || 'N/A'}</p>
                           </div>
