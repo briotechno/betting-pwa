@@ -24,6 +24,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
     myBets: bets,
     setMyBets: setBets,
     setStake,
+    updateOdds,
     removeSelection,
     clearAll,
     confirmBeforePlace,
@@ -260,7 +261,8 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
                           <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10">Odds</label>
                           <div className="flex items-center border border-gray-300 rounded-[2px] overflow-hidden h-[42px]">
                             <button
-                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
+                              onClick={() => updateOdds(sel.id, -1)}
+                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                             >
                               <Minus size={14} strokeWidth={3} />
                             </button>
@@ -271,7 +273,8 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
                               className="w-full text-center text-[15px] font-bold text-gray-800 bg-transparent outline-none"
                             />
                             <button
-                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50"
+                              onClick={() => updateOdds(sel.id, 1)}
+                              className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                             >
                               <Plus size={14} strokeWidth={3} />
                             </button>

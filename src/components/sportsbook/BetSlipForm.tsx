@@ -172,7 +172,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             <label className="absolute -top-[9px] left-2.5 px-1 bg-white text-[10px] font-bold text-gray-400 z-10 leading-none">Odds</label>
             <div className="flex items-center h-10 border border-gray-300 rounded-[2px] overflow-hidden bg-white">
               <button 
-                onClick={() => updateOdds(selection.id, -0.01)}
+                onClick={() => updateOdds(selection.id, -1)}
                 className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
                 <Minus size={14} strokeWidth={3} />
@@ -184,7 +184,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
                 className="w-full text-center text-[15px] font-bold focus:outline-none text-gray-900 bg-transparent" 
               />
               <button 
-                onClick={() => updateOdds(selection.id, 0.01)}
+                onClick={() => updateOdds(selection.id, 1)}
                 className="w-10 h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 active:scale-95 transition-transform"
               >
                 <Plus size={14} strokeWidth={3} />

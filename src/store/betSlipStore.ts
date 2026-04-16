@@ -140,9 +140,19 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
 
   updateOdds: (id, delta) => {
     set((state) => ({
-      selections: state.selections.map((s) =>
-        s.id === id ? { ...s, odds: Math.max(1.01, parseFloat((s.odds + delta).toFixed(2))) } : s
-      ),
+      selections: state.selections.map((sel) => {
+        if (sel.id === id) {
+          // Determine step size based on market type? 
+          // For standard odds, usually 0.01. For Fancy/Line, usually 1.
+          const isFancyOrLine = sel.marketType === 'FANCY' || sel.marketType === 'LINE';
+          const newOdds = isFancyOrLine 
+            ? Math.max(0, sel.odds + delta) 
+            : Math.max(1.01, Number((sel.odds + (delta > 0 ? 0.01 : -0.01)).toFixed(2)));
+          
+          return { ...sel, odds: isFancyOrLine ? sel.odds + delta : newOdds };
+        }
+        return sel;
+      })
     }))
   },
 
