@@ -29,7 +29,7 @@ export default function InlineBetContainer({
 }: InlineBetContainerProps) {
     const [odds, setOdds] = useState(initialOdds)
     const [stake, setStake] = useState('')
-    const [confirmBeforePlace, setConfirmBeforePlace] = useState(true)
+    const [confirmBeforePlace, setConfirmBeforePlace] = useState(false)
     const stakes = [100, 500, 1000, 5000, 10000, 25000]
 
     const handleStakeClick = (val: number) => {

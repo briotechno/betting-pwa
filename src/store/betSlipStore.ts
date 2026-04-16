@@ -64,7 +64,7 @@ export const useBetSlipStore = create<BetSlipState>((set, get) => ({
   isOpen: false,
   selections: [],
   stakes: {},
-  confirmBeforePlace: true,
+  confirmBeforePlace: false,
   autoAcceptOdds: false,
   myBets: [],
   quickStakes: [100, 500, 1000, 5000, 10000, 25000],
