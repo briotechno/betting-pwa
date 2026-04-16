@@ -76,7 +76,14 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       const isWinner = selection.marketName.toLowerCase().includes('winner')
       const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
       const teamLetter = teamMap[selection.marketIndex] || 'A'
-      const betTypeChar = selection.betType === 'back' ? 'B' : 'L'
+      
+      // Default mapping: Back -> B, Lay -> L
+      // For Fancy/Line: Yes (Back) -> L, No (Lay) -> B (per developer request)
+      const isFancyMarket = mType === 'FANCY' || mType === 'LINE'
+      const betTypeChar = isFancyMarket 
+        ? (selection.betType === 'back' ? 'L' : 'B')
+        : (selection.betType === 'back' ? 'B' : 'L')
+
       const runnersCount = selection.runnersCount || 2
 
       if (isWinner) {
