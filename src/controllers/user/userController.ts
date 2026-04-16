@@ -90,9 +90,8 @@ export const userController = {
 
   /**
    * Get dynamic WhatsApp support link
-   * @param loginToken session token
    */
-  getWhatsAppLink: async (loginToken: string): Promise<ApiResponse> => {
-    return await fetchAPI('/wplink', { LoginToken: loginToken });
+  getWhatsAppLink: async (): Promise<ApiResponse> => {
+    return await fetchAPI('/wplink', { LoginToken: '' });
   },
 };

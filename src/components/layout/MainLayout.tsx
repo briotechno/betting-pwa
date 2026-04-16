@@ -26,18 +26,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
 
   const handleWhatsAppClick = async () => {
-    if (user?.loginToken) {
-      try {
-        const res = await userController.getWhatsAppLink(user.loginToken)
-        if (res && res.error === '0' && res.Link) {
-          window.open(res.Link, '_blank')
-          return
-        }
-      } catch (err) {
-        console.error('WhatsApp redirect failed:', err)
+    try {
+      const res = await userController.getWhatsAppLink()
+      if (res && res.error === '0' && res.Link) {
+        window.open(res.Link, '_blank')
+        return
       }
+    } catch (err) {
+      console.error('WhatsApp redirect failed:', err)
     }
-    // Fallback if not logged in or API fails
+    // Fallback if API fails
     window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
   }
 

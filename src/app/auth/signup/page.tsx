@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Eye, EyeOff, Lock, User, Phone, CheckCircle2, ShieldCheck, ChevronRight, Gift, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { authController } from '@/controllers/auth'
+import { userController } from '@/controllers/user/userController'
 import { useSnackbarStore } from '@/store/snackbarStore'
 
 export default function SignupPage() {
@@ -380,10 +381,20 @@ export default function SignupPage() {
 
               {/* WhatsApp & Login Link - Combined for space optimization */}
               <div className="flex items-center w-full mt-3">
-                <a 
-                  href="https://wa.me/yournumber" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <button 
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const res = await userController.getWhatsAppLink()
+                      if (res && res.error === '0' && res.Link) {
+                        window.open(res.Link, '_blank')
+                      } else {
+                        window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                      }
+                    } catch (err) {
+                      window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                    }
+                  }}
                   className="transition-transform hover:scale-110 active:scale-95 shrink-0"
                 >
                   <img 
@@ -394,7 +405,7 @@ export default function SignupPage() {
                       e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/3670/3670051.png"
                     }}
                   />
-                </a>
+                </button>
                 
                 <div className="flex-1 flex justify-center pr-[34px] sm:pr-[38px]">
                   <p className="text-[12px] text-white/70 font-normal">

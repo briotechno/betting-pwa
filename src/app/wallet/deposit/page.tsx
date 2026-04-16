@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Copy, Check, Loader2, Landmark, Phone, ArrowLeft, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
-import { walletController } from '@/controllers'
+import { walletController, userController } from '@/controllers'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatDate } from '@/utils/format'
@@ -340,7 +340,18 @@ export default function DepositPage() {
 
                       {/* 1. Always show WhatsApp First */}
                       <button
-                        onClick={() => window.open('https://wa.me/91XXXXXXXXXX', '_blank')}
+                        onClick={async () => {
+                          try {
+                            const res = await userController.getWhatsAppLink()
+                            if (res && res.error === '0' && res.Link) {
+                              window.open(res.Link, '_blank')
+                            } else {
+                              window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                            }
+                          } catch (err) {
+                            window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                          }
+                        }}
                         className="flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 border-transparent hover:bg-white/5 transition-all text-white"
                       >
                         <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">

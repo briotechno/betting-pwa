@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { X, ChevronLeft, Search, Wallet, User } from 'lucide-react'
 import { useLayoutStore } from '@/store/layoutStore'
 import { useAuthStore } from '@/store/authStore'
+import { userController } from '@/controllers/user/userController'
 
 export default function AuraCasinoOverlay() {
   const { auraCasinoOpen, setAuraCasinoOpen } = useLayoutStore()
@@ -67,7 +68,21 @@ export default function AuraCasinoOverlay() {
 
         {/* Floating WhatsApp button */}
         <div className="absolute left-4 bottom-10 z-20">
-          <button className="w-11 h-11 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 active:scale-95 transition-all">
+          <button 
+            onClick={async () => {
+              try {
+                const res = await userController.getWhatsAppLink()
+                if (res && res.error === '0' && res.Link) {
+                  window.open(res.Link, '_blank')
+                } else {
+                  window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                }
+              } catch (err) {
+                window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+              }
+            }}
+            className="w-11 h-11 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+          >
             <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" alt="WA" className="w-6 h-6" />
           </button>
         </div>
