@@ -11,7 +11,7 @@ import BetConfirmationModal from './BetConfirmationModal'
 
 export default function BetContainer({ matchId }: { matchId?: string }) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>(matchId ? 'OPEN_BETS' : 'BETSLIP')
+  const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('OPEN_BETS')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)

@@ -16,4 +16,4 @@ confirm bet wrong odd or value
 message which is below the table row check [ ambika check ]
 my bets check the only winner is showing 
 layout fix bet container when scroll
-default open - open bet not bet slip
+19: default open - open bet not bet slip - done
