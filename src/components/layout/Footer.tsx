@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function Footer() {
   return (
-    <footer className="px-5 py-10 bg-[#1e1e1e] text-white border-t border-white/5 pb-32">
+    <footer className="px-5 pt-4 lg:pt-10 pb-32 bg-[#1e1e1e] text-white border-t border-white/5">
       <div className="max-w-[1240px] mx-auto space-y-7">
         {/* Logo and Intro */}
         <div className="space-y-4">
