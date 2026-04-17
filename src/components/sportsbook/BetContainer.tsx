@@ -193,7 +193,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       }
 
       if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
-        snackbar.show("Bet placed successfully!", "success")
+        snackbar.show(`Bet placed successfully @ ${selection.odds} of ${stake}!`, "success")
         clearAll()
         fetchBets() // Refresh open bets
         if (matchId) {
