@@ -154,6 +154,8 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       if (res && (res.status === 'Success' || res.status === 200 || res.success || res.error === '0')) {
         snackbar.show("Bet placed successfully!", "success")
         clearAll()
+        // 📢 Signal to refresh match data (exposure)
+        window.dispatchEvent(new CustomEvent('bet-placed', { detail: { matchId: selection.eventId } }))
       } else {
         snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }

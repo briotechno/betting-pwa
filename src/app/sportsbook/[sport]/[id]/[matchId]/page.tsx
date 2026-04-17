@@ -630,6 +630,17 @@ export default function GameDetailPage() {
     }
   }, [matchId, fetchGameData])
 
+  // 🔄 Listen for manual bet placement success to refresh data immediately
+  useEffect(() => {
+    const handleBetPlaced = (e: any) => {
+      if (e.detail?.matchId?.toString() === matchId?.toString()) {
+        fetchGameData()
+      }
+    }
+    window.addEventListener('bet-placed', handleBetPlaced)
+    return () => window.removeEventListener('bet-placed', handleBetPlaced)
+  }, [matchId, fetchGameData])
+
   useEffect(() => {
     if (!matchId) return
     let isMounted = true

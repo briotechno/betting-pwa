@@ -196,7 +196,11 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
         snackbar.show("Bet placed successfully!", "success")
         clearAll()
         fetchBets() // Refresh open bets
-        if (matchId) setActiveTab('OPEN_BETS')
+        if (matchId) {
+          setActiveTab('OPEN_BETS')
+          // 📢 Signal to refresh match data (exposure)
+          window.dispatchEvent(new CustomEvent('bet-placed', { detail: { matchId } }))
+        }
       } else {
         snackbar.show(res?.msg || res?.message || res?.description || "Failed to place bet", "error")
       }

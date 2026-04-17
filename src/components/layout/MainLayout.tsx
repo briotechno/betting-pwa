@@ -80,6 +80,24 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     }
   }, [isAuthenticated, user?.loginToken, logout, updateBalance])
 
+  // 💰 Refresh balance immediately on bet placement
+  useEffect(() => {
+    const handleRefresh = async () => {
+      if (!isAuthenticated || !user?.loginToken) return
+      try {
+        const res = await userController.getBalance(user.loginToken!)
+        if (res?.error === '0' && res?.balance !== undefined) {
+          updateBalance(
+            parseFloat(res.balance) || 0,
+            parseFloat(res.exposure) || 0
+          )
+        }
+      } catch (err) {}
+    }
+    window.addEventListener('bet-placed', handleRefresh)
+    return () => window.removeEventListener('bet-placed', handleRefresh)
+  }, [isAuthenticated, user, updateBalance])
+
   // Global Scroll Lock
   useEffect(() => {
     const isAnyOverlayOpen =

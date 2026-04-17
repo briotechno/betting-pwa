@@ -4,7 +4,7 @@ sccorbord and Tv implemetation
 unmatch ma cancle no option 
 bet placing message add bet price and odd 
 football goal api 
-after bet placing refresh the table 
+after bet placing refresh the table - done
 withdral usdt [ kevin side thi baki]
 my transaltion status check [ kevin bhai side thi key add karvani baki ]
 cashout 
