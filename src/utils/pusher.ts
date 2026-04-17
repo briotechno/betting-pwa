@@ -4,8 +4,11 @@ import Pusher from 'pusher-js';
 const PUSHER_KEY = '25cbe8341f85bef2a680';
 const PUSHER_CLUSTER = 'ap2';
 
+// Resolve Pusher constructor for both ESM and CJS environments
+const PusherConstructor = (Pusher as any).default || Pusher;
+
 export const pusherClient = typeof window !== 'undefined' 
-  ? new Pusher(PUSHER_KEY, {
+  ? new PusherConstructor(PUSHER_KEY, {
       cluster: PUSHER_CLUSTER,
       forceTLS: false, // As per developer instructions
     })

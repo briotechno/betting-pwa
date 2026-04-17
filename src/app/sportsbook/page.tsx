@@ -180,6 +180,17 @@ function SportsbookContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const mapMatchData = (m: any) => {
+    return {
+      ...m,
+      teamA: m.Team1 || m.Game_name?.split(' Vs ')[0] || 'Team A',
+      teamB: m.Team2 || m.Game_name?.split(' Vs ')[1] || 'Team B',
+      startTime: m.DateTime || 'Live',
+      matchId: m.gid || m.Event_Id,
+      competitionId: m.CompetitionCode || m.cid || 'all'
+    }
+  }
+
   const [competitions, setCompetitions] = useState<any[]>([])
   const [loadingLeagues, setLoadingLeagues] = useState(false)
   const [games, setGames] = useState<any[]>([])

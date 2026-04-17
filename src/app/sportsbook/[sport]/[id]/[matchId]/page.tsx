@@ -73,7 +73,9 @@ const MarketTable = ({
   min,
   max,
   msg,
-  onOpenFancyChart
+  onOpenFancyChart,
+  onCashout,
+  isCashoutLoading
 }: {
   marketName: string,
   runners: any[],
@@ -86,7 +88,9 @@ const MarketTable = ({
   min?: any,
   max?: any,
   msg?: string,
-  onOpenFancyChart?: (eid: string, name: string) => void
+  onOpenFancyChart?: (eid: string, name: string) => void,
+  onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void,
+  isCashoutLoading?: boolean
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
@@ -283,6 +287,26 @@ const MarketTable = ({
           )}
         </div>
         <div className="h-full flex items-center pr-4 gap-3 z-0">
+          {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
+          {((marketType === 'ODDS' || marketType === 'BOOKMAKER') && runners.length === 2) && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCashout?.(marketId, marketName, runners, marketType);
+              }}
+              disabled={isCashoutLoading}
+              className="bg-[#2e7d32] hover:bg-[#1b5e20] text-white text-[10px] lg:text-[11px] font-black px-2 py-1 rounded transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+            >
+              {isCashoutLoading ? (
+                <Loader2 size={12} className="animate-spin text-white" />
+              ) : (
+                <span className="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                  CASHOUT
+                </span>
+              )}
+            </button>
+          )}
           <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
         </div>
       </div>
@@ -580,6 +604,61 @@ export default function GameDetailPage() {
   const [fancyChartData, setFancyChartData] = useState<any>(null)
   const [fancyChartTitle, setFancyChartTitle] = useState('')
   const [scoreboardHtml, setScoreboardHtml] = useState<string | null>(null)
+  const [cashoutLoading, setCashoutLoading] = useState<string | null>(null)
+  const [betsLoading, setBetsLoading] = useState(false)
+
+  const { addSelection, setStake, clearAll } = useBetSlipStore()
+
+  const handleCashout = async (mId: string, mName: string, runners: any[], mType: string) => {
+    if (!user?.loginToken) {
+      showSnackbar('Please login to cashout', 'error')
+      return
+    }
+
+    const eventId = gameData?.Event_Id || gameData?.eventid || matchId;
+    setCashoutLoading(mId)
+    try {
+      const res = await bettingController.cashout(user.loginToken, eventId)
+      const cashout = Array.isArray(res) ? res[0] : res
+
+      if (cashout && cashout.Amount > 0) {
+        // Map Team "A" -> 0, Team "B" -> 1
+        const teamIdx = cashout.Team === 'B' ? 1 : 0
+        const runner = runners[teamIdx]
+        if (!runner) throw new Error('Runner not found')
+
+        const selectionId = runner.selectionId || runner.id || runner.SelectionId || `${mId}-${teamIdx}`
+        const bSide = cashout.Type === 'L' ? 'lay' : 'back'
+
+        clearAll()
+        addSelection({
+          id: `${mId}-${selectionId}-${bSide}`,
+          matchId: matchId,
+          eventId: eventId,
+          marketId: mId,
+          selectionId: selectionId.toString(),
+          matchName: matchName,
+          marketName: mName,
+          selectionName: runner.name || runner.Name || (teamIdx === 0 ? 'Team A' : 'Team B'),
+          odds: parseFloat(cashout.Rate),
+          betType: bSide,
+          marketType: mType,
+          marketIndex: teamIdx,
+          runnersCount: runners.length
+        })
+
+        setStake(`${mId}-${selectionId}-${bSide}`, parseFloat(cashout.Amount))
+        showSnackbar(`Cashout ready: Guaranteed ${cashout.Chart1 || cashout.Chart2 || ''}`, 'success')
+      } else {
+        showSnackbar('No cashout available right now', 'info')
+      }
+    } catch (err) {
+      console.error('Cashout failed:', err)
+      showSnackbar('Failed to fetch cashout', 'error')
+    } finally {
+      setCashoutLoading(null)
+    }
+  }
 
   // TV State
   const [tvVisible, setTvVisible] = useState(false)
@@ -1035,14 +1114,14 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 2. BOOKMAKER Markets */}
                       {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 3. LINE Group */}

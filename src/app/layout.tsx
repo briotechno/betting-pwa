@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 import LeftDrawer from '@/components/layout/LeftDrawer'
@@ -17,7 +16,7 @@ import Providers from './providers'
 import SessionGuard from '@/components/common/SessionGuard'
 import { Suspense } from 'react'
 
-const inter = Inter({ subsets: ['latin'] })
+const interClassName = 'font-inter';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -49,7 +48,7 @@ export default function RootLayout({
         <link rel="icon" href="/Favicon.png" sizes="any" />
         <link rel="apple-touch-icon" href="/Favicon.png" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${interClassName} antialiased`}>
         <Providers>
           <SessionGuard />
 

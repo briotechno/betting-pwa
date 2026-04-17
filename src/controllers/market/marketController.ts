@@ -116,4 +116,12 @@ export const marketController = {
   getOpenTv: async (loginToken: string, eventId: string): Promise<ApiResponse> => {
     return await fetchAPI('/opentv', { LoginToken: loginToken, Event_Id: eventId });
   },
+
+  /**
+   * Get home banners
+   * @param type "Web" or "Mobile"
+   */
+  getHomeBanners: async (type: string): Promise<ApiResponse> => {
+    return await fetchAPI('/homebanner', { type });
+  },
 };
