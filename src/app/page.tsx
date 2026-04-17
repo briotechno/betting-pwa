@@ -441,7 +441,7 @@ export default function HomePage() {
         )}
 
         {/* Live Games Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-[#111] p-2 rounded-[16px] border border-[#474747] shadow-inner">
             <div className="flex items-center justify-center relative px-2 mb-4 lg:mb-6">
               <h3 className="text-[1rem] font-normal text-white leading-none">Live <span className="text-[#e8612c]">Cards</span></h3>
@@ -651,7 +651,7 @@ export default function HomePage() {
         )}
 
         {/* Live Cards & Live Casino GIF Banners */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
           <Link href="/markets/live-cards" className="overflow-hidden rounded-[10px] border border-white/10 shadow-lg block">
             <img
               src="/live-cards-banner2.dc9c351.gif"
