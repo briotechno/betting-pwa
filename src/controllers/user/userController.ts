@@ -94,4 +94,12 @@ export const userController = {
   getWhatsAppLink: async (): Promise<ApiResponse> => {
     return await fetchAPI('/wplink', { LoginToken: '' });
   },
+
+  /**
+   * Get user turnover
+   * @param loginToken The encrypted session token
+   */
+  getTurnover: async (loginToken: string): Promise<ApiResponse> => {
+    return await fetchAPI('/turnover', { LoginToken: loginToken });
+  },
 };

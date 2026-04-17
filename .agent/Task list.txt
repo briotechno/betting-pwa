@@ -7,9 +7,9 @@ bet placing message add bet price and odd
 football goal api 
 after bet placing refresh the table 
 withdral usdt [ kevin side thi baki]
-pnl ma catory baki 
+pnl ma catory baki [ need some confrimation from price bhai] - done
 my transaltion status check [ kevin bhai side thi key add karvani baki ]
-calculation - turn over 
+calculation - turn over - done
 cashout 
 bet place calculation  
 app banner , text remove , fix spacing below in mobile view [ table view ma poster check ]
