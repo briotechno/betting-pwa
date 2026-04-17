@@ -338,10 +338,37 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
                         <button
                           onClick={placeBets}
                           disabled={loading || !stakes[sel.id]}
-                          className={`py-2.5 rounded-[2px] text-[13px] font-black uppercase shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${stakes[sel.id] ? 'bg-[#f36c21] text-white' : 'bg-[#e0e0e0] text-gray-400'
+                          className={`flex flex-col items-center justify-center py-1.5 rounded-[2px] text-[13px] font-black uppercase shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${stakes[sel.id] ? 'bg-[#f36c21] text-white' : 'bg-[#e0e0e0] text-gray-400'
                             }`}
                         >
-                          Place Bet
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin mx-auto" />
+                          ) : (
+                            <>
+                              <span className="text-[13px] font-black uppercase">Place Bet</span>
+                              {stakes[sel.id] > 0 && (() => {
+                                const mType = sel.marketType?.toUpperCase() || 'ODDS';
+                                const isBack = sel.betType === 'back';
+                                const odds = sel.odds;
+                                const stake = stakes[sel.id];
+                                let value = 0;
+
+                                if (mType === 'BOOKMAKER') {
+                                  value = (odds * stake) / 100;
+                                } else if (mType === 'FANCY' || mType === 'LINE') {
+                                  value = isBack ? (odds * stake / 100) : stake;
+                                } else {
+                                  value = (odds - 1) * stake;
+                                }
+
+                                return (
+                                  <span className="text-[10px] font-bold opacity-90 uppercase mt-0.5">
+                                    {isBack ? 'Profit' : 'Liability'}: {Math.floor(value).toLocaleString()}
+                                  </span>
+                                );
+                              })()}
+                            </>
+                          )}
                         </button>
                       </div>
 

@@ -1,14 +1,25 @@
 Line bet value swapped 
 tied bet placing 
-sccorbord and Tv implemetation 
+sccorbord and Tv implemetation [ evnet id wrong ]
 unmatch ma cancle no option 
 bet placing message add bet price and odd 
 football goal api 
 withdral usdt [ kevin side thi baki]
-cashout 
+cashout [ match odd and bookmaker 2 team ]
 bet place calculation  
 sidi nu nishan in fancy bet and show data 
-casino ifram has error 
-preimum sportbook refresh again and agbain issue 
 confirm bet wrong odd or value 
 layout fix bet container when scroll
+
+
+
+----
+Bookmaker 
+amount x rate / 100 : back  then profit , lay the lib
+
+oddextra , goal 
+amount - 1 x rate : same above 
+
+fancy and line  
+rate -  lib 
+

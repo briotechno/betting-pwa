@@ -251,12 +251,41 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           <button
             onClick={placeBet}
             disabled={loading || stake === 0}
-            className={`py-2.5 text-[13px] font-black uppercase rounded-[2px] transition-all shadow-sm ${stake > 0
+            className={`flex flex-col items-center justify-center py-1.5 rounded-[2px] transition-all shadow-sm ${stake > 0
                 ? 'bg-[#f36c21] text-white active:brightness-110'
                 : 'bg-[#e0e0e0] text-gray-400 cursor-not-allowed'
               }`}
           >
-            {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Place Bet'}
+            {loading ? (
+              <Loader2 size={16} className="animate-spin mx-auto" />
+            ) : (
+              <>
+                <span className="text-[13px] font-black uppercase">Place Bet</span>
+                {stake > 0 && (() => {
+                  const mType = selection.marketType?.toUpperCase() || 'ODDS';
+                  const isBack = selection.betType === 'back';
+                  const odds = selection.odds;
+                  let value = 0;
+
+                  if (mType === 'BOOKMAKER') {
+                    value = (odds * stake) / 100;
+                  } else if (mType === 'FANCY' || mType === 'LINE') {
+                    // For fancy/line, liability is just the stake as per user
+                    // If it's back (Yes), profit is (Odds * Stake) / 100
+                    value = isBack ? (odds * stake / 100) : stake;
+                  } else {
+                    // ODDS, EXTRA, GOAL, etc.
+                    value = (odds - 1) * stake;
+                  }
+
+                  return (
+                    <span className="text-[10px] font-bold opacity-90 uppercase mt-0.5">
+                      {isBack ? 'Profit' : 'Liability'}: {Math.floor(value).toLocaleString()}
+                    </span>
+                  );
+                })()}
+              </>
+            )}
           </button>
         </div>
 

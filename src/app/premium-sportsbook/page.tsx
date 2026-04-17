@@ -45,8 +45,11 @@ export default function PremiumSportsbookPage() {
       router.push('/auth/login')
       return
     }
-    fetchSportsbookUrl()
-  }, [isAuthenticated, user])
+    // Only fetch if we don't have a URL yet, or if it's the first time
+    if (!url) {
+      fetchSportsbookUrl()
+    }
+  }, [isAuthenticated, user?.loginToken, url])
 
   if (loading) {
     return (

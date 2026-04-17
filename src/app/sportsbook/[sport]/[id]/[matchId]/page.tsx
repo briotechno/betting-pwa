@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -72,7 +72,8 @@ const MarketTable = ({
   eventId,
   min,
   max,
-  msg
+  msg,
+  onOpenFancyChart
 }: {
   marketName: string,
   runners: any[],
@@ -84,7 +85,8 @@ const MarketTable = ({
   eventId: string,
   min?: any,
   max?: any,
-  msg?: string
+  msg?: string,
+  onOpenFancyChart?: (eid: string, name: string) => void
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
@@ -409,8 +411,21 @@ const MarketTable = ({
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col">
-                          <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase">
+                          <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase flex items-center">
                             {runnerName}
+                            {(isFancy || isLine) && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOpenFancyChart?.(mId.toString(), runnerName);
+                                }}
+                                className="ml-1.5 flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 rotate-[15deg]">
+                                  <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                                </svg>
+                              </button>
+                            )}
                           </span>
                           {hasChart && (
                             <span className={`text-[11px] font-bold leading-none mt-1 ${chartVal! < 0 ? 'text-red-500' : 'text-green-600'}`}>
@@ -556,9 +571,34 @@ export default function GameDetailPage() {
   const [favLoading, setFavLoading] = useState(false)
   const showSnackbar = useSnackbarStore(state => state.show)
   const { myBets: bets, setMyBets: setGlobalBets } = useBetSlipStore()
-  const [betsLoading, setBetsLoading] = useState(false)
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
   const [matchedOpen, setMatchedOpen] = useState(true)
+
+  // Fancy Chart State
+  const [fancyChartOpen, setFancyChartOpen] = useState(false)
+  const [fancyChartLoading, setFancyChartLoading] = useState(false)
+  const [fancyChartData, setFancyChartData] = useState<any>(null)
+  const [fancyChartTitle, setFancyChartTitle] = useState('')
+
+  const openFancyChart = async (eid: string, name: string) => {
+    if (!user?.loginToken) {
+      showSnackbar('Please login to view chart', 'error')
+      return
+    }
+    setFancyChartTitle(name)
+    setFancyChartOpen(true)
+    setFancyChartLoading(true)
+    setFancyChartData(null)
+    try {
+      const res = await bettingController.getFancyChart(user.loginToken, eid)
+      setFancyChartData(res)
+    } catch (err) {
+      console.error('Failed to fetch fancy chart:', err)
+      setFancyChartData({ error: '1', msg: 'Failed to load chart data' })
+    } finally {
+      setFancyChartLoading(false)
+    }
+  }
 
   const fetchBets = useCallback(async () => {
     if (!user?.loginToken) return
@@ -898,38 +938,38 @@ export default function GameDetailPage() {
                 {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                 })}
 
                 {/* 2. BOOKMAKER Markets */}
                 {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                 })}
 
                 {/* 3. LINE Group */}
                 {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
-                  <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={matchId} />
+                  <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={matchId} onOpenFancyChart={openFancyChart} />
                 )}
 
                 {/* 4. FANCY Group */}
                 {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
-                  <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} />
+                  <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} onOpenFancyChart={openFancyChart} />
                 )}
 
                 {/* 4. EXTRA Markets (e.g. Tied Match) */}
                 {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                 })}
 
                 {/* 5. Others */}
                 {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA'].includes(m.category)).map((m: any, mIdx: number) => {
                   let runners = m.runner || m.runners || [];
                   if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} />
+                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                 })}
               </div>
             ) : (
@@ -965,6 +1005,45 @@ export default function GameDetailPage() {
       {user && (
         <div className="hidden lg:block w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
           <BetContainer matchId={matchId} />
+        </div>
+      )}
+
+      {/* Fancy Chart Modal */}
+      {fancyChartOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setFancyChartOpen(false)} />
+          <div className="relative z-10 bg-[#1a1a1a] rounded-xl border border-white/10 w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#111]">
+              <h3 className="text-[13px] font-black text-white uppercase tracking-tight truncate pr-4">
+                Chart: {fancyChartTitle}
+              </h3>
+              <button onClick={() => setFancyChartOpen(false)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6">
+              {fancyChartLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-10 h-10 border-4 border-[#f36c21]/20 border-t-[#f36c21] rounded-full animate-spin mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Fetching Ladder Data...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+                    <p className="text-gray-400 text-[11px] font-bold text-center mb-2 uppercase">Ladder Response Received</p>
+                    <div className="bg-black/20 p-3 rounded-lg overflow-auto max-h-[300px]">
+                      <pre className="text-[10px] text-green-400 font-mono">
+                        {JSON.stringify(fancyChartData, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                  <button onClick={() => setFancyChartOpen(false)} className="w-full py-3 bg-[#f36c21] text-white font-black uppercase tracking-widest text-[11px] rounded-lg">
+                    Close
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

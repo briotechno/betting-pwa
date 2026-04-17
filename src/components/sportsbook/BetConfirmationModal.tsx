@@ -28,23 +28,19 @@ export default function BetConfirmationModal({
   const isBack = betType === 'back';
   const bgColor = isBack ? 'bg-[#bce4ff]' : 'bg-[#fbd3d1]';
   
-  // Calculate Profit/Liability
-  // Profit = Stake * (Odds - 1) for Back (standard Odds)
-  // For FANCY/LINE, Profit is usually different, but let's follow the standard pattern
-  // Liability = Stake * (Odds - 1) for Lay? Or just Stake? 
-  // In the image, for Back: Odds 98, Stake 100, Profit 98. This implies (Odds/100 * Stake)? 
-  // Wait, if it's 98.00 odds (Indian context), then profit is stake * (98/100)?
-  // Actually, in many Asian markets, 98 means 0.98 decimal odds.
-  
-  const isFancy = marketType === 'FANCY' || marketType === 'LINE';
+  const mType = marketType?.toUpperCase() || 'ODDS';
+  const isFancy = mType === 'FANCY' || mType === 'LINE';
   const profitLabel = isBack ? 'Profit' : 'Liability';
   
-  // Calculation based on image logic (approximate)
-  // Back Odds 98, Stake 100 -> Profit 98. (implies odds/100 * stake)
-  // Lay Odds 0, Stake 100 -> Liability 100.
-  const displayProfit = isBack 
-    ? (isFancy ? (odds / 100 * stake) : (stake * (odds - 1))) 
-    : (isFancy ? stake : (stake * (odds - 1)));
+  let value = 0;
+  if (mType === 'BOOKMAKER') {
+    value = (odds * stake) / 100;
+  } else if (mType === 'FANCY' || mType === 'LINE') {
+    value = isBack ? (odds * stake / 100) : stake;
+  } else {
+    value = (odds - 1) * stake;
+  }
+  const displayProfit = Math.floor(value);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
