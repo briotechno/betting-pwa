@@ -1,22 +1,26 @@
 'use client'
 import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronDown, Calendar, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronDown, Calendar, Loader2, X, Trophy, XCircle } from 'lucide-react'
 import { statementController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
 
 export default function TransactionsPage() {
   const router = useRouter()
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState('DEPOSIT')
+  const [activeTab, setActiveTab] = useState('ALL')
   const [loading, setLoading] = useState(false)
   const [transactions, setTransactions] = useState<any[]>([])
   
+  // Bet statement popup state
+  const [betModalOpen, setBetModalOpen] = useState(false)
+  const [betLoading, setBetLoading] = useState(false)
+  const [betData, setBetData] = useState<any>(null)
+
   // States for filters
   const [fromDate, setFromDate] = useState(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
   const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0])
-  const [transactionFilter, setTransactionFilter] = useState('All')
-  const [statusFilter, setStatusFilter] = useState('All')
+
 
   const fetchTransactions = useCallback(async () => {
     if (!user?.loginToken) return
@@ -47,28 +51,55 @@ export default function TransactionsPage() {
     fetchTransactions()
   }
 
-  // Filter transactions
+  // Handle clicking a Win/Loss card to open bet details popup
+  const handleCardClick = async (tx: any) => {
+    const eid = tx["4"]
+    if (!eid || !eid.toString().trim()) return
+    
+    setBetModalOpen(true)
+    setBetLoading(true)
+    setBetData(null)
+    try {
+      const res = await statementController.getBetStatement(eid.toString(), user?.loginToken || '')
+      if (res && res.error !== '1') {
+        setBetData(res)
+      } else {
+        setBetData({ error: '1', msg: res?.msg || 'No Bet List Found' })
+      }
+    } catch (err) {
+      console.error('Failed to fetch bet statement:', err)
+      setBetData({ error: '1', msg: 'Failed to load bet details' })
+    } finally {
+      setBetLoading(false)
+    }
+  }
+
+  // Filter transactions based on active tab
   const filteredTransactions = transactions.filter(tx => {
+    if (activeTab === 'ALL') return true
     const typeKey = (tx["2"] || '').toUpperCase().trim()
     const description = (tx["3"] || '').toLowerCase()
     
-    const isCredit = typeKey === 'D' || typeKey === 'CR' || typeKey === 'O'
-    const isDebit = typeKey === 'W' || typeKey === 'DR'
-    
-    // 1. Tab Level Filter
-    if (activeTab === 'DEPOSIT' && !isCredit) return false
-    if (activeTab === 'WITHDRAW' && !isDebit) return false
+    const isDepositDescr = description.includes('deposit') || description.includes('topup')
+    const isWithdrawDescr = description.includes('withdraw') || description.includes('payout')
 
-    // 2. Dropdown Sort Filter
-    if (transactionFilter !== 'All') {
-      const isActualDeposit = typeKey === 'D' || (typeKey === 'CR' && (description.includes('deposit') || description.includes('topup')))
-      const isActualWithdraw = typeKey === 'W' || (typeKey === 'DR' && (description.includes('withdraw') || description.includes('payout')))
-      if (transactionFilter === 'Deposit' && !isActualDeposit) return false
-      if (transactionFilter === 'Withdraw' && !isActualWithdraw) return false
+    if (activeTab === 'DEPOSIT') {
+      if (typeKey === 'D' || typeKey === 'O') return true;
+      if (typeKey === 'W' || typeKey === 'DR') return false;
+      return isDepositDescr;
+    }
+    if (activeTab === 'WITHDRAW') {
+      if (typeKey === 'W') return true;
+      if (typeKey === 'D' || typeKey === 'CR' || typeKey === 'O') return false;
+      return isWithdrawDescr;
+    }
+    if (activeTab === 'WIN') {
+      return typeKey === 'CR' && !isDepositDescr
+    }
+    if (activeTab === 'LOSS') {
+      return typeKey === 'DR' && !isWithdrawDescr
     }
 
-    // 3. Status Filter
-    if (statusFilter !== 'All' && statusFilter === 'Pending') return false
     return true
   })
 
@@ -121,7 +152,7 @@ export default function TransactionsPage() {
                 <button onClick={() => setViewDate(new Date(year, month + 1, 1))}><ChevronLeft size={18} className="text-gray-400 rotate-180" /></button>
              </div>
              <div className="grid grid-cols-7 w-full text-center gap-y-1">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (<span key={d} className="text-[11px] text-gray-500 font-bold h-8 flex items-center justify-center">{d}</span>))}
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (<span key={`${d}-${i}`} className="text-[11px] text-gray-500 font-bold h-8 flex items-center justify-center">{d}</span>))}
                 {calendarDays.map((day, ix) => {
                   if (day === null) return <div key={ix} />
                   const isS = selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year
@@ -166,26 +197,6 @@ export default function TransactionsPage() {
             </div>
             {isToCalendarOpen && <ThemedCalendarModal value={new Date(toDate)} onChange={(date: Date) => setToDate(formatDateLocal(date))} onClose={() => setIsToCalendarOpen(false)} />}
           </div>
-          <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold text-[#666] pl-1">Sort by Transaction:</label>
-            <div className="relative">
-              <select value={transactionFilter} onChange={(e) => setTransactionFilter(e.target.value)}
-                className="w-full bg-[#111] border border-white/20 rounded-full h-10 px-4 text-white text-[12px] outline-none appearance-none cursor-pointer">
-                <option value="All">All</option><option value="Deposit">Deposit</option><option value="Withdraw">Withdraw</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" size={14} />
-            </div>
-          </div>
-          <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold text-[#666] pl-1">Sort by Status:</label>
-            <div className="relative">
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-[#111] border border-white/20 rounded-full h-10 px-4 text-white text-[12px] outline-none appearance-none cursor-pointer">
-                <option value="All">All</option><option value="Confirmed">Confirmed</option><option value="Pending">Pending</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" size={14} />
-            </div>
-          </div>
         </div>
         <button onClick={handleApply} disabled={loading}
           className="w-[200px] h-10 bg-[#e15b24] text-white rounded-full text-[12px] font-bold uppercase tracking-widest active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
@@ -193,8 +204,9 @@ export default function TransactionsPage() {
         </button>
       </div>
 
+      {/* Tabs: DEPOSIT, WITHDRAW, WIN, LOSS */}
       <div className="flex px-4 pt-4 border-b border-white/5 bg-[#111]">
-        {['DEPOSIT', 'WITHDRAW'].map((tab) => (
+        {['ALL', 'DEPOSIT', 'WITHDRAW', 'WIN', 'LOSS'].map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`mr-8 pb-3 text-[11px] font-black tracking-widest transition-all ${activeTab === tab ? 'text-white border-b-2 border-[#e8612c]' : 'text-white/40'}`}>
             {tab}
@@ -220,27 +232,156 @@ export default function TransactionsPage() {
               const { label } = getCategoryTheme(typeKey, description)
               const utrMatch = description.match(/\d{10,}/)
               const utr = utrMatch ? utrMatch[0] : 'N/A'
+              const hasEid = !!(tx["4"] && tx["4"].toString().trim())
+              const isWinLoss = (activeTab === 'WIN' || activeTab === 'LOSS')
+              const isClickable = isWinLoss && hasEid
 
               return (
-                <div key={idx} className="bg-[#1a1a1a] border border-[#e15b24]/30 rounded-lg overflow-hidden w-full">
+                <div 
+                  key={idx} 
+                  className={`bg-[#1a1a1a] border border-[#e15b24]/30 rounded-lg overflow-hidden w-full ${isClickable ? 'cursor-pointer active:scale-[0.98] transition-transform hover:border-[#e15b24]/60' : ''}`}
+                  onClick={() => isClickable && handleCardClick(tx)}
+                >
                   <div className="px-2.5 py-1.5 flex justify-between items-center bg-[#1a1a1a]">
-                    <div className="flex items-center gap-1"><span className="text-[9px] text-gray-400 font-bold">Amount:</span><span className="text-[9px] text-white font-black">{Math.abs(amount).toLocaleString()}</span></div>
-                    <div className="flex items-center gap-1"><span className="text-[9px] text-gray-400 font-bold">Status:</span><span className="text-[9px] text-[#4caf50] font-black">Complete</span></div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[9px] text-gray-400 font-bold">Amount:</span>
+                      <span className={`text-[9px] font-black ${typeKey === 'CR' || typeKey === 'D' || typeKey === 'O' ? 'text-green-400' : 'text-red-400'}`}>
+                        {typeKey === 'CR' || typeKey === 'D' || typeKey === 'O' ? '+' : '-'}
+                        {Math.abs(amount).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                   <div className="h-[1px] bg-white/5 w-full" />
                   <div className="p-2.5 grid grid-cols-2 gap-x-2 gap-y-1.5">
-                    <div><p className="text-[9px] text-white font-black mb-0">Type:</p><p className="text-[8px] text-gray-400 font-medium truncate">{label}</p></div>
-                    <div><p className="text-[9px] text-white font-black mb-0">Transaction ID:</p><p className="text-[8px] text-gray-400 font-medium truncate">{tx["4"] || 'N/A'}</p></div>
-                    <div><p className="text-[9px] text-white font-black mb-0">Request Date:</p><p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p></div>
-                    <div><p className="text-[9px] text-white font-black mb-0">Approved Date:</p><p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p></div>
-                    <div className="col-span-2"><p className="text-[9px] text-white font-black mb-0">UTR:</p><p className="text-[8px] text-gray-400 font-medium truncate">{utr}</p></div>
+                    <div>
+                      <p className="text-[9px] text-white font-black mb-0">Type:</p>
+                      <p className={`text-[8px] font-bold ${label === 'WIN' ? 'text-green-400' : label === 'LOSS' ? 'text-red-400' : 'text-gray-400'}`}>{label}</p>
+                    </div>
+
+                    {isWinLoss ? (
+                      <>
+                        <div>
+                          <p className="text-[9px] text-white font-black mb-0">Event ID:</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{tx["4"] || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] text-white font-black mb-0">Date:</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] text-white font-black mb-0">Time:</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[1]}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-[9px] text-white font-black mb-0">Details:</p>
+                          <p className="text-[8px] text-gray-400 font-medium whitespace-normal">{description || 'N/A'}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <p className="text-[9px] text-white font-black mb-0">Date:</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{date}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-[9px] text-white font-black mb-0">Description:</p>
+                          <p className="text-[8px] text-gray-400 font-medium whitespace-normal">{description || 'N/A'}</p>
+                        </div>
+                      </>
+                    )}
                   </div>
+                  {isClickable && (
+                    <div className="px-2.5 pb-2">
+                      <div className="text-[8px] text-[#e15b24] font-black uppercase tracking-widest text-center">Tap to view bet details →</div>
+                    </div>
+                  )}
                 </div>
               )
             })
           )}
         </div>
       </div>
+
+      {/* Bet Statement Popup/Modal */}
+      {betModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setBetModalOpen(false)} />
+          <div className="relative z-10 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#111]">
+              <h3 className="text-[13px] font-black text-white uppercase tracking-tight">Bet Statement</h3>
+              <button onClick={() => setBetModalOpen(false)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {betLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-10 h-10 animate-spin text-[#e8612c] mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Loading Bet Details...</p>
+                </div>
+              ) : betData?.error === '1' ? (
+                <div className="text-center py-10">
+                  <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <XCircle size={28} />
+                  </div>
+                  <p className="text-red-400 uppercase font-black text-[10px] tracking-widest">{betData.msg}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(betData || {})
+                    .filter(([key]) => !isNaN(Number(key)))
+                    .map(([key, bet]: [string, any]) => {
+                      const isBack = bet.Type?.toLowerCase() === 'back'
+                      return (
+                        <div key={key} className="bg-black/40 p-4 rounded-xl border border-white/5 space-y-3">
+                          {/* Game Name + Type Badge */}
+                          <div className="flex items-start justify-between border-b border-white/5 pb-3">
+                            <p className="text-[11px] font-black text-white uppercase tracking-tight leading-relaxed">
+                              {bet.Game?.replace(/&nbsp;/g, ' ')}
+                            </p>
+                            <span className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider ${isBack ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'}`}>
+                              {bet.Type}
+                            </span>
+                          </div>
+
+                          {/* Bet Details Grid */}
+                          <div className="grid grid-cols-2 gap-y-3">
+                            <div>
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Selection</p>
+                              <p className="text-[11px] font-bold text-white uppercase">{bet.Selection}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date</p>
+                              <p className="text-[9px] font-medium text-white/60">{bet.Date}</p>
+                            </div>
+                            <div>
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Rate</p>
+                              <p className="text-[13px] font-black text-[#e8612c] tracking-tighter">{bet.Rate}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Stake</p>
+                              <p className="text-[13px] font-black text-white tracking-tighter">₹{parseFloat(bet.Stake || '0').toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  
+                  <button 
+                    onClick={() => setBetModalOpen(false)}
+                    className="w-full py-3 bg-[#e15b24] text-white font-black uppercase tracking-widest text-[11px] rounded-lg hover:brightness-110 active:scale-[0.98] transition-all mt-1"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

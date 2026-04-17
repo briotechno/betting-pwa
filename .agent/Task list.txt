@@ -5,14 +5,10 @@ unmatch ma cancle no option
 bet placing message add bet price and odd 
 football goal api 
 withdral usdt [ kevin side thi baki]
-my transaltion status check [ kevin bhai side thi key add karvani baki ]
 cashout 
 bet place calculation  
 sidi nu nishan in fancy bet and show data 
 casino ifram has error 
 preimum sportbook refresh again and agbain issue 
-ball running and suspend tag width 
 confirm bet wrong odd or value 
-16: message which is below the table row check [ ambika check ] - done
-my bets check the only winner is showing 
 layout fix bet container when scroll

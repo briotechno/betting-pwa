@@ -70,7 +70,7 @@ export default function MyTransactionsPage() {
     const desc = (description || '').toLowerCase()
     const isDeposit = typeKey === 'D' || (typeKey === 'CR' && (desc.includes('deposit') || desc.includes('topup')))
     const isWithdraw = typeKey === 'W' || (typeKey === 'DR' && (desc.includes('withdraw') || desc.includes('payout')))
-    
+
     if (isDeposit) return { icon: <ArrowDownLeft size={16} />, color: 'text-success', bg: 'bg-success/10', label: 'Deposit' }
     if (isWithdraw) return { icon: <ArrowUpRight size={16} />, color: 'text-danger', bg: 'bg-danger/10', label: 'Withdraw' }
     if (typeKey === 'CR') return { icon: <Trophy size={16} />, color: 'text-warning', bg: 'bg-warning/10', label: 'WIN' }
@@ -83,17 +83,25 @@ export default function MyTransactionsPage() {
     if (activeTab === 'All') return true
     const type = (tx["2"] || '').toUpperCase()
     const description = (tx["3"] || '').toLowerCase()
-    
+
     const isDepositDescr = description.includes('deposit') || description.includes('topup')
     const isWithdrawDescr = description.includes('withdraw') || description.includes('payout')
 
-    if (activeTab === 'Deposits') return type === 'CR' || type === 'D' || isDepositDescr
-    if (activeTab === 'Withdrawals') return type === 'W' || (type === 'DR' && isWithdrawDescr)
+    if (activeTab === 'Deposits') {
+      if (type === 'D' || (type === 'CR' && isDepositDescr)) return true;
+      if (type === 'W' || type === 'DR') return false;
+      return isDepositDescr;
+    }
+    if (activeTab === 'Withdrawals') {
+      if (type === 'W') return true;
+      if (type === 'D' || type === 'CR') return false;
+      return isWithdrawDescr;
+    }
     if (activeTab === 'Win') return type === 'CR' && !isDepositDescr
     if (activeTab === 'Loss') return type === 'DR' && !isWithdrawDescr
-    if (activeTab === 'Bets') return description.includes('match') || description.includes('odd') || !!tx["4"]
-    if (activeTab === 'Bonus') return description.includes('bonus') || description.includes('offer')
-    
+    if (activeTab === 'Bets') return !!tx["4"]
+    if (activeTab === 'Bonus') return (description.includes('bonus') || description.includes('offer')) && (type === 'CR' || type === 'D')
+
     return true
   })
 
@@ -125,11 +133,10 @@ export default function MyTransactionsPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${
-              activeTab === tab 
-              ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
-              : 'bg-card border-cardBorder text-textMuted hover:text-white hover:border-textMuted'
-            }`}
+            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${activeTab === tab
+                ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
+                : 'bg-card border-cardBorder text-textMuted hover:text-white hover:border-textMuted'
+              }`}
           >
             {tab}
           </button>
@@ -150,7 +157,7 @@ export default function MyTransactionsPage() {
                 <Landmark size={24} />
               </div>
               <p className="text-[11px] text-textMuted uppercase font-black tracking-widest leading-relaxed">
-                No records found<br/><span className="opacity-50 text-[9px]">Check your filters or date range</span>
+                No records found<br /><span className="opacity-50 text-[9px]">Check your filters or date range</span>
               </p>
             </div>
           ) : (
@@ -173,8 +180,8 @@ export default function MyTransactionsPage() {
                   const { icon, color, bg, label } = getCategoryTheme(typeKey, description)
 
                   return (
-                    <tr 
-                      key={idx} 
+                    <tr
+                      key={idx}
                       onClick={() => handleTransactionClick(tx)}
                       className={`group hover:bg-white/[0.02] transition-colors cursor-pointer ${hasGid ? 'active:bg-white/[0.03]' : ''}`}
                     >
@@ -216,7 +223,7 @@ export default function MyTransactionsPage() {
       </div>
 
       <div className="mt-12 text-center">
-        <button 
+        <button
           onClick={() => window.print()}
           className="group flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest text-textMuted hover:text-primary transition-all active:scale-95"
         >
@@ -226,9 +233,9 @@ export default function MyTransactionsPage() {
       </div>
 
       {/* Bet Statement Modal */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title="Bet Statement Detail"
         size="md"
         className="bet-slip-modal-dark"
@@ -242,7 +249,7 @@ export default function MyTransactionsPage() {
           ) : selectedBet?.error === '1' ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto mb-4">
-                 <Landmark size={32} />
+                <Landmark size={32} />
               </div>
               <p className="text-danger uppercase font-black text-[10px] tracking-widest">
                 {selectedBet.msg}
@@ -253,44 +260,44 @@ export default function MyTransactionsPage() {
               {Object.entries(selectedBet || {})
                 .filter(([key]) => !isNaN(Number(key)))
                 .map(([key, bet]: [string, any]) => (
-                <div key={key} className="bg-black/40 p-5 rounded-2xl border border-white/5 space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                    <div className="flex items-center gap-2">
-                       <span className={`w-2 h-2 rounded-full ${bet.Type?.toLowerCase() === 'back' ? 'bg-primary' : 'bg-danger'}`} />
-                       <p className="text-[11px] font-black text-white uppercase tracking-tight truncate max-w-[180px]">
-                         {bet.Game?.replace(/&nbsp;/g, ' ')}
-                       </p>
-                    </div>
-                    <Badge variant={bet.Type?.toLowerCase() === 'back' ? 'primary' : 'danger'} className="text-[8px] px-2 uppercase font-black">
-                      {bet.Type}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-y-4">
-                    <div>
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Selection</p>
-                      <p className="text-[11px] font-bold text-white uppercase">{bet.Selection}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date</p>
-                      <p className="text-[9px] font-medium text-white/60">{bet.Date}</p>
-                    </div>
-                    <div className="flex items-end gap-1">
-                      <div>
-                        <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Rate</p>
-                        <p className="text-[13px] font-black text-primary tracking-tighter">{bet.Rate}</p>
+                  <div key={key} className="bg-black/40 p-5 rounded-2xl border border-white/5 space-y-4">
+                    <div className="flex items-start justify-between border-b border-white/5 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full mt-1 ${bet.Type?.toLowerCase() === 'back' ? 'bg-primary' : 'bg-danger'}`} />
+                        <p className="text-[11px] font-black text-white uppercase tracking-tight leading-relaxed">
+                          {bet.Game?.replace(/&nbsp;/g, ' ')}
+                        </p>
                       </div>
-                      <span className="text-[10px] text-white/20 pb-0.5 font-bold mb-0.5 ml-1">@</span>
+                      <Badge variant={bet.Type?.toLowerCase() === 'back' ? 'primary' : 'danger'} className="text-[8px] px-2 uppercase font-black">
+                        {bet.Type}
+                      </Badge>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Stake</p>
-                      <p className="text-[13px] font-black text-white tracking-tighter">₹{parseFloat(bet.Stake).toLocaleString()}</p>
+
+                    <div className="grid grid-cols-2 gap-y-4">
+                      <div>
+                        <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Selection</p>
+                        <p className="text-[11px] font-bold text-white uppercase">{bet.Selection}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date</p>
+                        <p className="text-[9px] font-medium text-white/60">{bet.Date}</p>
+                      </div>
+                      <div className="flex items-end gap-1">
+                        <div>
+                          <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Rate</p>
+                          <p className="text-[13px] font-black text-primary tracking-tighter">{bet.Rate}</p>
+                        </div>
+                        <span className="text-[10px] text-white/20 pb-0.5 font-bold mb-0.5 ml-1">@</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Stake</p>
+                        <p className="text-[13px] font-black text-white tracking-tighter">₹{parseFloat(bet.Stake).toLocaleString()}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              
-              <button 
+                ))}
+
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="w-full py-4 bg-primary text-white font-black uppercase tracking-widest rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-primary/20 mt-2"
               >
