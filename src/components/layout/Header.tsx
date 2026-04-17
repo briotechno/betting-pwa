@@ -452,7 +452,7 @@ export default function Header() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-0 text-white/80 hover:text-white transition-colors"
+                          className="absolute right-0 text-[#f26522] hover:text-[#e8612c] transition-colors"
                         >
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
