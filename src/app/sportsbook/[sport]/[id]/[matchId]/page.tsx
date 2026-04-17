@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -353,7 +353,7 @@ const MarketTable = ({
                   if (rateData?.suspended === 'Y' || rateData?.suspended === '1' || rateData?.status === 'SUSPENDED') {
                     isMarketSuspended = true
                     suspensionMsg = 'SUSPENDED'
-                  } 
+                  }
                   // Priority 2: no1 and no2 zero check
                   else {
                     const n1 = parseFloat(rateData?.no1 || '0')
@@ -401,9 +401,9 @@ const MarketTable = ({
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
                 suspensionMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
-                const chartVal = (runner.Chart !== undefined && runner.Chart !== null) ? parseFloat(runner.Chart) : 
-                                 (runner.Chart1 !== undefined && runner.Chart1 !== null) ? parseFloat(runner.Chart1) :
-                                 (runner.Chart2 !== undefined && runner.Chart2 !== null) ? parseFloat(runner.Chart2) : null
+                const chartVal = (runner.Chart !== undefined && runner.Chart !== null) ? parseFloat(runner.Chart) :
+                  (runner.Chart1 !== undefined && runner.Chart1 !== null) ? parseFloat(runner.Chart1) :
+                    (runner.Chart2 !== undefined && runner.Chart2 !== null) ? parseFloat(runner.Chart2) : null
                 const hasChart = chartVal !== null && !isNaN(chartVal) && chartVal !== 0
 
                 return (
@@ -414,7 +414,7 @@ const MarketTable = ({
                           <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase flex items-center">
                             {runnerName}
                             {(isFancy || isLine) && (
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onOpenFancyChart?.(mId.toString(), runnerName);
@@ -529,7 +529,7 @@ const MarketTable = ({
                   .map((r: any) => r.Msg || r.msg)
               ].filter(m => m && m !== '')
               const uniqueMsg = Array.from(new Set(allMsgs)).join(' | ')
-              
+
               if (!uniqueMsg) return null;
 
               return (
@@ -579,6 +579,38 @@ export default function GameDetailPage() {
   const [fancyChartLoading, setFancyChartLoading] = useState(false)
   const [fancyChartData, setFancyChartData] = useState<any>(null)
   const [fancyChartTitle, setFancyChartTitle] = useState('')
+  const [scoreboardHtml, setScoreboardHtml] = useState<string | null>(null)
+
+  // TV State
+  const [tvVisible, setTvVisible] = useState(false)
+  const [tvHtml, setTvHtml] = useState<string | null>(null)
+  const [tvLoading, setTvLoading] = useState(false)
+
+  const toggleTv = async () => {
+    if (!tvVisible && !tvHtml) {
+      const eventId = gameData?.Event_Id || gameData?.eventid || matchId;
+      if (!user?.loginToken) {
+        showSnackbar('Please login to watch TV', 'error')
+        return
+      }
+      setTvLoading(true)
+      try {
+        const res = await marketController.getOpenTv(user.loginToken, eventId)
+        if (res.error === '0' && res.data) {
+          setTvHtml(res.data)
+          setTvVisible(true)
+        } else {
+          showSnackbar(res.msg || 'TV not available for this event', 'info')
+        }
+      } catch (err) {
+        showSnackbar('Failed to load TV', 'error')
+      } finally {
+        setTvLoading(false)
+      }
+    } else {
+      setTvVisible(!tvVisible)
+    }
+  }
 
   const openFancyChart = async (eid: string, name: string) => {
     if (!user?.loginToken) {
@@ -726,7 +758,7 @@ export default function GameDetailPage() {
             marketsToPoll.push({
               gid: matchId,
               MarketId: mid.toString(),
-              eventid: matchId,
+              eventid: dataToUse.Event_Id || dataToUse.eventid || matchId,
               gkey: m.gkey || '',
               ekey: m.ekey || ''
             })
@@ -751,7 +783,27 @@ export default function GameDetailPage() {
               }
 
               if (res && typeof res === 'object' && !res.error) {
-                const mid = m.MarketId, ekey = m.ekey, gid = m.gid;
+                const mid = m.MarketId;
+                
+                // Robust extraction of scoreboard HTML
+                // Check multiple possible keys: "2" (3rd), "1" (2nd), "3" (4th)
+                // Check both at root and within the market-specific object
+                const lookupKeys = ["2", "1", "3", 2, 1, 3];
+                let foundHtml = "";
+                
+                for (const k of lookupKeys) {
+                  const val = res[k as any] || (mid && res[mid] && res[mid][k as any]);
+                  if (val && typeof val === 'string' && (val.includes('<div') || val.includes('<style'))) {
+                    foundHtml = val;
+                    break;
+                  }
+                }
+                
+                if (foundHtml && isMounted) {
+                  setScoreboardHtml(foundHtml);
+                }
+
+                const ekey = m.ekey, gid = m.gid;
                 let finalData = null;
 
                 // Enhanced recursive function to find market data by ID
@@ -895,6 +947,21 @@ export default function GameDetailPage() {
                     />
                   )}
                 </button>
+                <button
+                  onClick={toggleTv}
+                  disabled={tvLoading}
+                  className={`ml-2 flex-shrink-0 transition-all ${tvLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
+                  title="Toggle Live TV"
+                >
+                  {tvLoading ? (
+                    <Loader2 size={16} className="text-[#f36c21] animate-spin" />
+                  ) : (
+                    <Tv
+                      size={18}
+                      className={`transition-colors ${tvVisible ? 'text-[#f36c21]' : 'text-white/40'}`}
+                    />
+                  )}
+                </button>
               </div>
               {gameTime && (
                 <span className="text-[10px] text-[#f36c21] font-bold uppercase tracking-wider leading-none mt-0.5 truncate">
@@ -934,43 +1001,76 @@ export default function GameDetailPage() {
           <div className="p-3 lg:p-0">
             {activeTab === 'MARKETS' ? (
               <div className="space-y-4">
-                {/* 1. ODDS Markets */}
-                {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
-                  let runners = m.runner || m.runners || [];
-                  if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
-                })}
+                {(() => {
+                  const gameEventId = gameData?.Event_Id || gameData?.eventid || matchId;
+                  return (
+                    <>
+                      {/* TV HTML */}
+                      {tvVisible && tvHtml && (
+                        <div className="w-full mb-4 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative">
+                          <iframe
+                            srcDoc={tvHtml}
+                            className="w-full h-full border-0"
+                            allowFullScreen
+                            sandbox="allow-scripts allow-same-origin allow-forms"
+                          />
+                          <button 
+                            onClick={() => setTvVisible(false)}
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      )}
 
-                {/* 2. BOOKMAKER Markets */}
-                {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
-                  let runners = m.runner || m.runners || [];
-                  if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
-                })}
+                      {/* Scoreboard HTML */}
+                      {scoreboardHtml && (
+                        <div
+                          className="w-full mb-4 overflow-hidden rounded-xl shadow-lg border border-white/10"
+                          dangerouslySetInnerHTML={{ __html: scoreboardHtml }}
+                        />
+                      )}
 
-                {/* 3. LINE Group */}
-                {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
-                  <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={matchId} onOpenFancyChart={openFancyChart} />
-                )}
+                      {/* 1. ODDS Markets */}
+                      {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
+                        let runners = m.runner || m.runners || [];
+                        if (!Array.isArray(runners)) runners = Object.values(runners);
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                      })}
 
-                {/* 4. FANCY Group */}
-                {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
-                  <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={matchId} onOpenFancyChart={openFancyChart} />
-                )}
+                      {/* 2. BOOKMAKER Markets */}
+                      {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
+                        let runners = m.runner || m.runners || [];
+                        if (!Array.isArray(runners)) runners = Object.values(runners);
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                      })}
 
-                {/* 4. EXTRA Markets (e.g. Tied Match) */}
-                {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
-                  let runners = m.runner || m.runners || [];
-                  if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
-                })}
+                      {/* 3. LINE Group */}
+                      {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
+                        <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={gameEventId} onOpenFancyChart={openFancyChart} />
+                      )}
 
-                {/* 5. Others */}
-                {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA'].includes(m.category)).map((m: any, mIdx: number) => {
-                  let runners = m.runner || m.runners || [];
-                  if (!Array.isArray(runners)) runners = Object.values(runners);
-                  return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={m.eid || matchId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
-                })}
+                      {/* 4. FANCY Group */}
+                      {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
+                        <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={gameEventId} onOpenFancyChart={openFancyChart} />
+                      )}
+
+                      {/* 4. EXTRA Markets (e.g. Tied Match) */}
+                      {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
+                        let runners = m.runner || m.runners || [];
+                        if (!Array.isArray(runners)) runners = Object.values(runners);
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                      })}
+
+                      {/* 5. Others */}
+                      {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA'].includes(m.category)).map((m: any, mIdx: number) => {
+                        let runners = m.runner || m.runners || [];
+                        if (!Array.isArray(runners)) runners = Object.values(runners);
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                      })}
+                    </>
+                  )
+                })()}
               </div>
             ) : (
               <div className="space-y-4 pt-2">

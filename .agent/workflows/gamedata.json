@@ -1,416 +1,164 @@
 {
-    "0": {
-        "gid": "16961",
-        "Team1": "Punjab Kings",
-        "Team2": "Sunrisers Hyderabad",
-        "Team3": "",
-        "DateTime": "2026-04-11 15:30:00",
-        "Event_Id": "35460133",
-        "channel": "",
-        "events": {
-            "0": {
-                "eid": "367706",
-                "name": "Match ODD-Live",
-                "Event_Type": "Cricket",
-                "Type": "ODDS",
-                "active": "Yes",
-                "min": "100",
-                "max": "500000",
-                "MarketId": "1.256390866",
-                "Msg": null,
-                "gkey": "",
-                "ekey": "",
-                "SubType": "",
-                "runners": {
-                    "0": {
-                        "RunnerName": "Punjab Kings"
-                    },
-                    "1": {
-                        "RunnerName": "Sunrisers Hyderabad"
-                    }
+    "gid": "17180",
+    "Team1": "Bangladesh",
+    "Team2": "New Zealand",
+    "Team3": "",
+    "DateTime": "2026-04-17 10:30:00",
+    "Event_Id": "35476124",
+    "channel": "",
+    "events": {
+        "0": {
+            "eid": "372122",
+            "name": "Match ODD-Live",
+            "Event_Type": "Cricket",
+            "Type": "ODDS",
+            "active": "Yes",
+            "min": "100",
+            "max": "50000",
+            "MarketId": "1.256594918",
+            "Msg": "IPL 2026 WINNER BOOKMAKER & FANCY BETTING STARTED !",
+            "gkey": "",
+            "ekey": "",
+            "SubType": "",
+            "Chart1": null,
+            "Chart2": null,
+            "runners": {
+                "0": {
+                    "RunnerName": "Bangladesh",
+                    "Chart": null
+                },
+                "1": {
+                    "RunnerName": "New Zealand",
+                    "Chart": null
                 }
-            },
-            "1": {
-                "eid": "367892",
-                "name": "Bookmaker 0 Commission",
-                "Type": "BOOKMAKER",
-                "active": "Yes",
-                "min": "100",
-                "max": "1000000",
-                "MarketId": "",
-                "Msg": "Think smart, bet smarter — this match is going all the way! , Think smart, bet smarter — this match is going all the way!",
-                "gkey": "16961",
-                "ekey": "43788022",
-                "SubType": "",
-                "runners": {
-                    "0": {
-                        "RunnerName": "Punjab Kings"
-                    },
-                    "1": {
-                        "RunnerName": "Sunrisers Hyderabad"
-                    }
+            }
+        },
+        "1": {
+            "eid": "372123",
+            "name": "Match ODD-Book Maker",
+            "Type": "BOOKMAKER",
+            "active": "Yes",
+            "min": "100",
+            "max": "500000",
+            "MarketId": "",
+            "Msg": "IPL : GT v KKR ADVANCE BETTING STARTED !",
+            "gkey": "17180",
+            "ekey": "28604",
+            "SubType": "",
+            "Chart1": "-4.60",
+            "Chart2": "-5.00",
+            "runners": {
+                "0": {
+                    "RunnerName": "Bangladesh",
+                    "Chart": "-4.60"
+                },
+                "1": {
+                    "RunnerName": "New Zealand",
+                    "Chart": "-5.00"
                 }
-            },
-            "2": {
-                "eid": "372310",
-                "name": "Special Maker",
-                "Type": "BOOKMAKER",
-                "active": "Yes",
-                "min": "100",
-                "max": "300000",
-                "MarketId": "",
-                "Msg": "IPL Winner Cup Bookmaker Bets Started In Our Exchange 💫💫💫",
-                "gkey": "16961",
-                "ekey": "43790514",
-                "SubType": "",
-                "runners": {
-                    "0": {
-                        "RunnerName": "Punjab Kings"
-                    },
-                    "1": {
-                        "RunnerName": "Sunrisers Hyderabad"
-                    }
+            }
+        },
+        "2": {
+            "eid": "375742",
+            "name": "MINI BOOKMAKER",
+            "Type": "BOOKMAKER",
+            "active": "Yes",
+            "min": "100",
+            "max": "100000",
+            "MarketId": "",
+            "Msg": "PSL : LQ v QG ADVANCE BETTING STARTED !",
+            "gkey": "17180",
+            "ekey": "28605",
+            "SubType": "",
+            "Chart1": null,
+            "Chart2": null,
+            "runners": {
+                "0": {
+                    "RunnerName": "Bangladesh",
+                    "Chart": null
+                },
+                "1": {
+                    "RunnerName": "New Zealand",
+                    "Chart": null
                 }
-            },
-            "3": {
-                "eid": "372311",
-                "name": "6 Over Bookmaker  PK VS SRH",
-                "Type": "BOOKMAKER",
-                "active": "Yes",
-                "min": "100",
-                "max": "200000",
-                "MarketId": "",
-                "Msg": "1️⃣106 Runs Target For PK in 6 Over..2️⃣ If both the teams score same runs in 6 overs the team that first bated will be declared as the winner... Fancy , 1️⃣106 Runs Target For PK in 6 Over..2️⃣ If both the teams score same runs in 6 overs the team that first bated will be declared as the winner...",
-                "gkey": "16961",
-                "ekey": "43790515",
-                "SubType": "",
-                "runners": {
-                    "0": {
-                        "RunnerName": "Punjab Kings"
-                    },
-                    "1": {
-                        "RunnerName": "Sunrisers Hyderabad"
-                    }
-                }
-            },
-            "4": {
-                "eid": "370913",
-                "name": "1st Innings 15 Overs Line",
-                "Type": "LINE",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "1.256390878",
-                "Msg": null,
-                "gkey": "",
-                "ekey": "",
-                "SubType": ""
-            },
-            "5": {
-                "eid": "370899",
-                "name": "1st Innings 20 Overs Line",
-                "Type": "LINE",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "1.256390880",
-                "Msg": null,
-                "gkey": "",
-                "ekey": "",
-                "SubType": ""
-            },
-            "6": {
-                "eid": "372579",
-                "name": "3rd WKT Lost To SRH Balls",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954832",
-                "SubType": "BATSMAN"
-            },
-            "7": {
-                "eid": "372642",
-                "name": "14.3 Over SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954774",
-                "SubType": "OVERS"
-            },
-            "8": {
-                "eid": "372639",
-                "name": "16th Over Runs Only SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954804",
-                "SubType": "SINGLE_OVER"
-            },
-            "9": {
-                "eid": "372638",
-                "name": "16 Over SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954756",
-                "SubType": "OVERS"
-            },
-            "10": {
-                "eid": "372631",
-                "name": "15th Over Runs Only SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954803",
-                "SubType": "SINGLE_OVER"
-            },
-            "11": {
-                "eid": "372630",
-                "name": "14 Over SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954755",
-                "SubType": "OVERS"
-            },
-            "12": {
-                "eid": "372586",
-                "name": "H Klaasen Run Bhav",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954857",
-                "SubType": "BATSMAN"
-            },
-            "13": {
-                "eid": "372585",
-                "name": "H Klaasen Runs",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954856",
-                "SubType": "BATSMAN"
-            },
-            "14": {
-                "eid": "372582",
-                "name": "H.M.B Face By H Klaasen",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954859",
-                "SubType": "BATSMAN"
-            },
-            "15": {
-                "eid": "372581",
-                "name": "H Klaasen Boundaries",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954858",
-                "SubType": "BATSMAN"
-            },
-            "16": {
-                "eid": "372580",
-                "name": "3rd Wkt SRH Run Bhav",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954818",
-                "SubType": "BATSMAN"
-            },
-            "17": {
-                "eid": "372317",
-                "name": "20 Over SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954742",
-                "SubType": "OVERS"
-            },
-            "18": {
-                "eid": "372577",
-                "name": "3rd WKT Pship Boundaries SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954825",
-                "SubType": "BATSMAN"
-            },
-            "19": {
-                "eid": "372576",
-                "name": "3rd WKT Caught Out SRH @ 1",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954839",
-                "SubType": "BATSMAN"
-            },
-            "20": {
-                "eid": "372570",
-                "name": "H.M.B Face By Kishan",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954855",
-                "SubType": "BATSMAN"
-            },
-            "21": {
-                "eid": "372569",
-                "name": "Kishan Boundaries",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954854",
-                "SubType": "BATSMAN"
-            },
-            "22": {
-                "eid": "372568",
-                "name": "Kishan Run Bhav",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954853",
-                "SubType": "BATSMAN"
-            },
-            "23": {
-                "eid": "372565",
-                "name": "Kishan Runs",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954852",
-                "SubType": "BATSMAN"
-            },
-            "24": {
-                "eid": "372552",
-                "name": "15 Over SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "0",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954741",
-                "SubType": "OVERS"
-            },
-            "25": {
-                "eid": "372551",
-                "name": "15 Over SRH 1",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "43790570",
-                "SubType": "OVERS"
-            },
-            "26": {
-                "eid": "372355",
-                "name": "1st 3 Wkt SRH",
-                "Type": "FANCY",
-                "active": "Yes",
-                "min": "100",
-                "max": "100000",
-                "MarketId": "",
-                "Msg": null,
-                "gkey": "16961",
-                "ekey": "2954811",
-                "SubType": "BATSMAN"
-            },
-            "27": {
-                "eid": "370898",
-                "name": "Tied Match",
-                "Type": "EXTRA",
-                "active": "Yes",
-                "min": "100",
-                "max": "25000",
-                "MarketId": "1.256390868",
-                "Msg": null,
-                "gkey": "",
-                "ekey": "",
-                "SubType": "",
-                "runners": {
-                    "0": {
-                        "RunnerName": "Yes"
-                    },
-                    "1": {
-                        "RunnerName": "No"
-                    }
+            }
+        },
+        "3": {
+            "eid": "380901",
+            "name": "2nd Innings 40 Overs Line",
+            "Type": "LINE",
+            "active": "Yes",
+            "min": "100",
+            "max": "100000",
+            "MarketId": "1.256594988",
+            "Msg": null,
+            "gkey": "",
+            "ekey": "",
+            "SubType": "",
+            "Chart1": null
+        },
+        "4": {
+            "eid": "382490",
+            "name": "40 Over BAN",
+            "Type": "FANCY",
+            "active": "Yes",
+            "min": "100",
+            "max": "100000",
+            "MarketId": "",
+            "Msg": null,
+            "gkey": "17180",
+            "ekey": "5148703",
+            "SubType": "OVERS",
+            "Chart1": null
+        },
+        "5": {
+            "eid": "382543",
+            "name": "Only 41st Over BAN",
+            "Type": "FANCY",
+            "active": "Yes",
+            "min": "100",
+            "max": "100000",
+            "MarketId": "",
+            "Msg": null,
+            "gkey": "17180",
+            "ekey": "5148003",
+            "SubType": "OVERS",
+            "Chart1": null
+        },
+        "6": {
+            "eid": "382538",
+            "name": "39.3 Over BAN",
+            "Type": "FANCY",
+            "active": "Yes",
+            "min": "100",
+            "max": "100000",
+            "MarketId": "",
+            "Msg": null,
+            "gkey": "17180",
+            "ekey": "5148181",
+            "SubType": "OVERS",
+            "Chart1": null
+        },
+        "7": {
+            "eid": "380899",
+            "name": "Tied Match",
+            "Type": "EXTRA",
+            "active": "Yes",
+            "min": "100",
+            "max": "25000",
+            "MarketId": "1.256594921",
+            "Msg": null,
+            "gkey": "",
+            "ekey": "",
+            "SubType": "",
+            "runners": {
+                "0": {
+                    "RunnerName": "Yes",
+                    "Chart": null
+                },
+                "1": {
+                    "RunnerName": "No",
+                    "Chart": null
                 }
             }
         }

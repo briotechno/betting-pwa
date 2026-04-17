@@ -1,13 +1,10 @@
 Line bet value swapped 
 tied bet placing 
 sccorbord and Tv implemetation [ evnet id wrong ]
-unmatch ma cancle no option 
 bet placing message add bet price and odd 
 football goal api 
 withdral usdt [ kevin side thi baki]
 cashout [ match odd and bookmaker 2 team ]
-bet place calculation  
-sidi nu nishan in fancy bet and show data 
 confirm bet wrong odd or value 
 layout fix bet container when scroll
 
@@ -15,11 +12,11 @@ layout fix bet container when scroll
 
 ----
 Bookmaker 
-amount x rate / 100 : back  then profit , lay the lib
+if back - profit :dds x stake / 100 : back    lay : Liability:dds x stake / 100
 
 oddextra , goal 
-amount - 1 x rate : same above 
+odd - 1 x stake  same back is profit and lay is Liability
 
 fancy and line  
-rate -  lib 
+   Liability: stake
 

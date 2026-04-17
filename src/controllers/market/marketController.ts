@@ -109,10 +109,11 @@ export const marketController = {
   },
 
   /**
-   * Get home page marketing banners
-   * @param type Banner type (usually 'Web')
+   * Get Live TV stream HTML
+   * @param loginToken The encrypted session token
+   * @param eventId The event ID
    */
-  getHomeBanners: async (type: string = 'Web'): Promise<ApiResponse> => {
-    return await fetchAPI('/homebanners', { Type: type });
+  getOpenTv: async (loginToken: string, eventId: string): Promise<ApiResponse> => {
+    return await fetchAPI('/opentv', { LoginToken: loginToken, Event_Id: eventId });
   },
 };
