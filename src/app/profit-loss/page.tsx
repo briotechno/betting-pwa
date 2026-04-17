@@ -5,14 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, Calendar, X 
 import { useAuthStore } from '@/store/authStore'
 import { userController } from '@/controllers/user/userController'
 
-const GAME_OPTIONS = [
-  'All',
-  'Live Casino',
-  'Sportsbook',
-  'Card Games',
-  'Premium Sportsbook',
-  'Racing'
-]
+
 
 const MarketCalendar = ({ 
   tempStartDate, 
@@ -110,6 +103,17 @@ export default function ProfitLossPage() {
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
+  const gameOptions = React.useMemo(() => {
+    const types = results.map(item => item.Type).filter(Boolean)
+    return ['All', ...Array.from(new Set(types))]
+  }, [results])
+
+  useEffect(() => {
+    if (!gameOptions.includes(selectedGame)) {
+      setSelectedGame('All')
+    }
+  }, [gameOptions, selectedGame])
+
   const formatDateLabel = (date: Date) => {
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   }
@@ -150,9 +154,7 @@ export default function ProfitLossPage() {
 
   const filteredResults = results.filter(item => {
     if (selectedGame === 'All') return true
-    const name = (item.GameName || '').toLowerCase()
-    const game = selectedGame.toLowerCase()
-    return name.includes(game)
+    return item.Type === selectedGame
   })
 
   const totalPL = results.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
@@ -187,7 +189,7 @@ export default function ProfitLossPage() {
                   
                   {isGameDropdownOpen && (
                     <div className="absolute top-[42px] left-0 right-0 bg-[#222] border border-white/10 rounded-lg overflow-hidden z-[60] shadow-2xl">
-                      {GAME_OPTIONS.map((opt) => (
+                      {gameOptions.map((opt: any) => (
                         <div key={opt} onClick={() => { setSelectedGame(opt); setIsGameDropdownOpen(false); }}
                           className={`px-4 py-3 text-[13px] hover:bg-[#282828] cursor-pointer transition-colors ${selectedGame === opt ? 'bg-[#4a2618] text-[#e8612c] font-bold' : 'text-gray-300'}`}>
                           {opt}
