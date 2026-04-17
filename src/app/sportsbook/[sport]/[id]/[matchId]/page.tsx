@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -492,29 +492,12 @@ const MarketTable = ({
                         </div>
                       </td>
                     </tr>
-                    {/* Message Row */}
-                    {rowMsg && rowMsg !== '' && (
-                      <tr className="bg-gray-50/30">
-                        <td colSpan={2} className="py-1.5 px-3 lg:px-4">
-                          <div className="flex items-center gap-2 overflow-hidden h-5">
-                             <div className="w-1.5 h-1.5 rounded-full bg-[#f36c21] flex-shrink-0 z-10 shadow-sm" />
-                             <div className="relative flex-1 overflow-hidden pointer-events-none">
-                               <div className="whitespace-nowrap animate-ticker">
-                                 <span className="text-[10px] lg:text-[11px] font-bold text-gray-500 italic uppercase tracking-wider">
-                                   {rowMsg}
-                                 </span>
-                               </div>
-                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
                     {isSelectedOnMobile && selections[0] && (
                       <tr
                         ref={betslipRowRef}
                         className="lg:hidden animate-in slide-in-from-top-4 duration-300"
                       >
-                        <td colSpan={2} className="p-2 pt-0 bg-white">
+                        <td colSpan={2} className="p-2 pt-0 bg-white border-b border-black/30">
                           <BetSlipForm selection={selections[0]} onClose={clearAll} />
                         </td>
                       </tr>
@@ -523,6 +506,36 @@ const MarketTable = ({
                 )
               })}
             </tbody>
+            {/* Unified Table Message at the bottom */}
+            {(() => {
+              const allMsgs = [
+                msg,
+                ...(Array.isArray(runners) ? runners : Object.values(runners || {}))
+                  .map((r: any) => r.Msg || r.msg)
+              ].filter(m => m && m !== '')
+              const uniqueMsg = Array.from(new Set(allMsgs)).join(' | ')
+              
+              if (!uniqueMsg) return null;
+
+              return (
+                <tfoot>
+                  <tr className="bg-[#111] border-t border-white/5">
+                    <td colSpan={2} className="py-1 px-3 lg:px-4">
+                      <div className="flex items-center gap-3 overflow-hidden h-6">
+                        <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                        <div className="relative flex-1 overflow-hidden pointer-events-none">
+                          <div className="whitespace-nowrap animate-ticker">
+                            <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
+                              {uniqueMsg}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
+              )
+            })()}
           </table>
         </div>
       )}

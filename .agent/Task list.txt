@@ -13,7 +13,6 @@ casino ifram has error
 preimum sportbook refresh again and agbain issue 
 ball running and suspend tag width 
 confirm bet wrong odd or value 
-message which is below the table row check [ ambika check ]
+16: message which is below the table row check [ ambika check ] - done
 my bets check the only winner is showing 
 layout fix bet container when scroll
-19: default open - open bet not bet slip - done
