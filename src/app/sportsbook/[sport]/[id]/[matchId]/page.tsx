@@ -399,7 +399,9 @@ const MarketTable = ({
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
                 suspensionMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
-                const chartVal = runner.Chart !== undefined && runner.Chart !== null ? parseFloat(runner.Chart) : null
+                const chartVal = (runner.Chart !== undefined && runner.Chart !== null) ? parseFloat(runner.Chart) : 
+                                 (runner.Chart1 !== undefined && runner.Chart1 !== null) ? parseFloat(runner.Chart1) :
+                                 (runner.Chart2 !== undefined && runner.Chart2 !== null) ? parseFloat(runner.Chart2) : null
                 const hasChart = chartVal !== null && !isNaN(chartVal) && chartVal !== 0
 
                 return (
