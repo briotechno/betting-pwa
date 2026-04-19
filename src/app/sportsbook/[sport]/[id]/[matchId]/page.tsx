@@ -276,7 +276,7 @@ const MarketTable = ({
             </span>
           </div>
         </div>
-        <div className="flex-1 h-full flex items-center justify-center">
+        <div className="hidden lg:flex flex-1 h-full items-center justify-center">
           {(min !== undefined && max !== undefined) && (
             <div className="flex items-center gap-2">
               <span className="text-[10px] lg:text-[12px] font-black text-black/40 uppercase tracking-widest">Min:</span>
@@ -314,6 +314,14 @@ const MarketTable = ({
       <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
         <div className="flex items-center gap-2">
           {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></span>}
+          {(min !== undefined && max !== undefined) && (
+            <div className="flex lg:hidden items-center gap-1.5 ml-1">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Min:</span>
+              <span className="text-[10px] font-black text-white mr-1.5">{min}</span>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Max:</span>
+              <span className="text-[10px] font-black text-white">{max}</span>
+            </div>
+          )}
         </div>
         <div className="flex md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
           {/* BACK / NO Group */}
@@ -1182,7 +1190,7 @@ export default function GameDetailPage() {
         </div>
       </div>
       {user && (
-        <div className="hidden lg:block w-[480px] sticky top-[80px] max-h-[calc(100vh-100px)] overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
+        <div className="hidden lg:block w-[480px] sticky top-0 max-h-screen overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
           <BetContainer matchId={matchId} />
         </div>
       )}

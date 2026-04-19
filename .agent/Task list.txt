@@ -1,12 +1,8 @@
 Line bet value swapped 
 tied bet placing 
-sccorbord and Tv implemetation [ evnet id wrong ]
-bet placing message add bet price and odd 
 football goal api 
-withdral usdt [ kevin side thi baki]
 cashout [ match odd and bookmaker 2 team ]
 confirm bet wrong odd or value 
-layout fix bet container when scroll
 
 
 
