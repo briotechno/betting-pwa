@@ -228,9 +228,23 @@ export default function Sidebar() {
           const type = (m.Type || m.sportname || '').toLowerCase()
           // Dynamically match against all sports in our games list
           games.forEach(g => {
+            // Skip counting for Table Tennis as it's a redirect
+            if (g.name === "Table Tennis") return;
+
             const gameNameLower = g.name.toLowerCase()
-            let isMatch = type.includes(gameNameLower) || gameNameLower.includes(type)
-            
+            let isMatch = false
+
+            if (type === gameNameLower) {
+              isMatch = true
+            } else if (type.includes(gameNameLower)) {
+              // Prevent "Table Tennis" match types from matching regular "Tennis"
+              if (gameNameLower === 'tennis' && type.includes('table tennis')) {
+                isMatch = false
+              } else {
+                isMatch = true
+              }
+            }
+
             // Special cases
             if (!isMatch) {
               if (gameNameLower === 'football' && type === 'soccer') isMatch = true
@@ -281,7 +295,7 @@ export default function Sidebar() {
             else if (res && typeof res === 'object' && !res.error) setDynamicLeagues(Object.values(res))
           }
         } catch (error) {
-           console.error(error)
+          console.error(error)
         } finally {
           if (isMounted) setLoadingLeagues(false)
         }
@@ -312,7 +326,7 @@ export default function Sidebar() {
             setCompetitionGames(matchData)
           }
         } catch (error) {
-           console.error(error)
+          console.error(error)
         } finally {
           if (isMounted) setLoadingGames(false)
         }
@@ -358,10 +372,10 @@ export default function Sidebar() {
               {/* Selected Sport Highlighted */}
               <div className="flex items-center gap-4 px-4 h-[52px] border-b border-[#333] bg-[#e8612c] text-white">
                 <div className="w-7 h-7 flex items-center justify-center shrink-0">
-                  <img 
-                    src={activeSportData?.image || 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png'} 
-                    alt={currentSport || ''} 
-                    className="w-full h-full object-contain brightness-0 invert" 
+                  <img
+                    src={activeSportData?.image || 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png'}
+                    alt={currentSport || ''}
+                    className="w-full h-full object-contain brightness-0 invert"
                   />
                 </div>
                 <span className="text-[13px] font-medium tracking-wide uppercase">{currentSport}</span>
@@ -392,8 +406,8 @@ export default function Sidebar() {
                       competitionGames.map((game, idx) => {
                         const gameName = game.Team1 && game.Team2 ? `${game.Team1} V ${game.Team2}` : (game.Game_name || 'Game');
                         return (
-                          <Link 
-                            key={game.gid || game.Event_Id || idx} 
+                          <Link
+                            key={game.gid || game.Event_Id || idx}
                             href={`/sportsbook/${currentSport}/${competitionId}/${game.gid || game.Event_Id}`}
                             className="px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 block truncate"
                           >
@@ -414,7 +428,7 @@ export default function Sidebar() {
                     <Loader2 className="animate-spin text-[#e8612c]" size={24} />
                   </div>
                 ) : dynamicLeagues.map((league: any, idx) => (
-                  <Link 
+                  <Link
                     key={league.CompetitionCode || idx}
                     href={`/sportsbook/${currentSport}/${league.CompetitionCode}`}
                     className="block px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 truncate"
@@ -433,14 +447,13 @@ export default function Sidebar() {
               <Link
                 key={game.id}
                 href={game.link}
-                className={`flex items-center gap-4 px-4 h-[52px] border-b border-[#333] transition-all relative group ${
-                  isActive ? 'bg-[#e8612c] text-white' : 'text-[#efefef] hover:bg-[#252525]'
-                }`}
+                className={`flex items-center gap-4 px-4 h-[52px] border-b border-[#333] transition-all relative group ${isActive ? 'bg-[#e8612c] text-white' : 'text-[#efefef] hover:bg-[#252525]'
+                  }`}
               >
                 <div className="w-7 h-7 flex items-center justify-center shrink-0">
-                  <img 
-                    src={game.image} 
-                    alt={game.name} 
+                  <img
+                    src={game.image}
+                    alt={game.name}
                     className={`w-full h-full object-contain ${isActive ? 'brightness-0 invert' : ''}`}
                     onError={(e) => {
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${game.name}&background=random`
@@ -469,11 +482,11 @@ export default function Sidebar() {
             className="w-full flex items-center gap-4 px-4 h-[52px] border-b border-[#333] text-[#efefef] hover:bg-[#252525] transition-all"
           >
             <div className="w-7 h-7 flex items-center justify-center shrink-0 bg-[#e8612c] rounded-full">
-               <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                   <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                 </svg>
-               </div>
+              <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
             </div>
             <span className="text-[13px] font-medium tracking-wide">
               {isExpanded ? 'View less' : 'View more'}
