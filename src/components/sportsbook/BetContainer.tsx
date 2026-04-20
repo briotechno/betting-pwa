@@ -159,6 +159,8 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
             res = await bettingController.placeLineBet({
               ...common,
               Eid: selection.marketId,
+              Amount: common.Amount.toString(),
+              Rate: common.Rate.toString(),
               Type: betTypeChar
             })
             break

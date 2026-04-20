@@ -281,7 +281,7 @@ const MarketTable = ({
                     selectionName: runnerName,
                     odds: parseFloat(odds),
                     betType: side,
-                    marketType: (isBookmaker ? 'BOOKMAKER' : (isFancy ? 'FANCY' : 'ODDS')),
+                    marketType: (isBookmaker ? 'BOOKMAKER' : (marketName.toLowerCase().includes('line') ? 'LINE' : (isFancy ? 'FANCY' : 'ODDS'))),
                     marketIndex: rIdx,
                     runnersCount: runners.length
                   })
@@ -570,11 +570,14 @@ export default function CompetitionDetailPage() {
           // Use the specific eid from the market if available, else match gid
           const eventIdToUse = m.eid || g.Event_Id || gid.toString();
 
+          const isSpecial = m.category === 'FANCY' || m.category === 'LINE' || m.category === 'BOOKMAKER' || (m.name || m.MarketName || '').toLowerCase().includes('line');
+          const bestId = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
+
           sections.push({
-            id: m.MarketId || m.marketid || m.eid,
+            id: bestId,
             marketName: m.name || m.MarketName || m.marketname || g.Game_Type || 'Match Odds',
             runners,
-            marketId: m.MarketId || m.marketid || m.eid,
+            marketId: bestId,
             isUpcoming,
             startTime: g.DateTime,
             isWinnerType: g.Game_Type === 'Winner' || m.name === 'Winner',

@@ -118,6 +118,8 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             res = await bettingController.placeLineBet({
               ...common,
               Eid: selection.marketId, // Use MarketId as Eid
+              Amount: common.Amount.toString(),
+              Rate: common.Rate.toString(),
               Type: betTypeChar
             })
             break

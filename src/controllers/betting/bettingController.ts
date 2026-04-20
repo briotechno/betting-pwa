@@ -69,7 +69,14 @@ export const bettingController = {
   /**
    * Place line market bet
    */
-  placeLineBet: async (data: any): Promise<ApiResponse> => {
+  placeLineBet: async (data: {
+    LoginToken: string;
+    Eid: string;
+    Amount: string | number;
+    Rate: string | number;
+    Type: 'B' | 'L';
+    IP: string;
+  }): Promise<ApiResponse> => {
     return await fetchAPI('/dealline', data);
   },
 

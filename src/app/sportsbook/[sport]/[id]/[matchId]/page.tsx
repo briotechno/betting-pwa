@@ -362,7 +362,7 @@ const MarketTable = ({
             </colgroup>
             <tbody className="divide-y divide-black/30">
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
-                const mId = isFancyGroup ? (runner.MarketId || runner.marketid || runner.eid) : marketId
+                const mId = isFancyGroup ? (runner.eid || runner.MarketId || runner.marketid) : marketId
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
                 const rateData = liveRates[mId]
@@ -428,7 +428,7 @@ const MarketTable = ({
                     selectionName: isFancyGroup ? (side === 'back' ? 'Yes' : 'No') : runnerName,
                     odds: parseFloat(odds),
                     betType: side,
-                    marketType: isFancyGroup ? 'FANCY' : (marketType || 'ODDS'),
+                    marketType: (marketName.toUpperCase() === 'LINE MARKET' || marketType === 'LINE' || (isFancyGroup && marketName.toLowerCase().includes('line'))) ? 'LINE' : (isFancyGroup ? 'FANCY' : (marketType || 'ODDS')),
                     marketIndex: rIdx,
                     runnersCount: (Array.isArray(runners) ? runners.length : Object.keys(runners || {}).length),
                     noVal: parseFloat(lay.v1 || '100'),
@@ -882,7 +882,8 @@ export default function GameDetailPage() {
         const items = dataToUse[cat] || []
         const itemArr = Array.isArray(items) ? items : Object.values(items)
         itemArr.forEach((m: any) => {
-          const mid = m.MarketId || m.marketid || m.eid
+          const isSpecial = ['LINE', 'FANCY', 'BOOKMAKER', 'EXTRA', 'GOAL'].includes(m.category) || (m.Type || '').toUpperCase() === 'FANCY' || (m.name || '').toLowerCase().includes('line');
+          const mid = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid)
           if (mid) {
             marketsToPoll.push({
               gid: matchId,
@@ -1033,10 +1034,10 @@ export default function GameDetailPage() {
         .map((m: any) => ({ ...m, category: 'BOOKMAKER' })) : []),
       ...(gameData.FANCY ? (Array.isArray(gameData.FANCY) ? gameData.FANCY : Object.values(gameData.FANCY))
         .filter((m: any) => m && m.active !== 'No')
-        .map((m: any) => ({ ...m, category: 'FANCY' })) : []),
+        .map((m: any) => ({ ...m, category: (m.name || m.MarketName || '').toLowerCase().includes('line') ? 'LINE' : 'FANCY' })) : []),
       ...(gameData.events ? (Array.isArray(gameData.events) ? gameData.events : Object.values(gameData.events))
         .filter((m: any) => m && m.active !== 'No')
-        .map((m: any) => ({ ...m, category: m.Type || 'ODDS' })) : []),
+        .map((m: any) => ({ ...m, category: (m.Type || 'ODDS').toUpperCase() === 'FANCY' && (m.name || m.MarketName || '').toLowerCase().includes('line') ? 'LINE' : (m.Type || 'ODDS') })) : []),
       ...(gameData.LINE ? (Array.isArray(gameData.LINE) ? gameData.LINE : Object.values(gameData.LINE))
         .filter((m: any) => m && m.active !== 'No')
         .map((m: any) => ({ ...m, category: 'LINE' })) : []),
@@ -1046,8 +1047,14 @@ export default function GameDetailPage() {
     ]
     return raw.filter((m, i, self) => {
       if (!m) return false;
-      const uid = (m.MarketId || m.marketid || m.eid) + '-' + (m.eid || i);
-      return self.findIndex(t => ((t.MarketId || t.marketid || t.eid) + '-' + (t.eid || self.indexOf(t))) === uid) === i;
+      const isSpecial = m.category === 'LINE' || m.category === 'FANCY' || m.category === 'BOOKMAKER' || m.category === 'EXTRA' || m.category === 'GOAL';
+      const bestId = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
+      const uid = bestId + '-' + (m.eid || i);
+      return self.findIndex(t => {
+        const tIsSpecial = t.category === 'LINE' || t.category === 'FANCY' || t.category === 'BOOKMAKER' || t.category === 'EXTRA' || t.category === 'GOAL';
+        const tBestId = tIsSpecial ? (t.eid || t.MarketId || t.marketid) : (t.MarketId || t.marketid || t.eid);
+        return (tBestId + '-' + (t.eid || self.indexOf(t))) === uid;
+      }) === i;
     })
   }, [gameData]);
 
@@ -1173,7 +1180,8 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
+                        const mId = m.eid || m.MarketId || m.marketid;
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 3. LINE Group */}
@@ -1190,21 +1198,25 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        const mId = m.eid || m.MarketId || m.marketid;
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
 
                       {/* 5. GOAL Markets (e.g. Over/Under Goals) */}
                       {allMarkets.filter(m => m.category === 'GOAL').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        const mId = m.eid || m.MarketId || m.marketid;
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
 
                       {/* 6. Others */}
                       {allMarkets.filter(m => !['ODDS', 'BOOKMAKER', 'FANCY', 'EXTRA', 'GOAL'].includes(m.category)).map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || m.category} runners={runners} marketId={m.MarketId || m.eid || m.marketid} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        const isLineOrFancy = m.category === 'LINE' || m.category === 'FANCY';
+                        const mId = isLineOrFancy ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
+                        return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
                     </>
                   )
