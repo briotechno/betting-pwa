@@ -1,5 +1,4 @@
 Line bet value swapped 
-tied bet placing 
 football goal api 
 cashout [ match odd and bookmaker 2 team ]
 confirm bet wrong odd or value 

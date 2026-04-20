@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv, AlertCircle } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -620,6 +620,43 @@ export default function GameDetailPage() {
   const [scoreboardHtml, setScoreboardHtml] = useState<string | null>(null)
   const [cashoutLoading, setCashoutLoading] = useState<string | null>(null)
   const [betsLoading, setBetsLoading] = useState(false)
+  const groupedChartData = useMemo(() => {
+    if (!fancyChartData || typeof fancyChartData !== 'object' || fancyChartData.error) return [];
+    
+    // API returns numeric keys as strings
+    const keys = Object.keys(fancyChartData)
+      .filter(k => !isNaN(parseInt(k)))
+      .sort((a, b) => parseInt(a) - parseInt(b));
+      
+    if (keys.length === 0) return [];
+
+    const result = [];
+    let startKey = keys[0];
+    let currentValue = fancyChartData[startKey];
+
+    for (let i = 1; i < keys.length; i++) {
+      const key = keys[i];
+      const val = fancyChartData[key];
+
+      if (val !== currentValue) {
+        const endKey = keys[i - 1];
+        result.push({
+          run: startKey === endKey ? startKey : `${startKey} - ${endKey}`,
+          position: currentValue
+        });
+        startKey = key;
+        currentValue = val;
+      }
+    }
+
+    const lastKey = keys[keys.length - 1];
+    result.push({
+      run: startKey === lastKey ? startKey : `${startKey} - ${lastKey}`,
+      position: currentValue
+    });
+
+    return result;
+  }, [fancyChartData]);
 
   const { addSelection, setStake, clearAll } = useBetSlipStore()
 
@@ -1220,18 +1257,45 @@ export default function GameDetailPage() {
                   <div className="w-10 h-10 border-4 border-[#f36c21]/20 border-t-[#f36c21] rounded-full animate-spin mb-4" />
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Fetching Ladder Data...</p>
                 </div>
+              ) : fancyChartData?.error === '1' ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <AlertCircle size={32} className="text-red-500 mb-2 opacity-20" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{fancyChartData.msg || 'Failed to load chart'}</p>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-black/40 p-4 rounded-xl border border-white/5">
-                    <p className="text-gray-400 text-[11px] font-bold text-center mb-2 uppercase">Ladder Response Received</p>
-                    <div className="bg-black/20 p-3 rounded-lg overflow-auto max-h-[300px]">
-                      <pre className="text-[10px] text-green-400 font-mono">
-                        {JSON.stringify(fancyChartData, null, 2)}
-                      </pre>
-                    </div>
+                  <div className="max-h-[400px] overflow-auto rounded-xl border border-white/5 bg-black/20 custom-scrollbar">
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-[#111] sticky top-0 z-10">
+                        <tr>
+                          <th className="px-4 py-3 text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-white/5">Run</th>
+                          <th className="px-4 py-3 text-[10px] font-black uppercase text-gray-400 tracking-wider text-right border-b border-white/5">Position</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {groupedChartData.map((row, idx) => {
+                          const pos = parseFloat(row.position);
+                          return (
+                            <tr key={idx} className="hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-2.5 text-[12px] font-bold text-white/90">{row.run}</td>
+                              <td className={`px-4 py-2.5 text-[12px] font-black text-right ${pos >= 0 ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
+                                {pos > 0 ? `+${row.position}` : row.position}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {groupedChartData.length === 0 && (
+                          <tr>
+                            <td colSpan={2} className="px-4 py-12 text-center text-[10px] font-black uppercase tracking-widest text-white/20 italic">
+                              No Ladder Data Available
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
-                  <button onClick={() => setFancyChartOpen(false)} className="w-full py-3 bg-[#f36c21] text-white font-black uppercase tracking-widest text-[11px] rounded-lg">
-                    Close
+                  <button onClick={() => setFancyChartOpen(false)} className="w-full py-3 bg-[#f36c21] hover:bg-[#ff7a45] text-white font-black uppercase tracking-widest text-[11px] rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-[#f36c21]/20">
+                    Close Chart
                   </button>
                 </div>
               )}
