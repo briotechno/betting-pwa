@@ -162,21 +162,12 @@ const MarketTable = ({
           return '';
         }
 
-        // Corrected as per reference site: no1 is typically NO/LAY, no2 is typically YES/BACK
-        let bp = getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
-        let lp = getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
-        let bs = getVal(r, ['valy', 'valn', 'size']);
-        let ls = getVal(r, ['valn', 'valy', 'size']);
+        // Priority: 1. ex (availableToBack), 2. no2/no1 (fancy fields), 3. backPrice/rate
+        let bp = r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price || getVal(r, ['no2', 'no1', 'backPrice1', 'BackPrice1', 'rate']);
+        let lp = r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price || getVal(r, ['no1', 'no2', 'layPrice1', 'LayPrice1', 'rate']);
+        let bs = r.ex?.availableToBack?.[0]?.size || r.back?.[0]?.size || getVal(r, ['valy', 'valn', 'size']);
+        let ls = r.ex?.availableToLay?.[0]?.size || r.lay?.[0]?.size || getVal(r, ['valn', 'valy', 'size']);
 
-        // Check for exchange-style prices if flat ones are missing
-        if (!bp && Math.abs((parseFloat(r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price) || 0)) > 0) {
-          bp = r.ex?.availableToBack?.[0]?.price || r.back?.[0]?.price;
-          bs = r.ex?.availableToBack?.[0]?.size || r.back?.[0]?.size;
-        }
-        if (!lp && Math.abs((parseFloat(r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price) || 0)) > 0) {
-          lp = r.ex?.availableToLay?.[0]?.price || r.lay?.[0]?.price;
-          ls = r.ex?.availableToLay?.[0]?.size || r.lay?.[0]?.size;
-        }
 
         // Apply rounding for LINE/FANCY markets as requested
         const formatP = (v: any) => {
@@ -502,11 +493,11 @@ const MarketTable = ({
                                   </>
                                 )}
                                 <OddsBox
-                                  val={isFancyGroup ? lay.p1 : back.p1}
-                                  vol={isFancyGroup ? lay.v1 : back.v1}
-                                  type={isFancyGroup ? 'lay' : 'back'}
+                                  val={(isFancyGroup && marketType === 'FANCY') ? lay.p1 : back.p1}
+                                  vol={(isFancyGroup && marketType === 'FANCY') ? lay.v1 : back.v1}
+                                  type={(isFancyGroup && marketType === 'FANCY') ? 'lay' : 'back'}
                                   intensity="high"
-                                  onClick={() => handleAddBet(isFancyGroup ? lay.p1 : back.p1, isFancyGroup ? 'lay' : 'back')}
+                                  onClick={() => handleAddBet((isFancyGroup && marketType === 'FANCY') ? lay.p1 : back.p1, (isFancyGroup && marketType === 'FANCY') ? 'lay' : 'back')}
                                   isSuspended={isSuspended}
                                 />
                               </div>
@@ -514,11 +505,11 @@ const MarketTable = ({
                               {/* RIGHT GROUP (LAY for ODDS, YES for FANCY) */}
                               <div className={`flex items-center justify-start gap-0.5 md:gap-2 ${(isSixValueMarket || isFancyGroup) ? 'w-fit md:w-[196px]' : ''}`}>
                                 <OddsBox
-                                  val={isFancyGroup ? back.p1 : lay.p1}
-                                  vol={isFancyGroup ? back.v1 : lay.v1}
-                                  type={isFancyGroup ? 'back' : 'lay'}
+                                  val={(isFancyGroup && marketType === 'FANCY') ? back.p1 : lay.p1}
+                                  vol={(isFancyGroup && marketType === 'FANCY') ? back.v1 : lay.v1}
+                                  type={(isFancyGroup && marketType === 'FANCY') ? 'back' : 'lay'}
                                   intensity="high"
-                                  onClick={() => handleAddBet(isFancyGroup ? back.p1 : lay.p1, isFancyGroup ? 'back' : 'lay')}
+                                  onClick={() => handleAddBet((isFancyGroup && marketType === 'FANCY') ? back.p1 : lay.p1, (isFancyGroup && marketType === 'FANCY') ? 'back' : 'lay')}
                                   isSuspended={isSuspended}
                                 />
                                 {(isSixValueMarket || isFancyGroup) && (
