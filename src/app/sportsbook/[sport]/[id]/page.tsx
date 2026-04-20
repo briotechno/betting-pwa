@@ -225,9 +225,19 @@ const MarketTable = ({
             </div>
           )}
         </div>
-        <div className="flex gap-1 lg:gap-[68px] mr-1 lg:mr-10 items-center">
-          <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Back</span>
-          <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Lay</span>
+        <div className="flex items-center justify-end flex-1 gap-1 lg:gap-2 h-full mr-2 lg:mr-[10px]">
+          {/* BACK Group Label */}
+          <div className="flex justify-end gap-1 lg:gap-1 w-[58px] lg:w-[188px]">
+            <div className="hidden lg:block w-[60px]" />
+            <div className="hidden lg:block w-[60px]" />
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[60px] text-center">Back</span>
+          </div>
+          {/* LAY Group Label */}
+          <div className="flex justify-start gap-1 lg:gap-1 w-[58px] lg:w-[188px]">
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[60px] text-center">Lay</span>
+            <div className="hidden lg:block w-[60px]" />
+            <div className="hidden lg:block w-[60px]" />
+          </div>
         </div>
       </div>
 

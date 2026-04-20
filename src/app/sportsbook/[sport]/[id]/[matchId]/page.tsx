@@ -303,7 +303,7 @@ const MarketTable = ({
             </div>
           )}
         </div>
-        <div className="flex md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
+        <div className="flex md:mr-0 items-center justify-end flex-1 gap-1 lg:gap-1 h-full">
           {/* BACK / NO Group */}
           <div className={`flex justify-end gap-0.5 md:gap-2 ${(isSixValueMarket || isFancyGroup) ? 'w-[54px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 3rd cell on desktop/tablet for 3-cell wide markets */}
