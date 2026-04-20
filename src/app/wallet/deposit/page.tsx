@@ -113,12 +113,24 @@ export default function DepositPage() {
       return amt >= min && amt <= max
     })
     
-    // Sort: Banks first, then others
+    // Sort: Banks first, then others, then Crypto at the very end
     return [...filtered].sort((a, b) => {
-      const aType = (a.Type || a.type || '').toUpperCase();
-      const bType = (b.Type || b.type || '').toUpperCase();
+      const aType = (a.Type || a.type || 'BANK').toUpperCase();
+      const bType = (b.Type || b.type || 'BANK').toUpperCase();
+      const aName = (a.Name || a.bankname || '').toUpperCase();
+      const bName = (b.Name || b.bankname || '').toUpperCase();
+
+      const isACrypto = aType === 'CRYPTO' || aType === 'USDT' || aName.includes('USDT');
+      const isBCrypto = bType === 'CRYPTO' || bType === 'USDT' || bName.includes('USDT');
+
+      // 1. Always push Crypto to the end
+      if (isACrypto && !isBCrypto) return 1;
+      if (!isACrypto && isBCrypto) return -1;
+
+      // 2. Prioritize BANK type among non-crypto
       if (aType === 'BANK' && bType !== 'BANK') return -1;
       if (aType !== 'BANK' && bType === 'BANK') return 1;
+
       return 0;
     });
   }, [amount, depositMethods])
@@ -126,10 +138,18 @@ export default function DepositPage() {
   useEffect(() => {
     if (filteredMethods.length > 0) {
       const currentSelected = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
-      if (!currentSelected) {
-        // Find first method that is 'BANK' type, otherwise the first available
-        const defaultMethod = filteredMethods.find(m => (m.Type || m.type || 'BANK').toUpperCase() === 'BANK') || filteredMethods[0];
-        setActiveMethodId(String(defaultMethod.Bank_Id || defaultMethod.Id || defaultMethod.id));
+      
+      const isCrypto = (m: any) => {
+        const t = (m.Type || m.type || '').toUpperCase();
+        const n = (m.Name || m.bankname || '').toUpperCase();
+        return t.includes('CRYPTO') || t.includes('USDT') || n.includes('USDT') || n.includes('TETHER');
+      };
+
+      // If nothing is selected, OR if the current selection is Crypto but a Bank is now available
+      const shouldSwitch = !currentSelected || (isCrypto(currentSelected) && !isCrypto(filteredMethods[0]));
+
+      if (shouldSwitch) {
+        setActiveMethodId(String(filteredMethods[0].Bank_Id || filteredMethods[0].Id || filteredMethods[0].id));
       }
     } else {
       setActiveMethodId(null)
