@@ -602,6 +602,17 @@ export default function GameDetailPage() {
   const [scoreboardHtml, setScoreboardHtml] = useState<string | null>(null)
   const [cashoutLoading, setCashoutLoading] = useState<string | null>(null)
   const [betsLoading, setBetsLoading] = useState(false)
+
+  const filteredBets = useMemo(() => {
+    if (!matchId) return bets;
+    return bets.filter((b: any) => 
+      b.gid === matchId || 
+      b.matchId === matchId || 
+      b.eventId === matchId ||
+      b.eventId === matchId.toString()
+    )
+  }, [bets, matchId])
+
   const groupedChartData = useMemo(() => {
     if (!fancyChartData || typeof fancyChartData !== 'object' || fancyChartData.error) return [];
     
@@ -1112,7 +1123,7 @@ export default function GameDetailPage() {
                   ? 'text-[#f36c21] border-[#f36c21]'
                   : 'text-white/60 border-transparent hover:text-white'
                   }`}>
-                  OPEN BETS {bets.length > 0 && <span className="ml-1 text-[10px] opacity-80">({bets.length})</span>}
+                  OPEN BETS {filteredBets.length > 0 && <span className="ml-1 text-[10px] opacity-80">({filteredBets.length})</span>}
                 </span>
               </button>
             )}
@@ -1207,8 +1218,8 @@ export default function GameDetailPage() {
               </div>
             ) : (
               <div className="space-y-4 pt-2">
-                {[{ title: 'Unmatched Bets', items: bets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1'), open: unmatchedOpen, setOpen: setUnmatchedOpen },
-                { title: 'Matched Bets', items: bets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1'), open: matchedOpen, setOpen: setMatchedOpen }].map((sec, i) => (
+                {[{ title: 'Unmatched Bets', items: filteredBets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1'), open: unmatchedOpen, setOpen: setUnmatchedOpen },
+                { title: 'Matched Bets', items: filteredBets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1'), open: matchedOpen, setOpen: setMatchedOpen }].map((sec, i) => (
                   <div key={i} className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
                     <button onClick={() => sec.setOpen(!sec.open)} className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[13px] font-bold tracking-tight">
                       <div className="flex items-center gap-2"><span className={sec.open ? 'text-[#f36c21]' : ''}>{sec.title}</span>{sec.items.length > 0 && <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{sec.items.length}</span>}</div>
