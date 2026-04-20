@@ -122,6 +122,6 @@ export const marketController = {
    * @param type "Web" or "Mobile"
    */
   getHomeBanners: async (type: string): Promise<ApiResponse> => {
-    return await fetchAPI('/homebanner', { type });
+    return await fetchAPI('/homebanners', { Type: type });
   },
 };
