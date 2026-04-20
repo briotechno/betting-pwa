@@ -139,16 +139,8 @@ export default function DepositPage() {
     if (filteredMethods.length > 0) {
       const currentSelected = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
       
-      const isCrypto = (m: any) => {
-        const t = (m.Type || m.type || '').toUpperCase();
-        const n = (m.Name || m.bankname || '').toUpperCase();
-        return t.includes('CRYPTO') || t.includes('USDT') || n.includes('USDT') || n.includes('TETHER');
-      };
-
-      // If nothing is selected, OR if the current selection is Crypto but a Bank is now available
-      const shouldSwitch = !currentSelected || (isCrypto(currentSelected) && !isCrypto(filteredMethods[0]));
-
-      if (shouldSwitch) {
+      // Only auto-select if nothing is currently selected or if the current selection is no longer valid
+      if (!currentSelected) {
         setActiveMethodId(String(filteredMethods[0].Bank_Id || filteredMethods[0].Id || filteredMethods[0].id));
       }
     } else {
