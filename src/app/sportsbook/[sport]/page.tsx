@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Star, Loader2 } from 'lucide-react'
-import { toTitleCase } from '@/utils/format'
+import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 
@@ -73,7 +73,7 @@ const MatchTable = ({ match }: { match: any }) => {
               {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
             </span>
             <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
-              {match.startTime}
+              {formatTime12h(match.startTime)}
             </span>
           </div>
         </div>
@@ -86,9 +86,6 @@ const MatchTable = ({ match }: { match: any }) => {
             </svg>
           </div>
           <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
-          <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
-            {match.startTime}
-          </div>
         </div>
       </div>
 

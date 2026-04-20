@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Star, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
-import { toTitleCase } from '@/utils/format'
+import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -187,9 +187,14 @@ const MarketTable = ({
             <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[16px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform flex-shrink-0">
               {isCollapsed ? '+' : '−'}
             </span>
-            <span className="text-white text-[11px] lg:text-[14px] font-bold truncate uppercase tracking-tight">
-              {matchName}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-white text-[11px] lg:text-[14px] font-bold truncate uppercase tracking-tight">
+                {matchName}
+              </span>
+              <span className="text-white/70 text-[9px] font-bold uppercase tracking-wider mt-0.5">
+                {formatTime12h(startTime)}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -204,9 +209,6 @@ const MarketTable = ({
               className="scale-90"
             />
           )}
-          <div className="hidden lg:flex flex-1 justify-end mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
-            {startTime}
-          </div>
         </div>
       </div>
 
