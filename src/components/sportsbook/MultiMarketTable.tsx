@@ -160,9 +160,18 @@ export default function MultiMarketTable({
                 return (
                   <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                     <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
-                      <span className="text-[13px] font-bold tracking-tight uppercase cursor-pointer">
-                        {runner.RunnerName || 'Runner'}
-                      </span>
+                      <div className="flex items-center justify-between w-full cursor-pointer">
+                        <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
+                          {runner.RunnerName || 'Runner'}
+                        </span>
+                        {isFancy && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
+                          <div className="flex-shrink-0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                              <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-1 px-2 relative min-w-[200px]">
                       <div className="flex justify-end gap-1 lg:gap-2 pr-2">

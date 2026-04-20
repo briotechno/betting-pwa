@@ -1,17 +1,44 @@
-Line bet value swapped 
-football goal api 
-cashout [ match odd and bookmaker 2 team ]
-confirm bet wrong odd or value 
+Cricket 
+
+1. Tie cash out 
+2. Bawdhi Fancy ma minimum maximum 
+3. Badhi Fancy ma news 
+4. Cricket ma suspended and ball running size set
+5. Fancy sidi line ma karvi and bet hoy ema j show thay 
+6. Minimum maximum mobile screen ma che em niche lavvu
+7. Event ma niche gya pachi previous ni niche horse racing ni event show thay che badhe 
+8. Open bet ma match bets ma team nu name lakhvu 
+9. Cash out button mukvu 
+10. Laptop ma tv size set karvi 
+11. Laptop ma back center ma karvu 
+12. Match odds ma bet nai lagti
+13. Line market ma bet nai lagti 
 
 
 
-----
-Bookmaker 
-if back - profit :dds x stake / 100 : back    lay : Liability:dds x stake / 100
+Tenis
 
-oddextra , goal 
-odd - 1 x stake  same back is profit and lay is Liability
+1. Goal ma bet nai lagti 
+2. Goal ma cash out mukvu 
+3. Goal ma ivent chalu na hoy toy bet place karna after inplay varo message mukvo
+4. Match odds ma bet lagti nathi 
+5. Line market ma Market vise news patti avse
 
-fancy and line  
-   Liability: stake
 
+Tenis 
+
+
+1. Match odds ma bet lagti nathi 
+2. Winner set ma bet lagti nathi 
+3. Winner set ma match play na hoy after in play varo message avo joiye
+4. Winner and match odds cash out
+
+
+
+
+Main page 
+
+1. Login pachi Search ma game search thay che tya redirect nathi thatu
+2. Darek event ma time AM PM VARO KARI DEJO ane time be vakhat batave che side varo remove kari devano
+3. News mukya pachi direct show thava jove refresh karo pachi show thay che
+4. Cash out work nai kartu ene chek karvu

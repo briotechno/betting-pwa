@@ -275,16 +275,7 @@ const MarketTable = ({
             </span>
           </div>
         </div>
-        <div className="hidden lg:flex flex-1 h-full items-center justify-center">
-          {(min !== undefined && max !== undefined) && (
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] lg:text-[12px] font-black text-black/40 uppercase tracking-widest">Min:</span>
-              <span className="text-[10px] lg:text-[12px] font-black text-black mr-3">{min}</span>
-              <span className="text-[10px] lg:text-[12px] font-black text-black/40 uppercase tracking-widest">Max:</span>
-              <span className="text-[10px] lg:text-[12px] font-black text-black">{max}</span>
-            </div>
-          )}
-        </div>
+
         <div className="h-full flex items-center pr-4 gap-3 z-0">
           {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
           {((marketType === 'ODDS' || marketType === 'BOOKMAKER') && runners.length === 2) && (
@@ -314,7 +305,7 @@ const MarketTable = ({
         <div className="flex items-center gap-2">
           {isFancyGroup && <span className="text-white/40 ml-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></span>}
           {(min !== undefined && max !== undefined) && (
-            <div className="flex lg:hidden items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-1.5 ml-1">
               <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Min:</span>
               <span className="text-[10px] font-black text-white mr-1.5">{min}</span>
               <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Max:</span>
@@ -447,10 +438,12 @@ const MarketTable = ({
                   <React.Fragment key={mId + '-' + runnerId}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                       <td className="py-3 px-3 lg:px-4">
-                        <div className="flex flex-col">
-                          <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase flex items-center">
-                            {runnerName}
-                            {(isFancy || isLine) && (
+                        <div className="flex flex-col w-full">
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase truncate pr-2">
+                              {runnerName}
+                            </span>
+                            {(isFancy || isLine) && hasChart && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -458,12 +451,12 @@ const MarketTable = ({
                                 }}
                                 className="ml-1.5 flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
                               >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900 rotate-[15deg]">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
                                   <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
                                 </svg>
                               </button>
                             )}
-                          </span>
+                          </div>
                           {hasChart && (
                             <span className={`text-[11px] font-bold leading-none mt-1 ${chartVal! < 0 ? 'text-red-500' : 'text-green-600'}`}>
                               {chartVal! < 0 ? chartVal!.toFixed(0) : `(${chartVal!.toFixed(2)})`}

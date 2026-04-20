@@ -57,7 +57,9 @@ const MarketTable = ({
   matchId,
   matchName,
   eventId,
-  isFavourite: initialFavourite = false
+  isFavourite: initialFavourite = false,
+  min,
+  max
 }: {
   marketName: string,
   runners: any[],
@@ -69,7 +71,9 @@ const MarketTable = ({
   matchId: string,
   matchName: string,
   eventId: string,
-  isFavourite?: boolean
+  isFavourite?: boolean,
+  min?: string | number,
+  max?: string | number
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [favourite, setFavourite] = useState(initialFavourite)
@@ -206,8 +210,18 @@ const MarketTable = ({
 
       {/* Market Category Sub-Header */}
       <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
-        <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
-          <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
+        <div className="flex items-center gap-2">
+          <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
+            <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
+          </div>
+          {(min !== undefined && max !== undefined) && (
+            <div className="flex items-center gap-1.5 ml-1">
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Min:</span>
+              <span className="text-[10px] font-black text-white mr-1.5">{min}</span>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Max:</span>
+              <span className="text-[10px] font-black text-white">{max}</span>
+            </div>
+          )}
         </div>
         <div className="flex gap-1 lg:gap-[68px] mr-1 lg:mr-10 items-center">
           <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-[58px] lg:w-[124px] text-center">Back</span>
@@ -293,10 +307,25 @@ const MarketTable = ({
                   <React.Fragment key={runnerId}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
                       <td className="py-3 px-3 lg:px-4">
-                        <div className="flex flex-col">
-                          <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase">
-                            {runnerName}
-                          </span>
+                        <div className="flex flex-col w-full">
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase truncate pr-2">
+                              {runnerName}
+                            </span>
+                            {(isFancy || marketName.toLowerCase().includes('line')) && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
+                              <button
+                                className="ml-1.5 flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Chart modal not implemented here yet
+                                }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                                  <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                           {runner.Chart !== null && runner.Chart !== undefined && (
                             <span className="text-[10px] font-bold text-[#f26522] mt-0.5 animate-in fade-in slide-in-from-left-1 duration-300">
                               {runner.Chart || '0'}
@@ -584,7 +613,9 @@ export default function CompetitionDetailPage() {
             matchId: gid,
             matchName: details.Team1 && details.Team2 ? `${details.Team1} V ${details.Team2}` : (g.Game_name || `${g.Team1} V ${g.Team2}`),
             eventId: eventIdToUse,
-            isFavourite: details.IsFavorite === '1' || details.isFavorite === 'Yes' || details.fav === '1'
+            isFavourite: details.IsFavorite === '1' || details.isFavorite === 'Yes' || details.fav === '1',
+            min: m.min,
+            max: m.max
           });
         });
       }
