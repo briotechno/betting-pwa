@@ -325,7 +325,7 @@ const MarketTable = ({
         </div>
         <div className="flex md:mr-0 items-center justify-end flex-1 gap-1 md:gap-2 h-full">
           {/* BACK / NO Group */}
-          <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+          <div className={`flex justify-end gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[54px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 3rd cell on desktop/tablet for 3-cell wide markets */}
             {(isMatchOdd || isFancyGroup) && (
               <>
@@ -339,7 +339,7 @@ const MarketTable = ({
           </div>
 
           {/* LAY / YES Group */}
-          <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-fit md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
+          <div className={`flex justify-start gap-0.5 md:gap-2 ${(isMatchOdd || isFancyGroup) ? 'w-[54px] md:w-[196px]' : 'w-[54px] md:w-[60px]'}`}>
             {/* Position label at the 1st cell on desktop/tablet for 3-cell wide markets */}
             <div className="w-[54px] md:w-[60px] flex items-center justify-center">
               <span className="text-[10px] font-black text-white uppercase tracking-wider">{isFancyGroup ? 'YES' : 'Lay'}</span>
@@ -355,8 +355,12 @@ const MarketTable = ({
       </div>
 
       {(!isCollapsed && (Array.isArray(runners) ? runners : Object.values(runners || {})).length > 0) && (
-        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <table className="w-full border-collapse table-fixed">
+            <colgroup>
+              <col />
+              <col className="w-[115px] md:w-[410px]" />
+            </colgroup>
             <tbody className="divide-y divide-black/30">
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
                 const mId = isFancyGroup ? (runner.MarketId || runner.marketid || runner.eid) : marketId
@@ -466,7 +470,7 @@ const MarketTable = ({
                           )}
                         </div>
                       </td>
-                      <td className="p-1 px-2 relative min-w-[200px]">
+                      <td className="p-1 px-2 relative">
                         <div className="flex justify-end gap-1 lg:gap-2">
                           <div className="relative">
                             <div className="flex gap-1 lg:gap-1 transition-all duration-300">
@@ -568,9 +572,9 @@ const MarketTable = ({
                 <tfoot>
                   <tr className="bg-[#111] border-t border-white/5">
                     <td colSpan={2} className="py-1 px-3 lg:px-4">
-                      <div className="flex items-center gap-3 overflow-hidden h-6">
+                      <div className="flex items-center gap-3 overflow-hidden h-6 w-full">
                         <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
-                        <div className="relative flex-1 overflow-hidden pointer-events-none">
+                        <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
                           <div className="whitespace-nowrap animate-ticker">
                             <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
                               {uniqueMsg}
