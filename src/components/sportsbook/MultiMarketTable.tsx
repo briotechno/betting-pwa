@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import CashoutButton from './CashoutButton'
 
 interface Runner {
   RunnerName: string
@@ -22,6 +23,8 @@ interface MultiMarketTableProps {
   isFavourite?: boolean
   onToggleFavourite?: () => void
   onRowClick?: (runner: Runner) => void
+  onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void
+  isCashoutLoading?: boolean
 }
 
 const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isSuspended = false, className = "" }: any) => {
@@ -52,7 +55,9 @@ export default function MultiMarketTable({
   rateData,
   isFavourite,
   onToggleFavourite,
-  onRowClick
+  onRowClick,
+  onCashout,
+  isCashoutLoading
 }: MultiMarketTableProps) {
 
   // PORTED getRunnerRates logic from Match Detail Page
@@ -102,16 +107,25 @@ export default function MultiMarketTable({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-[#e0e0e0] mb-6 relative overflow-hidden">
       {/* Compact Minimal Header (Matches User Image) */}
-      <div className="h-10 flex items-center bg-[#e0e0e0] border-b border-black/40">
-        <div className="flex items-center px-4 gap-3">
-          <span className="text-gray-600 text-[18px] font-medium leading-none mb-1">−</span>
-          <span className="text-[#333] text-[13px] font-bold uppercase tracking-tight">
-            {competitionName}
-          </span>
-          <div className="w-[1px] h-6 bg-gray-400 mx-1" />
+      <div className="bg-[#e8612c] flex items-center justify-between px-2 lg:px-4 h-10 border-b border-black/30">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-white text-[11px] font-black uppercase tracking-tight truncate">{sportName}: {competitionName}</span>
+            {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (
+              <CashoutButton 
+                amount={0} 
+                onCashout={() => onCashout?.('0', marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
+                isLoading={isCashoutLoading}
+                className="scale-75"
+              />
+            )}
+          </div>
+          <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest leading-none mt-0.5">{marketName}</span>
+        </div>
+        <div className="flex items-center">
           <Star 
             size={18} 
-            className={`transition-colors ${isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400 fill-none'}`} 
+            className={`transition-colors cursor-pointer ${isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-white fill-none'}`} 
             strokeWidth={2.5} 
             onClick={onToggleFavourite}
           />

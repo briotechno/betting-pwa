@@ -8,6 +8,9 @@ import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import BetSlipForm from '@/components/sportsbook/BetSlipForm'
 import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
+import { bettingController } from '@/controllers/betting/bettingController'
+import CashoutButton from '@/components/sportsbook/CashoutButton'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
@@ -57,9 +60,11 @@ const MarketTable = ({
   matchId,
   matchName,
   eventId,
-  isFavourite: initialFavourite = false,
+  isFavourite = false,
   min,
-  max
+  max,
+  onCashout,
+  isCashoutLoading
 }: {
   marketName: string,
   runners: any[],
@@ -73,10 +78,12 @@ const MarketTable = ({
   eventId: string,
   isFavourite?: boolean,
   min?: string | number,
-  max?: string | number
+  max?: string | number,
+  onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void,
+  isCashoutLoading?: boolean
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [favourite, setFavourite] = useState(initialFavourite)
+  const [favourite, setFavourite] = useState(isFavourite)
   const [favLoading, setFavLoading] = useState(false)
   const { user } = useAuthStore()
   const router = useRouter()
@@ -162,9 +169,9 @@ const MarketTable = ({
   }
 
   return (
-    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 relative">
+    <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 mb-4 relative">
       {/* Live Badge */}
-      <div className={`absolute -top-[11px] -left-[4px] ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[10px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
+      <div className={`absolute -top-[11px] left-2 ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[9px] font-black px-2 py-[2px] rounded-[4px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
         {isUpcoming ? 'UPCOMING' : 'LIVE'}
       </div>
 
@@ -173,10 +180,10 @@ const MarketTable = ({
         {/* Left Side Slanted */}
         <div
           onClick={navigateToGame}
-          className="relative h-full flex items-center pl-2 lg:pl-3 bg-[#e8612c] pr-6 lg:pr-12 z-10 transition-all duration-300"
+          className="relative h-full flex items-center pl-4 lg:pl-6 bg-[#e8612c] pr-8 lg:pr-14 z-10 transition-all duration-300"
           style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
         >
-          <div className="flex items-center gap-1.5 lg:gap-2 mt-2 max-w-[240px] lg:max-w-none">
+          <div className="flex items-center gap-2 max-w-[240px] lg:max-w-none flex-1">
             <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[16px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform flex-shrink-0">
               {isCollapsed ? '+' : '−'}
             </span>
@@ -186,22 +193,17 @@ const MarketTable = ({
           </div>
         </div>
 
-        {/* Right Side Icons */}
-        <div className="flex-1 h-full flex items-center justify-start pl-2 gap-3 z-0">
-          <button 
-            onClick={handleToggleFav}
-            disabled={favLoading}
-            className={`transition-all hover:scale-110 active:scale-95 ${favLoading ? 'opacity-50' : ''}`}
-          >
-            {favLoading ? (
-              <Loader2 size={18} className="text-[#ffd700] animate-spin" />
-            ) : (
-              <Star 
-                size={18} 
-                className={`transition-colors ${favourite ? 'text-[#ffd700] fill-[#ffd700]' : 'text-gray-400 fill-none'} stroke-[2px]`} 
-              />
-            )}
-          </button>
+        {/* Right Side Icons / Cashout */}
+        <div className="flex-1 h-full flex items-center justify-start pl-2 z-0 ml-3">
+          {/* Cashout Button for eligible markets */}
+          {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (
+            <CashoutButton
+              amount={0}
+              onCashout={() => onCashout?.(marketId, marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
+              isLoading={isCashoutLoading}
+              className="scale-90"
+            />
+          )}
           <div className="hidden lg:flex flex-1 justify-end mr-4 text-[11px] font-bold text-gray-500 italic uppercase">
             {startTime}
           </div>
@@ -215,9 +217,9 @@ const MarketTable = ({
             <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
           </div>
           {(min !== undefined && max !== undefined) && (
-            <div className="flex items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-2 ml-3">
               <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Min:</span>
-              <span className="text-[10px] font-black text-white mr-1.5">{min}</span>
+              <span className="text-[10px] font-black text-white mr-2">{min}</span>
               <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Max:</span>
               <span className="text-[10px] font-black text-white">{max}</span>
             </div>
@@ -562,6 +564,62 @@ export default function CompetitionDetailPage() {
     return () => { isMounted = false; if (timeoutId) clearTimeout(timeoutId); };
   }, [games, fetchAllGameData]);
 
+  const [cashoutLoading, setCashoutLoading] = useState<string | null>(null)
+  const showSnackbar = useSnackbarStore(state => state.show)
+  const { addSelection, setStake, clearAll } = useBetSlipStore()
+
+  const handleCashout = async (mId: string, mName: string, runners: any[], mType: string) => {
+    if (!user?.loginToken) {
+      showSnackbar('Please login to cashout', 'error')
+      return
+    }
+
+    // In CompetitionDetailPage, matchId is actually the gid or eventId
+    // We need the eventId for the cashout API
+    const targetEventId = runners[0]?.eid || mId; 
+    setCashoutLoading(mId)
+    try {
+      const res = await bettingController.cashout(user.loginToken, targetEventId)
+      const cashout = Array.isArray(res) ? res[0] : res
+
+      if (cashout && cashout.Amount > 0) {
+        const teamIdx = cashout.Team === 'B' ? 1 : 0
+        const runner = runners[teamIdx]
+        if (!runner) throw new Error('Runner not found')
+
+        const selectionId = runner.selectionId || runner.id || runner.SelectionId || `${mId}-${teamIdx}`
+        const bSide = cashout.Type === 'L' ? 'lay' : 'back'
+
+        clearAll()
+        addSelection({
+          id: `${mId}-${selectionId}-${bSide}`,
+          matchId: targetEventId,
+          eventId: targetEventId,
+          marketId: mId,
+          selectionId: selectionId.toString(),
+          matchName: 'Cashout Match', // Fallback
+          marketName: mName,
+          selectionName: runner.name || runner.Name || (teamIdx === 0 ? 'Team A' : 'Team B'),
+          odds: parseFloat(cashout.Rate),
+          betType: bSide,
+          marketType: mType,
+          marketIndex: teamIdx,
+          runnersCount: runners.length
+        })
+
+        setStake(`${mId}-${selectionId}-${bSide}`, parseFloat(cashout.Amount))
+        showSnackbar(`Cashout ready: Guaranteed ${cashout.Chart1 || cashout.Chart2 || ''}`, 'success')
+      } else {
+        showSnackbar('No cashout available right now', 'info')
+      }
+    } catch (err) {
+      console.error('Cashout failed:', err)
+      showSnackbar('Failed to fetch cashout', 'error')
+    } finally {
+      setCashoutLoading(null)
+    }
+  }
+
   const matchSections = useMemo(() => {
     return games.map((g) => {
       const gid = g.gid || g.Event_Id;
@@ -641,7 +699,7 @@ export default function CompetitionDetailPage() {
 
   return (
     <div className="flex min-h-screen bg-[#111] lg:gap-4 lg:bg-transparent">
-      <div className="flex-1 pb-20 bg-[#111] rounded-lg overflow-hidden">
+      <div className="flex-1 pb-32 bg-[#111] rounded-lg overflow-hidden">
         <div className="md:hidden bg-[#111] px-2 pt-2">
           <div className="flex items-stretch justify-center h-[72px] mx-[-8px]">
             {sportsList.map((sport) => (
@@ -692,9 +750,15 @@ export default function CompetitionDetailPage() {
                 </div>
               ) : matchSections.length > 0 ? (
                 matchSections.map((group) => (
-                  <div key={group.gid} className="space-y-1">
+                  <div key={group.gid} className="space-y-4">
                     {group.sections.map((section: any) => (
-                      <MarketTable key={section.id} {...section} liveRates={liveOdds} />
+                      <MarketTable 
+                        key={section.id} 
+                        {...section} 
+                        liveRates={liveOdds} 
+                        onCashout={handleCashout}
+                        isCashoutLoading={cashoutLoading === section.id}
+                      />
                     ))}
                   </div>
                 ))

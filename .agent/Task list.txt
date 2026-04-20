@@ -3,9 +3,9 @@ Cricket
 1. Tie cash out 
 2. Bawdhi Fancy ma minimum maximum 
 3. Badhi Fancy ma news 
-4. Cricket ma suspended and ball running size set
-5. Fancy sidi line ma karvi and bet hoy ema j show thay 
-6. Minimum maximum mobile screen ma che em niche lavvu
+4. Cricket ma suspended and ball running size set 
+5. Fancy sidi line ma karvi and bet hoy ema j show thay ☑️
+6. Minimum maximum mobile screen ma che em niche lavvu ☑️
 7. Event ma niche gya pachi previous ni niche horse racing ni event show thay che badhe 
 8. Open bet ma match bets ma team nu name lakhvu 
 9. Cash out button mukvu 
@@ -42,3 +42,5 @@ Main page
 2. Darek event ma time AM PM VARO KARI DEJO ane time be vakhat batave che side varo remove kari devano
 3. News mukya pachi direct show thava jove refresh karo pachi show thay che
 4. Cash out work nai kartu ene chek karvu
+5. Mobile view ma open bet ma badhi show kare che koi pan ivent ma
+6. Mobile screen ma fancy ma bet kare etle tarat show nai thatu refresh karvu pade che

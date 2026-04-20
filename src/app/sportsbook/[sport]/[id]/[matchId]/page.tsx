@@ -7,6 +7,7 @@ import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
+import CashoutButton from '@/components/sportsbook/CashoutButton'
 import BetSlipForm from '@/components/sportsbook/BetSlipForm'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { pusherClient } from '@/utils/pusher'
@@ -276,28 +277,17 @@ const MarketTable = ({
           </div>
         </div>
 
-        <div className="h-full flex items-center pr-4 gap-3 z-0">
+        <div className="h-full flex items-center pr-4 z-0 ml-3">
           {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
+          {/* Premium Cashout Button */}
           {((marketType === 'ODDS' || marketType === 'BOOKMAKER') && runners.length === 2) && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCashout?.(marketId, marketName, runners, marketType);
-              }}
-              disabled={isCashoutLoading}
-              className="bg-[#2e7d32] hover:bg-[#1b5e20] text-white text-[10px] lg:text-[11px] font-black px-2 py-1 rounded transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
-            >
-              {isCashoutLoading ? (
-                <Loader2 size={12} className="animate-spin text-white" />
-              ) : (
-                <span className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-                  CASHOUT
-                </span>
-              )}
-            </button>
+            <CashoutButton 
+              amount={0} 
+              onCashout={() => onCashout?.(marketId, marketName, runners, marketType)}
+              isLoading={isCashoutLoading}
+              className="origin-right"
+            />
           )}
-          <Star size={18} className="text-[#ffd700] fill-none stroke-[2px]" />
         </div>
       </div>
 
@@ -1100,7 +1090,7 @@ export default function GameDetailPage() {
             </div>
           </div>
         </div>
-        <div className="p-0 lg:p-6 space-y-0 lg:space-y-6">
+        <div className="p-0 lg:px-6 lg:pb-6 lg:pt-2 space-y-0">
           <div className="flex lg:hidden bg-[#1a1a1a] border-b border-white/10 h-10 px-4 gap-4 relative z-20 justify-start">
             <button
               onClick={() => setActiveTab('MARKETS')}
@@ -1138,7 +1128,7 @@ export default function GameDetailPage() {
                     <>
                       {/* TV HTML */}
                       {tvVisible && tvHtml && (
-                        <div className="w-full mb-4 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative">
+                        <div className="w-full lg:max-w-[640px] lg:max-h-[360px] mb-6 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative group">
                           <iframe
                             srcDoc={tvHtml}
                             className="w-full h-full border-0"
@@ -1147,9 +1137,9 @@ export default function GameDetailPage() {
                           />
                           <button 
                             onClick={() => setTvVisible(false)}
-                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all"
+                            className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 shadow-xl border border-white/10"
                           >
-                            <X size={16} />
+                            <X size={18} />
                           </button>
                         </div>
                       )}
