@@ -139,12 +139,14 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             if (runnersCount === 3) {
               res = await bettingController.place3TeamOddBet({
                 ...common,
+                Eid: selection.marketId,
                 Team: teamLetter as 'A' | 'B' | 'C',
                 Type: betTypeChar
               })
             } else {
               res = await bettingController.place2TeamOddBet({
                 ...common,
+                Eid: selection.marketId,
                 Team: teamLetter as 'A' | 'B',
                 Type: betTypeChar
               })
