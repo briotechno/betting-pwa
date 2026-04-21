@@ -239,7 +239,7 @@ const MarketTable = ({
       {!isCollapsed && (
         <div className="overflow-hidden lg:overflow-visible rounded-b-[11px]">
           <table className="w-full border-collapse">
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {runners.map((runner, rIdx) => {
                 // Improved ID detection: scan for all common API field names
                 const runnerId = runner.selectionId || runner.SelectionId || runner.id || runner.selection_id || runner.selectionid || runner.sid || rIdx
@@ -296,7 +296,7 @@ const MarketTable = ({
 
                 return (
                   <React.Fragment key={runnerId}>
-                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30">
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col w-full">
                           <div className="flex items-center justify-between w-full">

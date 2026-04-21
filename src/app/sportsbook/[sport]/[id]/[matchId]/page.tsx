@@ -347,7 +347,7 @@ const MarketTable = ({
               <col />
               <col className="w-[115px] md:w-[410px]" />
             </colgroup>
-            <tbody className="divide-y divide-black/30">
+            <tbody>
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
                 const mId = isFancyGroup ? ((runner.MarketId?.toString().startsWith('1.') || runner.marketid?.toString().startsWith('1.')) ? (runner.MarketId || runner.marketid) : (runner.eid || runner.MarketId || runner.marketid)) : marketId
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
@@ -433,7 +433,7 @@ const MarketTable = ({
 
                 return (
                   <React.Fragment key={mId + '-' + runnerId}>
-                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30">
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col w-full">
                           <div className="flex items-center justify-between w-full">
