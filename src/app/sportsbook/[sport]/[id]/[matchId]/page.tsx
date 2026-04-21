@@ -437,7 +437,7 @@ const MarketTable = ({
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col w-full">
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase truncate pr-2">
+                            <span className="text-[11px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase line-clamp-2 leading-tight pr-1">
                               {runnerName}
                             </span>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
