@@ -112,9 +112,9 @@ export default function DepositPage() {
       const max = parseFloat(m.Max || m.max_deposit || 100000000)
       return amt >= min && amt <= max
     })
-    
-    // Sort: Banks first, then others, then Crypto at the very end
-    return [...filtered].sort((a, b) => {
+
+    // 2. Sort existing methods
+    const sorted = [...filtered].sort((a, b) => {
       const aType = (a.Type || a.type || 'BANK').toUpperCase();
       const bType = (b.Type || b.type || 'BANK').toUpperCase();
       const aName = (a.Name || a.bankname || '').toUpperCase();
@@ -123,25 +123,59 @@ export default function DepositPage() {
       const isACrypto = aType === 'CRYPTO' || aType === 'USDT' || aName.includes('USDT');
       const isBCrypto = bType === 'CRYPTO' || bType === 'USDT' || bName.includes('USDT');
 
-      // 1. Always push Crypto to the end
       if (isACrypto && !isBCrypto) return 1;
       if (!isACrypto && isBCrypto) return -1;
-
-      // 2. Prioritize BANK type among non-crypto
       if (aType === 'BANK' && bType !== 'BANK') return -1;
       if (aType !== 'BANK' && bType === 'BANK') return 1;
-
       return 0;
     });
+
+    // 3. Prepend WhatsApp Deposit
+    const whatsapp = {
+      Bank_Id: 'whatsapp',
+      Name: 'Whatsapp Deposit',
+      Type: 'WHATSAPP',
+      isWhatsapp: true
+    };
+
+    return [whatsapp, ...sorted];
   }, [amount, depositMethods])
 
   useEffect(() => {
     if (filteredMethods.length > 0) {
       const currentSelected = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
-      
-      // Only auto-select if nothing is currently selected or if the current selection is no longer valid
-      if (!currentSelected) {
-        setActiveMethodId(String(filteredMethods[0].Bank_Id || filteredMethods[0].Id || filteredMethods[0].id));
+
+      const currentIsCrypto = currentSelected && ((currentSelected.Type || currentSelected.type || '').toUpperCase() === 'CRYPTO' || currentSelected.Name?.toUpperCase().includes('USDT') || currentSelected.bankname?.toUpperCase().includes('USDT'));
+
+      const firstRealMethod = filteredMethods.find(m => !m.isWhatsapp);
+      const firstRealIsCrypto = firstRealMethod && ((firstRealMethod.Type || firstRealMethod.type || '').toUpperCase() === 'CRYPTO' || firstRealMethod.Name?.toUpperCase().includes('USDT') || firstRealMethod.bankname?.toUpperCase().includes('USDT'));
+
+      // Re-select if:
+      // 1. Nothing is selected
+      // 2. WhatsApp is selected (shouldn't be default)
+      // 3. Current selection is Crypto but a Non-Crypto method is now available at the top
+      if (!currentSelected || currentSelected.isWhatsapp || (currentIsCrypto && !firstRealIsCrypto)) {
+        // Requirement: Default to the item immediately after "Whatsapp Deposit"
+        const whatsappIdx = filteredMethods.findIndex(m => m.isWhatsapp);
+        let targetIdx = -1;
+
+        if (whatsappIdx !== -1 && filteredMethods.length > whatsappIdx + 1) {
+          // Select the item right after WhatsApp
+          targetIdx = whatsappIdx + 1;
+        } else if (whatsappIdx === -1 && filteredMethods.length > 0) {
+          // If no WhatsApp, just pick the first one
+          targetIdx = 0;
+        } else if (whatsappIdx === 0 && filteredMethods.length === 1) {
+          // ONLY WhatsApp is available, do not select it by default
+          targetIdx = -1;
+        }
+
+        if (targetIdx !== -1) {
+          const target = filteredMethods[targetIdx];
+          setActiveMethodId(String(target.Bank_Id || target.Id || target.id));
+        } else {
+          setActiveMethodId(null);
+        }
       }
     } else {
       setActiveMethodId(null)
@@ -362,28 +396,6 @@ export default function DepositPage() {
                         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
                       `}</style>
 
-                      {/* 1. Always show WhatsApp First */}
-                      <button
-                        onClick={async () => {
-                          try {
-                            const res = await userController.getWhatsAppLink()
-                            if (res && res.error === '0' && res.Link) {
-                              window.open(res.Link, '_blank')
-                            } else {
-                              window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
-                            }
-                          } catch (err) {
-                            window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
-                          }
-                        }}
-                        className="flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 border-transparent hover:bg-white/5 transition-all text-white"
-                      >
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
-                          <img src="/deposite/wp.png" alt="WhatsApp" className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-[9.5px] font-bold uppercase text-center leading-tight tracking-tighter mt-1">WhatsApp Deposit</span>
-                      </button>
-
                       {(() => {
                         const typeCounters: Record<string, number> = {};
                         return filteredMethods.map((pm) => {
@@ -392,8 +404,14 @@ export default function DepositPage() {
 
                           const rawType = (pm.Type || pm.type || 'BANK').toUpperCase();
                           const baseType = rawType === 'BANK' ? 'Bank' : (rawType === 'CRYPTO' ? (pm.Name || 'USDT') : rawType);
-                          typeCounters[baseType] = (typeCounters[baseType] || 0) + 1;
-                          const displayName = `${baseType} - ${typeCounters[baseType]}`;
+
+                          let displayName = '';
+                          if (pm.isWhatsapp) {
+                            displayName = 'WhatsApp Deposit';
+                          } else {
+                            typeCounters[baseType] = (typeCounters[baseType] || 0) + 1;
+                            displayName = `${baseType} - ${typeCounters[baseType]}`;
+                          }
 
                           // Icon Mapping
                           let iconPath = '/deposite/bank.png';
@@ -402,16 +420,36 @@ export default function DepositPage() {
                           else if (rawType.includes('PHONE')) iconPath = '/deposite/phonepe.png';
                           else if (rawType === 'UPI') iconPath = '/deposite/Upi.png';
                           else if (rawType === 'CRYPTO' || rawType === 'USDT') iconPath = '/deposite/usdt.png';
+                          else if (rawType === 'WHATSAPP') iconPath = '/deposite/wp.png';
 
                           return (
-                            <button key={id} onClick={() => setActiveMethodId(id)} className={`flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 transition-all ${isActive ? 'bg-white/10 border-[#e8612c] text-white shadow-lg' : 'border-transparent opacity-50 grayscale hover:opacity-100 text-white'}`}>
+                            <button
+                              key={id}
+                              onClick={async () => {
+                                if (pm.isWhatsapp) {
+                                  try {
+                                    const res = await userController.getWhatsAppLink()
+                                    if (res && res.error === '0' && res.Link) {
+                                      window.open(res.Link, '_blank')
+                                    } else {
+                                      window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                                    }
+                                  } catch (err) {
+                                    window.open('https://go.wa.link/ambikaexchangesupport', '_blank')
+                                  }
+                                } else {
+                                  setActiveMethodId(id)
+                                }
+                              }}
+                              className={`flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 transition-all flex-shrink-0 min-w-[85px] ${isActive ? 'bg-white/10 border-[#e8612c] text-white shadow-lg' : 'border-transparent opacity-50  hover:opacity-100 text-white'}`}
+                            >
                               <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
                                 <img src={iconPath} alt="" className="w-full h-full object-contain" />
                               </div>
                               <span className="text-[9.5px] font-bold uppercase text-center leading-tight truncate w-full px-1 tracking-tighter mt-1">{displayName}</span>
                             </button>
                           );
-                        });
+                        })
                       })()}
                     </div>
                   )}
