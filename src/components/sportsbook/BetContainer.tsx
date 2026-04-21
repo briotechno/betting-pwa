@@ -214,6 +214,34 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
     }
   }
 
+  const groupBetsByMarket = (bets: Bet[]) => {
+    const groups: Record<string, Bet[]> = {}
+    bets.forEach((bet) => {
+      const marketName = bet.Game_Type || 'Odds'
+      const key = `${bet.Game} ${marketName}`
+      if (!groups[key]) groups[key] = []
+      groups[key].push(bet)
+    })
+    return groups
+  }
+
+  const calculateBetProfit = (bet: Bet) => {
+    const odds = parseFloat(bet.Rate) || 0
+    const stake = parseFloat(bet.Stake) || 0
+    const mType = (bet.Game_Type || '').toUpperCase()
+    const isBack = bet.Side === 'back'
+
+    let value = 0
+    if (mType.includes('BOOKMAKER')) {
+      value = (odds * stake) / 100
+    } else if (mType.includes('FANCY') || mType.includes('LINE')) {
+      value = isBack ? (odds * stake / 100) : stake
+    } else {
+      value = (odds - 1) * stake
+    }
+    return Math.floor(value).toLocaleString()
+  }
+
   const filteredBets = matchId 
     ? bets.filter((b: Bet) => 
         b.gid === matchId || 
@@ -427,28 +455,28 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
               </div>
 
               {unmatchedOpen && (
-                <div className="px-4 pb-4 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
                   {unmatchedBets.length > 0 ? (
-                    unmatchedBets.map((bet, idx) => (
-                      <div key={idx} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-0">
-                        <div className="flex flex-col">
-                          <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
-                          <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
-                        </div>
-                        <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
-                          <thead className="bg-gray-50/50">
+                    Object.entries(groupBetsByMarket(unmatchedBets)).map(([groupKey, betsInGroup], gIdx) => (
+                      <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">
+                        <table className="w-full text-left bg-white">
+                          <thead className="bg-white">
                             <tr className="border-b border-gray-100">
-                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest">Odds</th>
-                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-center">Stake</th>
-                              <th className="py-2 px-3 text-[9px] font-black text-gray-500 uppercase tracking-widest text-right">Profit/Liability</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 w-[40%]">{groupKey}</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Runs</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Stake</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-right uppercase">Profit/Liability</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
-                              <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
-                              <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
-                              <td className="py-2.5 px-3 text-[13px] font-black text-right">0</td>
-                            </tr>
+                            {betsInGroup.map((bet, bIdx) => (
+                              <tr key={bIdx} className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} text-[#333]`}>
+                                <td className="py-2.5 px-3 text-[13px] font-black">{bet.Selection}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Rate}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black text-right">0</td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -477,44 +505,32 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
               </div>
 
               {matchedOpen && (
-                <div className="px-4 pb-4 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
-                  {/* Average Odds UI */}
-                  <div className="flex items-center gap-2 pb-1 opacity-80 pt-1">
-                    <div className="w-3.5 h-3.5 border border-[#f36c21] rounded-sm bg-[#f36c21] flex items-center justify-center">
-                      <div className="w-2 h-1 border-l-2 border-b-2 border-white transform -rotate-45 -mt-0.5"></div>
-                    </div>
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Average Odds</span>
-                  </div>
-
+                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
                   {matchedBets.length > 0 ? (
-                    matchedBets.map((bet, idx) => {
-                      const profit = (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0);
-                      return (
-                        <div key={idx} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-1">
-                          <div className="flex flex-col">
-                            <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
-                            <span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection}</span>
-                          </div>
-
-                          <table className="w-full text-left bg-white rounded-[4px] overflow-hidden shadow-2xl">
-                            <thead className="bg-gray-50/50">
-                              <tr className="border-b border-gray-100">
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th>
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Stake</th>
-                                <th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Profit/Liability</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}>
-                                <td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td>
+                    Object.entries(groupBetsByMarket(matchedBets)).map(([groupKey, betsInGroup], gIdx) => (
+                      <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">
+                        <table className="w-full text-left bg-white">
+                          <thead className="bg-white">
+                            <tr className="border-b border-gray-100">
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 w-[40%]">{groupKey}</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Runs</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Stake</th>
+                              <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-right uppercase">Profit/Liability</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {betsInGroup.map((bet, bIdx) => (
+                              <tr key={bIdx} className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} text-[#333]`}>
+                                <td className="py-2.5 px-3 text-[13px] font-black">{bet.Selection}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Rate}</td>
                                 <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
-                                <td className="py-2.5 px-3 text-[13px] font-black text-right">{profit}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black text-right">{calculateBetProfit(bet)}</td>
                               </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      )
-                    })
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ))
                   ) : (
                     <div className="py-4 text-center opacity-30">
                       <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black italic">No matched bets</p>

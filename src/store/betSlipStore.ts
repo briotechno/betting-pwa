@@ -34,6 +34,7 @@ export interface Bet {
   gid?: string;
   eventId?: string;
   matchId?: string;
+  Game_Type?: string;
 }
 
 interface BetSlipState {
