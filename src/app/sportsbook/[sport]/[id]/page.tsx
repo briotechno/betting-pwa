@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronUp, Info } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronUp, Info, Megaphone, X, AlertCircle } from 'lucide-react'
 import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
@@ -92,14 +92,14 @@ const MarketTable = ({
   const { user } = useAuthStore()
   const router = useRouter()
   const params = useParams()
-  
+
   const handleToggleFav = async (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!user?.loginToken) {
       router.push('/auth/login')
       return
     }
-    
+
     try {
       setFavLoading(true)
       const res = await marketController.toggleFavourite(user.loginToken, eventId)
@@ -130,7 +130,7 @@ const MarketTable = ({
     const getPrices = (r: any, type: 'back' | 'lay') => {
       if (!r) return { p1: '', v1: '', p2: '', v2: '', p3: '', v3: '' };
       const data = type === 'back' ? (r.back || r.availableToBack || r.ex?.availableToBack) : (r.lay || r.availableToLay || r.ex?.availableToLay);
-      
+
       if (data) {
         const arr = Array.isArray(data) ? data : Object.values(data || {});
         return {
@@ -262,7 +262,7 @@ const MarketTable = ({
 
                 const isFancy = marketName.toLowerCase().includes('fancy') || marketName.toLowerCase().includes('line')
                 const isBookmaker = marketName.toLowerCase().includes('bookmaker')
-                
+
                 let isMarketSuspended = false
                 let suspensionMsg = 'SUSPENDED'
 
@@ -468,6 +468,46 @@ export default function CompetitionDetailPage() {
   const [gameDetails, setGameDetails] = useState<Record<string, any>>({})
   const [liveOdds, setLiveOdds] = useState<Record<string, any>>({})
   const [isLoading, setIsLoading] = useState(true)
+
+  // Fancy Chart State
+  const [fancyChartOpen, setFancyChartOpen] = useState(false)
+  const [fancyChartLoading, setFancyChartLoading] = useState(false)
+  const [fancyChartData, setFancyChartData] = useState<any>(null)
+  const [fancyChartTitle, setFancyChartTitle] = useState('')
+
+  const onOpenFancyChart = async (marketId: string, name: string) => {
+    if (!user?.loginToken) {
+      showSnackbar('Please login to view chart', 'error')
+      return
+    }
+    setFancyChartTitle(name)
+    setFancyChartOpen(true)
+    setFancyChartLoading(true)
+    setFancyChartData(null)
+    try {
+      const res = await bettingController.getFancyChart(user.loginToken, marketId)
+      setFancyChartData(res)
+    } catch (err) {
+      console.error('Failed to fetch fancy chart:', err)
+      setFancyChartData({ error: '1', msg: 'Failed to load chart data' })
+    } finally {
+      setFancyChartLoading(false)
+    }
+  }
+
+  const groupedChartData = useMemo(() => {
+    if (!fancyChartData || !Array.isArray(fancyChartData)) return [];
+    const items: any[] = [];
+    fancyChartData.forEach((item: any) => {
+      const run = item.run || item.Run || item.rate || item.Rate;
+      const position = item.position || item.Position || item.chart || item.Chart || item.chart1 || item.Chart1;
+      if (run !== undefined && position !== undefined) {
+        items.push({ run, position });
+      }
+    });
+    return items;
+  }, [fancyChartData]);
+
   // 1. Fetch Competition Games initially
   useEffect(() => {
     let isMounted = true;
@@ -636,7 +676,7 @@ export default function CompetitionDetailPage() {
 
     // In CompetitionDetailPage, matchId is actually the gid or eventId
     // We need the eventId for the cashout API
-    const targetEventId = runners[0]?.eid || mId; 
+    const targetEventId = runners[0]?.eid || mId;
     setCashoutLoading(mId)
     try {
       const res = await bettingController.cashout(user.loginToken, targetEventId)
@@ -713,7 +753,7 @@ export default function CompetitionDetailPage() {
         allMarkets.forEach((m: any) => {
           let runners = m.runner || m.runners || [];
           if (!Array.isArray(runners)) runners = Object.values(runners);
-          
+
           // Use the specific eid from the market if available, else match gid
           const eventIdToUse = m.eid || g.Event_Id || gid.toString();
 
@@ -783,10 +823,10 @@ export default function CompetitionDetailPage() {
               onClick={() => setActiveSubTab(tab)}
               className="h-full relative group flex items-center"
             >
-              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab 
-                ? 'text-[#f36c21] border-[#f36c21]' 
+              <span className={`text-[13px] font-black uppercase tracking-tight h-full flex items-center transition-colors border-b-2 ${activeSubTab === tab
+                ? 'text-[#f36c21] border-[#f36c21]'
                 : 'text-gray-400 border-transparent hover:text-white'
-              }`}>
+                }`}>
                 {tab}
               </span>
             </button>
@@ -813,10 +853,10 @@ export default function CompetitionDetailPage() {
                 matchSections.map((group) => (
                   <div key={group.gid} className="space-y-4">
                     {group.sections.map((section: any) => (
-                      <MarketTable 
-                        key={section.id} 
-                        {...section} 
-                        liveRates={liveOdds} 
+                      <MarketTable
+                        key={section.id}
+                        {...section}
+                        liveRates={liveOdds}
                         onCashout={handleCashout}
                         isCashoutLoading={cashoutLoading === section.id}
                         onOpenFancyChart={onOpenFancyChart}
@@ -837,7 +877,73 @@ export default function CompetitionDetailPage() {
           <BetContainer />
         </div>
       )}
+      {/* Fancy Chart Modal */}
+      {fancyChartOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setFancyChartOpen(false)} />
+          <div className="relative z-10 bg-[#1a1a1a] rounded-xl border border-white/10 w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#111]">
+              <h3 className="text-[13px] font-black text-white uppercase tracking-tight truncate pr-4">
+                Chart: {fancyChartTitle}
+              </h3>
+              <button onClick={() => setFancyChartOpen(false)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6">
+              {fancyChartLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-10 h-10 border-4 border-[#f36c21]/20 border-t-[#f36c21] rounded-full animate-spin mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Fetching Ladder Data...</p>
+                </div>
+              ) : (fancyChartData?.error === '1' || !Array.isArray(fancyChartData)) ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <AlertCircle size={32} className="text-red-500 mb-2 opacity-20" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{fancyChartData?.msg || 'Failed to load chart'}</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="max-h-[400px] overflow-auto rounded-xl border border-white/5 bg-black/20 custom-scrollbar">
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-[#111] sticky top-0 z-10">
+                        <tr>
+                          <th className="px-4 py-3 text-[10px] font-black uppercase text-gray-400 tracking-wider border-b border-white/5">Run</th>
+                          <th className="px-4 py-3 text-[10px] font-black uppercase text-gray-400 tracking-wider text-right border-b border-white/5">Position</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {groupedChartData.map((row, idx) => {
+                          const pos = parseFloat(row.position);
+                          return (
+                            <tr key={idx} className="hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-2.5 text-[12px] font-bold text-white/90">{row.run}</td>
+                              <td className={`px-4 py-2.5 text-[12px] font-black text-right ${pos >= 0 ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
+                                {pos > 0 ? `+${row.position}` : row.position}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {groupedChartData.length === 0 && (
+                          <tr>
+                            <td colSpan={2} className="px-4 py-12 text-center text-[10px] font-black uppercase tracking-widest text-white/20 italic">
+                              No Ladder Data Available
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <button onClick={() => setFancyChartOpen(false)} className="w-full py-3 bg-[#f36c21] hover:bg-[#ff7a45] text-white font-black uppercase tracking-widest text-[11px] rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-[#f36c21]/20">
+                    Close Chart
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
 
