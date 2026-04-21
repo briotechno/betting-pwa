@@ -706,9 +706,21 @@ export default function CompetitionDetailPage() {
       let isUpcoming = false;
       const now = new Date();
       if (g.DateTime) {
-        let startTimeStr = g.DateTime;
-        let d = new Date(startTimeStr.includes('T') ? startTimeStr : startTimeStr.replace(' ', 'T'));
-        if (d && !isNaN(d.getTime()) && d > now) isUpcoming = true;
+        const parseDate = (str: string) => {
+          if (!str || str === 'Live') return new Date(0);
+          let d = new Date(str.includes('T') ? str : str.replace(' ', 'T'));
+          if (isNaN(d.getTime())) {
+            const parts = str.split(/[-/ :]/);
+            if (parts.length >= 3) {
+              d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+            }
+          }
+          return d;
+        };
+        const startTimeDate = parseDate(g.DateTime);
+        if (startTimeDate.getTime() > now.getTime()) {
+          isUpcoming = true;
+        }
       }
 
       const sections: any[] = [];
