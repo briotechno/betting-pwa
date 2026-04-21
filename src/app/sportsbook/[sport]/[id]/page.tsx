@@ -750,13 +750,12 @@ export default function CompetitionDetailPage() {
           }
         });
 
-        allMarkets.forEach((m: any) => {
+        if (allMarkets.length > 0) {
+          const m = allMarkets[0];
           let runners = m.runner || m.runners || [];
           if (!Array.isArray(runners)) runners = Object.values(runners);
 
-          // Use the specific eid from the market if available, else match gid
           const eventIdToUse = m.eid || g.Event_Id || gid.toString();
-
           const isSpecial = m.category === 'FANCY' || m.category === 'LINE' || m.category === 'BOOKMAKER' || (m.name || m.MarketName || '').toLowerCase().includes('line');
           const bestId = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
 
@@ -776,7 +775,7 @@ export default function CompetitionDetailPage() {
             max: m.max,
             msg: m.Msg || m.msg
           });
-        });
+        }
       }
 
       if (sections.length === 0) {
