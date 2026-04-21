@@ -49,6 +49,35 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { 
   )
 }
 
+const formatTime12h = (dateStr: string) => {
+  if (!dateStr || dateStr === 'Live') return dateStr;
+  try {
+    let date = new Date(dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T'));
+    if (isNaN(date.getTime())) {
+      const parts = dateStr.split(/[-/ :]/);
+      if (parts.length >= 3) {
+        date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+      }
+    }
+    if (isNaN(date.getTime())) return dateStr;
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const strTime = hours.toString().padStart(2, '0') + ':' + minutes + ' ' + ampm;
+
+    return `${day}/${month}/${year} ${strTime}`;
+  } catch (e) {
+    return dateStr;
+  }
+};
+
 const MatchTable = ({ match }: { match: any }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
@@ -109,22 +138,22 @@ const MatchTable = ({ match }: { match: any }) => {
               {(match.teamA || '').replace(/_/g, ' ')} V {(match.teamB || '').replace(/_/g, ' ')}
             </span>
             <span className="text-white/80 text-[8px] lg:text-[9px] font-medium uppercase italic mt-0.5">
-              {match.startTime}
+              {formatTime12h(match.startTime)}
             </span>
           </div>
         </div>
 
         {/* Right Side - Icons */}
-        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-10px] pl-6 flex-initial min-w-[60px]">
-          <div className="w-4 h-4 hidden md:flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
+        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-10px] pl-6 flex-initial min-w-[30px]">
+          <div className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current cursor-help">
               <path d="M8 5v14l11-7z" />
             </svg>
+            <div className="absolute bottom-full right-0 mb-2 hidden group-hover/inplay:block z-[100] whitespace-nowrap bg-black text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-wider">
+              In-Play
+            </div>
           </div>
           <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
-          <div className="hidden lg:flex ml-2 text-[11px] font-bold text-gray-500 italic uppercase">
-            {match.startTime}
-          </div>
         </div>
       </div>
 
