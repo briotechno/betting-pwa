@@ -566,6 +566,22 @@ const MarketTable = ({
                         </td>
                       </tr>
                     )}
+                    {isFancy && rowMsg && (
+                      <tr key={mId + '-' + runnerId + '-msg'} className="bg-[#1a1a1a] border-t-2 border-[#f36c21]">
+                        <td colSpan={2} className="px-3 lg:px-4 py-1.5 border-0">
+                          <div className="flex items-center gap-3 overflow-hidden h-5 w-full">
+                            <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                            <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
+                              <div className="whitespace-nowrap animate-ticker">
+                                <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
+                                  {rowMsg}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </React.Fragment>
                 )
               })}
@@ -579,7 +595,7 @@ const MarketTable = ({
               ].filter(m => m && m !== '')
               const uniqueMsg = Array.from(new Set(allMsgs)).join(' | ')
 
-              if (!uniqueMsg) return null;
+              if (!uniqueMsg || isFancyGroup) return null;
 
               return (
                 <tfoot>

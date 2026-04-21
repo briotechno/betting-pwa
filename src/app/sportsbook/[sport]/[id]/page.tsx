@@ -63,8 +63,10 @@ const MarketTable = ({
   isFavourite = false,
   min,
   max,
+  msg,
   onCashout,
-  isCashoutLoading
+  isCashoutLoading,
+  onOpenFancyChart
 }: {
   marketName: string,
   runners: any[],
@@ -79,8 +81,10 @@ const MarketTable = ({
   isFavourite?: boolean,
   min?: string | number,
   max?: string | number,
+  msg?: string,
   onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void,
-  isCashoutLoading?: boolean
+  isCashoutLoading?: boolean,
+  onOpenFancyChart?: (marketId: string, runnerName: string) => void
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [favourite, setFavourite] = useState(isFavourite)
@@ -358,7 +362,7 @@ const MarketTable = ({
                                   className="flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onOpenFancyChart?.(mId.toString(), runnerName);
+                                    onOpenFancyChart?.(marketId.toString(), runnerName);
                                   }}
                                 >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
@@ -410,6 +414,22 @@ const MarketTable = ({
                         </div>
                       </td>
                     </tr>
+                    {isFancy && (runner.Msg || runner.msg || msg) && (
+                      <tr key={runnerId + '-msg'} className="bg-[#1a1a1a] border-t-2 border-[#f36c21]">
+                        <td colSpan={2} className="px-3 lg:px-4 py-1.5 border-0">
+                          <div className="flex items-center gap-3 overflow-hidden h-5 w-full">
+                            <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                            <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
+                              <div className="whitespace-nowrap animate-ticker">
+                                <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
+                                  {runner.Msg || runner.msg || msg}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
 
                     {/* Inline Mobile Betslip */}
                     {isSelectedOnMobile && selections[0] && (
@@ -713,7 +733,8 @@ export default function CompetitionDetailPage() {
             eventId: eventIdToUse,
             isFavourite: details.IsFavorite === '1' || details.isFavorite === 'Yes' || details.fav === '1',
             min: m.min,
-            max: m.max
+            max: m.max,
+            msg: m.Msg || m.msg
           });
         });
       }
@@ -798,6 +819,7 @@ export default function CompetitionDetailPage() {
                         liveRates={liveOdds} 
                         onCashout={handleCashout}
                         isCashoutLoading={cashoutLoading === section.id}
+                        onOpenFancyChart={onOpenFancyChart}
                       />
                     ))}
                   </div>

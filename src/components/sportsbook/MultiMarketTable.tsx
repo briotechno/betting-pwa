@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import { Star, Info } from 'lucide-react'
+import { Star, Info, Megaphone } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import CashoutButton from './CashoutButton'
 
@@ -47,11 +47,11 @@ const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isSuspended = fa
   )
 }
 
-export default function MultiMarketTable({ 
-  sportName, 
-  competitionName, 
-  marketName, 
-  runners, 
+export default function MultiMarketTable({
+  sportName,
+  competitionName,
+  marketName,
+  runners,
   rateData,
   isFavourite,
   onToggleFavourite,
@@ -112,8 +112,8 @@ export default function MultiMarketTable({
           <div className="flex items-center gap-2">
             <span className="text-white text-[11px] font-black uppercase tracking-tight truncate">{sportName}: {competitionName}</span>
             {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (
-              <CashoutButton 
-                amount={0} 
+              <CashoutButton
+                amount={0}
                 onCashout={() => onCashout?.('0', marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
                 isLoading={isCashoutLoading}
                 className="scale-75"
@@ -123,10 +123,10 @@ export default function MultiMarketTable({
           <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest leading-none mt-0.5">{marketName}</span>
         </div>
         <div className="flex items-center">
-          <Star 
-            size={18} 
-            className={`transition-colors cursor-pointer ${isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-white fill-none'}`} 
-            strokeWidth={2.5} 
+          <Star
+            size={18}
+            className={`transition-colors cursor-pointer ${isFavourite ? 'text-yellow-500 fill-yellow-500' : 'text-white fill-none'}`}
+            strokeWidth={2.5}
             onClick={onToggleFavourite}
           />
         </div>
@@ -140,10 +140,10 @@ export default function MultiMarketTable({
               .sort((a, b) => parseInt(a.SortPriority || '0') - parseInt(b.SortPriority || '0'))
               .map((runner, idx) => {
                 const { back, lay, isRunnerSuspended } = getRunnerRatesForFavorites(runner.SelectionId || runner.selectionId, idx, runner)
-                
+
                 const isFancy = marketName.toUpperCase() === 'FANCY' || marketName.toUpperCase() === 'LINE MARKET'
                 const isBookmaker = marketName.toUpperCase() === 'BOOKMAKER'
-                
+
                 let isMarketSuspended = false
                 let suspensionMsg = 'SUSPENDED'
 
@@ -172,82 +172,100 @@ export default function MultiMarketTable({
                 const displayMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 return (
-                  <tr key={runner.SelectionId || idx} className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
-                    <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
-                      <div className="flex items-center justify-between w-full cursor-pointer">
-                        <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
-                          {runner.RunnerName || 'Runner'}
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {isFancy && (
-                            <div className="relative group/tooltip">
-                              <div 
-                                className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#e8612c] transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Info size={11} strokeWidth={3} />
-                              </div>
-                              <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
-                                <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
-                                  <div className="flex justify-between gap-4">
-                                    <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
-                                    <span className="text-[#e8612c]">{runner.min || runner.Min || 0}</span>
-                                  </div>
-                                  <div className="flex justify-between gap-4">
-                                    <span className="text-gray-400 uppercase tracking-tighter">Max Bet:</span>
-                                    <span className="text-[#e8612c]">{runner.max || runner.Max || 0}</span>
-                                  </div>
-                                  {(runner.maxMkt || runner.MaxMkt) && (
-                                    <div className="flex justify-between gap-4 border-t border-white/10 pt-1.5">
-                                      <span className="text-gray-400 uppercase tracking-tighter">Max Mkt:</span>
-                                      <span className="text-[#e8612c]">{runner.maxMkt || runner.MaxMkt}</span>
-                                    </div>
-                                  )}
+                  <React.Fragment key={runner.SelectionId || idx}>
+                    <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
+                      <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
+                        <div className="flex items-center justify-between w-full cursor-pointer">
+                          <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
+                            {runner.RunnerName || 'Runner'}
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {isFancy && (
+                              <div className="relative group/tooltip">
+                                <div
+                                  className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#e8612c] transition-colors"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Info size={11} strokeWidth={3} />
                                 </div>
-                                <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                                <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
+                                  <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
+                                    <div className="flex justify-between gap-4">
+                                      <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
+                                      <span className="text-[#e8612c]">{runner.min || runner.Min || 0}</span>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                      <span className="text-gray-400 uppercase tracking-tighter">Max Bet:</span>
+                                      <span className="text-[#e8612c]">{runner.max || runner.Max || 0}</span>
+                                    </div>
+                                    {(runner.maxMkt || runner.MaxMkt) && (
+                                      <div className="flex justify-between gap-4 border-t border-white/10 pt-1.5">
+                                        <span className="text-gray-400 uppercase tracking-tighter">Max Mkt:</span>
+                                        <span className="text-[#e8612c]">{runner.maxMkt || runner.MaxMkt}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                                </div>
+                              </div>
+                            )}
+                            {isFancy && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
+                              <div className="flex-shrink-0">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                                  <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-1 px-2 relative min-w-[200px]">
+                        <div className="flex justify-end gap-1 lg:gap-2 pr-2">
+                          <div className="relative">
+                            <div className="flex gap-1 lg:gap-2">
+                              <div className="flex items-center justify-end gap-1 md:gap-2 w-fit md:w-[196px]">
+                                <OddsBox className="hidden md:flex" val={back.p3} vol={back.v3} type="back" intensity="low" isSuspended={isSuspended} />
+                                <OddsBox className="hidden md:flex" val={back.p2} vol={back.v2} type="back" intensity="medium" isSuspended={isSuspended} />
+                                <OddsBox val={back.p1 || runner.Chart} vol={back.v1} type="back" intensity="high" isSuspended={isSuspended} />
+                              </div>
+                              <div className="flex items-center justify-start gap-1 md:gap-2 w-fit md:w-[196px]">
+                                <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" isSuspended={isSuspended} />
+                                <OddsBox className="hidden md:flex" val={lay.p2} vol={lay.v2} type="lay" intensity="medium" isSuspended={isSuspended} />
+                                <OddsBox className="hidden md:flex" val={lay.p3} vol={lay.v3} type="lay" intensity="low" isSuspended={isSuspended} />
                               </div>
                             </div>
-                          )}
-                          {isFancy && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
-                            <div className="flex-shrink-0">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
-                                <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-1 px-2 relative min-w-[200px]">
-                      <div className="flex justify-end gap-1 lg:gap-2 pr-2">
-                        <div className="relative">
-                          <div className="flex gap-1 lg:gap-2">
-                            <div className="flex items-center justify-end gap-1 md:gap-2 w-fit md:w-[196px]">
-                              <OddsBox className="hidden md:flex" val={back.p3} vol={back.v3} type="back" intensity="low" isSuspended={isSuspended} />
-                              <OddsBox className="hidden md:flex" val={back.p2} vol={back.v2} type="back" intensity="medium" isSuspended={isSuspended} />
-                              <OddsBox val={back.p1 || runner.Chart} vol={back.v1} type="back" intensity="high" isSuspended={isSuspended} />
-                            </div>
-                            <div className="flex items-center justify-start gap-1 md:gap-2 w-fit md:w-[196px]">
-                              <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" isSuspended={isSuspended} />
-                              <OddsBox className="hidden md:flex" val={lay.p2} vol={lay.v2} type="lay" intensity="medium" isSuspended={isSuspended} />
-                              <OddsBox className="hidden md:flex" val={lay.p3} vol={lay.v3} type="lay" intensity="low" isSuspended={isSuspended} />
-                            </div>
-                          </div>
 
-                          {isSuspended && (
-                            <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-                              <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
-                              <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[150px] py-[6px] flex items-center justify-center drop-shadow-sm">
-                                <span className="text-[#0d47a1] text-[12px] lg:text-[13px] font-black uppercase tracking-wide leading-none">
-                                 {displayMsg}
+                            {isSuspended && (
+                              <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                                <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
+                                <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[150px] py-[6px] flex items-center justify-center drop-shadow-sm">
+                                  <span className="text-[#0d47a1] text-[12px] lg:text-[13px] font-black uppercase tracking-wide leading-none">
+                                    {displayMsg}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    {isFancy && (runner.Msg || runner.msg) && (
+                      <tr key={(runner.SelectionId || idx) + '-msg'} className="bg-[#1a1a1a] border-t-2 border-[#f36c21]">
+                        <td colSpan={2} className="px-4 lg:px-5 py-1.5 border-0">
+                          <div className="flex items-center gap-3 overflow-hidden h-5 w-full">
+                            <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                            <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
+                              <div className="whitespace-nowrap animate-ticker">
+                                <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
+                                  {runner.Msg || runner.msg}
                                 </span>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 )
               })}
           </tbody>
