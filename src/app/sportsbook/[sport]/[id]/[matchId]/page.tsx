@@ -922,7 +922,9 @@ export default function GameDetailPage() {
         const itemArr = Array.isArray(items) ? items : Object.values(items)
         itemArr.forEach((m: any) => {
           const isSpecial = ['LINE', 'FANCY', 'BOOKMAKER', 'EXTRA', 'GOAL'].includes(m.category) || (m.Type || '').toUpperCase() === 'FANCY' || (m.name || '').toLowerCase().includes('line');
-          const mid = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid)
+          const mid = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.'))
+            ? (m.MarketId || m.marketid)
+            : (isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid))
           if (mid) {
             marketsToPoll.push({
               gid: matchId,
@@ -1087,11 +1089,15 @@ export default function GameDetailPage() {
     return raw.filter((m, i, self) => {
       if (!m) return false;
       const isSpecial = m.category === 'LINE' || m.category === 'FANCY' || m.category === 'BOOKMAKER' || m.category === 'EXTRA' || m.category === 'GOAL';
-      const bestId = isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
+      const bestId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.'))
+        ? (m.MarketId || m.marketid)
+        : (isSpecial ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid));
       const uid = bestId + '-' + (m.eid || i);
       return self.findIndex(t => {
         const tIsSpecial = t.category === 'LINE' || t.category === 'FANCY' || t.category === 'BOOKMAKER' || t.category === 'EXTRA' || t.category === 'GOAL';
-        const tBestId = tIsSpecial ? (t.eid || t.MarketId || t.marketid) : (t.MarketId || t.marketid || t.eid);
+        const tBestId = (t.MarketId?.toString().startsWith('1.') || t.marketid?.toString().startsWith('1.'))
+          ? (t.MarketId || t.marketid)
+          : (tIsSpecial ? (t.eid || t.MarketId || t.marketid) : (t.MarketId || t.marketid || t.eid));
         return (tBestId + '-' + (t.eid || self.indexOf(t))) === uid;
       }) === i;
     })
@@ -1219,7 +1225,7 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'BOOKMAKER').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        const mId = m.eid || m.MarketId || m.marketid;
+                        const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
                         return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
@@ -1237,7 +1243,7 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'EXTRA').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        const mId = m.eid || m.MarketId || m.marketid;
+                        const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
                         return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
 
@@ -1245,7 +1251,7 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'GOAL').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        const mId = m.eid || m.MarketId || m.marketid;
+                        const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
                         return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
 
@@ -1254,7 +1260,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const isLineOrFancy = m.category === 'LINE' || m.category === 'FANCY';
-                        const mId = isLineOrFancy ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid);
+                        const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (isLineOrFancy ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid));
                         return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
                       })}
                     </>
