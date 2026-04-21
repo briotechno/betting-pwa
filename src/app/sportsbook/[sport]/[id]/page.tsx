@@ -331,6 +331,19 @@ const MarketTable = ({
                               {runnerName}
                             </span>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {(isFancy || marketName.toLowerCase().includes('line')) && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
+                                <button
+                                  className="flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenFancyChart?.(marketId.toString(), runnerName);
+                                  }}
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                                    <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                                  </svg>
+                                </button>
+                              )}
                               {isFancy && (
                                 <div className="relative group/tooltip">
                                   <div className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#e8612c] transition-colors">
@@ -356,19 +369,6 @@ const MarketTable = ({
                                     <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
                                   </div>
                                 </div>
-                              )}
-                              {(isFancy || marketName.toLowerCase().includes('line')) && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
-                                <button
-                                  className="flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onOpenFancyChart?.(marketId.toString(), runnerName);
-                                  }}
-                                >
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
-                                    <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
-                                  </svg>
-                                </button>
                               )}
                             </div>
                           </div>
