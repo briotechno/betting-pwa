@@ -180,7 +180,7 @@ export default function DepositPage() {
     } else {
       setActiveMethodId(null)
     }
-  }, [filteredMethods, activeMethodId])
+  }, [filteredMethods])
 
   const activeMethod = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId)
 
