@@ -222,14 +222,6 @@ const MarketTable = ({
           <div className="bg-[#e8612c] px-3 py-1 flex items-center h-full max-h-[28px] rounded-sm transform -skew-x-12">
             <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
           </div>
-          {(min !== undefined && max !== undefined) && (
-            <div className="flex items-center gap-2 ml-3">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Min:</span>
-              <span className="text-[10px] font-black text-white mr-2">{min}</span>
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-tight">Max:</span>
-              <span className="text-[10px] font-black text-white">{max}</span>
-            </div>
-          )}
         </div>
         <div className="flex items-center justify-end flex-1 gap-1 lg:gap-2 h-full mr-2 lg:mr-[10px]">
           {/* BACK Group Label */}
@@ -249,7 +241,7 @@ const MarketTable = ({
 
       {/* Table Body */}
       {!isCollapsed && (
-        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px]">
+        <div className="overflow-hidden lg:overflow-visible rounded-b-[11px]">
           <table className="w-full border-collapse">
             <tbody className="divide-y divide-gray-100">
               {runners.map((runner, rIdx) => {
@@ -379,7 +371,7 @@ const MarketTable = ({
                           )}
                         </div>
                       </td>
-                      <td className="p-1 px-2 relative min-w-[200px]">
+                      <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
                         <div className="flex justify-end gap-1 lg:gap-2">
                           <div className="relative">
                             <div className="flex gap-1 py-1">
