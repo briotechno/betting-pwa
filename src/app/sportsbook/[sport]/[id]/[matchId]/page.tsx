@@ -408,7 +408,7 @@ const MarketTable = ({
                     min: rowMin ? parseFloat(rowMin) : undefined,
                     max: rowMax ? parseFloat(rowMax) : undefined,
                     matchId: eventId.toString(),
-                    marketId: payloadEid || mId.toString(),
+                    marketId: payloadEid || (isFancyGroup ? (runner.eid || mId.toString()) : mId.toString()),
                     eventId: eventId.toString(),
                     selectionId: runnerId.toString(),
                     matchName: matchName,

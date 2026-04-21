@@ -117,7 +117,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           case 'LINE':
             res = await bettingController.placeLineBet({
               ...common,
-              Eid: selection.marketId, // Use MarketId as Eid
+              Eid: selection.marketId, // Numeric eid for line markets
               Amount: common.Amount.toString(),
               Rate: common.Rate.toString(),
               Type: betTypeChar
@@ -129,7 +129,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
           case 'GOALS':
             res = await bettingController.placeExtraBet({
               ...common,
-              Eid: selection.marketId, // Use MarketId as Eid
+              Eid: selection.marketId,
               Team: teamLetter,
               Type: betTypeChar
             })
