@@ -229,7 +229,10 @@ const MarketTable = ({
         return {
           p1: (type === 'back' ? (r.no1 ?? r.BackPrice1 ?? r.rate) : (r.no2 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
           v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
-          p2: '', v2: '', p3: '', v3: ''
+          p2: (type === 'back' ? r.BackPrice2 : r.LayPrice2)?.toString() || '',
+          v2: (type === 'back' ? r.BackSize2 : r.LaySize2)?.toString() || '',
+          p3: (type === 'back' ? r.BackPrice3 : r.LayPrice3)?.toString() || '',
+          v3: (type === 'back' ? r.BackSize3 : r.LaySize3)?.toString() || '',
         };
       }
 
@@ -237,7 +240,10 @@ const MarketTable = ({
       return {
         p1: (type === 'back' ? (r.no2 ?? r.BackPrice1 ?? r.rate) : (r.no1 ?? r.LayPrice1 ?? r.rate))?.toString() || '',
         v1: (type === 'back' ? (r.valy ?? r.size) : (r.valn ?? r.size))?.toString() || '',
-        p2: '', v2: '', p3: '', v3: ''
+        p2: (type === 'back' ? r.BackPrice2 : r.LayPrice2)?.toString() || '',
+        v2: (type === 'back' ? r.BackSize2 : r.LaySize2)?.toString() || '',
+        p3: (type === 'back' ? r.BackPrice3 : r.LayPrice3)?.toString() || '',
+        v3: (type === 'back' ? r.BackSize3 : r.LaySize3)?.toString() || '',
       };
     };
     return { back: getPrices(r, 'back'), lay: getPrices(r, 'lay'), isRunnerSuspended: isRunnerSuspended }
@@ -657,6 +663,34 @@ export default function GameDetailPage() {
       b.eventId === matchId.toString()
     )
   }, [bets, matchId])
+
+  const groupBetsByMarket = (betsToGroup: any[]) => {
+    const groups: Record<string, any[]> = {}
+    betsToGroup.forEach((bet) => {
+      const marketName = bet.Game_Type || 'Odds'
+      const key = `${bet.Game} ${marketName}`
+      if (!groups[key]) groups[key] = []
+      groups[key].push(bet)
+    })
+    return groups
+  }
+
+  const calculateBetProfit = (bet: any) => {
+    const odds = parseFloat(bet.Rate) || 0
+    const stake = parseFloat(bet.Stake) || 0
+    const mType = (bet.Game_Type || '').toUpperCase()
+    const isBack = bet.Side === 'back'
+
+    let value = 0
+    if (mType.includes('BOOKMAKER')) {
+      value = (odds * stake) / 100
+    } else if (mType.includes('FANCY') || mType.includes('LINE')) {
+      value = isBack ? (odds * stake / 100) : stake
+    } else {
+      value = (odds - 1) * stake
+    }
+    return Math.floor(value).toLocaleString()
+  }
 
   const groupedChartData = useMemo(() => {
     if (!fancyChartData || typeof fancyChartData !== 'object' || fancyChartData.error) return [];
@@ -1277,17 +1311,43 @@ export default function GameDetailPage() {
                       <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300"><ChevronDown size={16} className={`text-white transition-transform duration-300 ${sec.open ? 'rotate-180' : ''}`} /></div>
                     </button>
                     {sec.open && (
-                      <div className="px-4 pb-4 space-y-4 bg-[#111]">
-                        {betsLoading ? <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div> :
-                          sec.items.length > 0 ? sec.items.map((bet, idx) => (
-                            <div key={idx} className="space-y-1.5 border-t border-white/5 pt-3 first:border-0 first:pt-1">
-                              <div className="flex flex-col"><span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span><span className="text-white text-[13px] font-black uppercase tracking-tight">{bet.Selection} {bet.Side === 'lay' && '(LAY)'}</span></div>
-                              <table className="w-full text-left bg-white rounded-lg overflow-hidden shadow-2xl">
-                                <thead className="bg-gray-50/50"><tr className="border-b border-black/30"><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Odds</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Stake</th><th className="py-2 px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Profit/Liability</th></tr></thead>
-                                <tbody><tr className={`text-[#333] ${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'}`}><td className="py-2.5 px-3 text-[13px] font-black">{bet.Rate}</td><td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td><td className="py-2.5 px-3 text-[13px] font-black text-right">{(parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}</td></tr></tbody>
+                      <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
+                        {betsLoading ? (
+                          <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
+                        ) : sec.items.length > 0 ? (
+                          Object.entries(groupBetsByMarket(sec.items)).map(([groupKey, betsInGroup], gIdx) => (
+                            <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">
+                              <table className="w-full text-left bg-white">
+                                <thead className="bg-white">
+                                  <tr className="border-b border-gray-100">
+                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 w-[40%]">{groupKey}</th>
+                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Runs</th>
+                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Stake</th>
+                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-right uppercase">Profit/Liability</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {betsInGroup.map((bet, bIdx) => (
+                                    <tr key={bIdx} className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} text-[#333]`}>
+                                      <td className="py-2.5 px-3 text-[13px] font-black">
+                                        {bet.Selection} {bet.Side === 'lay' && '(LAY)'}
+                                      </td>
+                                      <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Rate}</td>
+                                      <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
+                                      <td className="py-2.5 px-3 text-[13px] font-black text-right">
+                                        {sec.title === 'Unmatched Bets' ? '0' : calculateBetProfit(bet)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
                               </table>
                             </div>
-                          )) : <div className="p-12 text-center text-white/20 text-[11px] font-black uppercase tracking-[0.2em] italic">No {sec.title}</div>}
+                          ))
+                        ) : (
+                          <div className="p-12 text-center text-white/20 text-[11px] font-black uppercase tracking-[0.2em] italic">
+                            No {sec.title}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
