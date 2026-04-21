@@ -343,7 +343,7 @@ const MarketTable = ({
             </colgroup>
             <tbody className="divide-y divide-black/30">
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
-                const mId = isFancyGroup ? (runner.eid || runner.MarketId || runner.marketid) : marketId
+                const mId = isFancyGroup ? ((runner.MarketId?.toString().startsWith('1.') || runner.marketid?.toString().startsWith('1.')) ? (runner.MarketId || runner.marketid) : (runner.eid || runner.MarketId || runner.marketid)) : marketId
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
                 const rateData = liveRates[mId]
