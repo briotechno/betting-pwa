@@ -292,23 +292,8 @@ const MarketTable = ({
                 const displayMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
-                  if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
-
-                  addSelection({
-                    id: `${marketId}-${runnerId}-${side}`,
-                    matchId: matchId.toString(),
-                    marketId: marketId.toString(),
-                    eventId: eventId.toString(),
-                    selectionId: runnerId.toString(),
-                    matchName: matchName,
-                    marketName: marketName,
-                    selectionName: runnerName,
-                    odds: parseFloat(odds),
-                    betType: side,
-                    marketType: (isBookmaker ? 'BOOKMAKER' : (marketName.toLowerCase().includes('line') ? 'LINE' : (isFancy ? 'FANCY' : 'ODDS'))),
-                    marketIndex: rIdx,
-                    runnersCount: runners.length
-                  })
+                  // Redirect to detail page instead of adding to betslip
+                  navigateToGame();
                 }
 
                 const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${marketId}-${runnerId}`))
