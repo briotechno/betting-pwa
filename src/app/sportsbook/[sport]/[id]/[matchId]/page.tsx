@@ -1222,9 +1222,9 @@ export default function GameDetailPage() {
                   const t2 = gameData?.Team2 || '';
                   return (
                     <>
-                      {/* TV HTML */}
+                      {/* TV HTML (Mobile Only) */}
                       {tvVisible && tvHtml && (
-                        <div className="w-full lg:max-w-[640px] lg:max-h-[360px] mb-6 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative group">
+                        <div className="block lg:hidden w-full mb-6 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative group">
                           <iframe
                             srcDoc={tvHtml}
                             className="w-full h-full border-0"
@@ -1358,8 +1358,27 @@ export default function GameDetailPage() {
         </div>
       </div>
       {user && (
-        <div className="hidden lg:block w-[480px] sticky top-0 max-h-screen overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
-          <BetContainer matchId={matchId} />
+        <div className="hidden lg:flex flex-col w-[480px] sticky top-0 max-h-screen overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
+          {/* Desktop TV */}
+          {tvVisible && tvHtml && (
+            <div className="w-full bg-black overflow-hidden shadow-2xl border-b border-white/10 aspect-video relative group">
+              <iframe
+                srcDoc={tvHtml}
+                className="w-full h-full border-0"
+                allowFullScreen
+                sandbox="allow-scripts allow-same-origin allow-forms"
+              />
+              <button 
+                onClick={() => setTvVisible(false)}
+                className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 shadow-xl border border-white/10"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <BetContainer matchId={matchId} />
+          </div>
         </div>
       )}
 
