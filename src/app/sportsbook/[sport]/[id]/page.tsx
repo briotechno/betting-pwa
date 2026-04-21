@@ -14,7 +14,7 @@ import CashoutButton from '@/components/sportsbook/CashoutButton'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Soccer', name: 'Football', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
+  { id: 'Football', name: 'Football', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
   { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
 ]
 
@@ -461,7 +461,7 @@ export default function CompetitionDetailPage() {
 
   const subTabs = ['LIVE & UPCOMING', 'RESULTS']
 
-  const activeSportId = params.sport as string || 'Cricket'
+  const activeSportId = (params.sport as string || 'Cricket').replace('Soccer', 'Football')
   const competitionId = params.id as string
 
   const [games, setGames] = useState<any[]>([])

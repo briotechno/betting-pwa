@@ -105,6 +105,8 @@ export default function DepositPage() {
     fetchData()
   }, [isAuthenticated])
 
+  const [userHasSelectedManually, setUserHasSelectedManually] = useState(false)
+
   const filteredMethods = useMemo(() => {
     const amt = parseFloat(amount) || 0
     const filtered = depositMethods.filter(m => {
@@ -113,7 +115,7 @@ export default function DepositPage() {
       return amt >= min && amt <= max
     })
 
-    // 2. Sort existing methods
+    // 2. Sort existing methods: Bank first, then UPI/GPay/etc, then Crypto last
     const sorted = [...filtered].sort((a, b) => {
       const aType = (a.Type || a.type || 'BANK').toUpperCase();
       const bType = (b.Type || b.type || 'BANK').toUpperCase();
@@ -125,12 +127,17 @@ export default function DepositPage() {
 
       if (isACrypto && !isBCrypto) return 1;
       if (!isACrypto && isBCrypto) return -1;
+      
+      // If neither or both are crypto, prioritize BANK type
       if (aType === 'BANK' && bType !== 'BANK') return -1;
       if (aType !== 'BANK' && bType === 'BANK') return 1;
+      
       return 0;
     });
 
-    // 3. Prepend WhatsApp Deposit
+    // 3. Prepend WhatsApp Deposit - filter out any existing ones from API to avoid duplicates
+    const cleanSorted = sorted.filter(m => !m.isWhatsapp && m.Name !== 'Whatsapp Deposit' && m.name !== 'Whatsapp Deposit');
+
     const whatsapp = {
       Bank_Id: 'whatsapp',
       Name: 'Whatsapp Deposit',
@@ -138,51 +145,33 @@ export default function DepositPage() {
       isWhatsapp: true
     };
 
-    return [whatsapp, ...sorted];
+    return [whatsapp, ...cleanSorted];
   }, [amount, depositMethods])
 
   useEffect(() => {
     if (filteredMethods.length > 0) {
       const currentSelected = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
-
-      const currentIsCrypto = currentSelected && ((currentSelected.Type || currentSelected.type || '').toUpperCase() === 'CRYPTO' || currentSelected.Name?.toUpperCase().includes('USDT') || currentSelected.bankname?.toUpperCase().includes('USDT'));
-
       const firstRealMethod = filteredMethods.find(m => !m.isWhatsapp);
-      const firstRealIsCrypto = firstRealMethod && ((firstRealMethod.Type || firstRealMethod.type || '').toUpperCase() === 'CRYPTO' || firstRealMethod.Name?.toUpperCase().includes('USDT') || firstRealMethod.bankname?.toUpperCase().includes('USDT'));
+      const firstRealId = firstRealMethod ? String(firstRealMethod.Bank_Id || firstRealMethod.Id || firstRealMethod.id) : null;
 
-      // Re-select ONLY IF:
-      // 1. Nothing is selected
-      // 2. WhatsApp is selected (shouldn't be default)
-      // 3. The current selection is NO LONGER in the filtered list
-      const isCurrentValid = filteredMethods.some(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
+      // Re-select logic:
+      // We auto-select the first real method if:
+      // 1. Nothing is selected or current selection is invalid
+      // 2. The user hasn't made a manual selection yet (allow it to "follow" the best default as they type)
+      // 3. Current selection is WhatsApp (never allowed as a default selection)
+      const isCurrentValid = !!currentSelected && !currentSelected.isWhatsapp;
 
-      if (!currentSelected || currentSelected.isWhatsapp || !isCurrentValid) {
-        // Requirement: Default to the item immediately after "Whatsapp Deposit"
-        const whatsappIdx = filteredMethods.findIndex(m => m.isWhatsapp);
-        let targetIdx = -1;
-
-        if (whatsappIdx !== -1 && filteredMethods.length > whatsappIdx + 1) {
-          // Select the item right after WhatsApp
-          targetIdx = whatsappIdx + 1;
-        } else if (whatsappIdx === -1 && filteredMethods.length > 0) {
-          // If no WhatsApp, just pick the first one
-          targetIdx = 0;
-        } else if (whatsappIdx === 0 && filteredMethods.length === 1) {
-          // ONLY WhatsApp is available, do not select it by default
-          targetIdx = -1;
-        }
-
-        if (targetIdx !== -1) {
-          const target = filteredMethods[targetIdx];
-          setActiveMethodId(String(target.Bank_Id || target.Id || target.id));
+      if (!isCurrentValid || (!userHasSelectedManually && activeMethodId !== firstRealId)) {
+        if (firstRealId) {
+          setActiveMethodId(firstRealId);
         } else {
           setActiveMethodId(null);
         }
       }
     } else {
-      setActiveMethodId(null)
+      setActiveMethodId(null);
     }
-  }, [filteredMethods])
+  }, [filteredMethods, userHasSelectedManually])
 
   const activeMethod = filteredMethods.find(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId)
 
@@ -335,7 +324,10 @@ export default function DepositPage() {
                           type="number"
                           placeholder="Enter amount"
                           value={amount}
-                          onChange={(e) => setAmount(e.target.value)}
+                          onChange={(e) => {
+                            setAmount(e.target.value)
+                            if (!e.target.value) setUserHasSelectedManually(false)
+                          }}
                           className="w-full h-16 bg-black/20 border-2 border-white/10 rounded-2xl pl-12 pr-5 text-2xl font-black text-white focus:outline-none focus:border-[#e8612c]"
                         />
                         {/* {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && activeMethod.BuyPrice && (
@@ -441,6 +433,7 @@ export default function DepositPage() {
                                   }
                                 } else {
                                   setActiveMethodId(id)
+                                  setUserHasSelectedManually(true)
                                 }
                               }}
                               className={`flex flex-col items-center justify-center gap-1.5 p-1 pt-2 rounded-xl border-2 transition-all flex-shrink-0 min-w-[85px] ${isActive ? 'bg-white/10 border-[#e8612c] text-white shadow-lg' : 'border-transparent opacity-50  hover:opacity-100 text-white'}`}

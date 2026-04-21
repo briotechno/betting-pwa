@@ -36,3 +36,15 @@ Main page
 4. Cash out work nai kartu ene chek karvu
 6. Mobile screen ma fancy ane odds ke book maker ma bet kare etle tarat show nai thatu refresh karvu pade che
 8. Mobile view ma sports book ma cricket football tenis ma badha ma design tute che and live& upcoming and leagues ma issue che design tute che
+
+
+
+at this page /sportsbook/Cricket/101480  where we are using to show the match detaled table [this is not the detaildpage dont u dare if u touched the detaild page ] 
+
+so here the issue is we are showing all table of the event even this is the page of   showing evnet list 
+
+so lets say i selected the event indina preimiur leag so thenn we are showing the match odd winner 
+
+here is the properly explaination lets say on this page we have multiple matches but we are showing like winner odd line of the match - 1 then same for match - 2 but instead we have to show all the type show the 1st type only 
+
+like 
