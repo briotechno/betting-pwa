@@ -7,7 +7,7 @@ import Link from 'next/link'
 export default function FavouritesPage() {
   const matches = [
     { id: 1, sport: 'Cricket', league: 'Indian Premier League (IPL)', teams: ['RR', 'CSK'], time: 'LIVE', market: 'Match Odds', odd1: '1.92', odd2: '1.92' },
-    { id: 2, sport: 'Soccer', league: 'Premier League', teams: ['MUN', 'ARS'], time: 'Today 21:00', market: 'Match Odds', odd1: '2.45', odd2: '3.10' },
+    { id: 2, sport: 'Football', league: 'Premier League', teams: ['MUN', 'ARS'], time: 'Today 21:00', market: 'Match Odds', odd1: '2.45', odd2: '3.10' },
   ]
 
   return (
@@ -28,7 +28,7 @@ export default function FavouritesPage() {
       </div>
 
        <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
-        {['All Markets', 'Cricket', 'Soccer', 'Tennis'].map((tab, idx) => (
+        {['All Markets', 'Cricket', 'Football', 'Tennis'].map((tab, idx) => (
           <button
             key={tab}
             className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-colors border ${

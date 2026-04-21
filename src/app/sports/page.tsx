@@ -128,7 +128,7 @@ const sportsMatches = {
 
 const sports = [
   { id: 'cricket', label: 'Cricket', emoji: '🏏', count: 15 },
-  { id: 'soccer', label: 'Soccer', emoji: '⚽', count: 109 },
+  { id: 'soccer', label: 'Football', emoji: '⚽', count: 109 },
   { id: 'tennis', label: 'Tennis', emoji: '🎾', count: 34 },
   { id: 'kabaddi', label: 'Kabaddi', emoji: '🤼', count: 4 },
   { id: 'horse-racing', label: 'Horse Racing', emoji: '🏇', count: 8 },

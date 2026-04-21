@@ -51,7 +51,7 @@ export default function BettingPLPage() {
       <div className="space-y-3">
         {[
             { sport: 'Cricket', won: 45, lost: 12, profit: 8400, icon: '🏏' },
-            { sport: 'Soccer', won: 12, lost: 8, profit: 2100, icon: '⚽' },
+            { sport: 'Football', won: 12, lost: 8, profit: 2100, icon: '⚽' },
             { sport: 'Tennis', won: 5, lost: 10, profit: -1200, icon: '🎾' },
         ].map((item) => (
             <div key={item.sport} className="bg-card border border-cardBorder rounded-xl p-4 flex items-center justify-between">

@@ -49,7 +49,7 @@ const accordionItems = [
     id: 6,
     title: '6. Special rules for sports.',
     content: [
-      'Specific rules applicable to different sports such as Tennis, Cricket, and Soccer.'
+      'Specific rules applicable to different sports such as Tennis, Cricket, and Football.'
     ]
   }
 ]

@@ -150,11 +150,13 @@ export default function DepositPage() {
       const firstRealMethod = filteredMethods.find(m => !m.isWhatsapp);
       const firstRealIsCrypto = firstRealMethod && ((firstRealMethod.Type || firstRealMethod.type || '').toUpperCase() === 'CRYPTO' || firstRealMethod.Name?.toUpperCase().includes('USDT') || firstRealMethod.bankname?.toUpperCase().includes('USDT'));
 
-      // Re-select if:
+      // Re-select ONLY IF:
       // 1. Nothing is selected
       // 2. WhatsApp is selected (shouldn't be default)
-      // 3. Current selection is Crypto but a Non-Crypto method is now available at the top
-      if (!currentSelected || currentSelected.isWhatsapp || (currentIsCrypto && !firstRealIsCrypto)) {
+      // 3. The current selection is NO LONGER in the filtered list
+      const isCurrentValid = filteredMethods.some(m => String(m.Bank_Id || m.Id || m.id) === activeMethodId);
+
+      if (!currentSelected || currentSelected.isWhatsapp || !isCurrentValid) {
         // Requirement: Default to the item immediately after "Whatsapp Deposit"
         const whatsappIdx = filteredMethods.findIndex(m => m.isWhatsapp);
         let targetIdx = -1;

@@ -181,7 +181,7 @@ export default function RulesRegulationsPage() {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-[15px] font-black text-white pt-4">Soccer</h4>
+              <h4 className="text-[15px] font-black text-white pt-4">Football</h4>
               <ul className="list-disc pl-6 text-[15px] text-gray-300 space-y-3">
                 <li>If the Site does not suspend a market on time for the occurrence of a Material Event, the Site reserves the right to void bets unfairly matched after the Material Event has occurred.</li>
                 <li>Match odds bets apply to the full duration of play according to the match officials, plus any stoppage time. They do not include any result given after Extra Time or Penalties.</li>

@@ -57,7 +57,7 @@ export default function AboutPage() {
               <Link href="/" className="text-[#e15b24] hover:underline">Sports betting</Link> on fairplay includes the likes of all major events under{' '}
               <Link href="/sportsbook/Cricket" className="text-[#e15b24] hover:underline">Cricket</Link>,{' '}
               <Link href="/sportsbook/Tennis" className="text-[#e15b24] hover:underline">Tennis</Link>,{' '}
-              <Link href="/sportsbook/Soccer" className="text-[#e15b24] hover:underline">Football</Link>,{' '}
+              <Link href="/sportsbook/Football" className="text-[#e15b24] hover:underline">Football</Link>,{' '}
               <Link href="/markets/sportsbook/Horse-Racing" className="text-[#e15b24] hover:underline">Horse racing</Link> complete with the maximum fancy market options available. Not just that, the users can also enjoy live streaming of the matches alongside live scorecards while placing their bets. That’s not all
             </p>
             <p>
