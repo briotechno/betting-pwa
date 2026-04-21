@@ -5,10 +5,8 @@ Cricket
 3. Badhi Fancy ma news 
 4. Cricket ma suspended and ball running size set 
 7. Event ma niche gya pachi previous ni niche horse racing ni event show thay che badhe 
-8. Open bet ma match bets ma team nu name lakhvu 
 12. Match odds ma bet nai lagti
 13. Line market ma bet nai lagti 
-
 
 
 Tenis
@@ -21,15 +19,11 @@ Tenis
 
 Tenis 
 
-
 1. Match odds ma bet lagti nathi 
 2. Winner set ma bet lagti nathi 
 4. Winner and match odds cash out
 
-
-
-
 Main page 
 
 4. Cash out work nai kartu ene chek karvu
-6. Mobile screen ma fancy ma bet kare etle tarat show nai thatu refresh karvu pade che
+6. Mobile screen ma fancy ma bet kare etle tarat show nai thatu refresh karvu pade che 

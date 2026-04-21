@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv, AlertCircle } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv, AlertCircle, Info } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -357,6 +357,7 @@ const MarketTable = ({
 
                 const rowMin = (isFancyGroup || isLine) ? (runner.min || runner.Min) : min
                 const rowMax = (isFancyGroup || isLine) ? (runner.max || runner.Max) : max
+                const rowMaxMkt = (isFancyGroup || isLine) ? (runner.maxMkt || runner.MaxMkt) : null
                 const rowMsg = (isFancyGroup || isLine) ? (runner.Msg || runner.msg) : msg
 
                 let isMarketSuspended = false
@@ -433,19 +434,47 @@ const MarketTable = ({
                             <span className="text-[12px] lg:text-[13px] font-bold text-gray-800 tracking-tight transition-colors uppercase truncate pr-2">
                               {runnerName}
                             </span>
-                            {(isFancy || isLine) && hasChart && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onOpenFancyChart?.(mId.toString(), runnerName);
-                                }}
-                                className="ml-1.5 flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
-                                  <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
-                                </svg>
-                              </button>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {(isFancy || isLine) && (
+                                <div className="relative group/tooltip">
+                                  <div className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#f36c21] transition-colors">
+                                    <Info size={11} strokeWidth={3} />
+                                  </div>
+                                  <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
+                                    <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
+                                      <div className="flex justify-between gap-4">
+                                        <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
+                                        <span className="text-[#f36c21]">{rowMin || 0}</span>
+                                      </div>
+                                      <div className="flex justify-between gap-4">
+                                        <span className="text-gray-400 uppercase tracking-tighter">Max Bet:</span>
+                                        <span className="text-[#f36c21]">{rowMax || 0}</span>
+                                      </div>
+                                      {rowMaxMkt && (
+                                        <div className="flex justify-between gap-4 border-t border-white/10 pt-1.5">
+                                          <span className="text-gray-400 uppercase tracking-tighter">Max Mkt:</span>
+                                          <span className="text-[#f36c21]">{rowMaxMkt}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                                  </div>
+                                </div>
+                              )}
+                              {(isFancy || isLine) && hasChart && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenFancyChart?.(mId.toString(), runnerName);
+                                  }}
+                                  className="flex-shrink-0 hover:scale-110 active:scale-95 transition-transform"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                                    <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                                  </svg>
+                                </button>
+                              )}
+                            </div>
                           </div>
                           {hasChart && (
                             <span className={`text-[11px] font-bold leading-none mt-1 ${chartVal! < 0 ? 'text-red-500' : 'text-green-600'}`}>

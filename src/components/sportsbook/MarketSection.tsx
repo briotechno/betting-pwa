@@ -85,7 +85,31 @@ export default function MarketSection({
           <React.Fragment key={runner.name}>
             <div className={`flex items-center h-12 bg-white ${activeSelection?.runner === runner.name && activeSelection?.market === title ? 'bg-gray-50' : ''}`}>
               <div className="flex-1 px-3 flex items-center h-full min-w-0">
-                <div className="text-[#333] font-bold text-[13px] tracking-tight truncate leading-tight w-full">{runner.name}</div>
+                <div className="flex items-center justify-between w-full min-w-0">
+                  <div className="text-[#333] font-bold text-[13px] tracking-tight truncate leading-tight">
+                    {runner.name}
+                  </div>
+                  {(title.toLowerCase().includes('fancy') || title.toLowerCase().includes('line')) && (
+                    <div className="relative group/tooltip flex-shrink-0 ml-1.5">
+                      <div className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#e15b24] transition-colors">
+                        <Info size={11} strokeWidth={3} />
+                      </div>
+                      <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
+                        <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
+                          <div className="flex justify-between gap-4">
+                            <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
+                            <span className="text-[#e15b24]">{runner.min || 0}</span>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <span className="text-gray-400 uppercase tracking-tighter">Max Bet:</span>
+                            <span className="text-[#e15b24]">{runner.max || 0}</span>
+                          </div>
+                        </div>
+                        <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center h-full w-[160px] lg:w-[180px] bg-white">

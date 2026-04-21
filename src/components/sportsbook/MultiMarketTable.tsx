@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import { Star } from 'lucide-react'
+import { Star, Info } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import CashoutButton from './CashoutButton'
 
@@ -178,13 +178,44 @@ export default function MultiMarketTable({
                         <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
                           {runner.RunnerName || 'Runner'}
                         </span>
-                        {isFancy && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
-                          <div className="flex-shrink-0">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
-                              <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
-                            </svg>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {isFancy && (
+                            <div className="relative group/tooltip">
+                              <div 
+                                className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#e8612c] transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Info size={11} strokeWidth={3} />
+                              </div>
+                              <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
+                                <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
+                                  <div className="flex justify-between gap-4">
+                                    <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
+                                    <span className="text-[#e8612c]">{runner.min || runner.Min || 0}</span>
+                                  </div>
+                                  <div className="flex justify-between gap-4">
+                                    <span className="text-gray-400 uppercase tracking-tighter">Max Bet:</span>
+                                    <span className="text-[#e8612c]">{runner.max || runner.Max || 0}</span>
+                                  </div>
+                                  {(runner.maxMkt || runner.MaxMkt) && (
+                                    <div className="flex justify-between gap-4 border-t border-white/10 pt-1.5">
+                                      <span className="text-gray-400 uppercase tracking-tighter">Max Mkt:</span>
+                                      <span className="text-[#e8612c]">{runner.maxMkt || runner.MaxMkt}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                              </div>
+                            </div>
+                          )}
+                          {isFancy && runner.Chart !== null && runner.Chart !== undefined && runner.Chart !== '0' && runner.Chart !== '' && (
+                            <div className="flex-shrink-0">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900">
+                                <path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="p-1 px-2 relative min-w-[200px]">
