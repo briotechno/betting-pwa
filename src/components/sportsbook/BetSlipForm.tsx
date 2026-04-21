@@ -66,7 +66,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       let res;
       const common = {
         LoginToken: user.loginToken,
-        Eid: selection.eventId,
+        Eid: selection.marketId,
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1'
@@ -139,14 +139,12 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             if (runnersCount === 3) {
               res = await bettingController.place3TeamOddBet({
                 ...common,
-                Eid: selection.marketId,
                 Team: teamLetter as 'A' | 'B' | 'C',
                 Type: betTypeChar
               })
             } else {
               res = await bettingController.place2TeamOddBet({
                 ...common,
-                Eid: selection.marketId,
                 Team: teamLetter as 'A' | 'B',
                 Type: betTypeChar
               })

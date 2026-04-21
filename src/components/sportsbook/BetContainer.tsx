@@ -108,7 +108,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       let res;
       const common = {
         LoginToken: user?.loginToken || '',
-        Eid: selection.eventId, 
+        Eid: selection.marketId, 
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1'

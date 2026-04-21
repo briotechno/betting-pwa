@@ -402,7 +402,7 @@ const MarketTable = ({
                     min: rowMin ? parseFloat(rowMin) : undefined,
                     max: rowMax ? parseFloat(rowMax) : undefined,
                     matchId: eventId.toString(),
-                    marketId: (isFancyGroup ? (runner.eid || runner.marketid || runner.MarketId || mId) : (payloadEid || mId)).toString(),
+                    marketId: payloadEid || mId.toString(),
                     eventId: eventId.toString(),
                     selectionId: runnerId.toString(),
                     matchName: matchName,
@@ -955,6 +955,11 @@ export default function GameDetailPage() {
 
               if (res && typeof res === 'object' && !res.error) {
                 const mid = m.MarketId;
+                
+                // Robust extraction of scoreboard HTML
+                // Check multiple possible keys: "2" (3rd), "1" (2nd), "3" (4th)
+                // Check both at root and within the market-specific object
+                const lookupKeys = ["2", "1", "3", 2, 1, 3];
                 let foundHtml = "";
                 
                 for (const k of lookupKeys) {
@@ -1221,7 +1226,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 3. LINE Group */}
