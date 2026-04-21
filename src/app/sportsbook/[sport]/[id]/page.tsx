@@ -180,19 +180,19 @@ const MarketTable = ({
       </div>
 
       {/* Match Header (Gray) */}
-      <div className="h-10 lg:h-12 flex items-center relative cursor-pointer select-none bg-[#e0e0e0]">
+      <div className="min-h-[40px] lg:min-h-[48px] h-auto flex items-stretch relative cursor-pointer select-none bg-[#e0e0e0]">
         {/* Left Side Slanted */}
         <div
           onClick={navigateToGame}
-          className="relative h-full flex items-center pl-4 lg:pl-6 bg-[#e8612c] pr-8 lg:pr-14 z-10 transition-all duration-300"
+          className="relative flex items-center pl-4 lg:pl-6 bg-[#e8612c] pr-8 lg:pr-14 z-10 transition-all duration-300 py-1.5"
           style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
         >
           <div className="flex items-center gap-2 max-w-[240px] lg:max-w-none flex-1">
             <span onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} className="text-white text-[16px] lg:text-[20px] font-medium leading-none mb-1 hover:scale-110 transition-transform flex-shrink-0">
               {isCollapsed ? '+' : '−'}
             </span>
-            <div className="flex flex-col">
-              <span className="text-white text-[11px] lg:text-[14px] font-bold truncate uppercase tracking-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="text-white text-[11px] lg:text-[14px] font-bold whitespace-normal line-clamp-2 leading-[1.2] uppercase tracking-tight">
                 {matchName}
               </span>
               <span className="text-white/70 text-[9px] font-bold uppercase tracking-wider mt-0.5">
@@ -254,6 +254,7 @@ const MarketTable = ({
 
                 const isFancy = marketName.toLowerCase().includes('fancy') || marketName.toLowerCase().includes('line')
                 const isBookmaker = marketName.toLowerCase().includes('bookmaker')
+                const isWinner = isWinnerType || marketName.toLowerCase().includes('winner')
 
                 let isMarketSuspended = false
                 let suspensionMsg = 'SUSPENDED'
@@ -319,7 +320,7 @@ const MarketTable = ({
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col w-full">
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-[13px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase truncate pr-2">
+                            <span className={`font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase pr-2 ${isWinner ? 'text-[11px] lg:text-[14px] whitespace-normal line-clamp-2 leading-tight' : 'text-[13px] lg:text-[14px] truncate'}`}>
                               {runnerName}
                             </span>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -807,7 +808,7 @@ export default function CompetitionDetailPage() {
           </div>
         </div>
 
-        <div className="flex justify-center bg-[#1a1a1a] border-b border-white/5 h-10 px-4 gap-12 box-border relative z-20">
+        <div className="flex justify-center bg-[#1a1a1a] border-b border-white/5 h-10 px-4 gap-8 md:gap-12 box-border relative z-20">
           {subTabs.map((tab) => (
             <button
               key={tab}
