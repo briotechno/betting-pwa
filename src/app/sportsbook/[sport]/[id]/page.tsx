@@ -254,7 +254,6 @@ const MarketTable = ({
 
                 const isFancy = marketName.toLowerCase().includes('fancy') || marketName.toLowerCase().includes('line')
                 const isBookmaker = marketName.toLowerCase().includes('bookmaker')
-                const isWinner = isWinnerType || marketName.toLowerCase().includes('winner')
 
                 let isMarketSuspended = false
                 let suspensionMsg = 'SUSPENDED'
@@ -320,7 +319,7 @@ const MarketTable = ({
                       <td className="py-3 px-3 lg:px-4">
                         <div className="flex flex-col w-full">
                           <div className="flex items-center justify-between w-full">
-                            <span className={`font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase pr-2 ${isWinner ? 'text-[11px] lg:text-[14px] whitespace-normal line-clamp-2 leading-tight' : 'text-[13px] lg:text-[14px] truncate'}`}>
+                            <span className="text-[11px] lg:text-[14px] font-bold text-[#333] tracking-tight group-hover:text-[#e8612c] transition-colors uppercase whitespace-normal line-clamp-2 leading-tight pr-2">
                               {runnerName}
                             </span>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
