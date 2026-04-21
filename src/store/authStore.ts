@@ -39,7 +39,12 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({ 
           user: state.user ? { ...state.user, loginToken: token || '' } : null 
         })),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => {
+        set({ user: null, isAuthenticated: false });
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+      },
       updateBalance: (balance, exposure, availableBalance) =>
         set((state) => ({
           user: state.user ? { 
