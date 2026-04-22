@@ -81,11 +81,17 @@ export const bettingController = {
   },
 
   /**
-   * Place extra or goal market bet
+   * Place extra market bet
    */
   placeExtraBet: async (data: any): Promise<ApiResponse> => {
-    // Note: Same URL for extra and goal in spec
     return await fetchAPI('/dealextra', data);
+  },
+
+  /**
+   * Place goal market bet
+   */
+  placeGoalBet: async (data: any): Promise<ApiResponse> => {
+    return await fetchAPI('/dealgoal', data);
   },
 
   /**

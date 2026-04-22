@@ -1358,10 +1358,10 @@ export default function GameDetailPage() {
         </div>
       </div>
       {user && (
-        <div className="hidden lg:flex flex-col w-[480px] sticky top-0 max-h-screen overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden border-l border-white/5 bg-[#111] z-30">
+        <div className="hidden lg:flex flex-col w-[480px] sticky top-0 max-h-screen self-start shrink-0 lg:border-none lg:rounded-lg border-l border-white/5 bg-[#111] z-30 overflow-hidden">
           {/* Desktop TV */}
           {tvVisible && tvHtml && (
-            <div className="w-full bg-black overflow-hidden shadow-2xl border-b border-white/10 aspect-video relative group">
+            <div className="w-full bg-black overflow-hidden shadow-2xl border-b border-white/10 aspect-video relative group flex-shrink-0">
               <iframe
                 srcDoc={tvHtml}
                 className="w-full h-full border-0"
@@ -1376,7 +1376,7 @@ export default function GameDetailPage() {
               </button>
             </div>
           )}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
             <BetContainer matchId={matchId} />
           </div>
         </div>

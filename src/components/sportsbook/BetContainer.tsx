@@ -166,9 +166,17 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
             break
 
           case 'EXTRA':
+            res = await bettingController.placeExtraBet({
+              ...common,
+              Eid: selection.marketId,
+              Team: teamLetter,
+              Type: betTypeChar
+            })
+            break
+
           case 'GOAL':
           case 'GOALS':
-            res = await bettingController.placeExtraBet({
+            res = await bettingController.placeGoalBet({
               ...common,
               Eid: selection.marketId,
               Team: teamLetter,
@@ -455,7 +463,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
               </div>
 
               {unmatchedOpen && (
-                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300 max-h-[500px] overflow-y-auto custom-scrollbar">
                   {unmatchedBets.length > 0 ? (
                     Object.entries(groupBetsByMarket(unmatchedBets)).map(([groupKey, betsInGroup], gIdx) => (
                       <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">
@@ -505,7 +513,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
               </div>
 
               {matchedOpen && (
-                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300 max-h-[500px] overflow-y-auto custom-scrollbar">
                   {matchedBets.length > 0 ? (
                     Object.entries(groupBetsByMarket(matchedBets)).map(([groupKey, betsInGroup], gIdx) => (
                       <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">

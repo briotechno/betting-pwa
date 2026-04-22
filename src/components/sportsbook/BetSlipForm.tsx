@@ -125,9 +125,17 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
             break
 
           case 'EXTRA':
+            res = await bettingController.placeExtraBet({
+              ...common,
+              Eid: selection.marketId,
+              Team: teamLetter,
+              Type: betTypeChar
+            })
+            break
+
           case 'GOAL':
           case 'GOALS':
-            res = await bettingController.placeExtraBet({
+            res = await bettingController.placeGoalBet({
               ...common,
               Eid: selection.marketId,
               Team: teamLetter,
