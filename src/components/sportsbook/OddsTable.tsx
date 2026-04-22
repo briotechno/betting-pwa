@@ -116,17 +116,17 @@ function RateButton({
       onClick={onClick}
       disabled={disabled}
       className={`w-[58px] sm:w-[62px] h-[36px] sm:h-[42px] rounded-[0.2rem] flex flex-col items-center justify-center transition-all border border-transparent relative overflow-hidden ${isEmpty
-          ? 'bg-[#e0e0e0] text-[#999]'
-          : isUpcoming
-            ? `${colorClass} text-black/40 cursor-not-allowed`
-            : isSelected
-              ? `${selectedColorClass} text-white`
-              : `${colorClass} text-black`
+        ? 'bg-[#e0e0e0] text-[#999]'
+        : isUpcoming
+          ? `${colorClass} text-black/40 cursor-not-allowed`
+          : isSelected
+            ? `${selectedColorClass} text-white`
+            : `${colorClass} text-black`
         } ${isRowInactive && !isUpcoming ? 'opacity-40 grayscale pointer-events-none' : ''} ${blink && !isUpcoming ? 'animate-rate-change' : ''}`}
     >
       <span className="relative z-0 text-[13px] font-bold leading-none">{value || '-'}</span>
       {size && <span className="relative z-0 text-[9px] font-medium leading-none mt-1 text-gray-700">{size}</span>}
-      
+
       {isUpcoming && (
         <div className="absolute inset-0 bg-[#212121] opacity-[0.46] z-10"></div>
       )}
@@ -176,7 +176,9 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
               return (
                 <tr
                   key={row.id || row.teamName}
-                  className={`bg-white transition-colors border-b border-black/30 ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'relative bg-[#777] text-white' : ''
+                  className={`transition-colors border-b border-black/30 ${row.status === 'SUSPENDED' || row.status === 'CLOSED'
+                      ? 'relative   text-black'
+                      : 'bg-white text-gray-900'
                     }`}
                 >
                   {/* Start Time Column */}
@@ -189,18 +191,18 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     </td>
                   )}
 
-                  <td 
+                  <td
                     onClick={() => handleRowClick(row.id, row.competitionId)}
                     className={`py-2 px-1.5 cursor-pointer hover:bg-gray-50/50 transition-colors ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}
                   >
                     <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
                       {row.teamName.includes(' vs ') ? (
                         <>
-                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
-                          <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
+                          <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
+                          <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
                         </>
                       ) : (
-                        <div className={`font-bold leading-[1.4] truncate w-full ${row.status === 'SUSPENDED' ? 'text-white' : 'text-[#333]'} ${row.startTime ? 'text-[8.5px]' : 'text-[9.5px]'}`}>{toTitleCase(row.teamName)}</div>
+                        <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName)}</div>
                       )}
                     </div>
                   </td>

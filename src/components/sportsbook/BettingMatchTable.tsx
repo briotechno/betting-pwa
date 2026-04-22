@@ -150,7 +150,7 @@ const BettingMatchTable = () => {
                     {match.DateTime}
                   </div>
                 </td>
-                <td className="py-4 px-4 font-bold text-[#222]">
+                <td className="py-4 px-4 font-bold text-[#222] text-[13px]">
                   <div className="flex flex-col">
                     <span className="truncate">{match.Team1}</span>
                     <span className="truncate">{match.Team2}</span>

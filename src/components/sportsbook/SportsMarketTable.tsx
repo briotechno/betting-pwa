@@ -117,12 +117,12 @@ export default function SportsMarketTable({ matches }: SportsMarketTableProps) {
                         <div className="flex flex-col justify-center min-w-0 w-full">
                           {team.teamName.includes(' vs ') ? (
                             <>
-                              <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[0] || '').replace(/_/g, ' ')}</div>
-                              <div className="text-[0.6rem] font-bold text-[#777] leading-none mb-0.5">VS</div>
-                              <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[1] || '').replace(/_/g, ' ')}</div>
+                              <div className="text-[12px] lg:text-[13px] font-bold text-gray-900 leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[0] || '').replace(/_/g, ' ')}</div>
+                              <div className="text-[10px] font-bold text-gray-500 leading-none mb-0.5">VS</div>
+                              <div className="text-[12px] lg:text-[13px] font-bold text-gray-900 leading-tight tracking-[0.02em] uppercase">{(team.teamName.split(' vs ')[1] || '').replace(/_/g, ' ')}</div>
                             </>
                           ) : (
-                            <div className="text-[0.7rem] lg:text-[0.75rem] font-bold text-[#333] leading-tight tracking-[0.02em] uppercase">{(team.teamName || '').replace(/_/g, ' ')}</div>
+                            <div className="text-[12px] lg:text-[13px] font-bold text-gray-900 leading-tight tracking-[0.02em] uppercase">{(team.teamName || '').replace(/_/g, ' ')}</div>
                           )}
                         </div>
                       </td>
