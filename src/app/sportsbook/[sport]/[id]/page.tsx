@@ -205,25 +205,25 @@ const MarketTable = ({
         {/* Right Side Icons / Cashout */}
         <div className="flex-1 h-full flex items-center justify-start pl-2 z-0 ml-3">
           {/* Cashout Button for eligible markets */}
-          {((marketName.toUpperCase().includes('MATCH ODDS') || 
-             marketName.toUpperCase().includes('BOOKMAKER') || 
-             marketName.toUpperCase().includes('TIED MATCH') || 
-             marketName.toUpperCase().includes('WINNER') || 
-             marketName.toUpperCase().includes('GOAL')) && runners.length === 2) && (
-            <CashoutButton
-              amount={0}
-              onCashout={() => {
-                let mType = 'ODDS';
-                if (marketName.toUpperCase().includes('BOOKMAKER')) mType = 'BOOKMAKER';
-                else if (marketName.toUpperCase().includes('TIED MATCH')) mType = 'EXTRA';
-                else if (marketName.toUpperCase().includes('GOAL')) mType = 'GOAL';
-                else if (marketName.toUpperCase().includes('WINNER')) mType = 'WINNER';
-                onCashout?.(eventId, marketName, runners, mType);
-              }}
-              isLoading={isCashoutLoading}
-              className="scale-90"
-            />
-          )}
+          {((marketName.toUpperCase().includes('MATCH ODDS') ||
+            marketName.toUpperCase().includes('BOOKMAKER') ||
+            marketName.toUpperCase().includes('TIED MATCH') ||
+            marketName.toUpperCase().includes('WINNER') ||
+            marketName.toUpperCase().includes('GOAL')) && runners.length === 2) && (
+              <CashoutButton
+                amount={0}
+                onCashout={() => {
+                  let mType = 'ODDS';
+                  if (marketName.toUpperCase().includes('BOOKMAKER')) mType = 'BOOKMAKER';
+                  else if (marketName.toUpperCase().includes('TIED MATCH')) mType = 'EXTRA';
+                  else if (marketName.toUpperCase().includes('GOAL')) mType = 'GOAL';
+                  else if (marketName.toUpperCase().includes('WINNER')) mType = 'WINNER';
+                  onCashout?.(eventId, marketName, runners, mType);
+                }}
+                isLoading={isCashoutLoading}
+                className="scale-90"
+              />
+            )}
         </div>
       </div>
 
@@ -234,22 +234,34 @@ const MarketTable = ({
             <span className="text-white text-[10px] font-black uppercase tracking-wider transform skew-x-12">{marketName}</span>
           </div>
         </div>
-        <div className="flex items-center justify-end flex-1 gap-1 h-full mr-2 lg:mr-[10px]">
+        <div className="flex items-center justify-end flex-1 gap-1 h-full">
           {/* BACK Group Label */}
-          <div className="w-[58px] lg:w-[188px] flex items-center justify-center">
-            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-full text-center">Back</span>
+          <div className="flex justify-end gap-0.5 md:gap-2 w-[58px] md:w-[196px]">
+            <div className="hidden md:block w-[60px]" />
+            <div className="hidden md:block w-[60px]" />
+            <div className="w-[58px] md:w-[60px] flex items-center justify-center">
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Back</span>
+            </div>
           </div>
           {/* LAY Group Label */}
-          <div className="w-[58px] lg:w-[188px] flex items-center justify-center">
-            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest w-full text-center">Lay</span>
+          <div className="flex justify-start gap-0.5 md:gap-2 w-[58px] md:w-[196px]">
+            <div className="w-[58px] md:w-[60px] flex items-center justify-center">
+              <span className="text-[10px] font-black text-white uppercase tracking-wider">Lay</span>
+            </div>
+            <div className="hidden md:block w-[60px]" />
+            <div className="hidden md:block w-[60px]" />
           </div>
         </div>
       </div>
 
       {/* Table Body */}
       {!isCollapsed && (
-        <div className="overflow-hidden lg:overflow-visible rounded-b-[11px]">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto lg:overflow-visible rounded-b-[11px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <table className="w-full border-collapse table-fixed">
+            <colgroup>
+              <col />
+              <col className="w-[120px] md:w-[410px]" />
+            </colgroup>
             <tbody>
               {runners.map((runner, rIdx) => {
                 // Improved ID detection: scan for all common API field names
@@ -363,20 +375,23 @@ const MarketTable = ({
                           )}
                         </div>
                       </td>
-                      <td className="p-1 px-2 relative min-w-[130px] lg:min-w-[200px]">
-                        <div className="flex justify-end gap-1 lg:gap-2">
+                      <td className="p-1 px-2 relative">
+                        <div className="flex justify-end gap-1 lg:gap-1">
                           <div className="relative">
-                            <div className="flex gap-1 py-1">
-                              <div className="flex gap-1 py-1">
-                                <div className="hidden lg:flex gap-1">
+                            <div className="flex items-center justify-end gap-1 h-full">
+                              {/* LEFT GROUP (BACK) */}
+                              <div className="flex items-center justify-end gap-1 md:gap-2 w-fit md:w-[196px]">
+                                <div className="hidden md:flex gap-1">
                                   <OddsBox val={back.p3} vol={back.v3} type="back" intensity="low" onClick={() => handleAddBet(back.p3, 'back')} />
                                   <OddsBox val={back.p2} vol={back.v2} type="back" intensity="medium" onClick={() => handleAddBet(back.p2, 'back')} />
                                 </div>
                                 <OddsBox val={back.p1} vol={back.v1} type="back" intensity="high" onClick={() => handleAddBet(back.p1, 'back')} />
                               </div>
-                              <div className="flex gap-1 py-1">
+
+                              {/* RIGHT GROUP (LAY) */}
+                              <div className="flex items-center justify-start gap-1 md:gap-2 w-fit md:w-[196px]">
                                 <OddsBox val={lay.p1} vol={lay.v1} type="lay" intensity="high" onClick={() => handleAddBet(lay.p1, 'lay')} />
-                                <div className="hidden lg:flex gap-1">
+                                <div className="hidden md:flex gap-1">
                                   <OddsBox val={lay.p2} vol={lay.v2} type="lay" intensity="medium" onClick={() => handleAddBet(lay.p2, 'lay')} />
                                   <OddsBox val={lay.p3} vol={lay.v3} type="lay" intensity="low" onClick={() => handleAddBet(lay.p3, 'lay')} />
                                 </div>
