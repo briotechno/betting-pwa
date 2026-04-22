@@ -286,7 +286,7 @@ const MarketTable = ({
         <div className="h-full flex items-center pr-4 z-0 ml-3">
           {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
           {/* Premium Cashout Button */}
-          {((marketType === 'ODDS' || marketType === 'BOOKMAKER') && runners.length === 2) && (
+          {((marketType === 'ODDS' || marketType === 'BOOKMAKER' || marketType === 'EXTRA' || marketType === 'GOAL' || marketType === 'WINNER') && runners.length === 2) && (
             <CashoutButton 
               amount={0} 
               onCashout={() => onCashout?.(payloadEid || marketId, marketName, runners, marketType)}
@@ -1278,7 +1278,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
 
                       {/* 5. GOAL Markets (e.g. Over/Under Goals) */}
@@ -1286,7 +1286,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
 
                       {/* 6. Others */}
@@ -1295,7 +1295,7 @@ export default function GameDetailPage() {
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const isLineOrFancy = m.category === 'LINE' || m.category === 'FANCY';
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (isLineOrFancy ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid));
-                        return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
                     </>
                   )

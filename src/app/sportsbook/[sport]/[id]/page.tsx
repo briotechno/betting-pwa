@@ -205,10 +205,21 @@ const MarketTable = ({
         {/* Right Side Icons / Cashout */}
         <div className="flex-1 h-full flex items-center justify-start pl-2 z-0 ml-3">
           {/* Cashout Button for eligible markets */}
-          {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (
+          {((marketName.toUpperCase().includes('MATCH ODDS') || 
+             marketName.toUpperCase().includes('BOOKMAKER') || 
+             marketName.toUpperCase().includes('TIED MATCH') || 
+             marketName.toUpperCase().includes('WINNER') || 
+             marketName.toUpperCase().includes('GOAL')) && runners.length === 2) && (
             <CashoutButton
               amount={0}
-              onCashout={() => onCashout?.(eventId, marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
+              onCashout={() => {
+                let mType = 'ODDS';
+                if (marketName.toUpperCase().includes('BOOKMAKER')) mType = 'BOOKMAKER';
+                else if (marketName.toUpperCase().includes('TIED MATCH')) mType = 'EXTRA';
+                else if (marketName.toUpperCase().includes('GOAL')) mType = 'GOAL';
+                else if (marketName.toUpperCase().includes('WINNER')) mType = 'WINNER';
+                onCashout?.(eventId, marketName, runners, mType);
+              }}
               isLoading={isCashoutLoading}
               className="scale-90"
             />
