@@ -8,9 +8,9 @@ import { marketController } from '@/controllers/market/marketController'
 import { useAuthStore } from '@/store/authStore'
 
 const sportsList = [
-  { id: 'Cricket', name: 'Cricket', icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Football', name: 'Football', icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'Tennis', name: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', icon: '/sports-icons/cricket.13c45ec.png' },
+  { id: 'Football', name: 'Football', icon: '/sports-icons/soccer.edef26e.png' },
+  { id: 'Tennis', name: 'Tennis', icon: '/sports-icons/tennis.61acaee.png' },
 ]
 
 const OddsBox = ({ val, vol, type, intensity = 'high', onClick, isUpcoming }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void, isUpcoming?: boolean }) => {

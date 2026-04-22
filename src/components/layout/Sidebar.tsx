@@ -10,21 +10,21 @@ const games = [
   {
     id: 4,
     name: "Cricket",
-    image: "https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png",
+    image: "/sports-icons/cricket.13c45ec.png",
     count: 13,
     link: "/sportsbook/Cricket"
   },
   {
     id: 1,
     name: "Football",
-    image: "https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png",
+    image: "/sports-icons/soccer.edef26e.png",
     count: 53,
     link: "/sportsbook/Football"
   },
   {
     id: 2,
     name: "Tennis",
-    image: "https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png",
+    image: "/sports-icons/tennis.61acaee.png",
     count: 71,
     link: "/sportsbook/Tennis"
   },
@@ -373,9 +373,9 @@ export default function Sidebar() {
               <div className="flex items-center gap-4 px-4 h-[52px] border-b border-[#333] bg-[#e8612c] text-white">
                 <div className="w-7 h-7 flex items-center justify-center shrink-0">
                   <img
-                    src={activeSportData?.image || 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png'}
+                    src={activeSportData?.image || '/sports-icons/cricket.13c45ec.png'}
                     alt={currentSport || ''}
-                    className="w-full h-full object-contain brightness-0 invert"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <span className="text-[13px] font-medium tracking-wide uppercase">{currentSport}</span>
@@ -454,7 +454,7 @@ export default function Sidebar() {
                   <img
                     src={game.image}
                     alt={game.name}
-                    className={`w-full h-full object-contain ${isActive ? 'brightness-0 invert' : ''}`}
+                    className="w-full h-full object-contain"
                     onError={(e) => {
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${game.name}&background=random`
                     }}

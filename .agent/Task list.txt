@@ -1,32 +1,18 @@
-Cricket 
+Pending points 
 
-1. Tie cash out 
-2. Cricket ma suspended and ball running size set`
-
-Football 
-
-2. Goal ma cash out mukvu 
-3. Goal ma ivent chalu na hoy toy bet place karna after inplay varo message mukvo
-
-
-
-
-Tenis 
-
-
- 
-1. Winner set ma bet lagti nathi 
-2. Winner set ma match play na hoy after in play varo message avo joiye
-3. Winner and match odds cash out
-
-Main page 
-
-
-
-1. News mukya pachi direct show thava jove refresh karo pachi show thay che
-2. Cash out work nai kartu ene chek karvu
-4. Mobile screen ma fancy ane odds ke book maker ma bet kare etle tarat show nai thatu refresh karvu pade che
-
-4. Match bets box ne scorall karvu and ema sema bets lageli e show karvu
-5. Match bets ma all bets show thay tya filter karvu cricket ma cricket ni all and tenis ma tenis ni and football ma football ni
-
+1. Photo mujab side bar ma icon mukva
+2. Open bet match bet ma phota mujab response mobile ma karvu 
+3. Fancy and line market ma first ma avti ivent ma phota mujab minimum maximum dekhatu nathi e set karvu 
+4. Tenis ma winner set ma bet lagti nathi 
+5. Cricket ma line market ma bet lagti nathi 
+6. Mobile view ma cash out ma bet slip open nai thati 
+7. Favorites work nai kartu 
+8. In play ma favorites ma phota mujab in Play symbol work karavo and favourite work karavu 
+9. Casino ma provider list fare che ene fix karvu 
+10. Bet slip ma stack box 8 karva e puchvu 
+12. Ivent list ma bet open ma filter karvanu puchvu 
+13. Open bet ma game lakhelu ave che tya odds and book maker sema bet lagi e show thvu jove e puchvanu
+14. Book maker and mini book maker ma cash out ma none lakhelu ave che rate nai avta
+15. Bet place nu board and news ne refresh kariye tyare show thay che e puchvu
+16. Cricket football tenis na inplay ma horse racing and grey hond racing ni ivent ave che
+17. Bet dealy kariye backend mathi ahi effect avti nathi e bet place thavama avi jove e puchvu

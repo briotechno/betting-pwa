@@ -7,9 +7,9 @@ import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 
 const sportsList = [
-  { id: 'Cricket', name: 'Cricket', icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Football', name: 'Football', icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'Tennis', name: 'Tennis', icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', icon: '/sports-icons/cricket.13c45ec.png' },
+  { id: 'Football', name: 'Football', icon: '/sports-icons/soccer.edef26e.png' },
+  { id: 'Tennis', name: 'Tennis', icon: '/sports-icons/tennis.61acaee.png' },
 ]
 
 const MatchTable = ({ match }: { match: any }) => {

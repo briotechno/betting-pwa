@@ -13,9 +13,9 @@ import { bettingController } from '@/controllers/betting/bettingController'
 import CashoutButton from '@/components/sportsbook/CashoutButton'
 
 const sportsList = [
-  { id: 'Cricket', name: 'Cricket', count: 14, icon: 'https://www.fairplay247.vip/_nuxt/img/cricket.5c05f66.png' },
-  { id: 'Football', name: 'Football', count: 29, icon: 'https://www.fairplay247.vip/_nuxt/img/soccer.9f718cc.png' },
-  { id: 'Tennis', name: 'Tennis', count: 41, icon: 'https://www.fairplay247.vip/_nuxt/img/tennis.fc30791.png' },
+  { id: 'Cricket', name: 'Cricket', count: 14, icon: '/sports-icons/cricket.13c45ec.png' },
+  { id: 'Football', name: 'Football', count: 29, icon: '/sports-icons/soccer.edef26e.png' },
+  { id: 'Tennis', name: 'Tennis', count: 41, icon: '/sports-icons/tennis.61acaee.png' },
 ]
 
 const OddsBox = ({ val, vol, type, intensity = 'high', onClick }: { val: string, vol: string, type: 'back' | 'lay', intensity?: 'low' | 'medium' | 'high', onClick?: () => void }) => {
