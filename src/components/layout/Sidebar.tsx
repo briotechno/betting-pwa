@@ -496,7 +496,7 @@ export default function Sidebar() {
 
         {/* Favourites Section */}
         {!isSportPath && !collapsed && (
-          <Link href="/favourites" className="flex flex-col group active:scale-95 transition-all">
+          <Link href="/favorites" className="flex flex-col group active:scale-95 transition-all">
             <div className="bg-[#e8612c] h-10 flex items-center justify-center group-hover:bg-[#d85826] transition-colors">
               <span className="text-white text-[11px] font-bold uppercase tracking-widest">Favourites</span>
             </div>
