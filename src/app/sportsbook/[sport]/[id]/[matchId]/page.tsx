@@ -551,7 +551,7 @@ const MarketTable = ({
                             {isSuspended && (
                               <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
                                 <div className="absolute inset-0 bg-[#212121] opacity-[0.46]"></div>
-                                <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[150px] py-[6px] flex items-center justify-center drop-shadow-sm whitespace-nowrap max-w-[95%]">
+                                <div className="relative z-10 bg-[#e0e0e0] w-[110px] lg:w-[128px] py-[6px] flex items-center justify-center drop-shadow-sm whitespace-nowrap max-w-[95%]">
                                   <span className="text-[#0d47a1] text-[11px] lg:text-[13px] font-black uppercase tracking-wide leading-none truncate">
                                     {suspensionMsg}
                                   </span>
