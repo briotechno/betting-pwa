@@ -529,7 +529,12 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
                           <tbody>
                             {betsInGroup.map((bet, bIdx) => (
                               <tr key={bIdx} className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} text-[#333]`}>
-                                <td className="py-2.5 px-3 text-[13px] font-black">{bet.Selection}</td>
+                                <td className="py-2.5 px-3 text-[13px] font-black">
+                                  <div className="flex flex-col">
+                                    <span>{bet.Selection}</span>
+                                    {bet.Game_Type && <span className="text-[10px] font-bold text-gray-600 uppercase mt-0.5">{bet.Game_Type}</span>}
+                                  </div>
+                                </td>
                                 <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Rate}</td>
                                 <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
                                 <td className="py-2.5 px-3 text-[13px] font-black text-right">{calculateBetProfit(bet)}</td>
