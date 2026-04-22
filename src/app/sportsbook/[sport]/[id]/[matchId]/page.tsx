@@ -287,8 +287,8 @@ const MarketTable = ({
           {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
           {/* Premium Cashout Button */}
           {((marketType === 'ODDS' || marketType === 'BOOKMAKER' || marketType === 'EXTRA' || marketType === 'GOAL' || marketType === 'WINNER') && runners.length === 2) && (
-            <CashoutButton 
-              amount={0} 
+            <CashoutButton
+              amount={0}
               onCashout={() => onCashout?.(payloadEid || marketId, marketName, runners, marketType)}
               isLoading={isCashoutLoading}
               className="origin-right"
@@ -354,8 +354,8 @@ const MarketTable = ({
 
                 const rateData = liveRates[mId]
                 const { back, lay, isRunnerSuspended } = getRunnerRates(runnerId, rIdx, mId, runner)
-                const runnerName = isFancyGroup 
-                  ? (runner.name || runner.RunnerName) 
+                const runnerName = isFancyGroup
+                  ? (runner.name || runner.RunnerName)
                   : (runner.name || runner.RunnerName || runner.SelectionName || (rIdx === 0 && team1 ? team1 : (rIdx === 1 && team2 ? team2 : `Runner ${rIdx + 1}`)))
                 const isFancy = marketType === 'FANCY' || isFancyGroup
                 const isLine = marketType === 'LINE'
@@ -656,9 +656,9 @@ export default function GameDetailPage() {
 
   const filteredBets = useMemo(() => {
     if (!matchId) return bets;
-    return bets.filter((b: any) => 
-      b.gid === matchId || 
-      b.matchId === matchId || 
+    return bets.filter((b: any) =>
+      b.gid === matchId ||
+      b.matchId === matchId ||
       b.eventId === matchId ||
       b.eventId === matchId.toString()
     )
@@ -694,12 +694,12 @@ export default function GameDetailPage() {
 
   const groupedChartData = useMemo(() => {
     if (!fancyChartData || typeof fancyChartData !== 'object' || fancyChartData.error) return [];
-    
+
     // API returns numeric keys as strings
     const keys = Object.keys(fancyChartData)
       .filter(k => !isNaN(parseInt(k)))
       .sort((a, b) => parseInt(a) - parseInt(b));
-      
+
     if (keys.length === 0) return [];
 
     const result = [];
@@ -989,13 +989,13 @@ export default function GameDetailPage() {
 
               if (res && typeof res === 'object' && !res.error) {
                 const mid = m.MarketId;
-                
+
                 // Robust extraction of scoreboard HTML
                 // Check multiple possible keys: "2" (3rd), "1" (2nd), "3" (4th)
                 // Check both at root and within the market-specific object
                 const lookupKeys = ["2", "1", "3", 2, 1, 3];
                 let foundHtml = "";
-                
+
                 for (const k of lookupKeys) {
                   const val = res[k as any] || (mid && res[mid] && res[mid][k as any]);
                   if (val && typeof val === 'string' && (val.includes('<div') || val.includes('<style'))) {
@@ -1003,7 +1003,7 @@ export default function GameDetailPage() {
                     break;
                   }
                 }
-                
+
                 if (foundHtml && isMounted) {
                   setScoreboardHtml(foundHtml);
                 }
@@ -1231,7 +1231,7 @@ export default function GameDetailPage() {
                             allowFullScreen
                             sandbox="allow-scripts allow-same-origin allow-forms"
                           />
-                          <button 
+                          <button
                             onClick={() => setTvVisible(false)}
                             className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 shadow-xl border border-white/10"
                           >
@@ -1243,7 +1243,7 @@ export default function GameDetailPage() {
                       {/* Scoreboard HTML */}
                       {scoreboardHtml && (
                         <div
-                          className="w-full mb-4 overflow-hidden rounded-xl shadow-lg border border-white/10"
+                          className="w-full mb-6 overflow-hidden rounded-xl shadow-2xl border border-white/10 bg-[#111] min-h-[140px] md:min-h-0 flex flex-col justify-center md:block p-4 md:p-0 relative transition-all duration-500"
                           dangerouslySetInnerHTML={{ __html: scoreboardHtml }}
                         />
                       )}
@@ -1371,7 +1371,7 @@ export default function GameDetailPage() {
                 allowFullScreen
                 sandbox="allow-scripts allow-same-origin allow-forms"
               />
-              <button 
+              <button
                 onClick={() => setTvVisible(false)}
                 className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 shadow-xl border border-white/10"
               >

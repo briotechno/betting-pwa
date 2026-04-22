@@ -108,7 +108,7 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       let res;
       const common = {
         LoginToken: user?.loginToken || '',
-        Eid: selection.marketId, 
+        Eid: selection.marketId,
         Amount: stake,
         Rate: selection.odds,
         IP: '127.0.0.1'
@@ -119,11 +119,11 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       const runnersCount = selection.runnersCount || 2
       const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
       const teamLetter = teamMap[selection.marketIndex] || 'A'
-      
+
       // Default mapping: Back -> B, Lay -> L
       // For Fancy/Line: Yes (Back) -> L, No (Lay) -> B (per developer request)
       const isFancyMarket = mType === 'FANCY' || mType === 'LINE'
-      const betTypeChar = isFancyMarket 
+      const betTypeChar = isFancyMarket
         ? (selection.betType === 'back' ? 'L' : 'B')
         : (selection.betType === 'back' ? 'B' : 'L')
 
@@ -250,13 +250,13 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
     return Math.floor(value).toLocaleString()
   }
 
-  const filteredBets = matchId 
-    ? bets.filter((b: Bet) => 
-        b.gid === matchId || 
-        b.matchId === matchId || 
-        b.eventId === matchId ||
-        b.eventId === matchId.toString()
-      ) 
+  const filteredBets = matchId
+    ? bets.filter((b: Bet) =>
+      b.gid === matchId ||
+      b.matchId === matchId ||
+      b.eventId === matchId ||
+      b.eventId === matchId.toString()
+    )
     : bets
 
   const matchedBets = filteredBets.filter((b: Bet) => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1')
@@ -555,9 +555,9 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
           </div>
         )}
       </div>
-      <HiddenModals 
-        isOpen={isConfirmModalOpen} 
-        onClose={() => setIsConfirmModalOpen(false)} 
+      <HiddenModals
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleExecutePlacement}
         selection={selections[0] ? { ...selections[0], stake: stakes[selections[0].id] } : null}
       />
@@ -565,20 +565,20 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
   )
 }
 
-function HiddenModals({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  selection 
-}: { 
-  isOpen: boolean, 
-  onClose: () => void, 
-  onConfirm: () => void, 
-  selection: any 
+function HiddenModals({
+  isOpen,
+  onClose,
+  onConfirm,
+  selection
+}: {
+  isOpen: boolean,
+  onClose: () => void,
+  onConfirm: () => void,
+  selection: any
 }) {
   if (!selection) return null
   return (
-    <BetConfirmationModal 
+    <BetConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
