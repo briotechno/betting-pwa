@@ -289,7 +289,7 @@ const MarketTable = ({
           {((marketType === 'ODDS' || marketType === 'BOOKMAKER') && runners.length === 2) && (
             <CashoutButton 
               amount={0} 
-              onCashout={() => onCashout?.(marketId, marketName, runners, marketType)}
+              onCashout={() => onCashout?.(payloadEid || marketId, marketName, runners, marketType)}
               isLoading={isCashoutLoading}
               className="origin-right"
             />
@@ -738,7 +738,7 @@ export default function GameDetailPage() {
       return
     }
 
-    const eventId = gameData?.Event_Id || gameData?.eventid || matchId;
+    const eventId = mId || gameData?.Event_Id || gameData?.eventid || matchId;
     setCashoutLoading(mId)
     try {
       const res = await bettingController.cashout(user.loginToken, eventId)

@@ -208,7 +208,7 @@ const MarketTable = ({
           {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (
             <CashoutButton
               amount={0}
-              onCashout={() => onCashout?.(marketId, marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
+              onCashout={() => onCashout?.(eventId, marketName, runners, marketName.toUpperCase().includes('BOOKMAKER') ? 'BOOKMAKER' : 'ODDS')}
               isLoading={isCashoutLoading}
               className="scale-90"
             />

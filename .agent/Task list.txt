@@ -1,12 +1,10 @@
 Cricket 
 
 1. Tie cash out 
-2. Cricket ma suspended and ball running size set
-
+2. Cricket ma suspended and ball running size set`
 
 Football 
 
-1. Goal ma bet nai lagti 
 2. Goal ma cash out mukvu 
 3. Goal ma ivent chalu na hoy toy bet place karna after inplay varo message mukvo
 
@@ -21,15 +19,12 @@ Tenis
 2. Winner set ma match play na hoy after in play varo message avo joiye
 3. Winner and match odds cash out
 
-
-
 Main page 
 
 
 
 1. News mukya pachi direct show thava jove refresh karo pachi show thay che
 2. Cash out work nai kartu ene chek karvu
-
 4. Mobile screen ma fancy ane odds ke book maker ma bet kare etle tarat show nai thatu refresh karvu pade che
 
 4. Match bets box ne scorall karvu and ema sema bets lageli e show karvu
