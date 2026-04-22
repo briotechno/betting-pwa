@@ -459,7 +459,7 @@ const MarketTable = ({
                                   <div className="bg-black text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help hover:bg-[#f36c21] transition-colors">
                                     <Info size={11} strokeWidth={3} />
                                   </div>
-                                  <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none">
+                                  <div className={`absolute ${rIdx === 0 ? 'top-full mt-2' : 'bottom-full mb-2'} right-0 hidden group-hover/tooltip:block z-[100] min-w-[140px] pointer-events-none`}>
                                     <div className="bg-[#222] text-white text-[10px] font-bold p-2.5 rounded-lg shadow-2xl border border-white/10 flex flex-col gap-1.5 backdrop-blur-sm">
                                       <div className="flex justify-between gap-4">
                                         <span className="text-gray-400 uppercase tracking-tighter">Min Bet:</span>
@@ -476,7 +476,7 @@ const MarketTable = ({
                                         </div>
                                       )}
                                     </div>
-                                    <div className="w-2.5 h-2.5 bg-[#222] border-r border-b border-white/10 rotate-45 -mt-1.5 ml-auto mr-1.5" />
+                                    <div className={`w-2.5 h-2.5 bg-[#222] border-white/10 rotate-45 ml-auto mr-1.5 ${rIdx === 0 ? 'border-l border-t -mb-1.5 absolute -top-1.5 right-1.5' : 'border-r border-b -mt-1.5'}`} />
                                   </div>
                                 </div>
                               )}
