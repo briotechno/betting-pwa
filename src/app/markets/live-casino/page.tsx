@@ -163,8 +163,8 @@ export default function LiveCasinoPage() {
 
   return (
     <div className="bg-[#000] min-h-screen text-white">
-      {/* ── Two-Level Navigation ── */}
-      <div className="sticky top-20 lg:top-[92px] z-[40]">
+      {/* ── Two-Level Navigation (Non-Sticky) ── */}
+      <div className="relative z-[40]">
         {/* Row 1: Categories */}
         <div className="flex overflow-x-auto no-scrollbar bg-[#3d3d3d] h-[45px] items-stretch border-b border-white/5">
           <button
