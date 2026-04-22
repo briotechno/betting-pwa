@@ -104,10 +104,18 @@ const MarketTable = ({
       setFavLoading(true)
       const res = await marketController.toggleFavourite(user.loginToken, eventId)
       if (res && res.error === '0') {
-        setFavourite(!favourite)
+        const nextFav = !favourite;
+        setFavourite(nextFav)
+        useSnackbarStore.getState().show(
+          nextFav ? 'Added to Favorites' : 'Removed from Favorites',
+          'success'
+        )
+      } else {
+        useSnackbarStore.getState().show(res?.message || 'Failed to update favorites', 'error')
       }
     } catch (err) {
       console.error('Fav toggle error:', err)
+      useSnackbarStore.getState().show('Failed to update favorites', 'error')
     } finally {
       setFavLoading(false)
     }
@@ -203,7 +211,7 @@ const MarketTable = ({
         </div>
 
         {/* Right Side Icons / Cashout */}
-        <div className="flex-1 h-full flex items-center justify-start pl-2 z-0 ml-3">
+        <div className="flex-1 h-full flex items-center justify-end pr-3 gap-3 z-20 ml-3">
           {/* Cashout Button for eligible markets */}
           {((marketName.toUpperCase().includes('MATCH ODDS') ||
             marketName.toUpperCase().includes('BOOKMAKER') ||
@@ -224,6 +232,26 @@ const MarketTable = ({
                 className="scale-90"
               />
             )}
+          
+          <div 
+            className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <div className="absolute bottom-full right-0 mb-2 hidden group-hover/inplay:block z-[100] whitespace-nowrap bg-black text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-wider">
+              In Play
+            </div>
+          </div>
+          <Star 
+            size={18} 
+            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${favourite ? 'fill-[#ffd700]' : 'fill-none'} ${favLoading ? 'opacity-50' : ''} stroke-[2px]`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!favLoading) handleToggleFav();
+            }}
+          />
         </div>
       </div>
 

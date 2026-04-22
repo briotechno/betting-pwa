@@ -6,6 +6,7 @@ import { toTitleCase } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useAuthStore } from '@/store/authStore'
+import { useSnackbarStore } from '@/store/snackbarStore'
 
 const sportsList = [
   { id: 'Cricket', name: 'Cricket', icon: '/sports-icons/cricket.13c45ec.png' },
@@ -78,7 +79,7 @@ const formatTime12h = (dateStr: string) => {
   }
 };
 
-const MatchTable = ({ match }: { match: any }) => {
+const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => void }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
   const { isAuthenticated } = useAuthStore()
@@ -116,7 +117,7 @@ const MatchTable = ({ match }: { match: any }) => {
       )}
 
       {/* Header */}
-      <div className="h-10 lg:h-12 flex items-center relative select-none bg-[#e0e0e0] overflow-hidden">
+      <div className="h-10 lg:h-12 flex items-center relative select-none bg-[#e0e0e0]">
         {/* Toggle Button Column */}
         <div
           className="w-10 lg:w-12 h-full flex items-center justify-center bg-[#e8612c] text-white cursor-pointer hover:bg-[#d85826] transition-colors z-20"
@@ -144,16 +145,26 @@ const MatchTable = ({ match }: { match: any }) => {
         </div>
 
         {/* Right Side - Icons */}
-        <div className="flex items-center justify-end pr-3 gap-3 z-0 ml-[-10px] pl-6 flex-initial min-w-[30px]">
-          <div className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current cursor-help">
+        <div className="flex items-center justify-end pr-3 gap-3 z-20 ml-[-10px] pl-6 flex-initial min-w-[30px]">
+          <div 
+            className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
               <path d="M8 5v14l11-7z" />
             </svg>
             <div className="absolute bottom-full right-0 mb-2 hidden group-hover/inplay:block z-[100] whitespace-nowrap bg-black text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-wider">
-              In-Play
+              In Play
             </div>
           </div>
-          <Star size={18} className="hidden md:block text-[#ffd700] fill-none stroke-[2px]" />
+          <Star 
+            size={18} 
+            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFav();
+            }}
+          />
         </div>
       </div>
 
@@ -203,7 +214,7 @@ const MatchTable = ({ match }: { match: any }) => {
 }
 
 function SportsbookContent() {
-  const { user } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
   const [activeSubTab, setActiveSubTab] = useState('LIVE & UPCOMING')
   const router = useRouter()
   const pathname = usePathname()
@@ -378,6 +389,35 @@ function SportsbookContent() {
     };
   }, [games]);
 
+  const handleToggleFav = async (eid: string, index: number) => {
+    if (!isAuthenticated || !user?.loginToken) {
+      router.push('/auth/login')
+      return
+    }
+    try {
+      const res = await marketController.toggleFavourite(user.loginToken, eid.toString())
+      if (res.error === '0' || res.status === 'success' || res.message?.toLowerCase().includes('success')) {
+        const newGames = [...games]
+        const game = newGames[index]
+        if (game) {
+          const currentFav = game.IsFavorite === '1' || game.isFavorite === 'Yes' || game.fav === '1' || game.IsFavorite === true
+          game.IsFavorite = currentFav ? '0' : '1'
+          game.fav = currentFav ? '0' : '1'
+          setGames(newGames)
+          useSnackbarStore.getState().show(
+            currentFav ? 'Removed from Favorites' : 'Added to Favorites',
+            'success'
+          )
+        }
+      } else {
+        useSnackbarStore.getState().show(res.message || 'Failed to update favorites', 'error')
+      }
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err)
+      useSnackbarStore.getState().show('Failed to update favorites', 'error')
+    }
+  }
+
   const processedMatches = useMemo(() => {
     return games.map((g, index) => {
       const mId = g.MarketId || g.marketid;
@@ -433,6 +473,7 @@ function SportsbookContent() {
         isUpcoming: isUpcoming,
         matchId: g.gid || g.Event_Id,
         competitionId: g.CompetitionCode || g.cid || 'all',
+        isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1' || g.IsFavorite === true,
         odds: [
           {
             back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,
@@ -550,8 +591,12 @@ function SportsbookContent() {
                   <p className="text-[10px] font-black uppercase tracking-widest">Loading Live Data...</p>
                 </div>
               ) : processedMatches.length > 0 ? (
-                processedMatches.map((match) => (
-                  <MatchTable key={match.id} match={match} />
+                processedMatches.map((match, index) => (
+                  <MatchTable 
+                    key={match.id} 
+                    match={match} 
+                    onToggleFav={() => handleToggleFav(match.matchId, index)} 
+                  />
                 ))
               ) : (
                 <div className="text-center py-10 text-gray-400 font-bold uppercase text-[12px]">No Matches Found</div>
