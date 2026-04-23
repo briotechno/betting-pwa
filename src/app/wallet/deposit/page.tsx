@@ -441,7 +441,7 @@ export default function DepositPage() {
                               <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm">
                                 <img src={iconPath} alt="" className="w-full h-full object-contain" />
                               </div>
-                              <span className="text-[9.5px] font-bold uppercase text-center leading-tight truncate w-full px-1 tracking-tighter mt-1">{displayName}</span>
+                              <span className="text-[9.5px] font-bold uppercase text-center leading-tight w-full px-1 tracking-tighter mt-1">{displayName}</span>
                             </button>
                           );
                         })
