@@ -215,6 +215,11 @@ export default function LiveCasinoPage() {
           const gamesInCat = groupedGames[cat] || [];
           if (gamesInCat.length === 0) return null;
 
+          // If not in lobby, only show the active category
+          if (activeTab !== 'lobby' && activeTab !== cat) return null;
+
+          const isGridView = activeTab !== 'lobby';
+
           return (
             <div
               key={cat}
@@ -223,18 +228,28 @@ export default function LiveCasinoPage() {
             >
               <div className="flex items-center justify-between mb-3 px-1">
                 <h2 className="text-[16px] font-bold text-white tracking-tight leading-none uppercase">{cat}</h2>
-                <button className="bg-[#4caf50] text-[#fff] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                  See All
-                </button>
+                {activeTab === 'lobby' && (
+                  <button 
+                    onClick={() => scrollToCategory(cat)}
+                    className="bg-[#4caf50] text-[#fff] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all"
+                  >
+                    See All
+                  </button>
+                )}
               </div>
 
-              {/* Games Horizontal Slider - Matches Reference Look */}
-              <div className="flex overflow-x-auto no-scrollbar gap-2 px-0.5 pb-2">
+              {/* Games Horizontal Slider or Grid */}
+              <div className={isGridView 
+                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+                : "flex overflow-x-auto no-scrollbar gap-2 px-0.5 pb-2"
+              }>
                 {gamesInCat.map((game) => (
                   <div
                     key={game.game_code}
                     onClick={() => handleGameClick(game)}
-                    className="relative min-w-[115px] aspect-[3/4.2] group active:scale-95 transition-transform overflow-hidden rounded-[4px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl"
+                    className={`relative group active:scale-95 transition-transform overflow-hidden rounded-[4px] border border-white/5 bg-[#1a1a1a] cursor-pointer shadow-xl ${
+                      isGridView ? "w-full aspect-[3/4.2]" : "min-w-[115px] aspect-[3/4.2]"
+                    }`}
                   >
                     <img
                       // src={game.image.startsWith('http') ? game.image : `${IMG_BASE_URL}${game.image}`}
