@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, Calendar, X } from 'lucide-react'
+import { formatTime12h } from '@/utils/format'
 import { useAuthStore } from '@/store/authStore'
 import { userController } from '@/controllers/user/userController'
 
@@ -152,13 +153,38 @@ export default function ProfitLossPage() {
     fetchPL()
   }, [startDate, endDate])
 
-  const filteredResults = results.filter(item => {
-    if (selectedGame === 'All') return true
-    return item.Type === selectedGame
-  })
+  const sortedResults = React.useMemo(() => {
+    const filtered = results.filter(item => {
+      if (selectedGame === 'All') return true
+      return item.Type === selectedGame
+    })
+
+    return [...filtered].sort((a, b) => {
+      const parse = (str: string) => {
+        if (!str) return 0;
+        const parts = str.split(' ')
+        if (parts.length === 2) {
+          const dateParts = parts[0].split('-')
+          const timeParts = parts[1].split(':')
+          if (dateParts.length === 3 && timeParts.length >= 2) {
+            return new Date(
+              parseInt(dateParts[2]), 
+              parseInt(dateParts[1]) - 1, 
+              parseInt(dateParts[0]),
+              parseInt(timeParts[0]),
+              parseInt(timeParts[1]),
+              parseInt(timeParts[2] || '0')
+            ).getTime()
+          }
+        }
+        return new Date(str).getTime() || 0;
+      }
+      return parse(b.DateTime) - parse(a.DateTime)
+    })
+  }, [results, selectedGame])
 
   const totalPL = results.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
-  const currentTotal = filteredResults.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
+  const currentTotal = sortedResults.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
 
   return (
     <div className="bg-[#181818] min-h-screen text-white pb-20 font-sans">
@@ -240,21 +266,21 @@ export default function ProfitLossPage() {
              <div className="flex justify-center py-20">
                 <div className="w-8 h-8 border-2 border-[#e8612c] border-t-transparent rounded-full animate-spin" />
              </div>
-           ) : filteredResults.length > 0 ? (
-             filteredResults.map((item: any, idx) => {
+           ) : sortedResults.length > 0 ? (
+             sortedResults.map((item: any, idx) => {
                const amount = parseFloat(item.amount || 0)
                const isPositive = amount >= 0
                return (
                  <div key={idx} className="overflow-hidden rounded-lg bg-white border border-white/10 shadow-lg">
                    <div className="bg-[#e15b24] px-4 py-2 flex items-center justify-between">
-                      <span className="text-white text-[12px] font-medium">{item.DateTime}</span>
+                      <span className="text-white text-[12px] font-medium">{formatTime12h(item.DateTime)}</span>
                       <ChevronUp size={16} className="text-white" />
                    </div>
                    <div className="px-4 py-3 text-black bg-white flex justify-between items-start">
                       <div className="flex flex-col gap-0.5">
                          <span className="text-[11px] font-bold text-black uppercase tracking-tight opacity-50">Game Activity</span>
                          <h4 className="text-[12px] font-bold text-[#007bff]">{item.GameName}</h4>
-                         <p className="text-[11px] text-gray-500">Timestamp: {item.DateTime}</p>
+                         <p className="text-[11px] text-gray-500">Timestamp: {formatTime12h(item.DateTime)}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1 min-w-[100px]">
                          <div className="flex items-center gap-1">
