@@ -183,8 +183,10 @@ export default function OpenBetsPage() {
 
                       return (
                         <div key={bIdx} className="mb-4">
-                          {/* Market Name above colored box */}
-                          <p className="text-[11px] text-[#444] mb-1 ml-2">{bet.Game_Type || 'Winner'}</p>
+                          {/* Sport Type and Market Name above colored box */}
+                          <p className="text-[11px] text-[#444] mb-1 ml-2 font-bold uppercase tracking-tight">
+                            {bet.Type || 'SPORT'} - {bet.Game_Type || 'Winner'}
+                          </p>
                           
                           {/* Colored Bet Box */}
                           <div 
