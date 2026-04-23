@@ -73,7 +73,7 @@ export default function BetSlipForm({ selection, onClose }: BetSlipFormProps) {
       }
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
-      const isWinner = selection.marketName.toLowerCase().includes('winner')
+      const isWinner = selection.marketName.toLowerCase().includes('winner') && mType !== 'WINNETSET'
       const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
       const teamLetter = teamMap[selection.marketIndex] || 'A'
 

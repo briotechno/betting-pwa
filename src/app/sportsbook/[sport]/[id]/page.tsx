@@ -84,7 +84,8 @@ const MarketTable = ({
   msg?: string,
   onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void,
   isCashoutLoading?: boolean,
-  onOpenFancyChart?: (marketId: string, runnerName: string) => void
+  onOpenFancyChart?: (marketId: string, runnerName: string) => void,
+  marketType?: string
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [favourite, setFavourite] = useState(isFavourite)
@@ -92,27 +93,6 @@ const MarketTable = ({
   const { user } = useAuthStore()
   const router = useRouter()
   const params = useParams()
-  const betslipRowRef = useRef<HTMLTableRowElement | null>(null)
-
-  // Mobile-only: auto-scroll the betslip form into view when it opens
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth >= 1024) return
-    if (selections.length === 0 || !betslipRowRef.current) return
-
-    const el = betslipRowRef.current
-    const rect = el.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const HEADER_OFFSET = 60 // fixed header height approx
-
-    // Only scroll if the element bottom is below the visible area
-    if (rect.bottom > viewportHeight) {
-      const scrollAmount = rect.bottom - viewportHeight + 16 // 16px breathing room
-      window.scrollBy({ top: scrollAmount, behavior: 'smooth' })
-    } else if (rect.top < HEADER_OFFSET) {
-      // Edge case: element is above the header after scroll
-      window.scrollBy({ top: rect.top - HEADER_OFFSET - 8, behavior: 'smooth' })
-    }
-  }, [selections])
 
   const handleToggleFav = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -237,8 +217,8 @@ const MarketTable = ({
           {((marketName.toUpperCase().includes('MATCH ODDS') ||
             marketName.toUpperCase().includes('BOOKMAKER') ||
             marketName.toUpperCase().includes('TIED MATCH') ||
-            marketName.toUpperCase().includes('WINNER') ||
-            marketName.toUpperCase().includes('GOAL')) && runners.length === 2) && (
+            marketName.toUpperCase().includes('GOAL') ||
+            marketType?.toUpperCase() === 'WINNETSET') && runners.length === 2) && (
               <CashoutButton
                 amount={0}
                 onCashout={() => {
@@ -247,14 +227,15 @@ const MarketTable = ({
                   else if (marketName.toUpperCase().includes('TIED MATCH')) mType = 'EXTRA';
                   else if (marketName.toUpperCase().includes('GOAL')) mType = 'GOAL';
                   else if (marketName.toUpperCase().includes('WINNER')) mType = 'WINNER';
-                  onCashout?.(marketId, marketName, runners, mType);
+                  else if (marketType?.toUpperCase() === 'WINNETSET') mType = 'WINNETSET';
+                  onCashout?.(eventId, marketName, runners, mType);
                 }}
                 isLoading={isCashoutLoading}
                 className="scale-90"
               />
             )}
-          
-          <div 
+
+          <div
             className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
             onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
           >
@@ -265,8 +246,8 @@ const MarketTable = ({
               In Play
             </div>
           </div>
-          <Star 
-            size={18} 
+          <Star
+            size={18}
             className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${favourite ? 'fill-[#ffd700]' : 'fill-none'} ${favLoading ? 'opacity-50' : ''} stroke-[2px]`}
             onClick={(e) => {
               e.stopPropagation();
@@ -275,16 +256,6 @@ const MarketTable = ({
           />
         </div>
       </div>
-
-      {useEffect(() => {
-        const hasSelectionOnMobile = runners.some((r, idx) => {
-          const rId = r.selectionId || r.SelectionId || r.id || r.selection_id || r.selectionid || r.sid || idx
-          return selections.some(s => s.id.startsWith(`${marketId}-${rId}-`))
-        })
-        if (hasSelectionOnMobile && isCollapsed) {
-          setIsCollapsed(false)
-        }
-      }, [selections, runners, marketId, isCollapsed]) as any}
 
       {/* Market Category Sub-Header */}
       <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
@@ -374,7 +345,7 @@ const MarketTable = ({
                   navigateToGame();
                 }
 
-                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${marketId}-${runnerId}-`))
+                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${marketId}-${runnerId}`))
 
                 return (
                   <React.Fragment key={runnerId}>
@@ -491,10 +462,7 @@ const MarketTable = ({
 
                     {/* Inline Mobile Betslip */}
                     {isSelectedOnMobile && selections[0] && (
-                      <tr 
-                        ref={betslipRowRef}
-                        className="lg:hidden animate-in slide-in-from-top-4 duration-300"
-                      >
+                      <tr className="lg:hidden animate-in slide-in-from-top-4 duration-300">
                         <td colSpan={2} className="p-2 pt-0 bg-white">
                           <BetSlipForm
                             selection={selections[0]}
@@ -748,7 +716,7 @@ export default function CompetitionDetailPage() {
         const runner = runners[teamIdx]
         if (!runner) throw new Error('Runner not found')
 
-        const selectionId = runner.selectionId || runner.id || runner.SelectionId || teamIdx
+        const selectionId = runner.selectionId || runner.id || runner.SelectionId || `${mId}-${teamIdx}`
         const bSide = cashout.Type === 'L' ? 'lay' : 'back'
 
         clearAll()
@@ -846,7 +814,8 @@ export default function CompetitionDetailPage() {
             isFavourite: details.IsFavorite === '1' || details.isFavorite === 'Yes' || details.fav === '1',
             min: m.min,
             max: m.max,
-            msg: m.Msg || m.msg
+            msg: m.Msg || m.msg,
+            marketType: m.category
           });
         }
       }
@@ -863,7 +832,8 @@ export default function CompetitionDetailPage() {
           matchId: gid,
           matchName: g.Game_name || `${g.Team1} V ${g.Team2}`,
           eventId: g.Event_Id || gid.toString(),
-          isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1'
+          isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1',
+          marketType: g.Game_Type || 'ODDS'
         });
       }
       return { gid, name: g.Game_name || `${g.Team1} V ${g.Team2}`, sections };
@@ -932,6 +902,7 @@ export default function CompetitionDetailPage() {
                         onCashout={handleCashout}
                         isCashoutLoading={cashoutLoading === section.id}
                         onOpenFancyChart={onOpenFancyChart}
+                        marketType={section.marketType}
                       />
                     ))}
                   </div>
