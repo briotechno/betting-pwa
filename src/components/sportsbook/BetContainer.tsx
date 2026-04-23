@@ -12,10 +12,22 @@ import BetConfirmationModal from './BetConfirmationModal'
 export default function BetContainer({ matchId, sportType }: { matchId?: string, sportType?: string }) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('OPEN_BETS')
-  const [unmatchedOpen, setUnmatchedOpen] = useState(true)
-  const [matchedOpen, setMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    if (isMobile) {
+      setActiveTab('OPEN_BETS')
+    }
+  }, [isMobile])
 
   const { user } = useAuthStore()
   const {
@@ -263,25 +275,27 @@ export default function BetContainer({ matchId, sportType }: { matchId?: string,
   return (
     <div className="w-full bg-[#121212] border-l border-[#333] lg:border-none min-h-screen lg:min-h-0 relative self-start">
       {/* Tabs */}
-      <div className="flex border-b border-[#333] relative z-[60] bg-[#121212]">
-        <button
-          onClick={() => setActiveTab('BETSLIP')}
-          className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
-            }`}
-        >
-          BETSLIP {selections.length > 0 && `(${selections.length})`}
-        </button>
-        <button
-          onClick={() => setActiveTab('OPEN_BETS')}
-          className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
-            }`}
-        >
-          OPEN BETS
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="flex border-b border-[#333] relative z-[60] bg-[#121212]">
+          <button
+            onClick={() => setActiveTab('BETSLIP')}
+            className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'BETSLIP' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
+              }`}
+          >
+            BETSLIP {selections.length > 0 && `(${selections.length})`}
+          </button>
+          <button
+            onClick={() => setActiveTab('OPEN_BETS')}
+            className={`flex-1 py-3 text-[12px] font-black tracking-wider transition-all ${activeTab === 'OPEN_BETS' ? 'text-[#e8612c] border-b-2 border-[#e8612c]' : 'text-gray-500 hover:text-gray-200'
+              }`}
+          >
+            OPEN BETS
+          </button>
+        </div>
+      )}
 
-      <div className="p-2">
-        {activeTab === 'BETSLIP' ? (
+      <div className={isMobile ? "p-0" : "p-2"}>
+        {(activeTab === 'BETSLIP' && !isMobile) ? (
           selections.length > 0 ? (
             <div className="space-y-4">
               {selections.map((sel) => {

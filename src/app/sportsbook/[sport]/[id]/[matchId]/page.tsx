@@ -655,8 +655,7 @@ export default function GameDetailPage() {
   const [favLoading, setFavLoading] = useState(false)
   const showSnackbar = useSnackbarStore(state => state.show)
   const { myBets: bets, setMyBets: setGlobalBets } = useBetSlipStore()
-  const [unmatchedOpen, setUnmatchedOpen] = useState(true)
-  const [matchedOpen, setMatchedOpen] = useState(true)
+  const [betsLoading, setBetsLoading] = useState(false)
 
   // Fancy Chart State
   const [fancyChartOpen, setFancyChartOpen] = useState(false)
@@ -665,7 +664,7 @@ export default function GameDetailPage() {
   const [fancyChartTitle, setFancyChartTitle] = useState('')
   const [scoreboardHtml, setScoreboardHtml] = useState<string | null>(null)
   const [cashoutLoading, setCashoutLoading] = useState<string | null>(null)
-  const [betsLoading, setBetsLoading] = useState(false)
+
 
   const filteredBets = useMemo(() => {
     if (!matchId) return bets;
@@ -677,33 +676,7 @@ export default function GameDetailPage() {
     )
   }, [bets, matchId])
 
-  const groupBetsByMarket = (betsToGroup: any[]) => {
-    const groups: Record<string, any[]> = {}
-    betsToGroup.forEach((bet) => {
-      const marketName = bet.Game_Type || 'Odds'
-      const key = `${bet.Game} ${marketName}`
-      if (!groups[key]) groups[key] = []
-      groups[key].push(bet)
-    })
-    return groups
-  }
 
-  const calculateBetProfit = (bet: any) => {
-    const odds = parseFloat(bet.Rate) || 0
-    const stake = parseFloat(bet.Stake) || 0
-    const mType = (bet.Game_Type || '').toUpperCase()
-    const isBack = bet.Side === 'back'
-
-    let value = 0
-    if (mType.includes('BOOKMAKER')) {
-      value = (odds * stake) / 100
-    } else if (mType.includes('FANCY') || mType.includes('LINE')) {
-      value = isBack ? (odds * stake / 100) : stake
-    } else {
-      value = (odds - 1) * stake
-    }
-    return Math.floor(value).toLocaleString()
-  }
 
   const groupedChartData = useMemo(() => {
     if (!fancyChartData || typeof fancyChartData !== 'object' || fancyChartData.error) return [];
@@ -1315,59 +1288,8 @@ export default function GameDetailPage() {
                 })()}
               </div>
             ) : (
-              <div className="space-y-4 pt-2">
-                {[{ title: 'Unmatched Bets', items: filteredBets.filter(b => !b.Type?.toLowerCase().includes('match') && b.IsMatched !== '1'), open: unmatchedOpen, setOpen: setUnmatchedOpen },
-                { title: 'Matched Bets', items: filteredBets.filter(b => b.Type?.toLowerCase().includes('match') || b.IsMatched === '1'), open: matchedOpen, setOpen: setMatchedOpen }].map((sec, i) => (
-                  <div key={i} className="rounded-xl overflow-hidden border border-[#f36c21] bg-[#111]">
-                    <button onClick={() => sec.setOpen(!sec.open)} className="w-full flex items-center justify-between px-4 py-4 bg-[#222] text-white/90 text-[13px] font-bold tracking-tight">
-                      <div className="flex items-center gap-2"><span className={sec.open ? 'text-[#f36c21]' : ''}>{sec.title}</span>{sec.items.length > 0 && <span className="bg-[#f36c21] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{sec.items.length}</span>}</div>
-                      <div className="bg-[#f36c21] rounded-full p-0.5 w-6 h-6 flex items-center justify-center transition-transform duration-300"><ChevronDown size={16} className={`text-white transition-transform duration-300 ${sec.open ? 'rotate-180' : ''}`} /></div>
-                    </button>
-                    {sec.open && (
-                      <div className="px-2 pb-2 space-y-4 bg-[#111] animate-in fade-in slide-in-from-top-2 duration-300">
-                        {betsLoading ? (
-                          <div className="p-12 flex justify-center"><Loader2 size={24} className="text-[#f36c21] animate-spin" /></div>
-                        ) : sec.items.length > 0 ? (
-                          Object.entries(groupBetsByMarket(sec.items)).map(([groupKey, betsInGroup], gIdx) => (
-                            <div key={gIdx} className="overflow-hidden rounded-[4px] shadow-xl border border-white/5">
-                              <table className="w-full text-left bg-white">
-                                <thead className="bg-white">
-                                  <tr className="border-b border-gray-100">
-                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 w-[40%]">{groupKey}</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Runs</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-center uppercase">Stake</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-gray-500 text-right uppercase">Profit/Liability</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {betsInGroup.map((bet, bIdx) => (
-                                    <tr key={bIdx} className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} text-[#333]`}>
-                                      <td className="py-2.5 px-3 text-[13px] font-black">
-                                        <div className="flex flex-col">
-                                          <span>{bet.Selection} {bet.Side === 'lay' && '(LAY)'}</span>
-                                          {bet.Game_Type && <span className="text-[10px] font-bold text-gray-600 uppercase mt-0.5">{bet.Game_Type}</span>}
-                                        </div>
-                                      </td>
-                                      <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Rate}</td>
-                                      <td className="py-2.5 px-3 text-[13px] font-black text-center">{bet.Stake}</td>
-                                      <td className="py-2.5 px-3 text-[13px] font-black text-right">
-                                        {sec.title === 'Unmatched Bets' ? '0' : calculateBetProfit(bet)}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="p-12 text-center text-white/20 text-[11px] font-black uppercase tracking-[0.2em] italic">
-                            No {sec.title}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+              <div className="flex-1 overflow-y-auto min-h-0 bg-[#121212]">
+                <BetContainer matchId={matchId} sportType={params.sport as string} />
               </div>
             )}
           </div>
