@@ -262,6 +262,19 @@ const MarketTable = ({
     marketName.toUpperCase().includes('GOAL')
   )
 
+  // Auto-expand if selection exists for this market on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 1024) return
+    const hasSelectionOnMobile = (Array.isArray(runners) ? runners : Object.values(runners || {})).some((r: any, idx: number) => {
+      const mId = isFancyGroup ? ((r.MarketId?.toString().startsWith('1.') || r.marketid?.toString().startsWith('1.')) ? (r.MarketId || r.marketid) : (r.eid || r.MarketId || r.marketid)) : marketId
+      const rId = isFancyGroup ? 0 : (r.selectionId || r.SelectionId || r.id || r.sid || idx)
+      return selections.some(s => s.id.startsWith(`${mId}-${rId}`))
+    })
+    if (hasSelectionOnMobile && isCollapsed) {
+      setIsCollapsed(false)
+    }
+  }, [selections, runners, marketId, isCollapsed, isFancyGroup])
+
   if (!runners || (Array.isArray(runners) ? runners : Object.values(runners)).length === 0) return null;
 
   return (
@@ -750,7 +763,7 @@ export default function GameDetailPage() {
         const runner = runners[teamIdx]
         if (!runner) throw new Error('Runner not found')
 
-        const selectionId = runner.selectionId || runner.id || runner.SelectionId || `${mId}-${teamIdx}`
+        const selectionId = runner.selectionId || runner.id || runner.SelectionId || teamIdx
         const bSide = cashout.Type === 'L' ? 'lay' : 'back'
 
         clearAll()
