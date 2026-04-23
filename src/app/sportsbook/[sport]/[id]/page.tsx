@@ -249,7 +249,7 @@ const MarketTable = ({
             className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${favourite ? 'fill-[#ffd700]' : 'fill-none'} ${favLoading ? 'opacity-50' : ''} stroke-[2px]`}
             onClick={(e) => {
               e.stopPropagation();
-              if (!favLoading) handleToggleFav();
+              if (!favLoading) handleToggleFav(e);
             }}
           />
         </div>
