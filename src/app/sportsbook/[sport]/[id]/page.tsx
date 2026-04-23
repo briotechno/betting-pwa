@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronUp, Info, Megaphone, X, AlertCircle } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronUp, Info, Megaphone, X, AlertCircle, Clock, Play } from 'lucide-react'
 import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
@@ -219,15 +219,25 @@ const MarketTable = ({
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 mb-4 relative">
       {/* Live Badge */}
       <div className={`absolute -top-[11px] left-2 ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[9px] font-black px-2 py-[2px] rounded-[4px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
-        {isUpcoming ? 'UPCOMING' : 'LIVE'}
+        {isUpcoming ? (
+          <>
+            <Clock size={10} className="text-white" strokeWidth={3} />
+            UPCOMING
+          </>
+        ) : (
+          <>
+            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            LIVE
+          </>
+        )}
       </div>
 
       {/* Match Header (Gray) */}
-      <div className="min-h-[40px] lg:min-h-[48px] h-auto flex items-stretch relative cursor-pointer select-none bg-[#e0e0e0]">
+      <div className="min-h-[40px] lg:min-h-[48px] h-auto flex items-center relative cursor-pointer select-none bg-[#e0e0e0]">
         {/* Left Side Slanted */}
         <div
           onClick={navigateToGame}
-          className="relative flex items-center pl-4 lg:pl-6 bg-[#e8612c] pr-8 lg:pr-14 z-10 transition-all duration-300 py-1.5"
+          className="relative flex items-center pl-4 lg:pl-6 bg-[#e8612c] pr-8 lg:pr-14 z-10 transition-all duration-300 py-1.5 self-stretch"
           style={{ clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)' }}
         >
           <div className="flex items-center gap-2 max-w-[240px] lg:max-w-none flex-1">
@@ -246,7 +256,7 @@ const MarketTable = ({
         </div>
 
         {/* Right Side Icons / Cashout */}
-        <div className="flex-1 h-full flex items-center justify-end pr-3 gap-3 z-20 ml-3">
+        <div className="flex-1 flex items-center justify-end pr-3 gap-3 z-20 ml-3">
           {/* Cashout Button for eligible markets */}
           {((marketName.toUpperCase().includes('MATCH ODDS') ||
             marketName.toUpperCase().includes('BOOKMAKER') ||
@@ -273,11 +283,13 @@ const MarketTable = ({
             className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
             onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            {isUpcoming ? (
+              <Clock size={16} className="text-[#28a745]" />
+            ) : (
+              <Play size={16} className="text-[#28a745] fill-current" />
+            )}
             <div className="absolute bottom-full right-0 mb-2 hidden group-hover/inplay:block z-[100] whitespace-nowrap bg-black text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-wider">
-              In Play
+              {isUpcoming ? 'Upcoming' : 'In Play'}
             </div>
           </div>
           <Star

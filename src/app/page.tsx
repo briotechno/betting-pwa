@@ -642,6 +642,7 @@ export default function HomePage() {
                     columns={['1', 'X', '2']}
                     rows={upcomingMatches}
                     isUpcoming={true}
+                    showUpcomingBadge={true}
                     sport={sportId}
                   />
                 </div>

@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { Play } from 'lucide-react'
+import { Play, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
@@ -33,6 +33,7 @@ interface OddsTableProps {
   isUpcoming?: boolean
   showLiveBadge?: boolean
   showInPlayBadge?: boolean
+  showUpcomingBadge?: boolean
   sport?: string
 }
 
@@ -134,7 +135,7 @@ function RateButton({
   )
 }
 
-export default function OddsTable({ matchId, matchName, competition, marketName, columns, rows, isUpcoming, showLiveBadge, showInPlayBadge, sport }: OddsTableProps) {
+export default function OddsTable({ matchId, matchName, competition, marketName, columns, rows, isUpcoming, showLiveBadge, showInPlayBadge, showUpcomingBadge, sport }: OddsTableProps) {
   const { addSelection, selections } = useBetSlipStore()
   const { isAuthenticated } = useAuthStore()
   const router = useRouter()
@@ -226,6 +227,18 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                         <Play size={12} fill="#28a745" className="text-[#28a745]" />
                         <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
                           In-Play Soon
+                        </span>
+                      </div>
+                    </td>
+                  )}
+
+                  {/* UPCOMING table only: show CLOCK icon */}
+                  {showUpcomingBadge && (
+                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
+                      <div className="relative flex items-center justify-center group">
+                        <Clock size={16} className="text-[#28a745]" strokeWidth={2.5} />
+                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                          Upcoming Match
                         </span>
                       </div>
                     </td>

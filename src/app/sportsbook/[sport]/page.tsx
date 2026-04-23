@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { Star, Loader2 } from 'lucide-react'
+import { Star, Loader2, Clock, Play } from 'lucide-react'
 import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
@@ -41,6 +41,7 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
           onClick={navigateToMatch}
           className="absolute -top-[12px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
         >
+          <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
           LIVE
         </div>
       ) : (
@@ -48,6 +49,7 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
           onClick={navigateToMatch}
           className="absolute -top-[12px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
         >
+          <Clock size={10} className="text-white" strokeWidth={3} />
           UPCOMING
         </div>
       )}
@@ -86,11 +88,13 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
             className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
             onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#28a745] fill-current">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            {match.isUpcoming ? (
+              <Clock size={16} className="text-[#28a745]" />
+            ) : (
+              <Play size={16} className="text-[#28a745] fill-current" />
+            )}
             <div className="absolute bottom-full right-0 mb-2 hidden group-hover/inplay:block z-[100] whitespace-nowrap bg-black text-white text-[10px] font-black px-2 py-1 rounded shadow-lg uppercase tracking-wider">
-              In Play
+              {match.isUpcoming ? 'Upcoming' : 'In Play'}
             </div>
           </div>
           <Star 
