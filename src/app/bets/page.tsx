@@ -13,9 +13,16 @@ export default function OpenBetsPage() {
   const { myBets: bets, setMyBets: setBets } = useBetSlipStore()
   
   const [activeTab, setActiveTab] = useState('MY BET')
-  const [isUnmatchedOpen, setIsUnmatchedOpen] = useState(true)
-  const [isMatchedOpen, setIsMatchedOpen] = useState(true)
   const [loading, setLoading] = useState(false)
+
+  const groupBetsByGame = (bets: Bet[]) => {
+    return bets.reduce((acc: Record<string, Bet[]>, bet) => {
+      const game = bet.Game || 'Unknown Match'
+      if (!acc[game]) acc[game] = []
+      acc[game].push(bet)
+      return acc
+    }, {})
+  }
 
   useEffect(() => {
     if (isAuthenticated && user?.loginToken) {
@@ -153,103 +160,53 @@ export default function OpenBetsPage() {
                 >
                   Login
                 </button>
-             </div>
-          ) : activeTab === 'MY BET' ? (
-            <div className="space-y-6">
-              {/* Unmatched Bets Accordion */}
-              <div className="overflow-hidden bg-white rounded-t-xl border-t-[3px] border-[#e15b24]">
-                <button 
-                  onClick={() => setIsUnmatchedOpen(!isUnmatchedOpen)}
-                  className="w-full bg-[#dedede] flex items-center justify-between px-4 h-12"
-                >
-                  <span className="text-[#333] text-[13px] font-bold">Unmatched Bets</span>
-                  <div className="w-[20px] h-[20px] bg-[#e15b24] rounded-full flex items-center justify-center">
-                    {isUnmatchedOpen ? <ChevronUp size={14} className="text-white" strokeWidth={4} /> : <ChevronDown size={14} className="text-white" strokeWidth={4} />}
-                  </div>
-                </button>
-                
-                <div className={`${isUnmatchedOpen ? 'block' : 'hidden'}`}>
-                   {unmatchedBets.length > 0 ? (
-                     <div className="p-0">
-                        {unmatchedBets.map((bet, idx) => (
-                          <div 
-                            key={idx} 
-                            onClick={() => handleBetClick(bet)}
-                            className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} p-3 border-b border-black/5 last:border-0 text-black cursor-pointer hover:opacity-90 transition-opacity`}
-                          >
-                            <p className="text-[12px] font-bold mb-1">{bet.Game}</p>
-                            <p className="text-[11px] font-medium mb-1">{bet.Type || 'Winner'}</p>
-                            <p className="text-[12px] uppercase leading-tight">
-                              <span className="font-bold">{bet.Side}</span> {bet.Selection} for {bet.Stake} @ {bet.Rate} {
-                                bet.Side === 'back' 
-                                  ? `to win ${parseFloat(bet.Rate) > 10 
-                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
-                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}` 
-                                  : `liability ${parseFloat(bet.Rate) > 10 
-                                      ? (parseFloat(bet.Stake) * (parseFloat(bet.Rate) / 100)).toFixed(0) 
-                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}`
-                              } .
-                            </p>
-                            <p className="text-[10px] text-gray-600 mt-1">Placed: {bet.Date || 'N/A'}</p>
-                          </div>
-                        ))}
-                     </div>
-                   ) : (
-                     <div className="p-12 flex flex-col items-center justify-center text-[#e15b24] gap-2">
-                        <AlertTriangle size={40} strokeWidth={2.5} />
-                        <p className="text-[13px] font-bold">No Unmatched Bets!</p>
-                     </div>
-                   )}
-                </div>
-              </div>
+             </div>          ) : activeTab === 'MY BET' ? (
+            <div className="space-y-4 bg-white p-2">
+              {Object.keys(groupBetsByGame(bets)).length > 0 ? (
+                Object.entries(groupBetsByGame(bets)).map(([gameName, gameBets]) => (
+                  <div key={gameName} className="flex flex-col">
+                    {/* Match Name */}
+                    <h3 className="text-[12px] font-bold text-black mb-1">{gameName}</h3>
+                    
+                    {gameBets.map((bet, bIdx) => {
+                      const isBack = bet.Side?.toLowerCase() === 'back';
+                      const rateNum = parseFloat(bet.Rate || '0');
+                      const stakeNum = parseFloat(bet.Stake || '0');
+                      
+                      const amount = rateNum > 10 
+                        ? (stakeNum * rateNum / 100).toFixed(0) 
+                        : (stakeNum * (rateNum - 1)).toFixed(0);
+                      
+                      const label = isBack ? 'to win' : 'liability';
+                      const sideLabel = bet.Side?.toUpperCase() || 'BACK';
 
-              {/* Matched Bets Accordion */}
-              <div className="overflow-hidden bg-white rounded-t-xl border-t-[3px] border-[#e15b24]">
-                <button 
-                  onClick={() => setIsMatchedOpen(!isMatchedOpen)}
-                  className="w-full bg-[#dedede] flex items-center justify-between px-4 h-12"
-                >
-                  <span className="text-[#333] text-[13px] font-bold">Matched Bets</span>
-                  <div className="w-[20px] h-[20px] bg-[#e15b24] rounded-full flex items-center justify-center">
-                    {isMatchedOpen ? <ChevronUp size={14} className="text-white" strokeWidth={4} /> : <ChevronDown size={14} className="text-white" strokeWidth={4} />}
-                  </div>
-                </button>
-                
-                <div className={`${isMatchedOpen ? 'block' : 'hidden'}`}>
-                   {matchedBets.length > 0 ? (
-                     <div className="p-0">
-                        {matchedBets.map((bet, idx) => (
+                      return (
+                        <div key={bIdx} className="mb-4">
+                          {/* Market Name above colored box */}
+                          <p className="text-[11px] text-[#444] mb-1 ml-2">{bet.Game_Type || 'Winner'}</p>
+                          
+                          {/* Colored Bet Box */}
                           <div 
-                            key={idx} 
                             onClick={() => handleBetClick(bet)}
-                            className={`${bet.Side === 'back' ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} p-4 border-b border-black/5 last:border-0 text-black cursor-pointer hover:opacity-90 transition-opacity`}
+                            className={`${isBack ? 'bg-[#a5d9fe]' : 'bg-[#f8d0ce]'} p-3 cursor-pointer hover:brightness-95 transition-all text-black`}
                           >
-                            <p className="text-[12px] font-bold text-[#1a1a1a] mb-1">{bet.Game}</p>
-                            <p className="text-[11px] font-medium text-gray-700 mb-1">{bet.Game_Type || bet.Type || 'Winner'}</p>
-                            <p className="text-[12px] leading-tight uppercase">
-                              <span className="font-bold">{bet.Side}</span> <span className="font-bold">{bet.Selection}</span> for <span className="font-bold">{bet.Stake}</span> @ <span className="font-bold">{bet.Rate}</span> {
-                                bet.Side === 'back' 
-                                  ? `to win ${parseFloat(bet.Rate) > 10 
-                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
-                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}` 
-                                  : `liability ${parseFloat(bet.Rate) > 10 
-                                      ? (parseFloat(bet.Stake) * parseFloat(bet.Rate) / 100).toFixed(0) 
-                                      : (parseFloat(bet.Stake) * (parseFloat(bet.Rate) - 1)).toFixed(0)}`
-                              } .
+                            <p className="text-[12px] font-bold mb-1">
+                              {sideLabel} {bet.Selection} for {bet.Stake} @ {bet.Rate} {label} {amount} .
                             </p>
-                            {bet.Game_Type && <p className="text-[11px] mt-1">{bet.Game_Type}</p>}
-                            <p className="text-[10px] text-gray-500 mt-1">Placed: {bet.Date || 'N/A'}</p>
+                            <p className="text-[11px] font-medium mb-1">{bet.Game_Type || 'Winner'}</p>
+                            <p className="text-[11px] text-gray-700">Placed: {bet.Date || 'N/A'}</p>
                           </div>
-                        ))}
-                     </div>
-                   ) : (
-                     <div className="p-12 flex flex-col items-center justify-center text-[#e15b24] gap-2">
-                        <AlertTriangle size={40} strokeWidth={2.5} />
-                        <p className="text-[13px] font-bold">No Matched Bets!</p>
-                     </div>
-                   )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))
+              ) : (
+                <div className="p-12 flex flex-col items-center justify-center text-[#e15b24] gap-2 bg-[#1a1a1a] rounded-xl border border-white/5">
+                  <AlertTriangle size={40} strokeWidth={2.5} />
+                  <p className="text-[13px] font-bold uppercase tracking-widest text-center">No Open Bets Found!</p>
                 </div>
-              </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-0 border-t border-b border-white/10">
