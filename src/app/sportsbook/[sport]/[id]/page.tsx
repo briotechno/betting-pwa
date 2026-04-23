@@ -66,7 +66,8 @@ const MarketTable = ({
   msg,
   onCashout,
   isCashoutLoading,
-  onOpenFancyChart
+  onOpenFancyChart,
+  marketType
 }: {
   marketName: string,
   runners: any[],
