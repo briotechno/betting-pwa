@@ -133,8 +133,8 @@ export default function MultiMarketTable({
       </div>
 
       {/* Runners List - No Column Headers */}
-      <div className="overflow-x-auto lg:overflow-visible text-gray-800">
-        <table className="w-full border-collapse">
+      <div className="overflow-hidden lg:overflow-visible text-gray-800">
+        <table className="w-full border-collapse table-fixed">
           <tbody className="divide-y divide-black/30">
             {runners
               .sort((a, b) => parseInt(a.SortPriority || '0') - parseInt(b.SortPriority || '0'))
@@ -174,7 +174,7 @@ export default function MultiMarketTable({
                 return (
                   <React.Fragment key={runner.SelectionId || idx}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
-                      <td className="py-3 px-4 lg:px-5" onClick={() => onRowClick && onRowClick(runner)}>
+                      <td className="py-3 px-3 lg:px-5 w-full overflow-hidden" onClick={() => onRowClick && onRowClick(runner)}>
                         <div className="flex items-center justify-between w-full cursor-pointer">
                           <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
                             {runner.RunnerName || 'Runner'}
@@ -219,7 +219,7 @@ export default function MultiMarketTable({
                           </div>
                         </div>
                       </td>
-                      <td className="p-1 px-2 relative min-w-[200px]">
+                      <td className="p-1 px-2 relative w-[130px] md:w-[410px] shrink-0">
                         <div className="flex justify-end gap-1 lg:gap-2 pr-2">
                           <div className="relative">
                             <div className="flex gap-1 lg:gap-2">

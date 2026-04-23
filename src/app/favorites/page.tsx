@@ -232,7 +232,7 @@ export default function FavoritesPage() {
 
       {/* Bet Container - attached but separate column */}
       {(isAuthenticated || user) && (
-        <div className="w-full lg:w-[480px] lg:sticky lg:top-[134px] lg:max-h-[calc(100vh-150px)] lg:overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden lg:border-l border-white/5 bg-[#111] z-30">
+        <div className="hidden lg:block lg:w-[480px] lg:sticky lg:top-[134px] lg:max-h-[calc(100vh-150px)] lg:overflow-y-auto self-start shrink-0 lg:border-none lg:rounded-lg lg:overflow-hidden lg:border-l border-white/5 bg-[#111] z-30">
           <BetContainer hideBetslipOnMobile={true} />
         </div>
       )}
