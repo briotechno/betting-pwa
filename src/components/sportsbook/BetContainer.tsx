@@ -9,7 +9,7 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 import BetConfirmationModal from './BetConfirmationModal'
 
-export default function BetContainer({ matchId, sportType }: { matchId?: string, sportType?: string }) {
+export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }: { matchId?: string, sportType?: string, hideBetslipOnMobile?: boolean }) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('OPEN_BETS')
   const [loading, setLoading] = useState(false)
