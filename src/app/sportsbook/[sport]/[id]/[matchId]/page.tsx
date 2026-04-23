@@ -289,13 +289,24 @@ const MarketTable = ({
           {((marketType === 'ODDS' || marketType === 'BOOKMAKER' || marketType === 'EXTRA' || marketType === 'GOAL' || marketType === 'WINNER') && runners.length === 2) && (
             <CashoutButton
               amount={0}
-              onCashout={() => onCashout?.(payloadEid || marketId, marketName, runners, marketType)}
+              onCashout={() => onCashout?.(marketId, marketName, runners, marketType)}
               isLoading={isCashoutLoading}
               className="origin-right"
             />
           )}
         </div>
       </div>
+
+      {useEffect(() => {
+        const hasSelectionOnMobile = (Array.isArray(runners) ? runners : Object.values(runners || {})).some((r: any, idx: number) => {
+          const mId = isFancyGroup ? ((r.MarketId?.toString().startsWith('1.') || r.marketid?.toString().startsWith('1.')) ? (r.MarketId || r.marketid) : (r.eid || r.MarketId || r.marketid)) : marketId
+          const rId = isFancyGroup ? 0 : (r.selectionId || r.SelectionId || r.id || r.sid || idx)
+          return selections.some(s => s.id.startsWith(`${mId}-${rId}-`))
+        })
+        if (hasSelectionOnMobile && isCollapsed) {
+          setIsCollapsed(false)
+        }
+      }, [selections, runners, marketId, isCollapsed, isFancyGroup]) as any}
 
       <div className="bg-[#333] flex items-center justify-between px-2 lg:px-3 h-10 border-t border-white/5">
         <div className="flex items-center gap-2">
@@ -423,7 +434,7 @@ const MarketTable = ({
                     yesVal: parseFloat(back.v1 || '100')
                   })
                 }
-                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}`))
+                const isSelectedOnMobile = selections.some(s => s.id.startsWith(`${mId}-${runnerId}-`))
                 suspensionMsg = (isMarketSuspended && suspensionMsg === 'BALL RUNNING') ? 'BALL RUNNING' : (rateData?.Msg || suspensionMsg)
 
                 const chartVal = (runner.Chart !== undefined && runner.Chart !== null) ? parseFloat(runner.Chart) :
@@ -750,7 +761,7 @@ export default function GameDetailPage() {
         const runner = runners[teamIdx]
         if (!runner) throw new Error('Runner not found')
 
-        const selectionId = runner.selectionId || runner.id || runner.SelectionId || `${mId}-${teamIdx}`
+        const selectionId = runner.selectionId || runner.id || runner.SelectionId || teamIdx
         const bSide = cashout.Type === 'L' ? 'lay' : 'back'
 
         clearAll()
