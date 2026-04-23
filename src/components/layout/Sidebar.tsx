@@ -275,7 +275,11 @@ export default function Sidebar() {
   const isSportPath = pathname?.startsWith('/sportsbook') && pathParts.length >= 2
   const isEventPath = pathParts.length >= 3 // /sportsbook/sport/competitionId
   const currentSport = isSportPath ? pathParts[1] : null
-  const competitionId = isEventPath ? pathParts[2] : null
+  const competitionId = isEventPath ? (
+    pathParts.length >= 4 && ['league', 'event', 'all'].includes(pathParts[2].toLowerCase()) 
+      ? pathParts[3] 
+      : pathParts[2]
+  ) : null
   const activeSportData = games.find(g => g.name.toLowerCase() === currentSport?.toLowerCase())
 
   useEffect(() => {
