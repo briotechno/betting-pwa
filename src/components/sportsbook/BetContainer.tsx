@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import { useBetSlipStore, BetSelection, Bet } from '@/store/betSlipStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
-import { toTitleCase } from '@/utils/format'
+import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetConfirmationModal from './BetConfirmationModal'
 
 export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }: { matchId?: string, sportType?: string, hideBetslipOnMobile?: boolean }) {
@@ -500,7 +500,7 @@ export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }
                                 {bet.Stake}
                               </td>
                               <td className="py-3 px-1 text-[9px] font-bold text-[#111] text-center leading-none">
-                                {bet.Date}
+                                {formatTime12h(bet.Date)}
                               </td>
                             </tr>
                           );

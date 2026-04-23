@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useBetSlipStore, Bet } from '@/store/betSlipStore'
 import { bettingController } from '@/controllers/betting/bettingController'
 import { marketController } from '@/controllers/market/marketController'
+import { formatTime12h } from '@/utils/format'
 
 export default function OpenBetsPage() {
   const router = useRouter()
@@ -77,7 +78,7 @@ export default function OpenBetsPage() {
             <div className="flex flex-col mb-1">
               <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider">{bet.Game}</span>
               <span className="text-[#1a1a1a] text-[13px] font-black uppercase tracking-tight leading-tight">{bet.Selection}</span>
-              <span className="text-[9px] text-gray-500 font-medium">{bet.Date}</span>
+              <span className="text-[9px] text-gray-500 font-medium">{formatTime12h(bet.Date)}</span>
             </div>
             
             <div className="rounded-lg overflow-hidden border border-gray-100 shadow-sm">
@@ -194,7 +195,7 @@ export default function OpenBetsPage() {
                               {sideLabel} {bet.Selection} for {bet.Stake} @ {bet.Rate} {label} {amount} .
                             </p>
                             <p className="text-[11px] font-medium mb-1">{bet.Game_Type || 'Winner'}</p>
-                            <p className="text-[11px] text-gray-700">Placed: {bet.Date || 'N/A'}</p>
+                            <p className="text-[11px] text-gray-700">Placed: {formatTime12h(bet.Date)}</p>
                           </div>
                         </div>
                       );

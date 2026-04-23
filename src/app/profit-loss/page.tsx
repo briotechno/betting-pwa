@@ -183,6 +183,15 @@ export default function ProfitLossPage() {
     })
   }, [results, selectedGame])
 
+  const [collapsedItems, setCollapsedItems] = useState<Record<number, boolean>>({})
+
+  const toggleCollapse = (idx: number) => {
+    setCollapsedItems(prev => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }))
+  }
+
   const totalPL = results.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
   const currentTotal = sortedResults.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
 
@@ -270,28 +279,34 @@ export default function ProfitLossPage() {
              sortedResults.map((item: any, idx) => {
                const amount = parseFloat(item.amount || 0)
                const isPositive = amount >= 0
+               const isCollapsed = collapsedItems[idx]
                return (
                  <div key={idx} className="overflow-hidden rounded-lg bg-white border border-white/10 shadow-lg">
-                   <div className="bg-[#e15b24] px-4 py-2 flex items-center justify-between">
+                   <div 
+                    onClick={() => toggleCollapse(idx)}
+                    className="bg-[#e15b24] px-4 py-2 flex items-center justify-between cursor-pointer hover:brightness-95 transition-all select-none"
+                   >
                       <span className="text-white text-[12px] font-medium">{formatTime12h(item.DateTime)}</span>
-                      <ChevronUp size={16} className="text-white" />
+                      {isCollapsed ? <ChevronDown size={16} className="text-white" /> : <ChevronUp size={16} className="text-white" />}
                    </div>
-                   <div className="px-4 py-3 text-black bg-white flex justify-between items-start">
-                      <div className="flex flex-col gap-0.5">
-                         <span className="text-[11px] font-bold text-black uppercase tracking-tight opacity-50">Game Activity</span>
-                         <h4 className="text-[12px] font-bold text-[#007bff]">{item.GameName}</h4>
-                         <p className="text-[11px] text-gray-500">Timestamp: {formatTime12h(item.DateTime)}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 min-w-[100px]">
-                         <div className="flex items-center gap-1">
-                            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Net Win:</span>
-                            <span className={`text-[12px] font-black ${isPositive ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
-                               {isPositive ? '+' : ''}{amount.toLocaleString()}
-                            </span>
-                         </div>
-                         <span className="text-[8px] font-black uppercase tracking-widest text-gray-300">Settled</span>
-                      </div>
-                   </div>
+                   {!isCollapsed && (
+                     <div className="px-4 py-3 text-black bg-white flex justify-between items-start animate-in slide-in-from-top-2 duration-200">
+                        <div className="flex flex-col gap-0.5">
+                           <span className="text-[11px] font-bold text-black uppercase tracking-tight opacity-50">Game Activity</span>
+                           <h4 className="text-[12px] font-bold text-[#007bff]">{item.GameName}</h4>
+                           <p className="text-[11px] text-gray-500">Timestamp: {formatTime12h(item.DateTime)}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 min-w-[100px]">
+                           <div className="flex items-center gap-1">
+                              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Net Win:</span>
+                              <span className={`text-[12px] font-black ${isPositive ? 'text-[#4caf50]' : 'text-[#f44336]'}`}>
+                                 {isPositive ? '+' : ''}{amount.toLocaleString()}
+                              </span>
+                           </div>
+                           <span className="text-[8px] font-black uppercase tracking-widest text-gray-300">Settled</span>
+                        </div>
+                     </div>
+                   )}
                  </div>
                )
              })
