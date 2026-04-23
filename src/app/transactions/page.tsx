@@ -32,7 +32,31 @@ export default function TransactionsPage() {
         const dataArray = Object.entries(res)
           .filter(([key]) => !isNaN(Number(key))) 
           .map(([_, value]) => value as any)
-        setTransactions(dataArray)
+        
+        // Sort descending: newest first
+        const sorted = dataArray.sort((a, b) => {
+          const parseDate = (str: string) => {
+            if (!str) return 0;
+            const parts = str.split(' ')
+            if (parts.length === 2) {
+              const dateParts = parts[0].split('-')
+              const timeParts = parts[1].split(':')
+              if (dateParts.length === 3 && timeParts.length >= 2) {
+                return new Date(
+                  parseInt(dateParts[2]), 
+                  parseInt(dateParts[1]) - 1, 
+                  parseInt(dateParts[0]),
+                  parseInt(timeParts[0]),
+                  parseInt(timeParts[1]),
+                  parseInt(timeParts[2] || '0')
+                ).getTime()
+              }
+            }
+            return new Date(str).getTime() || 0;
+          }
+          return parseDate(b["0"]) - parseDate(a["0"])
+        })
+        setTransactions(sorted)
       } else {
         setTransactions([])
       }
