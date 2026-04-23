@@ -9,7 +9,7 @@ import { useSnackbarStore } from '@/store/snackbarStore'
 import { toTitleCase } from '@/utils/format'
 import BetConfirmationModal from './BetConfirmationModal'
 
-export default function BetContainer({ matchId }: { matchId?: string }) {
+export default function BetContainer({ matchId, sportType }: { matchId?: string, sportType?: string }) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'BETSLIP' | 'OPEN_BETS'>('OPEN_BETS')
   const [unmatchedOpen, setUnmatchedOpen] = useState(true)
@@ -256,7 +256,9 @@ export default function BetContainer({ matchId }: { matchId?: string }) {
       b.eventId === matchId ||
       b.eventId === matchId.toString()
     )
-    : bets
+    : (sportType
+      ? bets.filter((b: Bet) => b.Type?.toLowerCase() === sportType.toLowerCase())
+      : bets)
 
   return (
     <div className="w-full bg-[#121212] border-l border-[#333] lg:border-none min-h-screen lg:min-h-0 relative self-start">

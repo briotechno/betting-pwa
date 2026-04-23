@@ -1393,7 +1393,7 @@ export default function GameDetailPage() {
             </div>
           )}
           <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
-            <BetContainer matchId={matchId} />
+            <BetContainer matchId={matchId} sportType={params.sport as string} />
           </div>
         </div>
       )}
