@@ -5,7 +5,7 @@ import { ChevronLeft, Copy, Check, Loader2, Landmark, Phone, ArrowLeft, Clock, C
 import { walletController, userController } from '@/controllers'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { useAuthStore } from '@/store/authStore'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatTime12h } from '@/utils/format'
 
 const QUICK_AMOUNTS = [500, 1000, 5000, 10000, 50000, 100000]
 
@@ -663,10 +663,10 @@ export default function DepositPage() {
                               {item.Status || item.status || 'Pending'}
                             </span>
                           </div>
-                          <span className="text-[9px] text-white text-center leading-tight">
-                            {item.Date || item.date ?
-                              (item.Date || item.date).split(' ').join('\n') :
-                              formatDate(item.created_at)
+                          <span className="text-[9px] text-white text-center leading-tight whitespace-pre-line">
+                            {item.Date || item.date ? 
+                              formatTime12h(item.Date || item.date).split(' ').join('\n') : 
+                              formatTime12h(item.created_at).split(' ').join('\n')
                             }
                           </span>
                           <span className="text-[10px] text-white/60 whitespace-normal break-words pl-4 leading-relaxed">{remark}</span>

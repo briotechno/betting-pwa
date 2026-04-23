@@ -5,7 +5,7 @@ import { ChevronLeft, Plus, Loader2, Landmark, Trash2, History, Info, AlertCircl
 import { walletController, userController } from '@/controllers'
 import { useSnackbarStore } from '@/store/snackbarStore'
 import { useAuthStore } from '@/store/authStore'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatTime12h } from '@/utils/format'
 import AddBankModal from '@/components/wallet/AddBankModal'
 import Button from '@/components/ui/Button'
 
@@ -386,7 +386,7 @@ export default function WithdrawalPage() {
                             </span>
                           </div>
                           <span className="text-[9px] text-white text-center leading-tight whitespace-pre-line">
-                            {date.includes(' ') ? date.split(' ').join('\n') : date}
+                            {formatTime12h(date).split(' ').join('\n')}
                           </span>
                           <span className="text-[10px] font-black text-white/40 uppercase text-center">{method}</span>
                           <span className="text-[10px] text-white/60 whitespace-normal break-words pl-4 leading-relaxed">{remarks}</span>

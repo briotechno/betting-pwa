@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronDown, Calendar, Loader2, X, Trophy, XCircle } from 'lucide-react'
 import { statementController } from '@/controllers'
 import { useAuthStore } from '@/store/authStore'
+import { formatTime12h } from '@/utils/format'
 
 export default function TransactionsPage() {
   const router = useRouter()
@@ -266,11 +267,13 @@ export default function TransactionsPage() {
                         </div>
                         <div>
                           <p className="text-[9px] text-white font-black mb-0">Date:</p>
-                          <p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[0]}</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{formatTime12h(date).split(' ')[0]}</p>
                         </div>
                         <div>
                           <p className="text-[9px] text-white font-black mb-0">Time:</p>
-                          <p className="text-[8px] text-gray-400 font-medium truncate">{date.split(' ')[1]}</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">
+                            {formatTime12h(date).split(' ')[1]} {formatTime12h(date).split(' ')[2]}
+                          </p>
                         </div>
                         <div className="col-span-2">
                           <p className="text-[9px] text-white font-black mb-0">Details:</p>
@@ -281,7 +284,7 @@ export default function TransactionsPage() {
                       <>
                         <div>
                           <p className="text-[9px] text-white font-black mb-0">Date:</p>
-                          <p className="text-[8px] text-gray-400 font-medium truncate">{date}</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{formatTime12h(date)}</p>
                         </div>
                         <div className="col-span-2">
                           <p className="text-[9px] text-white font-black mb-0">Description:</p>
@@ -355,7 +358,7 @@ export default function TransactionsPage() {
                             </div>
                             <div className="text-right">
                               <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date</p>
-                              <p className="text-[9px] font-medium text-white/60">{bet.Date}</p>
+                              <p className="text-[9px] font-medium text-white/60">{formatTime12h(bet.Date)}</p>
                             </div>
                             <div>
                               <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Rate</p>
