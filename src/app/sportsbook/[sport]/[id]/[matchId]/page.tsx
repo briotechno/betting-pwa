@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv, AlertCircle, Info } from 'lucide-react'
+import { Star, Loader2, ChevronDown, ChevronLeft, Plus, Megaphone, X, Tv, AlertCircle, Info, Eye, EyeOff } from 'lucide-react'
 import BetContainer from '@/components/sportsbook/BetContainer'
 import { marketController } from '@/controllers/market/marketController'
 import { useBetSlipStore } from '@/store/betSlipStore'
@@ -653,6 +653,7 @@ export default function GameDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isFav, setIsFav] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
+  const [scoreboardVisible, setScoreboardVisible] = useState(true)
   const showSnackbar = useSnackbarStore(state => state.show)
   const { myBets: bets, setMyBets: setGlobalBets } = useBetSlipStore()
   const [betsLoading, setBetsLoading] = useState(false)
@@ -1163,6 +1164,15 @@ export default function GameDetailPage() {
                     />
                   )}
                 </button>
+                <button
+                  onClick={() => setScoreboardVisible(!scoreboardVisible)}
+                  className={`ml-2 flex-shrink-0 transition-all hover:scale-110 active:scale-95 hidden lg:block`}
+                  title="Toggle Scoreboard"
+                >
+                  <div className={`w-8 h-5 rounded-[4px] flex items-center justify-center transition-all ${scoreboardVisible ? 'bg-[#28a745]' : 'bg-white/10'}`}>
+                    {scoreboardVisible ? <Eye size={14} className="text-white" /> : <EyeOff size={14} className="text-white/60" />}
+                  </div>
+                </button>
               </div>
               {gameTime && (
                 <span className="text-[10px] text-[#f36c21] font-bold uppercase tracking-wider leading-none mt-0.5 truncate">
@@ -1198,6 +1208,16 @@ export default function GameDetailPage() {
                 </span>
               </button>
             )}
+            
+            {/* Scoreboard Toggle (3rd Place Mobile) */}
+            <button
+              onClick={() => setScoreboardVisible(!scoreboardVisible)}
+              className="h-full flex items-center"
+            >
+              <div className={`w-10 h-6 rounded-[4px] flex items-center justify-center transition-all ${scoreboardVisible ? 'bg-[#28a745]' : 'bg-white/10'}`}>
+                {scoreboardVisible ? <Eye size={16} className="text-white" /> : <EyeOff size={16} className="text-white/60" />}
+              </div>
+            </button>
           </div>
           <div className="p-3 lg:p-0">
             {activeTab === 'MARKETS' ? (
@@ -1227,7 +1247,7 @@ export default function GameDetailPage() {
                       )}
 
                       {/* Scoreboard HTML */}
-                      {scoreboardHtml && (
+                      {scoreboardVisible && scoreboardHtml && (
                         <div
                           className="w-full mb-6 overflow-hidden rounded-xl shadow-2xl border border-white/10 bg-[#111] min-h-[140px] md:min-h-0 flex flex-col justify-center md:block p-4 md:p-0 relative transition-all duration-500"
                           dangerouslySetInnerHTML={{ __html: scoreboardHtml }}
