@@ -87,7 +87,8 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
 
   const navigateToMatch = (e: React.MouseEvent) => {
     e.stopPropagation()
-    router.push(`/sportsbook/Cricket/${match.competitionId || 'league'}/${match.matchId}`)
+    const sport = (match.Type || match.sportname || 'Cricket').toLowerCase()
+    router.push(`/sportsbook/${sport}/${match.competitionId || 'league'}/${match.matchId}?filter=${sport}`)
   }
 
   const handleOddsClick = () => {
@@ -95,7 +96,8 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
       router.push('/auth/login')
       return
     }
-    router.push(`/sportsbook/Cricket/${match.competitionId || 'league'}/${match.matchId}`)
+    const sport = (match.Type || match.sportname || 'Cricket').toLowerCase()
+    router.push(`/sportsbook/${sport}/${match.competitionId || 'league'}/${match.matchId}?filter=${sport}`)
   }
 
   return (
@@ -176,14 +178,6 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
             </div>
           </div>
 
-          <Star
-            size={18}
-            className={`text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 shrink-0 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFav();
-            }}
-          />
         </div>
       </div>
 

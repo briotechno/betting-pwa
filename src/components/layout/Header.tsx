@@ -194,9 +194,8 @@ export default function Header() {
   const handleResultClick = (result: SearchResult) => {
     setShowSearchResults(false)
     setSearchQuery('')
-    // Use sportsbook route: /sportsbook/[sport]/[id]/[matchId]
-    // We use 'event' as a placeholder for [id] since it's not provided by search
-    router.push(`/sportsbook/${result.Type}/event/${result.Gid}`)
+    const sport = (result.Type || 'cricket').toLowerCase()
+    router.push(`/sportsbook/${sport}/event/${result.Gid}?filter=${sport}`)
   }
 
   return (

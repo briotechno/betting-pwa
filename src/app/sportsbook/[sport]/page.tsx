@@ -111,14 +111,6 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
             </div>
           </div>
 
-          <Star 
-            size={18} 
-            className={`text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 shrink-0 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFav();
-            }}
-          />
         </div>
 
       </div>
