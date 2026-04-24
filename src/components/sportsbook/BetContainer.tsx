@@ -127,7 +127,7 @@ export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }
       }
 
       const mType = selection.marketType?.toUpperCase() || 'ODDS'
-      const isWinner = selection.marketName.toLowerCase().includes('winner')
+      const isWinner = selection.marketName.toLowerCase().includes('winner') && mType !== 'WINNETSET'
       const runnersCount = selection.runnersCount || 2
       const teamMap: Record<number, 'A' | 'B' | 'C'> = { 0: 'A', 1: 'B', 2: 'C' }
       const teamLetter = teamMap[selection.marketIndex] || 'A'
@@ -188,6 +188,7 @@ export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }
 
           case 'GOAL':
           case 'GOALS':
+          case 'WINNETSET':
             res = await bettingController.placeGoalBet({
               ...common,
               Eid: selection.marketId,
