@@ -210,7 +210,8 @@ export default function DepositPage() {
       return
     }
 
-    const isCrypto = activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO';
+    const methodType = (activeMethod.Type || activeMethod.type || '').toUpperCase();
+    const isCrypto = methodType === 'CRYPTO' || methodType === 'USDT';
 
     if (!utr.trim()) {
       showSnackbar(isCrypto ? 'Please enter USDT Reference No' : 'Please enter valid UTR/Reference ID', 'error')
@@ -237,14 +238,26 @@ export default function DepositPage() {
         return
       }
 
-      const response = await walletController.requestDeposit({
-        LoginToken: token,
-        Amount: amount,
-        Utr: isCrypto ? `${utr} | Hash: ${txHash}` : utr,
-        BankId: activeMethodId,
-        Mime_type: screenshotMime,
-        Screenshot: screenshot || ''
-      })
+      let response;
+      if (isCrypto) {
+        response = await walletController.depositUSDT({
+          LoginToken: token,
+          Amount: amount,
+          usdt_ref: utr,
+          Mime_type: screenshotMime,
+          Screenshot: screenshot || '',
+          txhash: txHash
+        });
+      } else {
+        response = await walletController.requestDeposit({
+          LoginToken: token,
+          Amount: amount,
+          Utr: utr,
+          BankId: activeMethodId,
+          Mime_type: screenshotMime,
+          Screenshot: screenshot || ''
+        });
+      }
 
       if (response.error === '0') {
         showSnackbar(response.msg || 'Deposit request submitted successfully', 'success')
@@ -514,19 +527,19 @@ export default function DepositPage() {
                     {/* UTR / Reference No */}
                     <div className="space-y-1.5">
                       <p className="text-[12px] font-bold text-white">
-                        {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? 'USDT Reference No' : 'Unique Transaction Reference'} <span className="text-red-500">*</span>
+                        {activeMethod && ['CRYPTO', 'USDT'].includes((activeMethod.Type || activeMethod.type || '').toUpperCase()) ? 'USDT Reference No' : 'Unique Transaction Reference'} <span className="text-red-500">*</span>
                       </p>
                       <input
                         type="text"
                         value={utr}
                         onChange={(e) => setUtr(e.target.value)}
-                        placeholder={activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? '10 Digit USDT Reference No' : '6 to 12 Digit UTR Number'}
+                        placeholder={activeMethod && ['CRYPTO', 'USDT'].includes((activeMethod.Type || activeMethod.type || '').toUpperCase()) ? '10 Digit USDT Reference No' : '6 to 12 Digit UTR Number'}
                         className="w-full h-12 bg-white/5 border border-white/10 rounded-lg px-4 text-sm font-medium focus:outline-none focus:border-white/20 transition-colors"
                       />
                     </div>
 
                     {/* TX Hash for Crypto Only */}
-                    {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && (
+                    {activeMethod && ['CRYPTO', 'USDT'].includes((activeMethod.Type || activeMethod.type || '').toUpperCase()) && (
                       <div className="space-y-1.5">
                         <p className="text-[12px] font-bold text-white">TX Hash <span className="text-red-500">*</span></p>
                         <input
@@ -557,7 +570,7 @@ export default function DepositPage() {
 
                     <div className="space-y-1.5 pt-1">
                       <p className="text-[12px] font-bold text-white">
-                        {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' ? 'Amount (USDT)' : 'Amount'} <span className="text-red-500">*</span>
+                        {activeMethod && ['CRYPTO', 'USDT'].includes((activeMethod.Type || activeMethod.type || '').toUpperCase()) ? 'Amount (USDT)' : 'Amount'} <span className="text-red-500">*</span>
                       </p>
                       <input
                         type="number"
@@ -565,7 +578,7 @@ export default function DepositPage() {
                         readOnly
                         className="w-full h-12 bg-[#2a2a2a] border border-white/10 rounded-lg px-4 text-sm font-bold text-white focus:outline-none cursor-not-allowed"
                       />
-                      {activeMethod && (activeMethod.Type || activeMethod.type || '').toUpperCase() === 'CRYPTO' && activeMethod.BuyPrice && (
+                      {activeMethod && ['CRYPTO', 'USDT'].includes((activeMethod.Type || activeMethod.type || '').toUpperCase()) && activeMethod.BuyPrice && (
                         <div className="px-2 pt-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-wider italic">
                           <span className="text-white/40">Rate Conversion:</span>
                           <span className="text-white/60">
