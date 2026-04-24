@@ -55,11 +55,10 @@ export default function MultiMarketTable({
   rateData,
   isFavourite,
   onToggleFavourite,
-  onHeaderClick,
   onRowClick,
   onCashout,
   isCashoutLoading
-}: MultiMarketTableProps & { onHeaderClick?: () => void }) {
+}: MultiMarketTableProps) {
 
   // PORTED getRunnerRates logic from Match Detail Page
   const getRunnerRatesForFavorites = (runnerId: any, rIdx: number, runner: any) => {
@@ -108,10 +107,7 @@ export default function MultiMarketTable({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-[#e0e0e0] mb-6 relative overflow-hidden">
       {/* Compact Minimal Header (Matches User Image) */}
-      <div 
-        className="bg-[#e8612c] flex items-center justify-between px-2 lg:px-4 h-10 border-b border-black/30 cursor-pointer hover:bg-[#d85826] transition-colors"
-        onClick={onHeaderClick}
-      >
+      <div className="bg-[#e8612c] flex items-center justify-between px-2 lg:px-4 h-10 border-b border-black/30">
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-white text-[11px] font-black uppercase tracking-tight truncate">{sportName}: {competitionName}</span>
@@ -178,8 +174,8 @@ export default function MultiMarketTable({
                 return (
                   <React.Fragment key={runner.SelectionId || idx}>
                     <tr className="hover:bg-gray-50/50 transition-colors group relative border-b border-black/30 last:border-0">
-                      <td className="py-3 px-3 lg:px-5 w-full overflow-hidden">
-                        <div className="flex items-center justify-between w-full">
+                      <td className="py-3 px-3 lg:px-5 w-full overflow-hidden" onClick={() => onRowClick && onRowClick(runner)}>
+                        <div className="flex items-center justify-between w-full cursor-pointer">
                           <span className="text-[13px] font-bold tracking-tight uppercase truncate pr-2">
                             {runner.RunnerName || 'Runner'}
                           </span>

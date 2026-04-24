@@ -216,13 +216,11 @@ export default function FavoritesPage() {
                     runners={runnersArray as any}
                     isFavourite={true}
                     onToggleFavourite={() => handleToggleFav(market.eid || market.Eid || market.MarketId)}
-                    onHeaderClick={() => {
-                       const sport = (market.Event_Type || marketRate?.Event_Type || market.sport || marketRate?.sport || 'cricket').toLowerCase()
-                       const cid = market.Cid || marketRate?.Cid || 'league'
-                       const gid = market.gid || market.Gid || marketRate?.gid || marketRate?.Gid
-                       if (gid) {
-                         router.push(`/sportsbook/${sport}/${cid}/${gid}?filter=${sport}`)
-                       }
+                    onRowClick={(runner) => {
+                       const sport = (market.Event_Type || market.sport || 'cricket').toLowerCase()
+                       const cid = market.Cid || 'league'
+                       const gid = market.gid || market.Gid
+                       if (gid) router.push(`/sportsbook/${sport}/${cid}/${gid}`)
                     }}
                   />
                 )

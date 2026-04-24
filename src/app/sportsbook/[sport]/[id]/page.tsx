@@ -212,7 +212,7 @@ const MarketTable = ({
   }
 
   const navigateToGame = () => {
-    router.push(`/sportsbook/${params.sport}/${params.id}/${matchId}?filter=${params.sport}`)
+    router.push(`/sportsbook/${params.sport}/${params.id}/${matchId}`)
   }
 
   return (

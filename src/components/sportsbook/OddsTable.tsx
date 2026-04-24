@@ -166,22 +166,11 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
     if (!matchId) return
     const targetSport = sport || 'cricket'
     const targetComp = competitionId || 'league'
-    router.push(`/sportsbook/${targetSport}/${targetComp}/${matchId}?filter=${targetSport}`)
+    router.push(`/sportsbook/${targetSport}/${targetComp}/${matchId}`)
   }
 
   return (
-    <div className="bg-[#eee] rounded-[4px] overflow-hidden">
-      {matchName && (
-        <div 
-          className="bg-[#e8612c] h-10 flex items-center px-4 cursor-pointer hover:bg-[#d85826] transition-colors border-b border-black/10"
-          onClick={() => handleRowClick(matchId, rows[0]?.competitionId)}
-        >
-          <div className="flex flex-col">
-             <span className="text-white text-[11px] font-black uppercase tracking-wider leading-none">{matchName}</span>
-             {competition && <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest leading-none mt-0.5">{competition}</span>}
-          </div>
-        </div>
-      )}
+    <div className="bg-[#eee]">
       <div className="overflow-x-auto lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <table className="w-full text-xs border-separate border-spacing-y-1">
           <tbody>
@@ -210,7 +199,8 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                   )}
 
                   <td
-                    className={`py-2 px-1.5 ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}
+                    onClick={() => handleRowClick(row.id, row.competitionId)}
+                    className={`py-2 px-1.5 cursor-pointer hover:bg-gray-50/50 transition-colors ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}
                   >
                     <div className="flex items-center justify-between w-full min-w-0">
                       <div className="flex flex-col justify-center min-w-0 flex-1">

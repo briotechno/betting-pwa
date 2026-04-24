@@ -412,7 +412,7 @@ export default function Sidebar() {
                         return (
                           <Link
                             key={game.gid || game.Event_Id || idx}
-                            href={`/sportsbook/${currentSport}/${competitionId}/${game.gid || game.Event_Id}?filter=${currentSport}`}
+                            href={`/sportsbook/${currentSport}/${competitionId}/${game.gid || game.Event_Id}`}
                             className="px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 block truncate"
                           >
                             {gameName}
@@ -434,7 +434,7 @@ export default function Sidebar() {
                 ) : dynamicLeagues.map((league: any, idx) => (
                   <Link
                     key={league.CompetitionCode || idx}
-                    href={`/sportsbook/${currentSport}/${league.CompetitionCode}?filter=${currentSport}`}
+                    href={`/sportsbook/${currentSport}/${league.CompetitionCode}`}
                     className="block px-4 py-3 text-[12px] text-gray-300 hover:text-white cursor-pointer hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 truncate"
                   >
                     {league.Competition}

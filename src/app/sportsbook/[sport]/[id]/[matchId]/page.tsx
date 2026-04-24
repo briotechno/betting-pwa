@@ -79,10 +79,7 @@ const MarketTable = ({
   isCashoutLoading,
   payloadEid,
   team1,
-  team2,
-  isFavourite,
-  onToggleFav,
-  favLoading
+  team2
 }: {
   marketName: string,
   runners: any[],
@@ -100,10 +97,7 @@ const MarketTable = ({
   isCashoutLoading?: boolean,
   payloadEid?: string,
   team1?: string,
-  team2?: string,
-  isFavourite: boolean,
-  onToggleFav: (e: React.MouseEvent) => void,
-  favLoading: boolean
+  team2?: string
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { selections, clearAll } = useBetSlipStore()
@@ -302,31 +296,17 @@ const MarketTable = ({
           </div>
         </div>
 
-        <div className="h-full flex items-center pr-4 z-0 ml-3 gap-3">
+        <div className="h-full flex items-center pr-4 z-0 ml-3">
           {/* Cashout Button for ODDS and BOOKMAKER with 2 runners */}
           {/* Premium Cashout Button */}
           {((['ODDS', 'BOOKMAKER', 'EXTRA', 'GOAL', 'WINNER', 'WINNETSET'].includes(marketType?.toUpperCase() || '')) && runners.length === 2) && (
             <CashoutButton
               amount={0}
               onCashout={() => onCashout?.(payloadEid || marketId, marketName, runners, marketType)}
-              isCashoutLoading={isCashoutLoading}
+              isLoading={isCashoutLoading}
               className="origin-right"
             />
           )}
-
-          <div
-            onClick={onToggleFav}
-            className={`flex items-center justify-center transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
-          >
-            {favLoading ? (
-              <Loader2 size={16} className="text-[#ffd700] animate-spin" />
-            ) : (
-              <Star
-                size={18}
-                className={`transition-colors cursor-pointer ${isFavourite ? 'text-[#ffd700] fill-[#ffd700]' : 'text-gray-500 fill-none'} stroke-[2px]`}
-              />
-            )}
-          </div>
         </div>
       </div>
 
@@ -1156,6 +1136,20 @@ export default function GameDetailPage() {
                   {matchName}
                 </h1>
                 <button
+                  onClick={handleToggleFav}
+                  disabled={favLoading}
+                  className={`flex-shrink-0 transition-all ${favLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
+                >
+                  {favLoading ? (
+                    <Loader2 size={16} className="text-yellow-500 animate-spin" />
+                  ) : (
+                    <Star
+                      size={18}
+                      className={`transition-colors ${isFav ? 'text-yellow-500 fill-yellow-500' : 'text-white/40 fill-none'}`}
+                    />
+                  )}
+                </button>
+                <button
                   onClick={toggleTv}
                   disabled={tvLoading}
                   className={`ml-2 flex-shrink-0 transition-all ${tvLoading ? 'opacity-50 cursor-wait' : 'hover:scale-110 active:scale-95'}`}
@@ -1264,7 +1258,7 @@ export default function GameDetailPage() {
                       {allMarkets.filter(m => m.category === 'ODDS').map((m: any, mIdx: number) => {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
-                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        return <MarketTable key={m.MarketId || m.eid || mIdx} marketName={m.name || 'Match Odds'} runners={runners} marketId={m.MarketId || m.eid || m.marketid} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="ODDS" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 2. BOOKMAKER Markets */}
@@ -1272,17 +1266,17 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Match Winner (Bookmaker)'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="BOOKMAKER" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === (m.MarketId || m.eid || m.marketid)} />
                       })}
 
                       {/* 3. LINE Group */}
                       {allMarkets.filter(m => m.category === 'LINE').length > 0 && (
-                        <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={gameEventId} team1={t1} team2={t2} onOpenFancyChart={openFancyChart} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        <MarketTable marketName="LINE MARKET" runners={allMarkets.filter(m => m.category === 'LINE')} marketId="LINE_GROUP" liveRates={liveOdds} matchName={matchName} marketType="LINE" marketIndex={998} eventId={gameEventId} team1={t1} team2={t2} onOpenFancyChart={openFancyChart} />
                       )}
 
                       {/* 4. FANCY Group */}
                       {allMarkets.filter(m => m.category === 'FANCY').length > 0 && (
-                        <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={gameEventId} team1={t1} team2={t2} onOpenFancyChart={openFancyChart} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        <MarketTable marketName="FANCY" runners={allMarkets.filter(m => m.category === 'FANCY')} marketId="FANCY_GROUP" liveRates={liveOdds} matchName={matchName} marketType="FANCY" marketIndex={999} eventId={gameEventId} team1={t1} team2={t2} onOpenFancyChart={openFancyChart} />
                       )}
 
                       {/* 4. EXTRA Markets (e.g. Tied Match) */}
@@ -1290,7 +1284,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Extra Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="EXTRA" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
 
                       {/* 5. GOAL Markets (e.g. Over/Under Goals) */}
@@ -1298,7 +1292,7 @@ export default function GameDetailPage() {
                         let runners = m.runner || m.runners || [];
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (m.eid || m.MarketId || m.marketid);
-                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || 'Goal Markets'} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType="GOAL" marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
 
                       {/* 6. Others */}
@@ -1307,7 +1301,7 @@ export default function GameDetailPage() {
                         if (!Array.isArray(runners)) runners = Object.values(runners);
                         const isLineOrFancy = m.category === 'LINE' || m.category === 'FANCY';
                         const mId = (m.MarketId?.toString().startsWith('1.') || m.marketid?.toString().startsWith('1.')) ? (m.MarketId || m.marketid) : (isLineOrFancy ? (m.eid || m.MarketId || m.marketid) : (m.MarketId || m.marketid || m.eid));
-                        return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} isFavourite={isFav} onToggleFav={handleToggleFav} favLoading={favLoading} />
+                        return <MarketTable key={mId || mIdx} marketName={m.name || m.category} runners={runners} marketId={mId} payloadEid={m.eid} liveRates={liveOdds} matchName={matchName} marketType={m.category} marketIndex={mIdx} eventId={gameEventId} team1={t1} team2={t2} min={m.min} max={m.max} msg={m.Msg} onOpenFancyChart={openFancyChart} onCashout={handleCashout} isCashoutLoading={cashoutLoading === mId} />
                       })}
                     </>
                   )

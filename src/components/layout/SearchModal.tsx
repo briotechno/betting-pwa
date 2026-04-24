@@ -57,8 +57,9 @@ export default function SearchModal() {
 
   const handleResultClick = (result: SearchResult) => {
     setSearchModalOpen(false)
-    const sport = (result.Type || 'cricket').toLowerCase()
-    router.push(`/sportsbook/${sport}/event/${result.Gid}?filter=${sport}`)
+    // Use sportsbook route: /sportsbook/[sport]/[id]/[matchId]
+    // We use 'event' as a placeholder for [id] since it's not provided by search
+    router.push(`/sportsbook/${result.Type}/event/${result.Gid}`)
   }
 
   if (!mounted || !searchModalOpen) return null
