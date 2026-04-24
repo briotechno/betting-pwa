@@ -465,8 +465,9 @@ export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }
               Object.entries(groupBetsByGame(filteredBets)).map(([gameName, gameBets]) => (
                 <div key={gameName} className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   {/* Game Name as requested: "top of that data" */}
-                  <div className="bg-[#444] px-2 py-1.5 border-l-4 border-[#f36c21] mb-0.5">
+                  <div className="bg-[#444] px-2 py-1.5 border-l-4 border-[#f36c21] mb-0.5 flex items-center justify-between">
                     <span className="text-white text-[11px] font-black uppercase tracking-wider">{gameName}</span>
+                    <span className="text-[#f36c21] text-[9px] font-black uppercase tracking-[0.2em]">{gameBets[0]?.Type || ''}</span>
                   </div>
 
                   <div className="overflow-hidden rounded-sm">
