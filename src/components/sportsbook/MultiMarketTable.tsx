@@ -23,6 +23,7 @@ interface MultiMarketTableProps {
   isFavourite?: boolean
   onToggleFavourite?: () => void
   onRowClick?: (runner: Runner) => void
+  onHeaderClick?: () => void
   onCashout?: (mId: string, mName: string, runners: any[], mType: string) => void
   isCashoutLoading?: boolean
 }
@@ -56,6 +57,7 @@ export default function MultiMarketTable({
   isFavourite,
   onToggleFavourite,
   onRowClick,
+  onHeaderClick,
   onCashout,
   isCashoutLoading
 }: MultiMarketTableProps) {
@@ -108,7 +110,7 @@ export default function MultiMarketTable({
     <div className="bg-white rounded-lg shadow-sm border border-[#e0e0e0] mb-6 relative overflow-hidden">
       {/* Compact Minimal Header (Matches User Image) */}
       <div className="bg-[#e8612c] flex items-center justify-between px-2 lg:px-4 h-10 border-b border-black/30">
-        <div className="flex flex-col min-w-0">
+        <div className="flex flex-col min-w-0 cursor-pointer flex-1" onClick={onHeaderClick}>
           <div className="flex items-center gap-2">
             <span className="text-white text-[11px] font-black uppercase tracking-tight truncate">{sportName}: {competitionName}</span>
             {((marketName.toUpperCase() === 'MATCH ODDS' || marketName.toUpperCase() === 'BOOKMAKER') && runners.length === 2) && (

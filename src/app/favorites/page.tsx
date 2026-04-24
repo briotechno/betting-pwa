@@ -206,6 +206,13 @@ export default function FavoritesPage() {
                                   (market.Team1 && market.Team2 ? `${market.Team1} vs ${market.Team2}` : 
                                   market.Event_Name || market.Game_Name || 'Main Market')
 
+                const navigateToMatch = () => {
+                  const sport = (market.Event_Type || market.sport || 'cricket').toLowerCase()
+                  const cid = market.Cid || 'league'
+                  const gid = market.gid || market.Gid || (marketRate as any)?.gid || (marketRate as any)?.Gid
+                  if (gid) router.push(`/sportsbook/${sport}/${cid}/${gid}`)
+                }
+
                 return (
                   <MultiMarketTable 
                     key={market.eid || market.Eid || market.MarketId}
@@ -216,12 +223,8 @@ export default function FavoritesPage() {
                     runners={runnersArray as any}
                     isFavourite={true}
                     onToggleFavourite={() => handleToggleFav(market.eid || market.Eid || market.MarketId)}
-                    onRowClick={(runner) => {
-                       const sport = (market.Event_Type || market.sport || 'cricket').toLowerCase()
-                       const cid = market.Cid || 'league'
-                       const gid = market.gid || market.Gid
-                       if (gid) router.push(`/sportsbook/${sport}/${cid}/${gid}`)
-                    }}
+                    onRowClick={navigateToMatch}
+                    onHeaderClick={navigateToMatch}
                   />
                 )
               })}
