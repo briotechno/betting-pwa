@@ -1,10 +1,11 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, Calendar, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, Calendar, X, Loader2, Trophy, XCircle } from 'lucide-react'
 import { formatTime12h } from '@/utils/format'
 import { useAuthStore } from '@/store/authStore'
 import { userController } from '@/controllers/user/userController'
+import { statementController } from '@/controllers/wallet/statementController'
 
 
 
@@ -104,6 +105,11 @@ export default function ProfitLossPage() {
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
+  // Bet statement popup state
+  const [betModalOpen, setBetModalOpen] = useState(false)
+  const [betLoading, setBetLoading] = useState(false)
+  const [betData, setBetData] = useState<any>(null)
+
   const gameOptions = React.useMemo(() => {
     const types = results.map(item => item.Type).filter(Boolean)
     return ['All', ...Array.from(new Set(types))]
@@ -190,6 +196,27 @@ export default function ProfitLossPage() {
       ...prev,
       [idx]: !prev[idx]
     }))
+  }
+
+  const handleCardClick = async (eid: any) => {
+    if (!eid || !eid.toString().trim()) return
+    
+    setBetModalOpen(true)
+    setBetLoading(true)
+    setBetData(null)
+    try {
+      const res = await statementController.getBetStatement(eid.toString(), user?.loginToken || '')
+      if (res && res.error !== '1') {
+        setBetData(res)
+      } else {
+        setBetData({ error: '1', msg: res?.msg || 'No Bet List Found' })
+      }
+    } catch (err) {
+      console.error('Failed to fetch bet statement:', err)
+      setBetData({ error: '1', msg: 'Failed to load bet details' })
+    } finally {
+      setBetLoading(false)
+    }
   }
 
   const totalPL = results.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0)
@@ -295,6 +322,14 @@ export default function ProfitLossPage() {
                            <span className="text-[11px] font-bold text-black uppercase tracking-tight opacity-50">Game Activity</span>
                            <h4 className="text-[12px] font-bold text-[#007bff]">{item.GameName}</h4>
                            <p className="text-[11px] text-gray-500">Timestamp: {formatTime12h(item.DateTime)}</p>
+                           {item.Eid && (
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleCardClick(item.Eid); }}
+                                className="mt-2 flex items-center gap-1 text-[10px] font-bold text-[#e15b24] hover:underline"
+                              >
+                                View Bet Details →
+                              </button>
+                           )}
                         </div>
                         <div className="flex flex-col items-end gap-1 min-w-[100px]">
                            <div className="flex items-center gap-1">
@@ -320,8 +355,89 @@ export default function ProfitLossPage() {
         </div>
       </div>
 
-      {isGameDropdownOpen && <div className="fixed inset-0 z-50" onClick={() => setIsGameDropdownOpen(false)} />}
+       {isGameDropdownOpen && <div className="fixed inset-0 z-50" onClick={() => setIsGameDropdownOpen(false)} />}
       {isCalendarOpen && <div className="fixed inset-0 z-50" onClick={() => setIsCalendarOpen(false)} />}
+
+      {/* Bet Statement Popup/Modal */}
+      {betModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setBetModalOpen(false)} />
+          <div className="relative z-10 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#111]">
+              <h3 className="text-[13px] font-black text-white uppercase tracking-tight">Bet Statement</h3>
+              <button onClick={() => setBetModalOpen(false)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {betLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-10 h-10 animate-spin text-[#e8612c] mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Loading Bet Details...</p>
+                </div>
+              ) : betData?.error === '1' ? (
+                <div className="text-center py-10">
+                  <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <XCircle size={28} />
+                  </div>
+                  <p className="text-red-400 uppercase font-black text-[10px] tracking-widest">{betData.msg}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {Object.values(betData || {})
+                    .filter((bet: any) => typeof bet === 'object' && bet !== null)
+                    .map((bet: any, idx: number) => {
+                      const isBack = bet.Type?.toLowerCase() === 'back'
+                      return (
+                        <div key={idx} className="bg-black/40 p-4 rounded-xl border border-white/5 space-y-3">
+                          {/* Game Name + Type Badge */}
+                          <div className="flex items-start justify-between border-b border-white/5 pb-3">
+                            <p className="text-[11px] font-black text-white uppercase tracking-tight leading-relaxed">
+                              {bet.Game?.replace(/&nbsp;/g, ' ')}
+                            </p>
+                            <span className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider ${isBack ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'}`}>
+                              {bet.Type}
+                            </span>
+                          </div>
+
+                          {/* Bet Details Grid */}
+                          <div className="grid grid-cols-2 gap-y-3">
+                            <div>
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Selection</p>
+                              <p className="text-[11px] font-bold text-white uppercase">{bet.Selection}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Date</p>
+                              <p className="text-[9px] font-medium text-white/60">{formatTime12h(bet.Date)}</p>
+                            </div>
+                            <div>
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Rate</p>
+                              <p className="text-[13px] font-black text-[#e8612c] tracking-tighter">{bet.Rate}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Stake</p>
+                              <p className="text-[13px] font-black text-white tracking-tighter">₹{parseFloat(bet.Stake || '0').toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  
+                  <button 
+                    onClick={() => setBetModalOpen(false)}
+                    className="w-full py-3 bg-[#e15b24] text-white font-black uppercase tracking-widest text-[11px] rounded-lg hover:brightness-110 active:scale-[0.98] transition-all mt-1"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -29,9 +29,7 @@ export default function TransactionsPage() {
     try {
       const res = await statementController.getAccountStatement(user.loginToken, fromDate, toDate)
       if (res && typeof res === 'object') {
-        const dataArray = Object.entries(res)
-          .filter(([key]) => !isNaN(Number(key))) 
-          .map(([_, value]) => value as any)
+        const dataArray = Object.values(res).filter(item => typeof item === 'object' && item !== null)
         
         // Sort descending: newest first
         const sorted = dataArray.sort((a, b) => {
@@ -52,9 +50,12 @@ export default function TransactionsPage() {
                 ).getTime()
               }
             }
+            // Handle YYYY-MM-DD format as well
             return new Date(str).getTime() || 0;
           }
-          return parseDate(b["0"]) - parseDate(a["0"])
+          const dateA = a.DateTime || a["0"]
+          const dateB = b.DateTime || b["0"]
+          return parseDate(dateB) - parseDate(dateA)
         })
         setTransactions(sorted)
       } else {
@@ -78,7 +79,7 @@ export default function TransactionsPage() {
 
   // Handle clicking a Win/Loss card to open bet details popup
   const handleCardClick = async (tx: any) => {
-    const eid = tx["4"]
+    const eid = tx.Eid || tx["4"]
     if (!eid || !eid.toString().trim()) return
     
     setBetModalOpen(true)
@@ -100,10 +101,11 @@ export default function TransactionsPage() {
   }
 
   // Filter transactions based on active tab
-  const filteredTransactions = transactions.filter(tx => {
+   const filteredTransactions = transactions.filter(tx => {
     if (activeTab === 'ALL') return true
-    const typeKey = (tx["2"] || '').toUpperCase().trim()
-    const description = (tx["3"] || '').toLowerCase()
+    const typeKey = (tx.Type || tx["2"] || '').toUpperCase().trim()
+    const description = (tx.GameName || tx["3"] || '').toLowerCase()
+    const amount = parseFloat(tx.amount || tx["1"] || 0)
     
     const isDepositDescr = description.includes('deposit') || description.includes('topup')
     const isWithdrawDescr = description.includes('withdraw') || description.includes('payout')
@@ -119,16 +121,20 @@ export default function TransactionsPage() {
       return isWithdrawDescr;
     }
     if (activeTab === 'WIN') {
-      return typeKey === 'CR' && !isDepositDescr
+      if (typeKey === 'CR') return true;
+      if (typeKey === 'DR' || isDepositDescr || isWithdrawDescr) return false;
+      return amount > 0;
     }
     if (activeTab === 'LOSS') {
-      return typeKey === 'DR' && !isWithdrawDescr
+      if (typeKey === 'DR') return true;
+      if (typeKey === 'CR' || isDepositDescr || isWithdrawDescr) return false;
+      return amount < 0;
     }
 
     return true
   })
 
-  const getCategoryTheme = (typeKey: string, description: string) => {
+  const getCategoryTheme = (typeKey: string, description: string, amount: number) => {
     const desc = description.toLowerCase()
     const isActualDeposit = typeKey === 'D' || (typeKey === 'CR' && (desc.includes('deposit') || desc.includes('topup')))
     const isActualWithdraw = typeKey === 'W' || (typeKey === 'DR' && (desc.includes('withdraw') || desc.includes('payout')))
@@ -138,6 +144,11 @@ export default function TransactionsPage() {
     if (typeKey === 'CR') return { label: 'WIN' }
     if (typeKey === 'DR') return { label: 'LOSS' }
     if (typeKey === 'O') return { label: 'OPENING' }
+    
+    // Fallback for descriptive keys where Type might be sport name
+    if (amount > 0) return { label: 'WIN' }
+    if (amount < 0) return { label: 'LOSS' }
+    
     return { label: 'OTHER' }
   }
 
@@ -249,16 +260,17 @@ export default function TransactionsPage() {
           ) : filteredTransactions.length === 0 ? (
             <div className="col-span-full flex justify-center pt-8 text-white/30 font-bold uppercase text-[12px] tracking-widest">No Records Found</div>
           ) : (
-            filteredTransactions.map((tx, idx) => {
-              const amount = parseFloat(tx["1"] || 0)
-              const typeKey = (tx["2"] || '').toUpperCase().trim()
-              const date = tx["0"]
-              const description = tx["3"]?.replace(/&nbsp;/g, ' ').replace(/Transcation/g, '').replace(/^\s*\/+\s*/, '') || ''
-              const { label } = getCategoryTheme(typeKey, description)
+             filteredTransactions.map((tx, idx) => {
+              const amount = parseFloat(tx.amount || tx["1"] || 0)
+              const typeKey = (tx.Type || tx["2"] || '').toUpperCase().trim()
+              const date = tx.DateTime || tx["0"]
+              const description = (tx.GameName || tx["3"] || '').replace(/&nbsp;/g, ' ').replace(/Transcation/g, '').replace(/^\s*\/+\s*/, '') || ''
+              const { label } = getCategoryTheme(typeKey, description, amount)
               const utrMatch = description.match(/\d{10,}/)
               const utr = utrMatch ? utrMatch[0] : 'N/A'
-              const hasEid = !!(tx["4"] && tx["4"].toString().trim())
-              const isWinLoss = (activeTab === 'WIN' || activeTab === 'LOSS')
+              const eid = tx.Eid || tx["4"]
+              const hasEid = !!(eid && eid.toString().trim())
+              const isWinLoss = (activeTab === 'WIN' || activeTab === 'LOSS' || label === 'WIN' || label === 'LOSS')
               const isClickable = isWinLoss && hasEid
 
               return (
@@ -285,9 +297,9 @@ export default function TransactionsPage() {
 
                     {isWinLoss ? (
                       <>
-                        <div>
+                         <div>
                           <p className="text-[9px] text-white font-black mb-0">Event ID:</p>
-                          <p className="text-[8px] text-gray-400 font-medium truncate">{tx["4"] || 'N/A'}</p>
+                          <p className="text-[8px] text-gray-400 font-medium truncate">{tx.Eid || tx["4"] || 'N/A'}</p>
                         </div>
                         <div>
                           <p className="text-[9px] text-white font-black mb-0">Date:</p>
@@ -358,12 +370,12 @@ export default function TransactionsPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {Object.entries(betData || {})
-                    .filter(([key]) => !isNaN(Number(key)))
-                    .map(([key, bet]: [string, any]) => {
+                   {Object.values(betData || {})
+                    .filter((bet: any) => typeof bet === 'object' && bet !== null)
+                    .map((bet: any, idx: number) => {
                       const isBack = bet.Type?.toLowerCase() === 'back'
                       return (
-                        <div key={key} className="bg-black/40 p-4 rounded-xl border border-white/5 space-y-3">
+                        <div key={idx} className="bg-black/40 p-4 rounded-xl border border-white/5 space-y-3">
                           {/* Game Name + Type Badge */}
                           <div className="flex items-start justify-between border-b border-white/5 pb-3">
                             <p className="text-[11px] font-black text-white uppercase tracking-tight leading-relaxed">
