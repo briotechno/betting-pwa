@@ -26,14 +26,14 @@ export default function FavoritesPage() {
         if (response) {
           let dataArray: any[] = []
           const rawData = response.data || response.list || response.BankList || response
-          
+
           if (Array.isArray(rawData)) {
             dataArray = rawData
           } else if (typeof rawData === 'object' && rawData !== null) {
             if (rawData.eid || rawData.Eid || rawData.MarketId) {
               dataArray = [rawData]
             } else {
-              dataArray = Object.values(rawData).filter(v => 
+              dataArray = Object.values(rawData).filter(v =>
                 v && typeof v === 'object' && ((v as any).eid || (v as any).Eid || (v as any).gid || (v as any).Gid || (v as any).MarketId)
               )
             }
@@ -72,7 +72,7 @@ export default function FavoritesPage() {
       .map(f => f.MarketId || f.marketid || f.eid || f.Eid || '')
       .filter(id => id !== '')
       .join(',')
-      
+
     const ids = favorites
       .map(f => {
         // Collect identifying keys, handling both empty strings and undefined
@@ -93,7 +93,7 @@ export default function FavoritesPage() {
         if (res && typeof res === 'object' && isMounted) {
           // If the response is success (no error field or error is '0')
           if (res.error === undefined || res.error === '0') {
-             setLiveRates(prev => ({ ...prev, ...res }))
+            setLiveRates(prev => ({ ...prev, ...res }))
           }
         }
       } catch (err) {
@@ -133,44 +133,44 @@ export default function FavoritesPage() {
           <button onClick={() => router.back()} className="text-[#e8612c] pr-3">
             <ChevronLeft size={22} className="stroke-[3]" />
           </button>
-          <h1 className="text-[15px] font-bold text-white uppercase tracking-tight">Favorites</h1>
+          <h1 className="text-[15px] font-bold text-white   tracking-tight">Favourites</h1>
         </div>
 
         <div className="p-4 pt-6">
           {!isAuthenticated ? (
             <div className="bg-[#1a1a1a] border border-white/5 rounded-3xl p-12 text-center shadow-xl max-w-2xl mx-auto">
-               <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Info size={40} className="text-white/20" />
-               </div>
-               <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Login Required</h3>
-               <p className="text-white/50 text-sm mb-8 max-w-xs mx-auto">Please login to view and manage your favorite matches and events.</p>
-               <button 
-                  onClick={() => router.push('/auth/login')}
-                  className="px-12 h-12 rounded-full font-black tracking-widest bg-[#e8612c] text-white hover:bg-[#ff7a45] transition-all"
-               >
-                  JOIN THE ACTION
-               </button>
+              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Info size={40} className="text-white/20" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Login Required</h3>
+              <p className="text-white/50 text-sm mb-8 max-w-xs mx-auto">Please login to view and manage your favorite matches and events.</p>
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="px-12 h-12 rounded-full font-black tracking-widest bg-[#e8612c] text-white hover:bg-[#ff7a45] transition-all"
+              >
+                JOIN THE ACTION
+              </button>
             </div>
           ) : loading ? (
             <div className="flex flex-col items-center justify-center py-32">
-               <div className="relative">
-                  <Loader2 className="animate-spin text-[#e8612c]" size={48} />
-                  <Star size={16} className="absolute inset-0 m-auto text-[#e8612c] fill-current" />
-               </div>
-               <p className="text-white/30 font-black uppercase tracking-[0.3em] text-[10px] mt-6">Loading your favorites</p>
+              <div className="relative">
+                <Loader2 className="animate-spin text-[#e8612c]" size={48} />
+                <Star size={16} className="absolute inset-0 m-auto text-[#e8612c] fill-current" />
+              </div>
+              <p className="text-white/30 font-black uppercase tracking-[0.3em] text-[10px] mt-6">Loading your favorites</p>
             </div>
           ) : favorites.length === 0 ? (
             <div className="bg-[#1a1a1a] border border-orange-500/50 rounded-lg p-3 text-left">
-               <div className="flex items-center gap-3">
-                 <Info size={20} className="text-[#e8612c]" />
-                 <p className="text-[#e8612c] text-[15px] font-medium leading-none">You haven&apos;t added anything to favorites.</p>
-               </div>
+              <div className="flex items-center gap-3">
+                <Info size={20} className="text-[#e8612c]" />
+                <p className="text-[#e8612c] text-[15px] font-medium leading-none">You haven&apos;t added anything to favorites.</p>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-2">
               {favorites.map((market: any) => {
                 const mIds = [
-                  market.MarketId, market.marketid, 
+                  market.MarketId, market.marketid,
                   market.eid, market.Eid, market.ekey,
                   market.gid, market.Gid, market.gkey
                 ].filter(id => !!id)
@@ -183,14 +183,14 @@ export default function FavoritesPage() {
                     break
                   }
                 }
-                
+
                 // Final fallback: search all rate values for this market's ID
                 if (!marketRate) {
-                  marketRate = Object.values(liveRates).find((r: any) => 
+                  marketRate = Object.values(liveRates).find((r: any) =>
                     r && (mIds.includes(r.MarketId) || mIds.includes(r.marketid) || mIds.includes(r.eid) || mIds.includes(r.Eid))
                   )
                 }
-                
+
                 // Merge live rates with static market data to preserve internal fields like RunnerName
                 const staticRunners = Array.isArray(market.runners) ? market.runners : Object.values(market.runners || {})
                 const liveRunnersMap = (marketRate as any)?.runners || (marketRate as any)?.runner || {}
@@ -202,9 +202,9 @@ export default function FavoritesPage() {
                   return { ...sr, ...liveData }
                 })
 
-                const matchName = market.name || 
-                                  (market.Team1 && market.Team2 ? `${market.Team1} vs ${market.Team2}` : 
-                                  market.Event_Name || market.Game_Name || 'Main Market')
+                const matchName = market.name ||
+                  (market.Team1 && market.Team2 ? `${market.Team1} vs ${market.Team2}` :
+                    market.Event_Name || market.Game_Name || 'Main Market')
 
                 const navigateToMatch = () => {
                   const sport = (market.Event_Type || market.sport || 'cricket').toLowerCase()
@@ -214,7 +214,7 @@ export default function FavoritesPage() {
                 }
 
                 return (
-                  <MultiMarketTable 
+                  <MultiMarketTable
                     key={market.eid || market.Eid || market.MarketId}
                     sportName={market.Event_Type || market.sport || 'Cricket'}
                     competitionName={matchName}
