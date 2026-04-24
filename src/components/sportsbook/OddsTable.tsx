@@ -202,18 +202,27 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                     onClick={() => handleRowClick(row.id, row.competitionId)}
                     className={`py-2 px-1.5 cursor-pointer hover:bg-gray-50/50 transition-colors ${row.startTime ? 'min-w-[90px] max-w-[90px]' : 'min-w-[90px] max-w-[130px]'} sm:min-w-[140px] sm:max-w-[180px] lg:max-w-[250px]`}
                   >
-                    <div className="flex flex-col justify-center min-w-0 w-full overflow-hidden">
-                      {row.teamName.includes(' vs ') ? (
-                        <>
-                          <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
-                          <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
-                        </>
-                      ) : (
-                        <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName)}</div>
-                      )}
-
-                      {/* Status Chips for Mobile */}
-
+                    <div className="flex items-center justify-between w-full min-w-0">
+                      <div className="flex flex-col justify-center min-w-0 flex-1">
+                        {row.teamName.includes(' vs ') ? (
+                          <>
+                            <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[0])}</div>
+                            <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName.split(' vs ')[1])}</div>
+                          </>
+                        ) : (
+                          <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName)}</div>
+                        )}
+                      </div>
+                      
+                      {/* Status Chips for Mobile - Right Aligned */}
+                      <StatusChips 
+                        tv={row.tv} 
+                        bm={row.bm} 
+                        fancy={row.fancy} 
+                        goal={row.goal} 
+                        wset={row.wset} 
+                        className="md:hidden ml-2 shrink-0" 
+                      />
                     </div>
                   </td>
 
