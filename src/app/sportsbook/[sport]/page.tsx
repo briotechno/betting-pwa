@@ -82,11 +82,23 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
             </span>
           </div>
         </div>
-
         {/* Right Side - Icons */}
-        <div className="flex items-center justify-end pr-3 gap-3 z-20 ml-[-10px] pl-6 flex-initial min-w-[60px]">
+        <div className="flex items-center justify-end pr-3 gap-3 z-20 ml-[-10px] pl-6 flex-initial min-w-[100px]">
+          {/* Status Chips - Pushed to the left of the status icon */}
+          <div className="flex justify-end items-center flex-1">
+            <StatusChips 
+              tv={match.tv} 
+              bm={match.bm} 
+              fancy={match.fancy} 
+              goal={match.goal} 
+              wset={match.wset} 
+              className="hidden md:flex" 
+            />
+          </div>
+
+          {/* Primary Status Icon - Fixed width for alignment */}
           <div 
-            className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
+            className="w-5 h-5 hidden md:flex items-center justify-center relative group/inplay cursor-pointer shrink-0"
             onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
           >
             {match.isUpcoming ? (
@@ -98,23 +110,17 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
               {match.isUpcoming ? 'Upcoming' : 'In Play'}
             </div>
           </div>
-          <StatusChips 
-            tv={match.tv} 
-            bm={match.bm} 
-            fancy={match.fancy} 
-            goal={match.goal} 
-            wset={match.wset} 
-            className="hidden md:flex" 
-          />
+
           <Star 
             size={18} 
-            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
+            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 shrink-0 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
             onClick={(e) => {
               e.stopPropagation();
               onToggleFav();
             }}
           />
         </div>
+
       </div>
       
       {/* Status Chips for Mobile - Below Header */}

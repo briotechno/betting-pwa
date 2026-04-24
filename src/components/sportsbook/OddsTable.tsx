@@ -184,8 +184,8 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                 <tr
                   key={row.id || row.teamName}
                   className={`transition-colors border-b border-black/30 ${row.status === 'SUSPENDED' || row.status === 'CLOSED'
-                      ? 'relative   text-black'
-                      : 'bg-white text-gray-900'
+                    ? 'relative   text-black'
+                    : 'bg-white text-gray-900'
                     }`}
                 >
                   {/* Start Time Column */}
@@ -211,56 +211,55 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                       ) : (
                         <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName)}</div>
                       )}
-                      
+
                       {/* Status Chips for Mobile */}
-                      <StatusChips 
-                        tv={row.tv} 
-                        bm={row.bm} 
-                        fancy={row.fancy} 
-                        goal={row.goal} 
-                        wset={row.wset} 
-                        className="mt-1 md:hidden" 
-                      />
+
                     </div>
                   </td>
 
                   {/* Status & Badges Unified Column */}
-                  <td className="hidden md:table-cell py-2 px-2 transition-all min-w-[80px]">
-                    <div className="flex items-center justify-center gap-3">
-                      <StatusChips 
-                        tv={row.tv} 
-                        bm={row.bm} 
-                        fancy={row.fancy} 
-                        goal={row.goal} 
-                        wset={row.wset} 
-                      />
-                      
-                      {showLiveBadge && (
-                        <div className="relative flex items-center justify-center group">
-                          <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
-                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                            Live Match
-                          </span>
-                        </div>
-                      )}
+                  <td className="hidden md:table-cell py-2 px-2 transition-all min-w-[140px] lg:min-w-[180px]">
+                    <div className="flex items-center justify-center gap-2">
+                      {/* Left: Status Chips */}
+                      <div className="flex justify-end flex-1">
+                        <StatusChips
+                          tv={row.tv}
+                          bm={row.bm}
+                          fancy={row.fancy}
+                          goal={row.goal}
+                          wset={row.wset}
+                        />
+                      </div>
 
-                      {showInPlayBadge && (
-                        <div className="relative flex items-center justify-center group">
-                          <Play size={12} fill="#28a745" className="text-[#28a745]" />
-                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                            In-Play Soon
-                          </span>
-                        </div>
-                      )}
+                      {/* Right: Primary Status Icon (Fixed Width for Vertical Alignment) */}
+                      <div className="w-[24px] flex justify-center shrink-0">
+                        {showLiveBadge && (
+                          <div className="relative flex items-center justify-center group">
+                            <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
+                            <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl">
+                              Live Match
+                            </span>
+                          </div>
+                        )}
 
-                      {showUpcomingBadge && (
-                        <div className="relative flex items-center justify-center group">
-                          <Clock size={16} className="text-[#28a745]" strokeWidth={2.5} />
-                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                            Upcoming Match
-                          </span>
-                        </div>
-                      )}
+                        {showInPlayBadge && (
+                          <div className="relative flex items-center justify-center group">
+                            <Play size={12} fill="#28a745" className="text-[#28a745]" />
+                            <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl">
+                              In-Play Soon
+                            </span>
+                          </div>
+                        )}
+
+                        {showUpcomingBadge && (
+                          <div className="relative flex items-center justify-center group">
+                            <Clock size={16} className="text-[#28a745]" strokeWidth={2.5} />
+                            <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-xl">
+                              Upcoming Match
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
 

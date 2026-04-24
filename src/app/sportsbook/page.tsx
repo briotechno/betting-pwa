@@ -148,9 +148,22 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
         </div>
 
         {/* Right Side - Icons */}
-        <div className="flex items-center justify-end pr-3 gap-3 z-20 ml-[-10px] pl-6 flex-initial min-w-[30px]">
-          <div 
-            className="w-4 h-4 hidden md:flex items-center justify-center relative group/inplay cursor-pointer"
+        <div className="flex items-center justify-end pr-3 gap-3 z-20 ml-[-10px] pl-6 flex-initial min-w-[100px]">
+          {/* Status Chips - Pushed to the left of the status icon */}
+          <div className="flex justify-end items-center flex-1">
+            <StatusChips
+              tv={match.tv}
+              bm={match.bm}
+              fancy={match.fancy}
+              goal={match.goal}
+              wset={match.wset}
+              className="hidden md:flex"
+            />
+          </div>
+
+          {/* Primary Status Icon - Fixed width for alignment */}
+          <div
+            className="w-5 h-5 hidden md:flex items-center justify-center relative group/inplay cursor-pointer shrink-0"
             onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
           >
             {match.isUpcoming ? (
@@ -162,17 +175,10 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
               {match.isUpcoming ? 'Upcoming' : 'In Play'}
             </div>
           </div>
-          <StatusChips 
-            tv={match.tv} 
-            bm={match.bm} 
-            fancy={match.fancy} 
-            goal={match.goal} 
-            wset={match.wset} 
-            className="hidden md:flex" 
-          />
-          <Star 
-            size={18} 
-            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
+
+          <Star
+            size={18}
+            className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 shrink-0 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
             onClick={(e) => {
               e.stopPropagation();
               onToggleFav();
@@ -180,17 +186,9 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
           />
         </div>
       </div>
-      
+
       {/* Status Chips for Mobile - Below Header */}
-      <div className="md:hidden flex px-3 py-1 bg-gray-50 border-b border-black/10">
-        <StatusChips 
-          tv={match.tv} 
-          bm={match.bm} 
-          fancy={match.fancy} 
-          goal={match.goal} 
-          wset={match.wset} 
-        />
-      </div>
+
 
       {/* Table Body */}
       {!isCollapsed && (
@@ -626,10 +624,10 @@ function SportsbookContent() {
                 </div>
               ) : processedMatches.length > 0 ? (
                 processedMatches.map((match, index) => (
-                  <MatchTable 
-                    key={match.id} 
-                    match={match} 
-                    onToggleFav={() => handleToggleFav(match.matchId, index)} 
+                  <MatchTable
+                    key={match.id}
+                    match={match}
+                    onToggleFav={() => handleToggleFav(match.matchId, index)}
                   />
                 ))
               ) : (

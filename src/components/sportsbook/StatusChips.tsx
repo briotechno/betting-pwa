@@ -20,7 +20,7 @@ const StatusChips: React.FC<StatusChipsProps> = ({ tv, bm, fancy, goal, wset, cl
       {tv && (
         <div className="relative group/tv">
           <div className="w-[22px] h-[18px] bg-[#3498db] rounded-[3px] flex items-center justify-center shadow-sm border border-[#2980b9] cursor-help transition-transform hover:scale-110">
-             <MonitorPlay size={12} className="text-white" strokeWidth={2.5} />
+            <MonitorPlay size={12} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover/tv:opacity-100 transition-opacity duration-200 z-50 shadow-xl">
             Live Stream
@@ -64,7 +64,7 @@ const StatusChips: React.FC<StatusChipsProps> = ({ tv, bm, fancy, goal, wset, cl
       {wset && (
         <div className="relative group/set">
           <div className="px-1.5 h-[18px] bg-[#f1c40f] rounded-[3px] flex items-center justify-center shadow-sm border border-[#f39c12] cursor-help transition-transform hover:scale-110">
-            <span className="text-[10px] font-black text-white leading-none">SET</span>
+            <span className="text-[10px] font-black text-white leading-none">S</span>
           </div>
           <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover/set:opacity-100 transition-opacity duration-200 z-50 shadow-xl">
             Set Markets
