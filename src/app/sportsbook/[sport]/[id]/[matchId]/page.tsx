@@ -266,14 +266,14 @@ const MarketTable = ({
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth >= 1024) return
     const hasSelectionOnMobile = (Array.isArray(runners) ? runners : Object.values(runners || {})).some((r: any, idx: number) => {
-      const mId = isFancyGroup ? ((r.MarketId?.toString().startsWith('1.') || r.marketid?.toString().startsWith('1.')) ? (r.MarketId || r.marketid) : (r.eid || r.MarketId || r.marketid)) : marketId
+      const mId = isFancyGroup ? ((r.MarketId?.toString().startsWith('1.') || r.marketid?.toString().startsWith('1.')) ? (r.MarketId || r.marketid) : (r.eid || r.MarketId || r.marketid)) : (payloadEid || marketId)
       const rId = isFancyGroup ? 0 : (r.selectionId || r.SelectionId || r.id || r.sid || idx)
       return selections.some(s => s.id.startsWith(`${mId}-${rId}`))
     })
     if (hasSelectionOnMobile && isCollapsed) {
       setIsCollapsed(false)
     }
-  }, [selections, runners, marketId, isCollapsed, isFancyGroup])
+  }, [selections, runners, marketId, payloadEid, isCollapsed, isFancyGroup])
 
   if (!runners || (Array.isArray(runners) ? runners : Object.values(runners)).length === 0) return null;
 
@@ -362,7 +362,7 @@ const MarketTable = ({
             </colgroup>
             <tbody>
               {(Array.isArray(runners) ? runners : Object.values(runners || {})).map((runner: any, rIdx: number) => {
-                const mId = isFancyGroup ? ((runner.MarketId?.toString().startsWith('1.') || runner.marketid?.toString().startsWith('1.')) ? (runner.MarketId || runner.marketid) : (runner.eid || runner.MarketId || runner.marketid)) : marketId
+                const mId = isFancyGroup ? ((runner.MarketId?.toString().startsWith('1.') || runner.marketid?.toString().startsWith('1.')) ? (runner.MarketId || runner.marketid) : (runner.eid || runner.MarketId || runner.marketid)) : (payloadEid || marketId)
                 const runnerId = isFancyGroup ? 0 : (runner.selectionId || runner.SelectionId || runner.id || runner.sid || rIdx)
 
                 const rateData = liveRates[mId]
