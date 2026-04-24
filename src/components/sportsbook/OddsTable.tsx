@@ -214,15 +214,6 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                         )}
                       </div>
                       
-                      {/* Status Chips for Mobile - Right Aligned */}
-                      <StatusChips 
-                        tv={row.tv} 
-                        bm={row.bm} 
-                        fancy={row.fancy} 
-                        goal={row.goal} 
-                        wset={row.wset} 
-                        className="md:hidden ml-2 shrink-0" 
-                      />
                     </div>
                   </td>
 

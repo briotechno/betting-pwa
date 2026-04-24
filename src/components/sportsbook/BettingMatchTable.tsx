@@ -166,7 +166,7 @@ const BettingMatchTable = () => {
                       fancy={match.Fancy === 'Y'} 
                       goal={match.Goal === 'Y'} 
                       wset={match.Wset === 'Y'} 
-                      className="mt-1" 
+                      className="mt-1 hidden md:flex" 
                     />
                   </div>
                 </td>
