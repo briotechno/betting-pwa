@@ -473,12 +473,12 @@ export default function BetContainer({ matchId, sportType, hideBetslipOnMobile }
                   <div className="overflow-hidden rounded-sm">
                     <table className="w-full text-left border-collapse table-fixed">
                       <thead>
-                        <tr className="bg-[#e0e0e0] border-b border-gray-300">
-                          <th className="py-2 px-1 text-[10px] font-black text-gray-600 uppercase tracking-tighter w-[22%]">Market</th>
-                          <th className="py-2 px-1 text-[10px] font-black text-gray-600 uppercase tracking-tighter w-[28%]">Selection</th>
-                          <th className="py-2 px-1 text-[10px] font-black text-gray-600 uppercase tracking-tighter text-center w-[12%]">Rate</th>
-                          <th className="py-2 px-1 text-[10px] font-black text-gray-600 uppercase tracking-tighter text-center w-[12%]">Stake</th>
-                          <th className="py-2 px-1 text-[10px] font-black text-gray-600 uppercase tracking-tighter text-center w-[26%]">Date</th>
+                        <tr className="bg-[#2a2a2a] border-b border-white">
+                          <th className="py-2 px-1 text-[9px] font-black text-white uppercase tracking-widest w-[22%] pl-2">Market</th>
+                          <th className="py-2 px-1 text-[9px] font-black text-white uppercase tracking-widest w-[28%]">Selection</th>
+                          <th className="py-2 px-1 text-[9px] font-black text-white uppercase tracking-widest text-center w-[12%]">Rate</th>
+                          <th className="py-2 px-1 text-[9px] font-black text-white uppercase tracking-widest text-center w-[12%]">Stake</th>
+                          <th className="py-2 px-1 text-[9px] font-black text-white uppercase tracking-widest text-center w-[26%]">Date</th>
                         </tr>
                       </thead>
                       <tbody>
