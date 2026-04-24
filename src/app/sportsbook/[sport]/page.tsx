@@ -4,6 +4,7 @@ import { useParams, useRouter, usePathname, useSearchParams } from 'next/navigat
 import { Star, Loader2, Clock, Play } from 'lucide-react'
 import { toTitleCase, formatTime12h } from '@/utils/format'
 import BetContainer from '@/components/sportsbook/BetContainer'
+import StatusChips from '@/components/sportsbook/StatusChips'
 import { marketController } from '@/controllers/market/marketController'
 import { useAuthStore } from '@/store/authStore'
 import { useSnackbarStore } from '@/store/snackbarStore'
@@ -97,6 +98,14 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
               {match.isUpcoming ? 'Upcoming' : 'In Play'}
             </div>
           </div>
+          <StatusChips 
+            tv={match.tv} 
+            bm={match.bm} 
+            fancy={match.fancy} 
+            goal={match.goal} 
+            wset={match.wset} 
+            className="hidden md:flex" 
+          />
           <Star 
             size={18} 
             className={`hidden md:block text-[#ffd700] cursor-pointer transition-all hover:scale-110 active:scale-95 ${match.isFavourite ? 'fill-[#ffd700]' : 'fill-none'} stroke-[2px]`}
@@ -106,6 +115,17 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
             }}
           />
         </div>
+      </div>
+      
+      {/* Status Chips for Mobile - Below Header */}
+      <div className="md:hidden flex px-3 py-1 bg-gray-50 border-b border-black/10">
+        <StatusChips 
+          tv={match.tv} 
+          bm={match.bm} 
+          fancy={match.fancy} 
+          goal={match.goal} 
+          wset={match.wset} 
+        />
       </div>
 
       {/* Table Body */}
@@ -440,6 +460,11 @@ function SportDetailContent() {
         matchId: g.gid || g.Event_Id,
         competitionId: g.CompetitionCode || g.cid || 'all',
         isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1' || g.IsFavorite === true,
+        tv: g.TV === 'Y',
+        bm: g.BM === 'Y',
+        fancy: g.Fancy === 'Y',
+        goal: g.Goal === 'Y',
+        wset: g.Wset === 'Y',
         odds: [
           {
             back: backA.p1, backVol: backA.v1, back2: backA.p2, backVol2: backA.v2, back3: backA.p3, backVol3: backA.v3,

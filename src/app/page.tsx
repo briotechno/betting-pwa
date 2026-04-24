@@ -251,7 +251,12 @@ export default function HomePage() {
       startTime: dateTime,
       status: (matchOdds?.status || matchOdds?.Status || '').toUpperCase(),
       competitionId: getV(m, ['CompetitionCode', 'cid']) || 'league',
-      isWinner: isWinnerMarket
+      isWinner: isWinnerMarket,
+      tv: getV(m, ['TV']) === 'Y',
+      bm: getV(m, ['BM']) === 'Y',
+      fancy: getV(m, ['Fancy']) === 'Y',
+      goal: getV(m, ['Goal']) === 'Y',
+      wset: getV(m, ['Wset']) === 'Y'
     }
   }
 

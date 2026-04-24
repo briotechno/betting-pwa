@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useBetSlipStore } from '@/store/betSlipStore'
 import { useAuthStore } from '@/store/authStore'
 import { toTitleCase } from '@/utils/format'
+import StatusChips from './StatusChips'
 
 
 interface OddsEntry {
@@ -21,6 +22,11 @@ interface OddsTableRow {
   startTime?: string
   status?: string // 'OPEN', 'SUSPENDED', etc.
   competitionId?: string
+  tv?: boolean
+  bm?: boolean
+  fancy?: boolean
+  goal?: boolean
+  wset?: boolean
 }
 
 interface OddsTableProps {
@@ -205,44 +211,58 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                       ) : (
                         <div className={`font-bold leading-tight truncate w-full ${row.status === 'SUSPENDED' || row.status === 'CLOSED' ? 'text-white' : 'text-gray-900'} ${row.startTime ? 'text-[11px]' : 'text-[13px]'}`}>{toTitleCase(row.teamName)}</div>
                       )}
+                      
+                      {/* Status Chips for Mobile */}
+                      <StatusChips 
+                        tv={row.tv} 
+                        bm={row.bm} 
+                        fancy={row.fancy} 
+                        goal={row.goal} 
+                        wset={row.wset} 
+                        className="mt-1 md:hidden" 
+                      />
                     </div>
                   </td>
 
-                  {/* INPLAY table: show LIVE icon */}
-                  {showLiveBadge && (
-                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
-                      <div className="relative flex items-center justify-center group">
-                        <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
-                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                          Live Match
-                        </span>
-                      </div>
-                    </td>
-                  )}
+                  {/* Status & Badges Unified Column */}
+                  <td className="hidden md:table-cell py-2 px-2 transition-all min-w-[80px]">
+                    <div className="flex items-center justify-center gap-3">
+                      <StatusChips 
+                        tv={row.tv} 
+                        bm={row.bm} 
+                        fancy={row.fancy} 
+                        goal={row.goal} 
+                        wset={row.wset} 
+                      />
+                      
+                      {showLiveBadge && (
+                        <div className="relative flex items-center justify-center group">
+                          <i className="v-icon notranslate mdi mdi-access-point theme--light text-[#28a745]" style={{ fontSize: '16px' }}></i>
+                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                            Live Match
+                          </span>
+                        </div>
+                      )}
 
-                  {/* TODAY table only: show IN-PLAY icon */}
-                  {showInPlayBadge && (
-                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
-                      <div className="relative flex items-center justify-center group">
-                        <Play size={12} fill="#28a745" className="text-[#28a745]" />
-                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                          In-Play Soon
-                        </span>
-                      </div>
-                    </td>
-                  )}
+                      {showInPlayBadge && (
+                        <div className="relative flex items-center justify-center group">
+                          <Play size={12} fill="#28a745" className="text-[#28a745]" />
+                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                            In-Play Soon
+                          </span>
+                        </div>
+                      )}
 
-                  {/* UPCOMING table only: show CLOCK icon */}
-                  {showUpcomingBadge && (
-                    <td className="hidden md:table-cell py-2 px-2 w-[32px] lg:w-auto lg:px-20 transition-all">
-                      <div className="relative flex items-center justify-center group">
-                        <Clock size={16} className="text-[#28a745]" strokeWidth={2.5} />
-                        <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                          Upcoming Match
-                        </span>
-                      </div>
-                    </td>
-                  )}
+                      {showUpcomingBadge && (
+                        <div className="relative flex items-center justify-center group">
+                          <Clock size={16} className="text-[#28a745]" strokeWidth={2.5} />
+                          <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                            Upcoming Match
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </td>
 
 
                   <td className="py-1 pr-2 md:w-[410px]">

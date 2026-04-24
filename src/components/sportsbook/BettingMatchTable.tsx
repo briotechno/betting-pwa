@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { marketController } from '@/controllers/market/marketController';
 import { Loader2 } from 'lucide-react';
+import StatusChips from './StatusChips';
 
 /**
  * Interface for API match data from getGameList
@@ -16,6 +17,11 @@ interface GameMatch {
   DateTime: string;
   Competition: string;
   Type: string;
+  TV?: string;
+  BM?: string;
+  Fancy?: string;
+  Goal?: string;
+  Wset?: string;
 }
 
 /**
@@ -154,6 +160,14 @@ const BettingMatchTable = () => {
                   <div className="flex flex-col">
                     <span className="truncate">{match.Team1}</span>
                     <span className="truncate">{match.Team2}</span>
+                    <StatusChips 
+                      tv={match.TV === 'Y'} 
+                      bm={match.BM === 'Y'} 
+                      fancy={match.Fancy === 'Y'} 
+                      goal={match.Goal === 'Y'} 
+                      wset={match.Wset === 'Y'} 
+                      className="mt-1" 
+                    />
                   </div>
                 </td>
                 <td className="py-4 px-4 text-center">
