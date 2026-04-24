@@ -24,6 +24,7 @@ export default function WithdrawalPage() {
   const { isAuthenticated } = useAuthStore()
 
   const [amount, setAmount] = useState('')
+  const [remark, setRemark] = useState('')
   const [bannerError, setBannerError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -33,6 +34,16 @@ export default function WithdrawalPage() {
   const [balance, setBalance] = useState({ available_balance: 0 })
   const [history, setHistory] = useState<any[]>([])
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
+  // USDT States
+  const [activeCategory, setActiveCategory] = useState<'BANK' | 'USDT'>('BANK')
+  const [usdtWallet, setUsdtWallet] = useState<{ address: string; qr: string } | null>(null)
+  const [isEditingUSDT, setIsEditingUSDT] = useState(false)
+  const [usdtLoading, setUsdtLoading] = useState(false)
+  const [newWaddress, setNewWaddress] = useState('')
+  const [newWqr, setNewWqr] = useState<string | null>(null)
+  const [newWqrMime, setNewWqrMime] = useState('')
+  const [newWqrName, setNewWqrName] = useState('')
 
   const fetchData = async () => {
     if (!isAuthenticated) {
@@ -46,10 +57,11 @@ export default function WithdrawalPage() {
 
       if (!token) return
 
-      const [balanceRes, bankRes, historyRes] = await Promise.all([
+      const [balanceRes, bankRes, historyRes, usdtRes] = await Promise.all([
         userController.getBalance(token),
         walletController.getBankAccounts(token),
-        walletController.getWithdrawalHistory(token).catch(() => ({}))
+        walletController.getWithdrawalHistory(token).catch(() => ({})),
+        walletController.getUSDTWallet(token).catch(() => null)
       ])
 
       if (balanceRes.error === '0') setBalance(balanceRes as any)
@@ -63,6 +75,15 @@ export default function WithdrawalPage() {
           data = Object.values(raw).filter(v => v && typeof v === 'object')
         }
         setHistory(data)
+      }
+
+      // Handle USDT Wallet
+      if (usdtRes && usdtRes.error === '0') {
+        setUsdtWallet({
+          address: usdtRes.Waddress,
+          qr: usdtRes.WQr
+        })
+        setNewWaddress(usdtRes.Waddress)
       }
 
       // Handle bankRes which might be an object with numeric keys or contain an error field
@@ -100,6 +121,56 @@ export default function WithdrawalPage() {
     fetchData()
   }, [isAuthenticated])
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setNewWqrName(file.name)
+    setNewWqrMime(file.type)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setNewWqr(base64String.split(',')[1] || base64String)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleUpdateUSDTWallet = async () => {
+    if (!newWaddress.trim()) {
+      showSnackbar('Please enter wallet address', 'error')
+      return
+    }
+    if (!newWqr) {
+      showSnackbar('Please upload wallet QR', 'error')
+      return
+    }
+
+    setUsdtLoading(true)
+    try {
+      const token = localStorage.getItem('fairbet-auth') ?
+        JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
+      if (!token) return
+
+      const response = await walletController.updateUSDTWallet({
+        LoginToken: token,
+        Waddress: newWaddress,
+        Mime_type: newWqrMime,
+        Screenshot: newWqr
+      })
+
+      if (response.error === '0') {
+        showSnackbar(response.msg || 'USDT Wallet updated successfully', 'success')
+        setIsEditingUSDT(false)
+        fetchData()
+      } else {
+        showSnackbar(response.msg || 'Failed to update wallet', 'error')
+      }
+    } catch (error) {
+      showSnackbar('An error occurred', 'error')
+    } finally {
+      setUsdtLoading(false)
+    }
+  }
+
   const handleDeleteBank = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this bank account?')) return
 
@@ -122,8 +193,12 @@ export default function WithdrawalPage() {
   }
 
   const handleWithdraw = async () => {
-    if (!selectedBankId) {
+    if (activeCategory === 'BANK' && !selectedBankId) {
       showSnackbar('Please select a bank account', 'error')
+      return
+    }
+    if (activeCategory === 'USDT' && !usdtWallet) {
+      showSnackbar('Please link your USDT wallet first', 'error')
       return
     }
     if (!amount || parseFloat(amount) <= 0) {
@@ -141,22 +216,34 @@ export default function WithdrawalPage() {
         JSON.parse(localStorage.getItem('fairbet-auth')!).state.user?.loginToken : null
       if (!token) return
 
-      // Robust IP fetching with multiple fallbacks
-      let userIp = '1.1.1.1'
-      try {
-        const ipRes = await fetch('https://api.ipify.org?format=json', { timeout: 3000 } as any).catch(() => null)
-        if (ipRes) {
-          const ipData = await ipRes.json()
-          userIp = ipData.ip || '1.1.1.1'
+      let response;
+      if (activeCategory === 'USDT') {
+        response = await walletController.withdrawUSDT({
+          LoginToken: token,
+          Amount: amount,
+          WalletAddress: usdtWallet!.address,
+          Remark: remark || 'USDT Withdrawal'
+        });
+      } else {
+        // Robust IP fetching with multiple fallbacks
+        let userIp = '1.1.1.1'
+        try {
+          const ipRes = await fetch('https://api.ipify.org?format=json', { timeout: 3000 } as any).catch(() => null)
+          if (ipRes) {
+            const ipData = await ipRes.json()
+            userIp = ipData.ip || '1.1.1.1'
+          }
+        } catch (e) {
+          console.warn('IP fetch failed, using fallback')
         }
-      } catch (e) {
-        console.warn('IP fetch failed, using fallback')
+
+        response = await walletController.requestWithdrawal(token, selectedBankId!, amount, userIp)
       }
 
-      const response = await walletController.requestWithdrawal(token, selectedBankId, amount, userIp)
       if (response.error === '0') {
         showSnackbar(response.msg || 'Withdrawal request submitted successfully', 'success')
         setAmount('')
+        setRemark('')
         fetchData()
       } else {
         showSnackbar(response.msg || 'Failed to submit request', 'error')
@@ -222,12 +309,25 @@ export default function WithdrawalPage() {
             </div>
 
             {/* ── Category Selector ── */}
-            <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
-              <div className="w-32 h-24 bg-white rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer border-2 border-transparent hover:border-[#e8612c] transition-all">
-                <div className="w-10 h-10 bg-black rounded flex items-center justify-center">
-                  <Landmark size={24} className="text-white" />
+            <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex gap-4">
+              <div
+                onClick={() => setActiveCategory('BANK')}
+                className={`w-32 h-24 rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer border-2 transition-all ${activeCategory === 'BANK' ? 'bg-white border-[#e8612c]' : 'bg-white/5 border-transparent hover:border-white/20'}`}
+              >
+                <div className={`w-10 h-10 rounded flex items-center justify-center ${activeCategory === 'BANK' ? 'bg-black' : 'bg-white/10'}`}>
+                  <Landmark size={24} className={activeCategory === 'BANK' ? 'text-white' : 'text-white/40'} />
                 </div>
-                <span className="text-[10px] font-black text-black uppercase text-center leading-tight">Bank Transfers</span>
+                <span className={`text-[10px] font-black uppercase text-center leading-tight ${activeCategory === 'BANK' ? 'text-black' : 'text-white/40'}`}>Bank Transfers</span>
+              </div>
+
+              <div
+                onClick={() => setActiveCategory('USDT')}
+                className={`w-32 h-24 rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg cursor-pointer border-2 transition-all ${activeCategory === 'USDT' ? 'bg-white border-[#e8612c]' : 'bg-white/5 border-transparent hover:border-white/20'}`}
+              >
+                <div className={`w-10 h-10 rounded flex items-center justify-center ${activeCategory === 'USDT' ? 'bg-black' : 'bg-white/10'}`}>
+                  <img src="/deposite/usdt.png" className={`w-6 h-6 object-contain ${activeCategory === 'USDT' ? '' : 'opacity-40 grayscale'}`} alt="USDT" />
+                </div>
+                <span className={`text-[10px] font-black uppercase text-center leading-tight ${activeCategory === 'USDT' ? 'text-black' : 'text-white/40'}`}>USDT Withdrawal</span>
               </div>
             </div>
 
@@ -252,90 +352,198 @@ export default function WithdrawalPage() {
               </ul>
             </div>
 
-            {/* ── Bank Selection Header ── */}
-            <div className="flex items-center justify-between pt-4">
-              <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Bank Details</h3>
-              <button
-                onClick={() => setIsAddModalOpen(true)}
-                className="flex items-center gap-2 h-9 px-5 bg-[#e15b24] hover:bg-[#ff7a45] text-white rounded-full text-[11px] font-black transition-all shadow-lg uppercase tracking-widest"
-              >
-                ADD NEW <span className="w-4 h-4 rounded-full bg-white text-[#e15b24] flex items-center justify-center text-[12px]">+</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {bankAccounts.length === 0 ? (
-                <div className="col-span-full bg-[#1a1a1a] border border-dashed border-white/10 rounded-2xl p-8 text-center">
-                  <Landmark size={32} className="mx-auto text-white/10 mb-3" />
-                  <p className="text-sm text-white/40 font-bold">No saved bank accounts found.</p>
+            {activeCategory === 'BANK' ? (
+              <>
+                {/* ── Bank Selection Header ── */}
+                <div className="flex items-center justify-between pt-4">
+                  <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Bank Details</h3>
+                  <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 h-9 px-5 bg-[#e15b24] hover:bg-[#ff7a45] text-white rounded-full text-[11px] font-black transition-all shadow-lg uppercase tracking-widest"
+                  >
+                    ADD NEW <span className="w-4 h-4 rounded-full bg-white text-[#e15b24] flex items-center justify-center text-[12px]">+</span>
+                  </button>
                 </div>
-              ) : (
-                bankAccounts.map((bank: any) => {
-                  const id = bank.id || bank.Id
-                  const isSelected = selectedBankId === id
-                  return (
-                    <div
-                      key={id}
-                      onClick={() => setSelectedBankId(id)}
-                      className={`relative p-3 rounded-2xl border transition-all cursor-pointer ${isSelected
-                          ? 'bg-[#3d3d3d] border-white/40 shadow-xl'
-                          : 'bg-[#1a1a1a] border-white/5 hover:border-white/20'
-                        }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'}`}>
-                          <Landmark size={16} />
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDeleteBank(id); }}
-                          className="p-1 text-white/20 hover:text-red-500 transition-colors"
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {bankAccounts.length === 0 ? (
+                    <div className="col-span-full bg-[#1a1a1a] border border-dashed border-white/10 rounded-2xl p-8 text-center">
+                      <Landmark size={32} className="mx-auto text-white/10 mb-3" />
+                      <p className="text-sm text-white/40 font-bold">No saved bank accounts found.</p>
+                    </div>
+                  ) : (
+                    bankAccounts.map((bank: any) => {
+                      const id = bank.id || bank.Id
+                      const isSelected = selectedBankId === id
+                      return (
+                        <div
+                          key={id}
+                          onClick={() => setSelectedBankId(id)}
+                          className={`relative p-3 rounded-2xl border transition-all cursor-pointer ${isSelected
+                              ? 'bg-[#3d3d3d] border-white/40 shadow-xl'
+                              : 'bg-[#1a1a1a] border-white/5 hover:border-white/20'
+                            }`}
                         >
-                          <Trash2 size={14} />
+                          <div className="flex items-start justify-between mb-2">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-white/40'}`}>
+                              <Landmark size={16} />
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDeleteBank(id); }}
+                              className="p-1 text-white/20 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center justify-between">
+                              <p className={`text-[11px] font-black uppercase tracking-tight text-white truncate mr-1`}>{bank.Bank || 'Bank'}</p>
+                              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded italic shrink-0 ${isSelected ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>{bank.ACname || 'Primary'}</span>
+                            </div>
+                            <p className="text-[10px] text-white font-medium tracking-wider">
+                              {bank.ACno || '****'}
+                            </p>
+                            <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-white/5">
+                              <p className="text-[9px] text-white font-bold tracking-tight opacity-70 truncate max-w-[80px]">{bank.ACholdername || 'N/A'}</p>
+                              <p className={`text-[8px] font-black shrink-0 ${isSelected ? 'text-white' : 'text-white/40'}`}>{bank.Isfc || bank.IFSC || ''}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* ── USDT Wallet Section ── */}
+                <div className="flex items-center justify-between pt-4">
+                  <h3 className="text-[15px] font-black text-white uppercase tracking-tight">USDT Wallet</h3>
+                  {!isEditingUSDT && usdtWallet && (
+                    <button
+                      onClick={() => setIsEditingUSDT(true)}
+                      className="h-8 px-4 bg-white/5 hover:bg-white/10 text-white rounded-full text-[10px] font-black transition-all border border-white/10 uppercase tracking-widest"
+                    >
+                      UPDATE WALLET
+                    </button>
+                  )}
+                </div>
+
+                {!usdtWallet || isEditingUSDT ? (
+                  <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl p-6 space-y-5 shadow-xl animate-in fade-in slide-in-from-bottom-2">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black uppercase tracking-wider text-white/40">USDT Wallet Address (TRC20)</label>
+                      <input
+                        type="text"
+                        placeholder="Enter your USDT TRC20 address"
+                        value={newWaddress}
+                        onChange={(e) => setNewWaddress(e.target.value)}
+                        className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm font-bold text-white focus:outline-none focus:border-[#e8612c] transition-all"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-black uppercase tracking-wider text-white/40">Upload Wallet QR Screenshot</label>
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => document.getElementById('qr-upload')?.click()}
+                          className="h-12 px-6 bg-white/5 border border-white/10 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2"
+                        >
+                          <Plus size={16} className="text-[#e8612c]" />
+                          {newWqrName ? 'CHANGE IMAGE' : 'SELECT QR IMAGE'}
                         </button>
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center justify-between">
-                          <p className={`text-[11px] font-black uppercase tracking-tight text-white truncate mr-1`}>{bank.Bank || 'Bank'}</p>
-                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded italic shrink-0 ${isSelected ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>{bank.ACname || 'Primary'}</span>
-                        </div>
-                        <p className="text-[10px] text-white font-medium tracking-wider">
-                          {bank.ACno || '****'}
-                        </p>
-                        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-white/5">
-                          <p className="text-[9px] text-white font-bold tracking-tight opacity-70 truncate max-w-[80px]">{bank.ACholdername || 'N/A'}</p>
-                          <p className={`text-[8px] font-black shrink-0 ${isSelected ? 'text-white' : 'text-white/40'}`}>{bank.Isfc || bank.IFSC || ''}</p>
-                        </div>
+                        <span className="text-[10px] font-bold text-white/20 truncate max-w-[200px]">
+                          {newWqrName || 'No file selected'}
+                        </span>
+                        <input id="qr-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                       </div>
                     </div>
-                  )
-                })
-              )}
-            </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        disabled={usdtLoading}
+                        onClick={handleUpdateUSDTWallet}
+                        className="flex-1 h-12 bg-[#e15b24] hover:bg-[#ff7a45] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg"
+                      >
+                        {usdtLoading ? <Loader2 className="animate-spin mx-auto" /> : 'SAVE WALLET DETAILS'}
+                      </button>
+                      {usdtWallet && (
+                        <button
+                          onClick={() => setIsEditingUSDT(false)}
+                          className="h-12 px-6 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                        >
+                          CANCEL
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-[#1a1a1a] border border-[#e8612c]/30 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                       <img src="/deposite/usdt.png" className="w-32 h-32 object-contain" alt="" />
+                    </div>
+                    
+                    <div className="w-40 h-40 bg-white p-3 rounded-2xl shadow-inner shrink-0 relative z-10">
+                      <img src={usdtWallet.qr} alt="USDT QR" className="w-full h-full object-contain" />
+                    </div>
+                    
+                    <div className="space-y-4 flex-1 relative z-10 w-full">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black text-[#e8612c] uppercase tracking-[0.2em]">Active Wallet</span>
+                        <h4 className="text-xl font-black text-white truncate max-w-full">USDT TRC20</h4>
+                      </div>
+                      
+                      <div className="bg-black/40 rounded-xl p-4 border border-white/5 break-all">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Wallet Address</p>
+                        <p className="text-sm font-mono text-white font-black leading-relaxed">{usdtWallet.address}</p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-[#4caf50]">
+                         <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                         <span className="text-[10px] font-black uppercase tracking-widest">Verified & Ready</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* ── Withdrawal Amount Card ── */}
             <div className="space-y-4 pt-4">
-              <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Upload Amount</h3>
+              <h3 className="text-[15px] font-black text-white uppercase tracking-tight">Withdraw Amount</h3>
               <div className="bg-[#111] border border-white/5 rounded-xl p-6 space-y-6 shadow-2xl">
-                <div className="space-y-2">
-                  <label className="text-[13px] font-bold text-white">Amount*</label>
-                  <input
-                    type="number"
-                    placeholder="Enter Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full h-12 bg-white rounded-lg px-4 text-black text-lg font-bold focus:outline-none shadow-inner"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-white">Amount*</label>
+                    <input
+                      type="number"
+                      placeholder="Enter Amount"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="w-full h-12 bg-white rounded-lg px-4 text-black text-lg font-bold focus:outline-none shadow-inner"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-white">Remark (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="Enter Remark"
+                      value={remark}
+                      onChange={(e) => setRemark(e.target.value)}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-lg px-4 text-white text-sm font-bold focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <button
-                  disabled={submitting || !selectedBankId}
+                  disabled={submitting || (activeCategory === 'BANK' ? !selectedBankId : !usdtWallet || isEditingUSDT)}
                   onClick={handleWithdraw}
-                  className={`w-full h-12 rounded-lg text-sm font-black uppercase tracking-widest shadow-xl transition-all ${submitting || !selectedBankId
+                  className={`w-full h-12 rounded-lg text-sm font-black uppercase tracking-widest shadow-xl transition-all ${submitting || (activeCategory === 'BANK' ? !selectedBankId : !usdtWallet || isEditingUSDT)
                       ? 'bg-gray-600 cursor-not-allowed opacity-50'
                       : 'bg-[#e15b24] hover:bg-[#ff7a45] text-white'
                     }`}
                 >
-                  {submitting ? <Loader2 className="animate-spin mx-auto" size={24} /> : 'SUBMIT'}
+                  {submitting ? <Loader2 className="animate-spin mx-auto" size={24} /> : 'SUBMIT REQUEST'}
                 </button>
               </div>
             </div>
