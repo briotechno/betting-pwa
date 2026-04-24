@@ -872,6 +872,14 @@ export default function GameDetailPage() {
   useEffect(() => { fetchGameData(true) }, [fetchGameData])
 
   useEffect(() => {
+    if (!matchId) return
+    const interval = setInterval(() => {
+      fetchGameData()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [matchId, fetchGameData])
+
+  useEffect(() => {
     if (gameData) {
       setIsFav(gameData.IsFavorite === '1' || gameData.isFavorite === 'Yes' || gameData.fav === '1')
     }
