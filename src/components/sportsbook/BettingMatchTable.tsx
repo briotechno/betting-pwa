@@ -160,14 +160,33 @@ const BettingMatchTable = () => {
                   <div className="flex flex-col">
                     <span className="truncate">{match.Team1}</span>
                     <span className="truncate">{match.Team2}</span>
-                    <StatusChips 
-                      tv={match.TV === 'Y'} 
-                      bm={match.BM === 'Y'} 
-                      fancy={match.Fancy === 'Y'} 
-                      goal={match.Goal === 'Y'} 
-                      wset={match.Wset === 'Y'} 
-                      className="mt-1 hidden md:flex" 
-                    />
+                    {(() => {
+                      const isUpcoming = (() => {
+                        if (!match.DateTime || match.DateTime === 'Live') return false;
+                        try {
+                          const now = new Date();
+                          let d = new Date(match.DateTime.includes('T') ? match.DateTime : match.DateTime.replace(' ', 'T'));
+                          if (isNaN(d.getTime())) {
+                            const parts = match.DateTime.split(/[-/ :]/);
+                            if (parts.length >= 3) {
+                              d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), parseInt(parts[3] || '0'), parseInt(parts[4] || '0'), parseInt(parts[5] || '0'));
+                            }
+                          }
+                          return d > now;
+                        } catch (e) { return false; }
+                      })();
+                      
+                      return (
+                        <StatusChips 
+                          tv={!isUpcoming && (match.TV === 'Y' || (match as any).tv === 'Y')} 
+                          bm={match.BM === 'Y'} 
+                          fancy={match.Fancy === 'Y'} 
+                          goal={match.Goal === 'Y'} 
+                          wset={match.Wset === 'Y'} 
+                          className="mt-1 hidden md:flex" 
+                        />
+                      )
+                    })()}
                   </div>
                 </td>
                 <td className="py-4 px-4 text-center">

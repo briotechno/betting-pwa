@@ -223,7 +223,7 @@ export default function OddsTable({ matchId, matchName, competition, marketName,
                       {/* Left: Status Chips */}
                       <div className="flex justify-end flex-1">
                         <StatusChips
-                          tv={row.tv}
+                          tv={!isUpcoming && row.tv}
                           bm={row.bm}
                           fancy={row.fancy}
                           goal={row.goal}

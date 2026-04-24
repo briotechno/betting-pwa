@@ -87,7 +87,7 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
           {/* Status Chips - Pushed to the left of the status icon */}
           <div className="flex justify-end items-center flex-1">
             <StatusChips 
-              tv={match.tv} 
+              tv={!match.isUpcoming && match.tv} 
               bm={match.bm} 
               fancy={match.fancy} 
               goal={match.goal} 
@@ -448,7 +448,7 @@ function SportDetailContent() {
         matchId: g.gid || g.Event_Id,
         competitionId: g.CompetitionCode || g.cid || 'all',
         isFavourite: g.IsFavorite === '1' || g.isFavorite === 'Yes' || g.fav === '1' || g.IsFavorite === true,
-        tv: g.TV === 'Y',
+        tv: (g.TV === 'Y' || g.tv === 'Y'),
         bm: g.BM === 'Y',
         fancy: g.Fancy === 'Y',
         goal: g.Goal === 'Y',
