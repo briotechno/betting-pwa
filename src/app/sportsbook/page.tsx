@@ -104,7 +104,7 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
       {!match.isUpcoming ? (
         <div
           onClick={navigateToMatch}
-          className="absolute -top-[12px] text-normal -left-[4px] bg-[#28a745] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
+          className="absolute -top-[14px] text-normal -left-[4px] bg-[#28a745] text-white text-[8px] lg:text-[11px] font-black px-2 py-[2px] lg:px-2.5 lg:py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#238a3a]"
         >
           <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
           LIVE
@@ -112,7 +112,7 @@ const MatchTable = ({ match, onToggleFav }: { match: any, onToggleFav: () => voi
       ) : (
         <div
           onClick={navigateToMatch}
-          className="absolute -top-[12px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[9px] lg:text-[11px] font-black px-2.5 py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
+          className="absolute -top-[14px] text-normal -left-[4px] bg-[#1a9ebf] text-white text-[8px] lg:text-[11px] font-black px-2 py-[2px] lg:px-2.5 lg:py-[3px] rounded-[6px] italic leading-tight uppercase z-40 shadow-md transform transition-transform duration-200 cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 border border-[#147a93]"
         >
           <Clock size={10} className="text-white" strokeWidth={3} />
           UPCOMING

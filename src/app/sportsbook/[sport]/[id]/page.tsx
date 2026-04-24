@@ -218,7 +218,7 @@ const MarketTable = ({
   return (
     <div className="bg-white rounded-b-[12px] shadow-sm border border-[#f36c21] mt-8 mb-4 relative">
       {/* Live Badge */}
-      <div className={`absolute -top-[11px] left-2 ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[9px] font-black px-2 py-[2px] rounded-[4px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
+      <div className={`absolute -top-[13px] left-2 ${isUpcoming ? 'bg-[#1a9ebf] border-[#147a93]' : 'bg-[#28a745] border-[#238a3a]'} text-white text-[8px] font-black px-1.5 py-[1.5px] rounded-[4px] italic leading-tight uppercase z-30 shadow-md border flex items-center gap-1`}>
         {isUpcoming ? (
           <>
             <Clock size={10} className="text-white" strokeWidth={3} />
