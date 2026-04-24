@@ -285,6 +285,8 @@ input[type=number] {
 
 .animate-ticker {
   display: inline-block;
-  animation: ticker-scroll 10s linear infinite;
-  padding-left: 20px;
+  animation: ticker-scroll 15s linear infinite;
+  white-space: nowrap;
+  min-width: 100%;
+  width: max-content;
 }

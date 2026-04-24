@@ -418,7 +418,7 @@ const MarketTable = ({
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
-                  
+
                   // Selection name and side logic: Separate Line and Fancy
                   let selName = runnerName;
                   let effectiveSide = side;
@@ -604,10 +604,10 @@ const MarketTable = ({
                       </tr>
                     )}
                     {isFancy && rowMsg && (
-                      <tr key={mId + '-' + runnerId + '-msg'} className="bg-[#1a1a1a] border-t-2 border-[#f36c21]">
-                        <td colSpan={2} className="px-3 lg:px-4 py-1.5 border-0">
-                          <div className="flex items-center gap-3 overflow-hidden h-5 w-full">
-                            <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                      <tr key={mId + '-' + runnerId + '-msg'} className="bg-[#1a1a1a] border-t border-[#f36c21]">
+                        <td colSpan={2} className="px-2 py-0.5 border-0">
+                          <div className="flex items-center gap-2 overflow-hidden h-4 w-full">
+                            <Megaphone size={10} className="text-[#f36c21] flex-shrink-0" />
                             <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
                               <div className="whitespace-nowrap animate-ticker">
                                 <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
@@ -637,9 +637,9 @@ const MarketTable = ({
               return (
                 <tfoot>
                   <tr className="bg-[#111] border-t border-white/5">
-                    <td colSpan={2} className="py-1 px-3 lg:px-4">
-                      <div className="flex items-center gap-3 overflow-hidden h-6 w-full">
-                        <Megaphone size={12} className="text-[#f36c21] flex-shrink-0" />
+                    <td colSpan={2} className="py-0.5 px-2">
+                      <div className="flex items-center gap-2 overflow-hidden h-4 w-full">
+                        <Megaphone size={10} className="text-[#f36c21] flex-shrink-0" />
                         <div className="relative flex-1 min-w-0 overflow-hidden pointer-events-none">
                           <div className="whitespace-nowrap animate-ticker">
                             <span className="text-[10px] lg:text-[11px] font-black text-white uppercase tracking-wider">
@@ -1234,7 +1234,7 @@ export default function GameDetailPage() {
                 </span>
               </button>
             )}
-            
+
             {/* Scoreboard Toggle (3rd Place Mobile) */}
             <button
               onClick={() => setScoreboardVisible(!scoreboardVisible)}
