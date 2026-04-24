@@ -82,4 +82,53 @@ export const walletController = {
   getWithdrawalHistory: async (loginToken: string, accountId?: string | number): Promise<ApiResponse> => {
     return await fetchAPI('/withdrawlist', { LoginToken: loginToken, Id: accountId || '' });
   },
+
+  /**
+   * Submit a USDT deposit request
+   * @param data The USDT deposit request data
+   */
+  depositUSDT: async (data: {
+    LoginToken: string;
+    Amount: string;
+    usdt_ref: string;
+    Mime_type: string;
+    Screenshot: string; // base64
+    txhash: string;
+  }): Promise<ApiResponse> => {
+    return await fetchAPI('/depositusdt', data);
+  },
+
+  /**
+   * Update USDT wallet details
+   * @param data The USDT wallet update data
+   */
+  updateUSDTWallet: async (data: {
+    LoginToken: string;
+    Waddress: string;
+    Mime_type: string;
+    Screenshot: string; // base64 QR
+  }): Promise<ApiResponse> => {
+    return await fetchAPI('/usdtwalletupdate', data);
+  },
+
+  /**
+   * Fetch USDT wallet details
+   * @param loginToken The user's login token
+   */
+  getUSDTWallet: async (loginToken: string): Promise<ApiResponse> => {
+    return await fetchAPI('/usdtwallet', { LoginToken: loginToken });
+  },
+
+  /**
+   * Submit a USDT withdrawal request
+   * @param data The USDT withdrawal data
+   */
+  withdrawUSDT: async (data: {
+    LoginToken: string;
+    Amount: string;
+    WalletAddress: string;
+    Remark: string;
+  }): Promise<ApiResponse> => {
+    return await fetchAPI('/withdrawusdt', data);
+  },
 };

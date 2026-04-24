@@ -473,6 +473,60 @@ This document serves as the high-fidelity specification for the Betting Platform
 
 ---
 
+## 🪙 8. USDT APIs
+
+### 61. Deposit (USDT) ✅
+**POST** `/depositusdt`
+- **Request:**
+  ```json
+  {
+    "LoginToken": "string",
+    "Amount": "string",
+    "usdt_ref": "string",
+    "Mime_type": "image/png | image/jpg",
+    "Screenshot": "base64_encoded_string",
+    "txhash": "string"
+  }
+  ```
+- **Success:** `{"error": "0", "msg": "USDT Request Send Successfully."}`
+- **Error:** `{"error": "1", "msg": "Amount cannot be blank"}`
+
+### 62. USDT Wallet Update ✅
+**POST** `/usdtwalletupdate`
+- **Request:**
+  ```json
+  {
+    "LoginToken": "string",
+    "Waddress": "string",
+    "Mime_type": "image/png | image/jpg",
+    "Screenshot": "base64_encoded_string"
+  }
+  ```
+- **Success:** `{"error": "0", "msg": "USDT Wallet Save Successfully."}`
+- **Error:** `{"error": "1", "msg": "USDT Wallet Save Problems."}`
+
+### 63. USDT Wallet (Fetch) ✅
+**POST** `/usdtwallet`
+- **Request:** `{"LoginToken": "string"}`
+- **Success:** `{"error": "0", "Waddress": "string", "WQr": "image_url"}`
+- **Error:** `{"error": "1", "msg": "Wallet Record Not Found"}`
+
+### 64. Withdraw (USDT) ✅
+**POST** `/withdrawusdt`
+- **Request:**
+  ```json
+  {
+    "LoginToken": "string",
+    "Amount": "string",
+    "WalletAddress": "string",
+    "Remark": "string"
+  }
+  ```
+- **Success:** `{"error": "0", "msg": "Withdraw Request Send Successfully."}`
+- **Error:** `{"error": "1", "msg": "Withdraw Request Failed"}`
+
+---
+
 ## 🧠 Developer Key Notes
 
 1. **Hash Signatures:** Required for every `POST`.
