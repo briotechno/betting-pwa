@@ -416,8 +416,24 @@ const MarketTable = ({
 
                 const handleAddBet = (odds: string, side: 'back' | 'lay') => {
                   if (isSuspended || !odds || odds === '-' || odds === '0' || odds === '0.00') return;
+                  
+                  // Selection name and side logic: Separate Line and Fancy
+                  let selName = runnerName;
+                  let effectiveSide = side;
+
+                  if (marketType === 'LINE') {
+                    // For Line markets: Left (back) is NO, Right (lay) is YES
+                    // We keep UI rates as is, but map the selection correctly
+                    selName = side === 'back' ? 'No' : 'Yes';
+                    effectiveSide = side === 'back' ? 'lay' : 'back';
+                  } else if (isFancyGroup) {
+                    // Fancy logic remains: Left (back) is YES, Right (lay) is NO
+                    selName = side === 'back' ? 'Yes' : 'No';
+                    effectiveSide = side;
+                  }
+
                   addSelection({
-                    id: `${mId}-${runnerId}-${side}`,
+                    id: `${mId}-${runnerId}-${effectiveSide}`,
                     min: rowMin ? parseFloat(rowMin) : undefined,
                     max: rowMax ? parseFloat(rowMax) : undefined,
                     matchId: eventId.toString(),
@@ -426,9 +442,9 @@ const MarketTable = ({
                     selectionId: runnerId.toString(),
                     matchName: matchName,
                     marketName: isFancyGroup ? runnerName : marketName,
-                    selectionName: isFancyGroup ? (side === 'back' ? 'Yes' : 'No') : runnerName,
+                    selectionName: selName,
                     odds: parseFloat(odds),
-                    betType: side,
+                    betType: effectiveSide,
                     marketType: (marketName.toUpperCase() === 'LINE MARKET' || marketType === 'LINE' || (isFancyGroup && marketName.toLowerCase().includes('line'))) ? 'LINE' : (isFancyGroup ? 'FANCY' : (marketType || 'ODDS')),
                     marketIndex: rIdx,
                     runnersCount: (Array.isArray(runners) ? runners.length : Object.keys(runners || {}).length),
