@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Removed because it breaks dynamic live match routing in Next.js
+  // output: 'export' removed — incompatible with async rewrites() and dynamic routes
   reactStrictMode: true,
   images: {
     remotePatterns: [
