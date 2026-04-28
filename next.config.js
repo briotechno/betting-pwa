@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export', // Removed because it breaks dynamic live match routing in Next.js
   reactStrictMode: true,
   images: {
     remotePatterns: [
